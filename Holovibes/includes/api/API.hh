@@ -73,12 +73,12 @@ class IApi
     // Take reference to parent in ctor
     IApi() {}
 
-    void set_api(Api& api) { api_ = api; }
+    void set_api(Api* api) { api_ = api; }
 
     virtual ~IApi() = default;
 
   protected:
-    Api& api_;
+    Api* api_;
 };
 
 } // namespace holovibes::api
@@ -111,17 +111,17 @@ class Api
 
     void init()
     {
-        composite.set_api(*this);
-        compute.set_api(*this);
-        contrast.set_api(*this);
-        filter2d.set_api(*this);
-        global_pp.set_api(*this);
-        information.set_api(*this);
-        input.set_api(*this);
-        record.set_api(*this);
-        transform.set_api(*this);
-        view.set_api(*this);
-        window_pp.set_api(*this);
+        composite.set_api(this);
+        compute.set_api(this);
+        contrast.set_api(this);
+        filter2d.set_api(this);
+        global_pp.set_api(this);
+        information.set_api(this);
+        input.set_api(this);
+        record.set_api(this);
+        transform.set_api(this);
+        view.set_api(this);
+        window_pp.set_api(this);
     }
 
   public:

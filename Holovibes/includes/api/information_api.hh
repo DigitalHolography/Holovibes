@@ -9,6 +9,7 @@
 namespace holovibes::api
 {
 class IApi;
+
 class InformationApi : public IApi
 {
 
@@ -16,74 +17,74 @@ class InformationApi : public IApi
 #pragma region Credits
 
     /*! \brief Authors of the project */
-    static std::vector<std::string> authors{"Titouan Gragnic",
-                                            "Arthur Courselle",
-                                            "Gustave Herve",
-                                            "Alexis Pinson",
-                                            "Etienne Senigout",
-                                            "Bastien Gaulier",
-                                            "Simon Riou",
+    static inline std::vector<std::string> authors{"Titouan Gragnic",
+                                                   "Arthur Courselle",
+                                                   "Gustave Herve",
+                                                   "Alexis Pinson",
+                                                   "Etienne Senigout",
+                                                   "Bastien Gaulier",
+                                                   "Simon Riou",
 
-                                            "Chloé Magnier",
-                                            "Noé Topeza",
-                                            "Maxime Boy-Arnould",
+                                                   "Chloé Magnier",
+                                                   "Noé Topeza",
+                                                   "Maxime Boy-Arnould",
 
-                                            "Oscar Morand",
-                                            "Paul Duhot",
-                                            "Thomas Xu",
-                                            "Jules Guillou",
-                                            "Samuel Goncalves",
-                                            "Edgar Delaporte",
+                                                   "Oscar Morand",
+                                                   "Paul Duhot",
+                                                   "Thomas Xu",
+                                                   "Jules Guillou",
+                                                   "Samuel Goncalves",
+                                                   "Edgar Delaporte",
 
-                                            "Adrien Langou",
-                                            "Julien Nicolle",
-                                            "Sacha Bellier",
-                                            "David Chemaly",
-                                            "Damien Didier",
+                                                   "Adrien Langou",
+                                                   "Julien Nicolle",
+                                                   "Sacha Bellier",
+                                                   "David Chemaly",
+                                                   "Damien Didier",
 
-                                            "Philippe Bernet",
-                                            "Eliott Bouhana",
-                                            "Fabien Colmagro",
-                                            "Marius Dubosc",
-                                            "Guillaume Poisson",
+                                                   "Philippe Bernet",
+                                                   "Eliott Bouhana",
+                                                   "Fabien Colmagro",
+                                                   "Marius Dubosc",
+                                                   "Guillaume Poisson",
 
-                                            "Anthony Strazzella",
-                                            "Ilan Guenet",
-                                            "Nicolas Blin",
-                                            "Quentin Kaci",
-                                            "Theo Lepage",
+                                                   "Anthony Strazzella",
+                                                   "Ilan Guenet",
+                                                   "Nicolas Blin",
+                                                   "Quentin Kaci",
+                                                   "Theo Lepage",
 
-                                            "Loïc Bellonnet-Mottet",
-                                            "Antoine Martin",
-                                            "François Te",
+                                                   "Loïc Bellonnet-Mottet",
+                                                   "Antoine Martin",
+                                                   "François Te",
 
-                                            "Ellena Davoine",
-                                            "Clement Fang",
-                                            "Danae Marmai",
-                                            "Hugo Verjus",
+                                                   "Ellena Davoine",
+                                                   "Clement Fang",
+                                                   "Danae Marmai",
+                                                   "Hugo Verjus",
 
-                                            "Eloi Charpentier",
-                                            "Julien Gautier",
-                                            "Florian Lapeyre",
+                                                   "Eloi Charpentier",
+                                                   "Julien Gautier",
+                                                   "Florian Lapeyre",
 
-                                            "Thomas Jarrossay",
-                                            "Alexandre Bartz",
+                                                   "Thomas Jarrossay",
+                                                   "Alexandre Bartz",
 
-                                            "Cyril Cetre",
-                                            "Clement Ledant",
+                                                   "Cyril Cetre",
+                                                   "Clement Ledant",
 
-                                            "Eric Delanghe",
-                                            "Arnaud Gaillard",
-                                            "Geoffrey Le Gourrierec",
+                                                   "Eric Delanghe",
+                                                   "Arnaud Gaillard",
+                                                   "Geoffrey Le Gourrierec",
 
-                                            "Jeffrey Bencteux",
-                                            "Thomas Kostas",
-                                            "Pierre Pagnoux",
+                                                   "Jeffrey Bencteux",
+                                                   "Thomas Kostas",
+                                                   "Pierre Pagnoux",
 
-                                            "Antoine Dillée",
-                                            "Romain Cancillière",
+                                                   "Antoine Dillée",
+                                                   "Romain Cancillière",
 
-                                            "Michael Atlan"};
+                                                   "Michael Atlan"};
 
     /*! \brief Gets the credits
      *

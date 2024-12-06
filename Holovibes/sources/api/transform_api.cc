@@ -10,8 +10,8 @@ bool TransformApi::set_batch_size(uint value)
     bool request_time_stride_update = false;
     UPDATE_SETTING(BatchSize, value);
 
-    if (value > api_.input.get_input_buffer_size())
-        value = api_.input.get_input_buffer_size();
+    if (value > api_->input.get_input_buffer_size())
+        value = api_->input.get_input_buffer_size();
 
     uint time_stride = get_time_stride();
     if (time_stride < value)
@@ -33,15 +33,15 @@ bool TransformApi::set_batch_size(uint value)
 
 void TransformApi::update_batch_size(uint batch_size)
 {
-    if (api_.input.get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
         batch_size = 1;
 
-    if (api_.input.get_import_type() == ImportType::None || get_batch_size() == batch_size)
+    if (api_->input.get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
     if (set_batch_size(batch_size))
-        api_.compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
+        api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
 }
 
 #pragma endregion
@@ -63,14 +63,14 @@ void TransformApi::set_time_stride(uint value)
 
 void TransformApi::update_time_stride(const uint time_stride)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw || api_.input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
 
     if (time_stride == get_time_stride())
         return;
 
     set_time_stride(time_stride);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
 #pragma endregion
@@ -79,25 +79,25 @@ void TransformApi::update_time_stride(const uint time_stride)
 
 void TransformApi::set_space_transformation(const SpaceTransformation value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw || get_space_transformation() == value)
+    if (api_->compute.get_compute_mode() == Computation::Raw || get_space_transformation() == value)
         return;
 
     UPDATE_SETTING(SpaceTransformation, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_lambda(float value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_z_distance(float value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     // Avoid 0 for cuda kernel
@@ -105,7 +105,7 @@ void TransformApi::set_z_distance(float value)
         value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -114,7 +114,7 @@ void TransformApi::set_z_distance(float value)
 
 void TransformApi::update_time_transformation_size(uint time_transformation_size)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw || api_.input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
 
     if (time_transformation_size == get_time_transformation_size())
@@ -124,17 +124,17 @@ void TransformApi::update_time_transformation_size(uint time_transformation_size
         time_transformation_size = 1;
 
     set_time_transformation_size(time_transformation_size);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
 }
 
 void TransformApi::set_time_transformation(const TimeTransformation value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw || get_time_transformation() == value)
+    if (api_->compute.get_compute_mode() == Computation::Raw || get_time_transformation() == value)
         return;
 
     UPDATE_SETTING(TimeTransformation, value);
-    api_.composite.set_z_fft_shift(value == TimeTransformation::STFT);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
+    api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
 }
 
 #pragma endregion
@@ -143,7 +143,7 @@ void TransformApi::set_time_transformation(const TimeTransformation value)
 
 void TransformApi::set_p_index(uint value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     if (value >= get_time_transformation_size() || value == 0)
@@ -153,25 +153,25 @@ void TransformApi::set_p_index(uint value)
     }
 
     SET_SETTING(P, start, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_p_accu_level(uint p_value)
 {
     SET_SETTING(P, width, p_value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_q_index(uint value)
 {
     SET_SETTING(Q, start, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_q_accu_level(uint value)
 {
     SET_SETTING(Q, width, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::check_p_limits()
@@ -207,7 +207,7 @@ void TransformApi::check_q_limits()
 void TransformApi::set_x_accu_level(uint x_value)
 {
     SET_SETTING(X, width, x_value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_x_cuts(uint value)
@@ -215,14 +215,14 @@ void TransformApi::set_x_cuts(uint value)
     if (value < get_fd().width)
     {
         SET_SETTING(X, start, value);
-        api_.compute.pipe_refresh();
+        api_->compute.pipe_refresh();
     }
 }
 
 void TransformApi::set_y_accu_level(uint y_value)
 {
     SET_SETTING(Y, width, y_value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_y_cuts(uint value)
@@ -230,22 +230,22 @@ void TransformApi::set_y_cuts(uint value)
     if (value < get_fd().height)
     {
         SET_SETTING(Y, start, value);
-        api_.compute.pipe_refresh();
+        api_->compute.pipe_refresh();
     }
 }
 
 void TransformApi::set_x_y(uint x, uint y)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw || api_.input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
 
-    if (x < api_.input.get_fd().width)
+    if (x < api_->input.get_fd().width)
         SET_SETTING(X, start, x);
 
-    if (y < api_.input.get_fd().height)
+    if (y < api_->input.get_fd().height)
         SET_SETTING(Y, start, y);
 
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -254,23 +254,23 @@ void TransformApi::set_x_y(uint x, uint y)
 
 void TransformApi::set_unwrapping_2d(const bool value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
-    api_.compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
-    api_.compute.pipe_refresh();
+    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    api_->compute.pipe_refresh();
 }
 
 void TransformApi::set_fft_shift_enabled(bool value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(FftShiftEnabled, value);
-    if (api_.global_pp.get_registration_enabled())
-        api_.compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    if (api_->global_pp.get_registration_enabled())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion

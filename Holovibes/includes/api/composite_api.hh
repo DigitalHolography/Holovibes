@@ -8,8 +8,8 @@
 
 namespace holovibes::api
 {
-
 class IApi;
+class Api;
 
 class CompositeApi : public IApi
 {

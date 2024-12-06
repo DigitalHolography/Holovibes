@@ -16,7 +16,7 @@ void RecordApi::set_record_mode_enum(RecordMode value)
     {
         try
         {
-            auto pipe = api_.compute.get_compute_pipe();
+            auto pipe = api_->compute.get_compute_pipe();
             if (is_recording())
                 stop_record();
 

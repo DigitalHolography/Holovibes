@@ -10,6 +10,8 @@
 namespace holovibes::api
 {
 class IApi;
+class Api;
+
 class GlobalPostProcessApi : public IApi
 {
 

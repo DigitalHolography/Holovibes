@@ -9,6 +9,8 @@
 namespace holovibes::api
 {
 class IApi;
+class Api;
+
 class Filter2dApi : public IApi
 {
 

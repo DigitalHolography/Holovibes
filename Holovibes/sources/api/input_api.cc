@@ -30,12 +30,12 @@ void InputApi::set_camera_kind_enum(CameraKind value) { UPDATE_SETTING(CameraKin
 
 void InputApi::camera_none()
 {
-    api_.compute.close_critical_compute();
+    api_->compute.close_critical_compute();
 
     Holovibes::instance().stop_frame_read();
 
     set_camera_kind_enum(CameraKind::NONE);
-    api_.compute.set_is_computation_stopped(true);
+    api_->compute.set_is_computation_stopped(true);
     set_import_type(ImportType::None);
 }
 
@@ -76,12 +76,12 @@ bool InputApi::import_start()
     LOG_FUNC();
 
     // Check if computation is currently running
-    if (!api_.compute.get_is_computation_stopped())
+    if (!api_->compute.get_is_computation_stopped())
         import_stop();
 
     // Because we are in file mode
     camera_none();
-    api_.compute.set_is_computation_stopped(false);
+    api_->compute.set_is_computation_stopped(false);
 
     // if the file is to be imported in GPU, we should load the buffer preset for such case
     if (get_load_file_in_gpu())
@@ -101,7 +101,7 @@ bool InputApi::import_start()
     }
 
     set_import_type(ImportType::File);
-    api_.record.set_record_mode(RecordMode::HOLOGRAM);
+    api_->record.set_record_mode(RecordMode::HOLOGRAM);
 
     return true;
 }
@@ -113,12 +113,12 @@ void InputApi::import_stop()
 
     LOG_FUNC();
 
-    api_.compute.close_critical_compute();
+    api_->compute.close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display();
 
-    api_.compute.set_is_computation_stopped(true);
+    api_->compute.set_is_computation_stopped(true);
     set_import_type(ImportType::None);
 }
 
@@ -142,7 +142,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
         // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
         // record
         auto input_buffer_size = get_input_buffer_size();
-        auto record_buffer_size = api_.record.get_record_buffer_size();
+        auto record_buffer_size = api_->record.get_record_buffer_size();
 
         // Import Compute Settings there before init_pipe to
         // Allocate correctly buffer
@@ -161,7 +161,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
         // update the buffer size with the old values to avoid InputApi::surcharging the gpu memory in case of big
         // buffers used when the file was recorded
         set_input_buffer_size(input_buffer_size);
-        api_.record.set_record_buffer_size(record_buffer_size);
+        api_->record.set_record_buffer_size(record_buffer_size);
 
         set_input_fd(input->get_frame_descriptor());
 
@@ -200,7 +200,7 @@ bool InputApi::set_camera_kind(CameraKind c, bool save)
     }
     try
     {
-        if (api_.compute.get_compute_mode() == Computation::Raw)
+        if (api_->compute.get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
 
         set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
@@ -226,7 +226,7 @@ bool InputApi::set_camera_kind(CameraKind c, bool save)
 
         set_camera_kind_enum(c);
         set_import_type(ImportType::Camera);
-        api_.compute.set_is_computation_stopped(false);
+        api_->compute.set_is_computation_stopped(false);
 
         if (save)
         {

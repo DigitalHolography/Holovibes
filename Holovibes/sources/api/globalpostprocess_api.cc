@@ -13,20 +13,20 @@ inline void GlobalPostProcessApi::set_convolution_enabled(bool value) { UPDATE_S
 
 void GlobalPostProcessApi::update_registration_zone(float value)
 {
-    if (!is_between(value, 0.f, 1.f) || api_.input.get_import_type() == ImportType::None)
+    if (!is_between(value, 0.f, 1.f) || api_->input.get_import_type() == ImportType::None)
         return;
 
     set_registration_zone(value);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
 void GlobalPostProcessApi::set_registration_enabled(bool value)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(RegistrationEnabled, value);
-    api_.compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
 #pragma endregion
@@ -36,7 +36,7 @@ void GlobalPostProcessApi::set_registration_enabled(bool value)
 void GlobalPostProcessApi::set_renorm_enabled(bool value)
 {
     UPDATE_SETTING(RenormEnabled, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -158,12 +158,12 @@ void GlobalPostProcessApi::load_convolution_matrix(std::string filename)
 
 void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value)
 {
-    if (api_.input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+    if (api_->input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
         !get_convolution_enabled())
         return;
 
     UPDATE_SETTING(DivideConvolutionEnabled, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -172,7 +172,7 @@ void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value)
 
 void GlobalPostProcessApi::enable_convolution(const std::string& filename)
 {
-    if (api_.input.get_import_type() == ImportType::None)
+    if (api_->input.get_import_type() == ImportType::None)
         return;
 
     set_convolution_file_name(filename);
@@ -180,13 +180,13 @@ void GlobalPostProcessApi::enable_convolution(const std::string& filename)
 
     if (filename.empty())
     {
-        api_.compute.pipe_refresh();
+        api_->compute.pipe_refresh();
         return;
     }
 
     try
     {
-        auto pipe = api_.compute.get_compute_pipe();
+        auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::Convolution);
         // Wait for the convolution to be enabled for notify
         while (pipe->is_requested(ICS::Convolution))
@@ -205,7 +205,7 @@ void GlobalPostProcessApi::disable_convolution()
     set_convolution_enabled(false);
     try
     {
-        auto pipe = api_.compute.get_compute_pipe();
+        auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::DisableConvolution);
         while (pipe->is_requested(ICS::DisableConvolution))
             continue;

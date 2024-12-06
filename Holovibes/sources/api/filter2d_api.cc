@@ -10,23 +10,23 @@ namespace holovibes::api
 
 void Filter2dApi::set_filter2d_enabled(bool checked)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(Filter2dEnabled, checked);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void Filter2dApi::set_filter2d_n1(int value)
 {
     UPDATE_SETTING(Filter2dN1, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 void Filter2dApi::set_filter2d_n2(int value)
 {
     UPDATE_SETTING(Filter2dN2, value);
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -57,7 +57,7 @@ void Filter2dApi::enable_filter(const std::string& filename)
     if (filename == get_filter_file_name())
         return;
 
-    if (!api_.compute.get_compute_pipe_no_throw())
+    if (!api_->compute.get_compute_pipe_no_throw())
         return;
 
     set_filter_file_name(filename);
@@ -69,7 +69,7 @@ void Filter2dApi::enable_filter(const std::string& filename)
     else
         load_input_filter(filename);
 
-    api_.compute.pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion

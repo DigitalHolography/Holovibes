@@ -9,6 +9,8 @@
 namespace holovibes::api
 {
 class IApi;
+class Api;
+
 class RecordApi : public IApi
 {
 
