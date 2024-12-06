@@ -47,7 +47,7 @@ inline void set_mp4_fps(uint value) { UPDATE_SETTING(Mp4Fps, value); }
 
 /*! \brief Return whether the frame recording is enabled or not.
  *
- * \return true if frame recording is enabled
+ * \return bool true if frame recording is enabled
  */
 inline bool get_frame_record_enabled() { return GET_SETTING(FrameRecordEnabled); }
 
@@ -118,7 +118,7 @@ inline void set_nb_frame_skip(uint value) { UPDATE_SETTING(FrameSkip, value); }
 
 /*! \brief Return whether the chart recording is enabled or not.
  *
- * \return true if chart recording is enabled
+ * \return bool true if chart recording is enabled
  */
 inline bool get_chart_record_enabled() { return GET_SETTING(ChartRecordEnabled); }
 
@@ -214,7 +214,7 @@ void stop_record();
 
 /*! \brief Return whether we are recording or not
  *
- * \return true if recording, else false
+ * \return bool true if recording, else false
  */
 bool is_recording();
 

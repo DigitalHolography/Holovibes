@@ -157,7 +157,7 @@ void set_input_file_end_index(size_t value);
  *
  * Will stop any computation currently running (camera or file loading).
  *
- * \return false on failure
+ * \return bool false on failure
  */
 bool import_start();
 
