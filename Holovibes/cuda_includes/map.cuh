@@ -246,6 +246,15 @@ void map_log10(float* const output, const float* const input, const size_t size,
 void map_divide(
     float* const output, const float* const input, const size_t size, const float value, const cudaStream_t stream);
 
+/*! \brief Divide every pixel of a float array by a value in place.
+ *
+ *  \param[in out] input_output The input_output buffer that will store the result after division application.
+ *  \param[in] size The size of an image.
+ *  \param[in] value The value to use for the division.
+ *  \param[in] stream The CUDA stream to parallelize the computations.
+ */
+void map_divide(float* const input_output, const size_t size, const float value, const cudaStream_t stream);
+
 /*! \brief Multiply every pixel of a float array by a value.
  *
  *  \param[out] output The output buffer after multiplication application.

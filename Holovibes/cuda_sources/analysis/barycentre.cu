@@ -1,6 +1,7 @@
 #include "tools_analysis.cuh"
 #include "cuda_memory.cuh"
 #include "tools_analysis_debug.hh"
+#include "map.cuh"
 
 #define CIRCLE_MASK_RADIUS 0.07f
 
@@ -47,13 +48,6 @@ __global__ void kernel_compute_multiplication_mean_optimized(
         atomicAdd(output + i, sdata[0]);
 }
 
-__global__ void kernel_divide(float* output, size_t denominator, uint depth)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < depth)
-        output[index] /= denominator;
-}
-
 void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -71,7 +65,7 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
         cudaCheckError();
     }
     blocks = map_blocks_to_problem(depth, threads);
-    kernel_divide<<<blocks, threads, 0, stream>>>(output, size, depth);
+    map_divide(output, depth, size, stream);
     cudaCheckError();
 }
 
