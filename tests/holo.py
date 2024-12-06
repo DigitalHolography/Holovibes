@@ -18,7 +18,7 @@ except:
 holo_header_version = 3
 holo_header_size = 64
 holo_header_padding_size = 35
-footer_exclude_path = []# Example with ["root['compute_settings']['image_rendering']['space_transformation']"]
+footer_exclude_path = [] #["root['compute_settings']['image_rendering']['space_transformation']", "root['compute_settings']['view']['registration']"]
 
 struct_format = (
     '='

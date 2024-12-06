@@ -11,6 +11,7 @@
 #include "frame_desc.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include <map>
 
@@ -182,7 +183,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_filter2d(checked);
+    api::set_filter2d_enabled(checked);
 
     if (checked)
     {
@@ -282,11 +283,12 @@ void ImageRenderingPanel::set_z_distance(const double value)
 
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
+    ui_->ZDoubleSpinBox->setValue(value);
 }
 
-void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
+void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() * 1000 + z_step_); }
 
-void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
+void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() * 1000 - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
@@ -310,7 +312,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api::set_divide_convolution(value);
+    api::set_divide_convolution_enabled(value);
     parent_->notify();
 }
 

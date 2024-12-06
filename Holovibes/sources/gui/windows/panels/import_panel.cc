@@ -10,6 +10,7 @@
 #include "input_frame_file_factory.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
 namespace api = ::holovibes::api;

@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.1.0
+
+- Restucuration of the API
+
 ### 14.0.2
 
 - Registration is fixed:

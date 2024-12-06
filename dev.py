@@ -255,7 +255,7 @@ def build_ref(args: GoalArgs) -> int:
         if not os.path.isfile(config):
             config = None
 
-        for file in find_files(path, "[0-9]*_" + REF_FILENAME):
+        for file in find_files(path, "R_" + REF_FILENAME):
             os.remove(os.path.join(path, file))
 
         if os.path.isfile(ref_error):
