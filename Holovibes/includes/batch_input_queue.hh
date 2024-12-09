@@ -54,20 +54,13 @@ class BatchInputQueue final : public DisplayQueue
      * The producer is in the critical while enqueueing in a batch
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
-     */
-    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
-
-    /*! \brief Enqueue a frame in the queue
      *
-     * Called by the producer.
-     * The producer is in the critical while enqueueing in a batch
-     * and exit this critical section when a batch of frames is full
-     * in order to let the resize occure if needed.
-     *
-     * \param input_frame Pointer to the frame buffers
-     * \param nb_frame Number of frames to enqueue
+     * \param frames Pointer to the frame buffers
+     * \param nb_frame Number of frames to enqueue (default = 1)
      */
-    void enqueue_multiple(const void* const frames, const int nb_frame, const cudaMemcpyKind memcpy_kind);
+    void enqueue(const void* const frames,
+                 const int nb_frame = 1,
+                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
