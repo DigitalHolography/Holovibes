@@ -120,6 +120,9 @@ class Analysis
     /*! \brief Insert both masks*/
     void insert_vesselness();
 
+    /*! \brief Insert chart compute*/
+    void insert_chart();
+
     /*! \brief Getter for the mask result buffer */
     float* get_mask_result();
 
