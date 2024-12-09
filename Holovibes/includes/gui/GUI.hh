@@ -83,6 +83,12 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size);
  */
 void set_chart_display(bool enabled);
 
+/*! \brief Open or close the analysis plot window to display data means
+ *
+ * \param[in] enabled true: enable, false: disable
+ */
+void set_analysis_chart_display(bool enabled);
+
 /*! \brief Open or close the 3D cuts view
  *
  * \param[in] enabled true: open, false: close

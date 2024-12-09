@@ -19,6 +19,7 @@
 
 // namespace gui
 #include "AdvancedSettingsWindow.hh"
+#include "AnalysisPlotWindow.hh"
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
@@ -52,6 +53,7 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::RawWindow> raw_window = nullptr;
     std::unique_ptr<::holovibes::gui::Filter2DWindow> filter2d_window = nullptr;
     std::unique_ptr<::holovibes::gui::PlotWindow> plot_window_ = nullptr;
+    std::unique_ptr<::holovibes::gui::AnalysisPlotWindow> analysis_plot_window_ = nullptr;
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
     size_t auto_scale_point_threshold_ = 100;

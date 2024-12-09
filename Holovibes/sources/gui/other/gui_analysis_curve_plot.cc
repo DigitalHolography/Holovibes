@@ -1,0 +1,176 @@
+#include "gui_analysis_curve_plot.hh"
+#include "PlotWindow.hh"
+
+#define WIDTH 600
+#define HEIGHT 300
+#define TOP_OFFSET 30
+#define SIZE_OFFSET 20
+#define TIMER_FREQ 40
+#define POINTS 200
+
+namespace holovibes::gui
+{
+AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<double>& data_vect,
+                                     const size_t auto_scale_point_threshold,
+                                     const QString title,
+                                     const unsigned int width,
+                                     const unsigned int height,
+                                     QWidget* parent)
+    : QWidget(parent)
+    , data_vect_(data_vect)
+    , points_nb_(POINTS)
+    , timer_(this)
+    , curve_get_([](const double& data) { return data; })
+    , auto_scale_point_threshold_(auto_scale_point_threshold)
+    , auto_scale_curr_points_(0)
+{
+    line_series = new QLineSeries();
+    chart = new QChart();
+    chart_view = new QChartView(chart, parent);
+
+    chart->setTheme(QChart::ChartTheme::ChartThemeDark);
+    line_series->setColor(QColor::fromRgb(255, 255, 255));
+
+    chart->legend()->hide();
+    chart->addSeries(line_series);
+    chart->createDefaultAxes();
+
+    // reverse the x axis
+    // chart->axisX()->setRange(0, points_nb_);
+    // chart->axisX()->setReverse(true);
+
+    // FIXME axisX is deprecated, axes returns a list of axes, we take the first horizontal, verify ?
+    chart->axes(Qt::Horizontal).front()->setRange(0, points_nb_);
+    chart->axes(Qt::Horizontal).front()->setReverse(true);
+
+    chart->setTitle(title);
+
+    chart_view->setRenderHint(QPainter::Antialiasing);
+    chart_view->move(0, TOP_OFFSET);
+
+    chart_vector_.resize(points_nb_);
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
+    timer_.start(TIMER_FREQ);
+}
+
+AnalysisCurvePlot::~AnalysisCurvePlot()
+{
+    delete line_series;
+    delete chart;
+    delete chart_view;
+}
+
+void AnalysisCurvePlot::change_curve(int curve_to_plot)
+{
+    // TODO later
+    curve_get_ = [](const double& data) { return data; };
+}
+
+QSize AnalysisCurvePlot::minimumSizeHint() const { return QSize(WIDTH, HEIGHT); }
+
+QSize AnalysisCurvePlot::sizeHint() const { return QSize(WIDTH, HEIGHT); }
+
+void AnalysisCurvePlot::resize_plot(const int size)
+{
+    points_nb_ = size;
+    chart_vector_.resize(size);
+    // chart->axisX()->setMax(QVariant(points_nb_)); // warning C4996: 'QChart::axisX': was declared deprecated
+
+    chart->axes(Qt::Horizontal).front()->setMax(QVariant(points_nb_));
+}
+
+void AnalysisCurvePlot::resizeEvent(QResizeEvent* e)
+{
+    chart_view->resize(e->size().width() + SIZE_OFFSET, e->size().height() + SIZE_OFFSET);
+}
+
+void AnalysisCurvePlot::load_data_vector()
+{
+    QList<QPointF> new_data;
+
+    if (!data_vect_.empty())
+    {
+        size_t copied_elts_nb = data_vect_.fill_array(chart_vector_, points_nb_);
+        new_data.reserve(static_cast<int>(copied_elts_nb));
+
+        ++auto_scale_curr_points_;
+
+        for (size_t i = 0; i < copied_elts_nb; ++i)
+        {
+            float x = i;
+            float y = curve_get_(chart_vector_[i]);
+            new_data.push_back(QPointF(x, y));
+        }
+
+        if (auto_scale_curr_points_ > auto_scale_point_threshold_)
+        {
+            auto_scale_curr_points_ -= auto_scale_point_threshold_;
+            auto_scale();
+        }
+    }
+
+    line_series->replace(new_data);
+}
+
+void AnalysisCurvePlot::auto_scale()
+{
+    std::vector<double> tmp = chart_vector_;
+
+    auto minmax =
+        std::minmax_element(tmp.cbegin(),
+                            tmp.cend(),
+                            [&](const double& lhs, const double& rhs) { return curve_get_(lhs) < curve_get_(rhs); });
+
+    double min = curve_get_(*(minmax.first));
+    double max = curve_get_(*(minmax.second));
+    double offset = (max - min) / 10.0;
+
+    // chart->axisY()->setRange(min - offset, max + offset);
+
+    // FIXME axisY is deprecated, we take first vertical axis, verify
+    chart->axes(Qt::Vertical).front()->setRange(min - offset, max + offset);
+}
+
+void AnalysisCurvePlot::start() { timer_.start(TIMER_FREQ); }
+
+void AnalysisCurvePlot::stop()
+{
+    if (timer_.isActive())
+        timer_.stop();
+}
+
+void AnalysisCurvePlot::set_points_nb(const unsigned int n)
+{
+    stop();
+    resize_plot(n);
+    start();
+}
+
+void AnalysisCurvePlot::update()
+{
+    load_data_vector();
+    while (data_vect_.size() > points_nb_)
+        data_vect_.pop_front();
+}
+
+void AnalysisCurvePlot::toggle_dark_mode(bool dark_mode)
+{
+    auto theme = QChart::ChartTheme::ChartThemeLight;
+    auto line_color = QColor::fromRgb(0, 0, 0);
+
+    if (dark_mode)
+    {
+        theme = QChart::ChartTheme::ChartThemeDark;
+        line_color = QColor::fromRgb(255, 255, 255);
+    }
+
+    chart->setTheme(theme);
+    line_series->setColor(line_color);
+}
+} // namespace holovibes::gui
+#undef WIDTH
+#undef HEIGHT
+#undef TOP_OFFSET
+#undef SIZE_OFFSET
+#undef TIMER_FREQ
+#undef POINTS

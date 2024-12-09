@@ -62,6 +62,7 @@ qt_add_executable(Holovibes
     ${CUDA_HEADERS}
     assets/ui/mainwindow.ui
     assets/ui/advancedsettingswindow.ui
+    assets/ui/analysisplotwindow.ui
     assets/ui/plotwindow.ui
     assets/ui/lightui.ui
     assets/icons/Holovibes.ico
@@ -247,7 +248,7 @@ if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     )
 endif()
 
-if (HAVE_EGrabber AND HAVE_EGrabbers)
+if(HAVE_EGrabber AND HAVE_EGrabbers)
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
@@ -268,7 +269,7 @@ if(HAVE_VIMBAX)
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
-        )
+    )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
@@ -322,6 +323,7 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
 set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
 set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
+
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}

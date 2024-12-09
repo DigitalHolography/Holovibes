@@ -51,6 +51,8 @@ class AnalysisPanel : public Panel
 
     void set_bw_area_filter(bool enabled);
     void set_bw_area_open(bool enabled);
+
+    void show_chart();
     // private:
 };
 } // namespace holovibes::gui

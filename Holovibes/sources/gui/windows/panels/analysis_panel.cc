@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 namespace api = ::holovibes::api;
 
@@ -136,4 +137,6 @@ void AnalysisPanel::set_bw_area_open(bool enabled)
 
     this->on_notify(); // Same thing here
 }
+
+void AnalysisPanel::show_chart() { gui::set_analysis_chart_display(true); }
 } // namespace holovibes::gui

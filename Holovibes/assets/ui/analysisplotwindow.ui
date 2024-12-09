@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AnalysisPlotWindow</class>
+ <widget class="QMainWindow" name="AnalysisPlotWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Signal chart</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>141</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="headerLayout">
+     <item>
+      <widget class="QLabel" name="PointsNbLabel">
+       <property name="text">
+        <string>Points nb:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="PointsNbSpinBox">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>1000000</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QComboBox" name="CurveNameComboBox">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>10</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="currentText">
+     <string>Average Signal</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>Average Signal</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Average Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Average Signal/ Average Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10log10(Average Signal/ Average Noise)</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal / Average Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal / Average Signal</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>PointsNbSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPlotWindow</receiver>
+   <slot>change_points_nb(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>210</x>
+     <y>-25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CurveNameComboBox</sender>
+   <signal>activated(int)</signal>
+   <receiver>AnalysisPlotWindow</receiver>
+   <slot>change_curve(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>335</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>auto_scale()</slot>
+  <slot>change_points_nb(int)</slot>
+  <slot>change_curve(int)</slot>
+  <slot>toggle_dark_mode()</slot>
+ </slots>
+</ui>

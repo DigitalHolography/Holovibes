@@ -203,6 +203,17 @@ void set_chart_display(bool enabled)
         UI.plot_window_.reset(nullptr);
 }
 
+void set_analysis_chart_display(bool enabled)
+{
+    if (enabled)
+        UI.analysis_plot_window_.reset(
+            new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
+                                        UI.auto_scale_point_threshold_,
+                                        "Vessels means"));
+    else
+        UI.plot_window_.reset(nullptr);
+}
+
 void set_3d_cuts_view(bool enabled, uint max_window_size)
 {
     if (enabled)
