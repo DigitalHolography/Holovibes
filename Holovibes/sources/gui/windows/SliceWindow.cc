@@ -205,5 +205,6 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
     api::change_window(kView == KindOfView::SliceXZ ? WindowKind::XZview : WindowKind::YZview);
+    NotifierManager::notify("notify", true);
 }
 } // namespace holovibes::gui

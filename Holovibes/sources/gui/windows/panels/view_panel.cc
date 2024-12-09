@@ -116,7 +116,13 @@ void ViewPanel::on_notify()
 
     // If one view gets disabled set to the standard XY view
     int index = static_cast<int>(api::get_current_window_type());
-    window_selection->setCurrentIndex(window_slection_view->isRowHidden(index) ? 0 : index);
+    if (window_slection_view->isRowHidden(index))
+    {
+        index = 0;
+        parent_->change_window(index);
+    }
+
+    window_selection->setCurrentIndex(index);
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
