@@ -607,7 +607,7 @@ inline void set_min_mask_area(int value) { return UPDATE_SETTING(MinMaskArea, va
 inline float get_diaphragm_factor() { return GET_SETTING(DiaphragmFactor); }
 inline void set_diaphragm_factor(float value)
 {
-    value = value > 1000 ? 1000 : (value < 0 ? 0 : value);
+    value = value > 1.0f ? 1.0f : (value < 0 ? 0 : value);
     return UPDATE_SETTING(DiaphragmFactor, value);
 }
 inline bool get_diaphragm_preview_enabled() { return GET_SETTING(DiaphragmPreviewEnabled); }
@@ -616,7 +616,7 @@ inline void set_diaphragm_preview_enabled(bool value) { return UPDATE_SETTING(Di
 inline float get_barycenter_factor() { return GET_SETTING(BarycenterFactor); }
 inline void set_barycenter_factor(float value)
 {
-    value = value > 1000 ? 1000 : (value < 0 ? 0 : value);
+    value = value > 1.0f ? 1.0f : (value < 0 ? 0 : value);
     return UPDATE_SETTING(BarycenterFactor, value);
 }
 inline bool get_barycenter_preview_enabled() { return GET_SETTING(BarycenterPreviewEnabled); }
