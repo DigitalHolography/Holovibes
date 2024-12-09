@@ -19,23 +19,18 @@ __global__ void kernel_compute_multiplication_mean(float* output, float* A, floa
 __global__ void kernel_compute_multiplication_mean_optimized(
     float* output, const float* A, const float* B, size_t size, uint depth, size_t i)
 {
-    // Création de la mémoire partagée pour la réduction locale
     extern __shared__ float sdata[];
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     const uint thread_id = threadIdx.x;
 
-    // Initialisation locale des résultats
     float temp = 0.0f;
 
-    // Accéder aux données de manière coalescente si possible
     if (index < size)
         temp = A[index + i * size] * B[index];
 
-    // Réduction parallèle dans la mémoire partagée
     sdata[thread_id] = temp;
     __syncthreads();
 
-    // Réduction en utilisant l'arbre binaire
     for (uint s = blockDim.x / 2; s > 0; s >>= 1)
     {
         if (thread_id < s)
@@ -43,7 +38,6 @@ __global__ void kernel_compute_multiplication_mean_optimized(
         __syncthreads();
     }
 
-    // Le thread 0 écrit le résultat partiel
     if (thread_id == 0)
         atomicAdd(output + i, sdata[0]);
 }

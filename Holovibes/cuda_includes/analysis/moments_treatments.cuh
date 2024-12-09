@@ -1,16 +1,20 @@
-/*! \file
+/*! \file moments_treatments.cuh
  *
- * \brief #TODO Add a description for this file
+ * \brief Contains functions dedicated to the mean and centering computations on moments
  */
 #pragma once
 
 #include <cuda_runtime.h>
 
-void add_frame_to_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream);
+// add_frame_to_sum and subtract_frame_from_sum are generic add and subtract two matrixes functions, we don't use
+// cublasSgamm because we want to do it in place
+// TODO: make these functions generic and put them in the right place, use cublasSgamm ? (by adding a computation buffer
+// in circular_video_buffer)
+void add_frame_to_sum(float* const input_output, const float* const input, const size_t size, cudaStream_t stream);
 
-void subtract_frame_from_sum(const float* const new_frame,
+void subtract_frame_from_sum(float* const input_output,
+                             const float* const input,
                              const size_t size,
-                             float* const sum_image,
                              cudaStream_t stream);
 
 void compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size, cudaStream_t stream);

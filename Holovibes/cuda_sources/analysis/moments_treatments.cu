@@ -3,40 +3,43 @@
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
 
-__global__ void kernel_add_frame_to_sum(const float* const new_frame, const size_t frame_size, float* const sum_image)
+static __global__ void
+kernel_add_frame_to_sum(float* const input_output, const float* const input, const size_t frame_size)
 {
-    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < frame_size)
-        sum_image[idx] += new_frame[idx];
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < frame_size)
+        input_output[index] += input[index];
 }
 
-void add_frame_to_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream)
+void add_frame_to_sum(float* const input_output, const float* const input, const size_t size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    kernel_add_frame_to_sum<<<blocks, threads, 0, stream>>>(new_frame, size, sum_image);
+    kernel_add_frame_to_sum<<<blocks, threads, 0, stream>>>(input_output, input, size);
     cudaCheckError();
 }
 
-__global__ void kernel_subtract_frame_from_sum(const float* old_frame, const size_t frame_size, float* const sum_image)
+static __global__ void
+kernel_subtract_frame_from_sum(float* const input_output, const float* const input, const size_t frame_size)
 {
-    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < frame_size)
-        sum_image[idx] -= old_frame[idx];
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < frame_size)
+        input_output[index] -= input[index];
 }
 
-void subtract_frame_from_sum(const float* const new_frame,
+void subtract_frame_from_sum(float* const input_output,
+                             const float* const input,
                              const size_t size,
-                             float* const sum_image,
                              cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    kernel_subtract_frame_from_sum<<<blocks, threads, 0, stream>>>(new_frame, size, sum_image);
+    kernel_subtract_frame_from_sum<<<blocks, threads, 0, stream>>>(input_output, input, size);
     cudaCheckError();
 }
 
-__global__ void kernel_compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size)
+static __global__ void
+kernel_compute_mean(float* const output, const float* const input, const size_t time_window, const size_t frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)

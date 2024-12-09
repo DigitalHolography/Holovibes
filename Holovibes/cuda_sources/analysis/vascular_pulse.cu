@@ -108,7 +108,7 @@ __global__ void kernel_compute_mean(
         for (int z = 0; z < depth; z++)
         {
             int idx_video = z * size + index;
-            int idx_pulse = z; // puisque vascularPulse_centered est 1x1xDEPTH
+            int idx_pulse = z; // vascularPulse_centered is 1x1xDEPTH
             sum += M0_ff_video_centered[idx_video] * vascularPulse_centered[idx_pulse];
         }
         result[index] = sum / depth;
