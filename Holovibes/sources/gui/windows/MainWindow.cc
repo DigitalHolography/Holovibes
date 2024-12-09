@@ -20,10 +20,9 @@
 
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include "view_struct.hh"
-
-#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
 {
@@ -184,7 +183,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
 
-    if (api::get_yz_enabled() and api::get_xz_enabled())
+    if (api::get_enabled(WindowKind::YZview) && api::get_enabled(WindowKind::XZview))
         ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
@@ -198,16 +197,16 @@ MainWindow::~MainWindow()
 {
     ui_->menuSelect_preset->clear();
 
-    api::close_windows();
+    gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none();
+    api::set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Notify
 void MainWindow::synchronize_thread(std::function<void()> f)
 {
@@ -296,7 +295,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
+static void handle_accumulation_exception() { api::set_accumulation_level(WindowKind::XYview, 1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -310,7 +309,7 @@ void MainWindow::notify_error(const std::exception& e)
             {
                 // notify will be in close_critical_compute
                 api::handle_update_exception();
-                api::close_windows();
+                gui::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
@@ -373,10 +372,13 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
+void MainWindow::documentation()
+{
+    QDesktopServices::openUrl(QUrl(QString::fromStdString(api::get_documentation_url())));
+}
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Json
 
 void MainWindow::write_compute_settings() { api::save_compute_settings(); }
@@ -504,7 +506,7 @@ void MainWindow::load_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
-    bool is_camera = api::change_camera(camera);
+    bool is_camera = api::set_camera_kind(camera);
 }
 
 void MainWindow::set_preset_file_on_gpu()
@@ -564,7 +566,7 @@ void MainWindow::save_gui()
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Close Compute
 
 void MainWindow::closeEvent(QCloseEvent*)
@@ -573,19 +575,20 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
-    api::camera_none();
+    gui::close_windows();
+    api::set_camera_kind(CameraKind::NONE, false);
     Logger::flush();
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Cameras
 
 void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
 
-    if (api::change_camera(c))
+    if (api::set_camera_kind(c))
     {
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
@@ -623,7 +626,10 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera() { api::configure_camera(); }
+void MainWindow::configure_camera()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api::get_camera_ini_name())));
+}
 
 void open_file(const std::string& filename)
 {
@@ -665,35 +671,31 @@ void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_eur
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Image Mode
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None || api::get_compute_mode() == Computation::Raw)
-        return;
-
-    const std::string& value_str = value.toStdString();
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (img_type == api::get_img_type())
-        return;
 
-    // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
-    if (img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite)
-        api::refresh_view_mode(window_max_size, img_type);
+    bool composite = img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
 
-    api::set_view_mode(img_type);
+    if (api::set_view_mode(img_type) == ApiCode::OK)
+    {
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
+        if (composite)
+            gui::refresh_window(window_max_size);
 
-    notify();
+        notify();
+    }
 }
 
 #pragma endregion
 
-/* ------------ */
-
 void MainWindow::change_window(int index)
 {
-    api::change_window(index);
+    api::change_window(static_cast<WindowKind>(index));
 
     notify();
 }
@@ -707,7 +709,7 @@ void MainWindow::start_import(QString filename)
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Advanced
 
 void MainWindow::open_advanced_settings()
@@ -763,7 +765,6 @@ void MainWindow::reset_settings()
 
 #pragma endregion
 
-/* ------------ */
 #pragma region UI
 
 void MainWindow::shift_screen()
@@ -785,7 +786,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
@@ -841,7 +842,6 @@ void MainWindow::init_tooltips()
 
 #pragma endregion
 
-/* ------------ */
 #pragma region Themes
 
 void MainWindow::set_night()

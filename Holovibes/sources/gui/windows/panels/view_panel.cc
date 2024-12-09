@@ -14,6 +14,7 @@
 
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -68,6 +69,7 @@ void ViewPanel::update_img_type(int img_type)
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_data_not_moments = !(api::get_data_type() == RecordedDataType::MOMENTS);
 
     update_img_type(static_cast<int>(api::get_img_type()));
 
@@ -75,8 +77,8 @@ void ViewPanel::on_notify()
                                            api::get_img_type() == ImgType::Argument);
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
-    ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
-                                                    MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
+    ui_->TimeTransformationCutsCheckBox->setEnabled(
+        ui_->timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_TIME_TRANSFORMATION_CUTS && is_data_not_moments);
 
     ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
     ui_->FFTShiftCheckBox->setEnabled(true);
@@ -87,9 +89,10 @@ void ViewPanel::on_notify()
     ui_->RegistrationZoneSpinBox->setValue(api::get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
+    ui_->LensViewCheckBox->setEnabled(is_data_not_moments);
 
-    ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
+    ui_->RawDisplayingCheckBox->setEnabled(!is_raw && is_data_not_moments);
 
     // Contrast
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
@@ -107,8 +110,8 @@ void ViewPanel::on_notify()
 
     // Enable only row that are actually displayed on the screen
     QListView* window_slection_view = qobject_cast<QListView*>(window_selection->view());
-    window_slection_view->setRowHidden(1, !api::get_xz_enabled());
-    window_slection_view->setRowHidden(2, !api::get_yz_enabled());
+    window_slection_view->setRowHidden(1, !api::get_enabled(WindowKind::XZview));
+    window_slection_view->setRowHidden(2, !api::get_enabled(WindowKind::YZview));
     window_slection_view->setRowHidden(3, !api::get_filter2d_view_enabled());
 
     // If one view gets disabled set to the standard XY view
@@ -164,6 +167,8 @@ void ViewPanel::on_notify()
     ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease &&
                                  api::get_img_type() != ImgType::Composite);
+    ui_->PAccSpinBox->setVisible(is_data_not_moments);
+    ui_->PAccLabel->setVisible(is_data_not_moments);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
@@ -171,13 +176,16 @@ void ViewPanel::on_notify()
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
     ui_->PSpinBox->setEnabled(!is_raw && api::get_img_type() != ImgType::Composite);
+    ui_->PSpinBox->setVisible(is_data_not_moments);
+    ui_->PLabel->setVisible(is_data_not_moments);
 
     // q accu
-    bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
-    ui_->Q_AccSpinBox->setVisible(is_ssa_stft && !is_raw);
-    ui_->Q_SpinBox->setVisible(is_ssa_stft && !is_raw);
-    ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
-    ui_->QaccLabel->setVisible(is_ssa_stft && !is_raw);
+    bool is_q_visible =
+        api::get_time_transformation() == TimeTransformation::SSA_STFT && !is_raw && is_data_not_moments;
+    ui_->Q_AccSpinBox->setVisible(is_q_visible);
+    ui_->Q_SpinBox->setVisible(is_q_visible);
+    ui_->Q_Label->setVisible(is_q_visible);
+    ui_->QaccLabel->setVisible(is_q_visible);
 
     // Deactivate previous maximum (chetor + unused)
     ui_->Q_SpinBox->setMaximum(INT_MAX);
@@ -200,8 +208,8 @@ void ViewPanel::on_notify()
     int max_height = 0;
     if (api::get_input_queue() != nullptr)
     {
-        max_width = api::get_input_queue_fd_width() - 1;
-        max_height = api::get_input_queue_fd_height() - 1;
+        max_width = api::get_fd().width - 1;
+        max_height = api::get_fd().height - 1;
     }
     else
         api::set_x_y(0, 0);
@@ -323,25 +331,25 @@ void ViewPanel::set_q_acc()
     parent_->notify();
 }
 
-void ViewPanel::rotateTexture()
+void ViewPanel::rotate_texture()
 {
-    api::rotateTexture();
+    gui::rotate_texture();
     parent_->notify(); // Update rotate number
 }
 
-void ViewPanel::flipTexture()
+void ViewPanel::flip_texture()
 {
-    api::flipTexture();
+    gui::flip_texture();
     parent_->notify(); // Update flip number
 }
 
-void ViewPanel::set_log_scale(const bool value) { api::set_log_scale(value); }
+void ViewPanel::set_log_enabled(const bool value) { api::set_log_enabled(value); }
 
 void ViewPanel::set_accumulation_level(int value) { api::set_accumulation_level(value); }
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    api::set_contrast_mode(value);
+    api::set_contrast_enabled(value);
     parent_->notify();
 }
 
@@ -357,15 +365,16 @@ void ViewPanel::set_contrast_min(const double value) { api::set_contrast_min(val
 
 void ViewPanel::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
-void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }
+void ViewPanel::toggle_renormalize(bool value) { api::set_renorm_enabled(value); }
 
 void ViewPanel::display_reticle(bool value)
 {
-    api::display_reticle(value);
+    api::set_reticle_display_enabled(value);
+    gui::set_reticle_overlay_visible(value);
     parent_->notify();
 }
 
-void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
+void ViewPanel::reticle_scale(double value) { api::set_reticle_scale(value); }
 
 void ViewPanel::update_registration_zone(double value)
 {

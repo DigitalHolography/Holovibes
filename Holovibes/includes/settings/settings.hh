@@ -20,6 +20,7 @@
 #include "enum/enum_device.hh"
 #include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
+#include "frame_desc.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -41,6 +42,7 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+DECLARE_SETTING(ImportedFileFd, camera::FrameDescriptor);
 
 DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);
@@ -71,7 +73,7 @@ DECLARE_SETTING(RecordMode, holovibes::RecordMode);
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */
-DECLARE_SETTING(RecordFrameSkip, size_t);
+DECLARE_SETTING(RecordFrameOffset, size_t);
 
 /*! \brief The setting that specifies the size of the output buffer. */
 DECLARE_SETTING(OutputBufferSize, size_t);
@@ -107,6 +109,7 @@ DECLARE_SETTING(Filter2dN1, int);
 DECLARE_SETTING(Filter2dN2, int);
 DECLARE_SETTING(Filter2dSmoothLow, int);
 DECLARE_SETTING(Filter2dSmoothHigh, int);
+DECLARE_SETTING(FilterFileName, std::string);
 
 /*! \name FileReadCache */
 /*!
@@ -148,9 +151,12 @@ DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
+
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
+DECLARE_SETTING(ConvolutionFileName, std::string);
+
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);
@@ -167,9 +173,6 @@ DECLARE_SETTING(NoiseZone, units::RectFd);
 
 /*! \brief The area on which we'll normalize the colors */
 DECLARE_SETTING(CompositeZone, units::RectFd);
-
-/*! \brief The area used to limit the stft computations */
-DECLARE_SETTING(ZoomedZone, units::RectFd);
 
 /*! \brief The zone of the reticle area */
 DECLARE_SETTING(ReticleZone, units::RectFd);

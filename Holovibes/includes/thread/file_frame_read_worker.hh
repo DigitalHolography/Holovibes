@@ -1,6 +1,6 @@
-/*! \file
+/*! \file file_frame_read_worker.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This worker handles the reading of frames from a file.
  */
 #pragma once
 
@@ -28,8 +28,8 @@
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
 #include "fast_updates_holder.hh"
-#include "utils/custom_type_traits.hh"
-#include "utils/fps_limiter.hh"
+#include "custom_type_traits.hh"
+#include "fps_limiter.hh"
 #include <optional>
 #include "logger.hh"
 

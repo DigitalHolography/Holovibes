@@ -16,8 +16,10 @@ set(EXTERNAL_INCLUDES
 set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
-    includes/state/
+    includes/api/
+    includes/cli/
     includes/compute/
+    includes/data_struct/
     includes/core/
     includes/enum/
     includes/struct/
@@ -30,7 +32,9 @@ set(INTERNAL_INCLUDES
     includes/gui/windows/panels/
     includes/gui/windows/AdvancedSettingsWindowTools
     includes/gui/windows/AdvancedSettingsWindowTools/panels
-    includes/io_files/
+    includes/io/
+    includes/io/input_file/
+    includes/io/output_file/
     includes/thread/
     includes/tools/
     includes/tools/cuda_tools/
@@ -38,6 +42,7 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
     includes/tools/logger/
+    includes/tools/state/
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )
@@ -173,8 +178,11 @@ add_custom_command(TARGET Holovibes POST_BUILD
     # Copy Preset files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/registration.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/registration.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
-    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_27.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_27.json
-    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_40.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_384_27.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_384_27.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_256_25.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_256_25.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_512_40.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_1024_768_120.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_1024_768_120.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_1280_800_130.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_1280_800_130.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/preset.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
 )

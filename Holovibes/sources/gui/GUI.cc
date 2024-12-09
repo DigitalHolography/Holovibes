@@ -10,6 +10,121 @@
 namespace holovibes::gui
 {
 
+void set_light_ui_mode(bool value)
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+    j_us["light_ui"] = value;
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
+}
+
+bool is_light_ui_mode()
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    return json_get_or_default(j_us, false, "light_ui");
+}
+
+QPoint getSavedHoloWindowPos()
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int x = json_get_or_default(j_us, 0, "holo window", "x");
+    int y = json_get_or_default(j_us, 0, "holo window", "y");
+    return QPoint(x, y);
+}
+
+QSize getSavedHoloWindowSize(ushort& width, ushort& height)
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int final_width = json_get_or_default(j_us, width, "holo window", "width");
+    int final_height = json_get_or_default(j_us, height, "holo window", "height");
+    return QSize(final_width, final_height);
+}
+
+void close_windows()
+{
+    if (UI.mainDisplay.get() != nullptr)
+        UI.mainDisplay.get()->save_gui("holo window");
+
+    UI.mainDisplay.reset(nullptr);
+    UI.sliceXZ.reset(nullptr);
+    UI.sliceYZ.reset(nullptr);
+    UI.filter2d_window.reset(nullptr);
+    UI.lens_window.reset(nullptr);
+    UI.plot_window_.reset(nullptr);
+    UI.raw_window.reset(nullptr);
+}
+
+void create_window(Computation window_kind, ushort window_size)
+{
+    const camera::FrameDescriptor& fd = api::get_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    get_good_size(width, height, window_size);
+
+    QPoint pos = getSavedHoloWindowPos();
+    QSize size = getSavedHoloWindowSize(width, height);
+
+    if (UI.mainDisplay)
+    {
+        pos = UI.mainDisplay->framePosition();
+        size = UI.mainDisplay->size();
+        UI.mainDisplay.reset(nullptr);
+    }
+
+    if (window_kind == Computation::Raw)
+    {
+        UI.mainDisplay.reset(new holovibes::gui::RawWindow(pos,
+                                                           size,
+                                                           api::get_input_queue().get(),
+                                                           static_cast<float>(width) / static_cast<float>(height)));
+        UI.mainDisplay->setBitshift(api::get_raw_bitshift());
+    }
+    else
+    {
+        UI.mainDisplay.reset(new gui::HoloWindow(pos,
+                                                 size,
+                                                 api::get_gpu_output_queue().get(),
+                                                 UI.sliceXZ,
+                                                 UI.sliceYZ,
+                                                 static_cast<float>(width) / static_cast<float>(height)));
+        UI.mainDisplay->set_is_resize(false);
+        UI.mainDisplay->resetTransform();
+        UI.mainDisplay->setAngle(api::get_rotation());
+        UI.mainDisplay->setFlip(api::get_horizontal_flip());
+    }
+
+    UI.mainDisplay->setTitle(QString("XY view"));
+}
+
+void refresh_window(ushort window_size)
+{
+    float old_scale = 1.f;
+    glm::vec2 old_translation(0.f, 0.f);
+    if (UI.mainDisplay)
+    {
+        old_scale = UI.mainDisplay->getScale();
+        old_translation = UI.mainDisplay->getTranslate();
+    }
+
+    gui::close_windows();
+    gui::create_window(api::get_compute_mode(), window_size);
+
+    UI.mainDisplay->setScale(old_scale);
+    UI.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+}
+
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)
@@ -69,9 +184,8 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
         // set positions of new windows according to the position of the main GL
         // window and Lens window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
-        UI.raw_window.reset(new gui::RawWindow(pos,
-                                               QSize(raw_window_width, raw_window_height),
-                                               api::get_compute_pipe()->get_raw_view_queue().get()));
+        UI.raw_window.reset(
+            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), api::get_input_queue().get()));
 
         UI.raw_window->setTitle("Raw view");
     }
@@ -105,16 +219,16 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
                                               api::get_compute_pipe()->get_stft_slice_queue(0).get(),
                                               gui::KindOfView::SliceXZ));
         UI.sliceXZ->setTitle("XZ view");
-        UI.sliceXZ->setAngle(api::get_xz_rotation());
-        UI.sliceXZ->setFlip(api::get_xz_horizontal_flip());
+        UI.sliceXZ->setAngle(api::get_rotation(WindowKind::XZview));
+        UI.sliceXZ->setFlip(api::get_horizontal_flip(WindowKind::XZview));
 
         UI.sliceYZ.reset(new gui::SliceWindow(yzPos,
                                               QSize(window_size, UI.mainDisplay->height()),
                                               api::get_compute_pipe()->get_stft_slice_queue(1).get(),
                                               gui::KindOfView::SliceYZ));
         UI.sliceYZ->setTitle("YZ view");
-        UI.sliceYZ->setAngle(api::get_yz_rotation());
-        UI.sliceYZ->setFlip(api::get_yz_horizontal_flip());
+        UI.sliceYZ->setAngle(api::get_rotation(WindowKind::YZview));
+        UI.sliceYZ->setFlip(api::get_horizontal_flip(WindowKind::YZview));
 
         UI.mainDisplay->getOverlayManager().enable<gui::Cross>();
 
@@ -136,11 +250,52 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
     }
 }
 
+void rotate_texture()
+{
+    // Rotate
+    double rot = api::get_rotation();
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
+
+    api::set_rotation(new_rot);
+
+    WindowKind window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        UI.mainDisplay->setAngle(new_rot);
+    else if (UI.sliceXZ && window == WindowKind::XZview)
+        UI.sliceXZ->setAngle(new_rot);
+    else if (UI.sliceYZ && window == WindowKind::YZview)
+        UI.sliceYZ->setAngle(new_rot);
+}
+
+void flip_texture()
+{
+    bool flip = api::get_horizontal_flip();
+    api::set_horizontal_flip(!flip);
+
+    flip = !flip;
+
+    WindowKind window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        UI.mainDisplay->setFlip(flip);
+    else if (UI.sliceXZ && window == WindowKind::XZview)
+        UI.sliceXZ->setFlip(flip);
+    else if (UI.sliceYZ && window == WindowKind::YZview)
+        UI.sliceYZ->setFlip(flip);
+}
+
 void set_composite_area() { UI.mainDisplay->getOverlayManager().enable<gui::CompositeArea>(); }
 
 void active_noise_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Noise>(); }
 
 void active_signal_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Signal>(); }
+
+void set_reticle_overlay_visible(bool value)
+{
+    if (value)
+        UI.mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
+    else
+        UI.mainDisplay->getOverlayManager().disable(gui::Reticle);
+}
 
 void open_advanced_settings(QMainWindow* parent, std::function<void()> callback)
 {
@@ -175,10 +330,11 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileExt = normalizedPath.extension().string();
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
-    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
-    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
-    UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
+    UI.record_output_directory_ = std::move(parentPath);
+    UI.output_filename_ = std::move(fileNameWithoutExt);
+    UI.record_output_directory_ = std::move(parentPath);
+    UI.output_filename_ = std::move(fileNameWithoutExt);
 
     return fileExt;
 }

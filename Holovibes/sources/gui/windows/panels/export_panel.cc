@@ -10,6 +10,7 @@
 #include "tools.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 namespace api = ::holovibes::api;
 
@@ -218,7 +219,7 @@ void ExportPanel::set_record_mode(int index)
     if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api::set_record_mode(static_cast<RecordMode>(index));
+    api::set_record_mode_enum(static_cast<RecordMode>(index));
 
     parent_->notify();
 }

@@ -33,7 +33,8 @@
 #define REALTIME_SETTINGS                         \
     holovibes::settings::RegistrationEnabled,     \
     holovibes::settings::FftShiftEnabled,         \
-    holovibes::settings::RegistrationZone
+    holovibes::settings::RegistrationZone,        \
+    holovibes::settings::SpaceTransformation
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 

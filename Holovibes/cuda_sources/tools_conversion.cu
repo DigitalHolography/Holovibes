@@ -507,23 +507,3 @@ void convert_frame_for_display(void* output,
         break;
     }
 }
-
-/* Simply transfers values from float buffer to cuComplex buffer */
-static __global__ void kernel_float_to_complex(cuComplex* output, const float* input, size_t size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < size)
-    {
-        output[index] = cuComplex{input[index], 0.0f};
-    }
-}
-
-void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream)
-{
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(size, threads);
-
-    kernel_float_to_complex<<<blocks, threads, 0, stream>>>(output, input, size);
-    cudaCheckError();
-}

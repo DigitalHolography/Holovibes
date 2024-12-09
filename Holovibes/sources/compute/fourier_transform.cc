@@ -27,14 +27,15 @@ using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
-void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, const uint height)
+void FourierTransform::insert_fft(const uint width, const uint height)
 {
     LOG_FUNC();
+
     auto space_transformation = setting<settings::SpaceTransformation>();
     bool filter2d_enabled = setting<settings::Filter2dEnabled>();
     if (filter2d_enabled)
     {
-        update_filter2d_circles_mask(gpu_filter2d_mask,
+        update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      width,
                                      height,
                                      setting<settings::Filter2dN1>(),
@@ -45,7 +46,7 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
 
         if (setting<settings::FilterEnabled>())
         {
-            apply_filter(gpu_filter2d_mask,
+            apply_filter(buffers_.gpu_filter2d_mask,
                          buffers_.gpu_input_filter_mask,
                          setting<settings::InputFilter>().data(),
                          width,
@@ -59,13 +60,15 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
             insert_filter2d();
     }
 
+    if (space_transformation == SpaceTransformation::NONE)
+        return;
+
     if (space_transformation == SpaceTransformation::FRESNELTR)
         insert_fresnel_transform();
-    else if (space_transformation == SpaceTransformation::ANGULARSP)
+    else
         insert_angular_spectrum(filter2d_enabled);
-    if (space_transformation == SpaceTransformation::FRESNELTR ||
-        space_transformation == SpaceTransformation::ANGULARSP)
-        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+
+    fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
 }
 
 void FourierTransform::insert_filter2d()
@@ -147,7 +150,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              setting<settings::BatchSize>(),
                              gpu_lens_.get(),
                              buffers_.gpu_complex_filter2d_frame,
-                             setting<settings::Filter2dEnabled>(),
+                             filter2d_enabled,
                              spatial_transformation_plan_,
                              fd_,
                              stream_);
@@ -207,7 +210,7 @@ void FourierTransform::insert_time_transform()
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
@@ -227,7 +230,7 @@ void FourierTransform::insert_stft()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             stft(time_transformation_env_.gpu_p_acc_buffer,
@@ -240,11 +243,9 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
-            auto type = setting<settings::ImageType>();
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -277,13 +278,30 @@ void FourierTransform::insert_moments()
         });
 }
 
+void FourierTransform::insert_moments_split()
+{
+    const size_t size = fd_.get_frame_size();
+    float* moment1_tmp_buffer = moments_env_.moment_tmp_buffer + fd_.get_frame_res();
+    float* moment2_tmp_buffer = moment1_tmp_buffer + fd_.get_frame_res();
+    fn_compute_vect_->push_back(
+        [this, size, moment1_tmp_buffer, moment2_tmp_buffer]()
+        {
+            cudaXMemcpyAsync(moments_env_.moment0_buffer,
+                             moments_env_.moment_tmp_buffer,
+                             size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
+            cudaXMemcpyAsync(moments_env_.moment1_buffer, moment1_tmp_buffer, size, cudaMemcpyDeviceToDevice, stream_);
+            cudaXMemcpyAsync(moments_env_.moment2_buffer, moment2_tmp_buffer, size, cudaMemcpyDeviceToDevice, stream_);
+        });
+}
+
 void FourierTransform::insert_moments_to_output()
 {
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [this]()
         {
-            size_t image_resolution = fd_.get_frame_res();
-            size_t image_size = image_resolution * sizeof(float);
+            size_t image_size = fd_.get_frame_res() * sizeof(float);
 
             float* moment = nullptr;
 
@@ -313,7 +331,7 @@ void FourierTransform::insert_pca()
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -356,7 +374,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
     static cuda_tools::CudaUniquePtr<cuComplex> tmp_matrix = nullptr;
     tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -415,7 +433,7 @@ void FourierTransform::insert_store_p_frame()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             const int frame_res = static_cast<int>(fd_.get_frame_res());
@@ -437,7 +455,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             if (setting<settings::CutsViewEnabled>())
@@ -458,7 +476,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posx = x.start;
                         mouse_posy = y.start;
                     }
-                    // -----------------------------------------------------
+
                     time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
                                                    time_transformation_env_.gpu_p_acc_buffer,

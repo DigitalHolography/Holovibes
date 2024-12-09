@@ -36,7 +36,7 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    api::change_window(static_cast<int>(WindowKind::XYview));
+    api::change_window(WindowKind::XYview);
 }
 
 void HoloWindow::update_slice_transforms()
