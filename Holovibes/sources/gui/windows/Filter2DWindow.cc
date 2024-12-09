@@ -196,6 +196,5 @@ void Filter2DWindow::closeEvent(QCloseEvent* e)
     api::set_filter2d_view(false);
     gui::set_filter2d_view(false, 0);
     NotifierManager::notify("notify", true);
-    e->accept();
 }
 } // namespace holovibes::gui
