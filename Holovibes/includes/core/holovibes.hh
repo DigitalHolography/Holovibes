@@ -122,6 +122,7 @@
     holovibes::settings::DataType,                               \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
+    holovibes::settings::ChartMeanVesselsEnabled,                \
     holovibes::settings::OtsuEnabled,                            \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::VesselnessSigma,                        \
@@ -465,6 +466,7 @@ class Holovibes
                                              settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},
                                              settings::VeinMaskEnabled{false},
+                                             settings::ChartMeanVesselsEnabled{false},
                                              settings::OtsuEnabled{false},
                                              settings::VesselnessSigma{2.0},
                                              settings::OtsuKind{OtsuKind::Global},
