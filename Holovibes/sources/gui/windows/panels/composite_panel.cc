@@ -71,7 +71,7 @@ void CompositePanel::on_notify()
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
                          static_cast<int>(api::get_slider_h_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_min();
-    QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_slider_threshold_max,
                          static_cast<int>(api::get_slider_h_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
     QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_min, static_cast<int>(api::get_slider_h_shift_min() * 1000));
@@ -113,6 +113,7 @@ void CompositePanel::on_notify()
     ui_->groupBox_value->setVisible(!rgbMode);
 
     ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
+    ui_->zFFTShiftCheckBox->setVisible(!rgbMode);
 }
 
 void CompositePanel::click_z_fft_shift(bool checked)
@@ -255,8 +256,8 @@ void CompositePanel::slide_update_threshold_h_min()
     slide_update_threshold(*ui_->horizontalSlider_hue_threshold_min,
                            receiver,
                            bound_to_update,
-                           *ui_->horizontalSlider_hue_threshold_max,
-                           *ui_->label_hue_threshold_min,
+                           *ui_->horizontalSlider_hue_slider_threshold_max,
+                           *ui_->label_hue_slider_threshold_min,
                            api::get_slider_h_threshold_min(),
                            api::get_slider_h_threshold_max());
 
@@ -270,11 +271,11 @@ void CompositePanel::slide_update_threshold_h_max()
     float receiver = api::get_slider_h_threshold_max();
     float bound_to_update = api::get_slider_h_threshold_min();
 
-    slide_update_threshold(*ui_->horizontalSlider_hue_threshold_max,
+    slide_update_threshold(*ui_->horizontalSlider_hue_slider_threshold_max,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_hue_threshold_min,
-                           *ui_->label_hue_threshold_max,
+                           *ui_->label_hue_slider_threshold_max,
                            api::get_slider_h_threshold_min(),
                            api::get_slider_h_threshold_max());
 
