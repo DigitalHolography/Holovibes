@@ -9,6 +9,45 @@
 
 using camera::FrameDescriptor;
 
+void write_1D_array_to_file(const cuComplex* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j].x << " " << array[i * cols + j].y << "| ";
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+void print_in_file_gpu(const cuComplex* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    cuComplex* result = new cuComplex[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(cuComplex), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file(result, rows, col, "test_" + filename + ".txt");
+}
+
 void fresnel_transform_lens(cuComplex* lens,
                             const uint lens_side_size,
                             const uint frame_height,
@@ -58,6 +97,9 @@ void fresnel_transform_lens(cuComplex* lens,
         }
         cudaXFree(square_lens);
     }
+    cudaXStreamSynchronize(stream);
+
+    // print_in_file_gpu(lens, 512, 512, "lens", stream);
 }
 
 void fresnel_transform(cuComplex* input,
@@ -68,13 +110,19 @@ void fresnel_transform(cuComplex* input,
                        const size_t frame_resolution,
                        const cudaStream_t stream)
 {
+    // print_in_file_gpu(input, 512, 512, "input", stream);
+    // print_in_file_gpu(lens, 512, 512, "lens", stream);
+    // ALEXIS GUSTAVE input is wrong
     apply_mask(input, lens, output, frame_resolution, batch_size, stream);
+    // print_in_file_gpu(output, 512, 512, "output_apply_mask", stream);
 
     // No sync needed between kernel call and cufft call
     cudaCheckError();
     // FFT
 
-    cufftSafeCall(cufftXtExec(plan2D, input, output, CUFFT_FORWARD));
+    cufftSafeCall(cufftXtExec(plan2D, output, output, CUFFT_FORWARD));
+    print_in_file_gpu(output, 512, 512, "output_fftXTExec", stream);
+
     // Same, no sync needed since everything is executed on the stream 0
 
     cudaCheckError();

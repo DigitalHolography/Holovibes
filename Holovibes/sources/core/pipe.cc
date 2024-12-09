@@ -27,6 +27,45 @@
 namespace holovibes
 {
 
+void write_1D_array_to_file(const cuComplex* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j].x << " " << array[i * cols + j].y << "| ";
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+void print_in_file_gpu(const cuComplex* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    cuComplex* result = new cuComplex[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(cuComplex), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file(result, rows, col, "test_" + filename + ".txt");
+}
+
 void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
@@ -298,6 +337,9 @@ void Pipe::refresh()
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
+        if (ImgType::Moments_0 == api::get_img_type())
+            print_in_file_gpu(time_transformation_env_.gpu_p_acc_buffer, 512, 512, "gpu_p_acc_buffer", stream_);
+
         insert_cuts_record();
 
         // Used for phase increase
@@ -488,8 +530,60 @@ void Pipe::insert_output_enqueue_hologram_mode()
         });
 }
 
+template <typename T>
+void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <typename T>
+void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    T* result = new T[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
+}
+
 void Pipe::insert_filter2d_view()
 {
+    ImgType type = setting<settings::ImageType>();
+    if (type == ImgType::Moments_0)
+    {
+
+        fn_compute_vect_->push_back(
+            [this]()
+            {
+                int a = 2;
+                print_in_file_gpu<float>(moments_env_.moment0_buffer, 512, 512, "m0", stream_);
+            });
+    }
     if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
     {
         fn_compute_vect_->push_back(

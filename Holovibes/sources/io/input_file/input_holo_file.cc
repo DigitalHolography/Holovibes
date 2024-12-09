@@ -197,7 +197,7 @@ void InputHoloFile::import_compute_settings()
     // update GSH with the footer values
     raw_footer_.Assert();
     raw_footer_.Load();
-
+    api::set_batch_size(512);
     // When reading moments, the batch size is force set to one.
     // This is because moments don't need to and shouldn't be batched;
     // every single frame is necessary
