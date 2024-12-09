@@ -338,4 +338,14 @@ struct BwAreaEnv
     cuda_tools::CudaUniquePtr<float> float_buffer_;
 };
 
+/*! \struct ChartMeanVesselsEnv
+ *
+ * \brief Struct used for ChartMeanVessels computations.
+ */
+struct ChartMeanVesselsEnv
+{
+    std::unique_ptr<ConcurrentDeque<double /*TODO change with struct of three double after*/>> chart_display_queue_ =
+        nullptr;
+};
+
 } // namespace holovibes

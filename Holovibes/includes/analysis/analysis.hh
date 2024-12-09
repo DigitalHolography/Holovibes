@@ -228,6 +228,9 @@ class Analysis
     /*! \brief Reference to the MomentsEnv to get access to moments buffers */
     MomentsEnv& moments_env_;
 
+    /*! \brief Reference to the ChartMeanVesselsEnv to get access to chart display queue */
+    ChartMeanVesselsEnv& chart_mean_vessels_env_;
+
     /*! \brief Cublas handler used for matrices multiplications */
     cublasHandle_t cublas_handler_;
 

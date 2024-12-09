@@ -443,4 +443,27 @@ void Analysis::insert_vesselness()
     }
 }
 
+void Analysis::insert_chart()
+{
+    LOG_FUNC();
+    // TODO ChartMeanVesselsEnabled settings
+    if (setting<settings::ChartMeanVesselsEnabled>() && setting<settings::ImageType>() == ImgType::Moments_0 &&
+        (setting<settings::VeinMaskEnabled>() || setting<settings::ArteryMaskEnabled>()))
+    {
+        fn_compute_vect_->push_back(
+            [=]()
+            {
+                float* mask_buffer = get_mask_result();
+                size_t nb_nnz = get_mask_nnz();
+                double point = get_sum_with_mask(buffers_.gpu_postprocess_frame,
+                                                 mask_buffer,
+                                                 buffers_.gpu_postprocess_frame_size,
+                                                 stream_);
+                double mean = point / (float)nb_nnz;
+
+                chart_env_.chart_display_queue_->push_back(mean);
+            });
+    }
+}
+
 } // namespace holovibes::analysis
