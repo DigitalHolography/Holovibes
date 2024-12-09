@@ -34,6 +34,7 @@ void AnalysisPanel::on_notify()
     // Show arteries / veins
     ui_->ArteryCheckBox->setChecked(api::get_artery_mask_enabled());
     ui_->VeinCheckBox->setChecked(api::get_vein_mask_enabled());
+    ui_->ChoroidCheckBox->setChecked(api::get_choroid_mask_enabled());
 
     // Time window
     ui_->TimeWindowSpinBox->setValue(api::get_time_window());
