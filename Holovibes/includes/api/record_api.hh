@@ -254,20 +254,9 @@ class RecordApi : public IApi
 #pragma endregion
 
   private:
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
-    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
-
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
 
   public:
-    void start_frame_record(const std::function<void()>& callback = []() {});
-
-    void stop_frame_record();
-
-    void start_chart_record(const std::function<void()>& callback = []() {});
-
-    void stop_chart_record();
-
     /*!
      * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
      *

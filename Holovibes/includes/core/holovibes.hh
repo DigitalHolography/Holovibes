@@ -125,20 +125,6 @@
 // clang-format on
 #pragma endregion
 
-// Threads priority
-constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
-constexpr int THREAD_READER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
-constexpr int THREAD_RECORDER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
-constexpr int THREAD_DISPLAY_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
-
-// CUDA streams priority
-// Lower numbers represent higher priorities
-constexpr int CUDA_STREAM_QUEUE_PRIORITY = 1;
-constexpr int CUDA_STREAM_WINDOW_PRIORITY = 1;
-constexpr int CUDA_STREAM_READER_PRIORITY = 1;
-constexpr int CUDA_STREAM_RECORDER_PRIORITY = 1;
-constexpr int CUDA_STREAM_COMPUTE_PRIORITY = 0;
-
 namespace holovibes::gui
 {
 class MainWindow;
@@ -163,34 +149,6 @@ class BatchInputQueue;
  */
 class Holovibes
 {
-    struct CudaStreams
-    {
-        CudaStreams() { reload(); }
-
-        /*! \brief Used when the device is reset. Recreate the streams.
-         *
-         * This might cause a small memory leak, but at least it doesn't cause a crash/segfault
-         */
-        void reload()
-        {
-            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
-        }
-
-        ~CudaStreams()
-        {
-            cudaSafeCall(cudaStreamDestroy(reader_stream));
-            cudaSafeCall(cudaStreamDestroy(compute_stream));
-            cudaSafeCall(cudaStreamDestroy(recorder_stream));
-        }
-
-        cudaStream_t reader_stream;
-        cudaStream_t compute_stream;
-        cudaStream_t recorder_stream;
-    };
 
   public:
     static Holovibes& instance();
@@ -210,8 +168,6 @@ class Holovibes
      */
     std::shared_ptr<Pipe> get_compute_pipe();
     std::shared_ptr<Pipe> get_compute_pipe_no_throw();
-
-    const CudaStreams& get_cuda_streams() const;
 
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_name() const;
@@ -243,54 +199,11 @@ class Holovibes
      */
     void init_input_queue(const unsigned int input_queue_size);
 
-    /*! \brief Sets and starts the file_read_worker attribute
-     *
-     * \param callback
-     */
-    void start_file_frame_read(const std::function<void()>& callback = []() {});
-
-    /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
-     * TODO: refacto (see issue #22)
-     *
-     * \param camera_kind
-     * \param callback
-     */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
-
-    /*! \brief Handle frame reading interruption
-     *
-     * Stops both read_worker, resets the active camera and store the input_queue
-     */
-    void stop_frame_read();
-
-    void start_information_display();
-
-    void stop_information_display();
-
-    /*! \brief Start compute worker */
-    void start_compute_worker(const std::function<void()>& callback = []() {});
-
-    void start_compute(const std::function<void()>& callback = []() {});
-
-    void stop_compute();
-
-    // Always close the 3D cuts before calling this function
-    void stop_all_worker_controller();
-
     void init_pipe();
-
-    /*! \brief Reload the cuda streams when the device is reset */
-    void reload_streams();
 
     /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
      * used to know if queues have to keep contiguity or not. */
     bool is_cli;
-
-    /*! \brief function called when some thread throws an exception */
-    std::function<void(const std::exception&)> error_callback_;
-
-    void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
 
     /**
      * @brief Update a setting. The actual application of the update
@@ -419,16 +332,7 @@ class Holovibes
     {
     }
 
-    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
-    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
-
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
-    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
-
-    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
-
-    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
     std::atomic<std::shared_ptr<Pipe>> compute_pipe_{nullptr};
 
     /*! \name Frames queue (GPU)
@@ -437,8 +341,6 @@ class Holovibes
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
-
-    CudaStreams cuda_streams_;
 
   public:
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;

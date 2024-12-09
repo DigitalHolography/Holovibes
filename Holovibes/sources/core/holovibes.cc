@@ -47,11 +47,10 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
     LOG_DEBUG("Input queue allocated");
 }
 
-void Holovibes::start_file_frame_read(const std::function<void()>& callback)
+void Holovibes::start_file_frame_read()
 {
     CHECK(input_queue_.load() != nullptr);
 
-    file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
 
@@ -59,7 +58,7 @@ void Holovibes::start_file_frame_read(const std::function<void()>& callback)
     file_read_worker_controller_.start(input_queue_, all_settings);
 }
 
-void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)
+void Holovibes::start_camera_frame_read(CameraKind camera_kind)
 {
     try
     {
@@ -96,7 +95,6 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         api.input.set_import_type(ImportType::Camera);
         init_input_queue(camera_fd, api.input.get_input_buffer_size());
 
-        camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
         camera_read_worker_controller_.start(active_camera_, input_queue_);
@@ -199,6 +197,4 @@ void Holovibes::stop_all_worker_controller()
     stop_compute();
     stop_frame_read();
 }
-
-void Holovibes::reload_streams() { cuda_streams_.reload(); }
 } // namespace holovibes
