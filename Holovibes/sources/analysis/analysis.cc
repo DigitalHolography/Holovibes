@@ -17,7 +17,6 @@
 #include "tools_analysis_debug.hh"
 #include "imbinarize.cuh"
 
-#define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
 
 namespace holovibes::analysis
@@ -269,7 +268,7 @@ void Analysis::insert_first_analysis_masks()
                 apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
                                      fd_.width / 2 - 1,
                                      fd_.height / 2 - 1,
-                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     setting<settings::DiaphragmFactor>() * (fd_.width + fd_.height) / 2,
                                      fd_.width,
                                      fd_.height,
                                      stream_);
@@ -345,12 +344,12 @@ void Analysis::insert_first_analysis_masks()
                                   0);
 
                 // From here ~105 FPS
-
                 int CRV_index = compute_barycentre_circle_mask(vesselness_mask_env_.circle_mask_,
                                                                vesselness_filter_struct_.CRV_circle_mask,
                                                                vesselness_mask_env_.vascular_image_,
                                                                fd_.width,
                                                                fd_.height,
+                                                               setting<settings::BarycenterFactor>(),
                                                                stream_);
 
                 // From here ~90 FPS
@@ -433,7 +432,7 @@ void Analysis::insert_first_analysis_masks()
                 apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
                                      fd_.width / 2 - 1,
                                      fd_.height / 2 - 1,
-                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     setting<settings::DiaphragmFactor>() * (fd_.width + fd_.height) / 2,
                                      fd_.width,
                                      fd_.height,
                                      stream_);

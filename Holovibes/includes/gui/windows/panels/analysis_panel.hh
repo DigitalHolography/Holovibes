@@ -30,7 +30,21 @@ class AnalysisPanel : public Panel
     void on_notify() override;
 
   public slots:
+    /*!
+     * \brief Enables or disables Artery mask
+     *
+     */
+    void set_artery_mask(bool enabled);
+    /*!
+     * \brief Enables or disables Vein mask
+     *
+     */
     void set_vein_mask(bool enabled);
+    /*!
+     * \brief Enables or disables Vein mask
+     *
+     */
+    void set_choroid_mask(bool enabled);
 
     /*! \brief Change the value for the spin box of time window */
     void update_time_window();
@@ -45,12 +59,13 @@ class AnalysisPanel : public Panel
     void update_min_mask_area(int value);
     void update_min_mask_area_slider(int value);
 
-    void set_otsu_kind(int index);
-    void set_otsu_window_size(int value);
-    void set_otsu_local_threshold(double value);
+    void update_diaphragm_factor(double value);
+    void update_diaphragm_factor_slider(int value);
+    void update_diaphragm_preview(bool enabled);
 
-    void set_bw_area_filter(bool enabled);
-    void set_bw_area_open(bool enabled);
+    void update_barycenter_factor(double value);
+    void update_barycenter_factor_slider(int value);
+    void update_barycenter_preview(bool enabled);
     // private:
 };
 } // namespace holovibes::gui

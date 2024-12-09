@@ -19,17 +19,13 @@
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
     holovibes::settings::VeinMaskEnabled,          \
-    holovibes::settings::OtsuEnabled,              \
-    holovibes::settings::OtsuKind,                 \
-    holovibes::settings::OtsuWindowSize,           \
-    holovibes::settings::OtsuLocalThreshold,       \
-    holovibes::settings::BwareafiltEnabled,        \
-    holovibes::settings::BwareaopenEnabled,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
     holovibes::settings::VesselnessSigma,          \
-    holovibes::settings::MinMaskArea
+    holovibes::settings::MinMaskArea,              \
+    holovibes::settings::DiaphragmFactor,          \
+    holovibes::settings::BarycenterFactor
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS

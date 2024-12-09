@@ -15,5 +15,6 @@ int compute_barycentre_circle_mask(float* output,
                                    float* input,
                                    size_t width,
                                    size_t height,
+                                   float barycentre_factor,
                                    cudaStream_t stream,
                                    int CRV_index = -1);

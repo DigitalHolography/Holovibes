@@ -38,23 +38,6 @@ void AnalysisPanel::on_notify()
     // Time window
     ui_->TimeWindowSpinBox->setValue(api::get_time_window());
 
-    // Otsu
-    ui_->OtsuCheckBox->setChecked(api::get_otsu_enabled());
-
-    ui_->OtsuKindComboBox->setCurrentIndex(static_cast<int>(api::get_otsu_kind()));
-    bool is_adaptive = api::get_otsu_kind() == OtsuKind::Adaptive;
-    ui_->OtsuWindowSizeSpinBox->setVisible(is_adaptive);
-    ui_->OtsuWindowSizeLabel->setVisible(is_adaptive);
-    ui_->OtsuLocalThresholdSpinBox->setVisible(is_adaptive);
-    ui_->OtsuLocalThresholdLabel->setVisible(is_adaptive);
-
-    ui_->OtsuWindowSizeSpinBox->setValue(api::get_otsu_window_size());
-    ui_->OtsuWindowSizeSpinBox->setEnabled(api::get_otsu_enabled());
-    ui_->OtsuWindowSizeLabel->setEnabled(api::get_otsu_enabled());
-    ui_->OtsuLocalThresholdSpinBox->setValue(api::get_otsu_local_threshold());
-    ui_->OtsuLocalThresholdSpinBox->setEnabled(api::get_otsu_enabled());
-    ui_->OtsuLocalThresholdLabel->setEnabled(api::get_otsu_enabled());
-
     // Vesselness sigma
     ui_->VesselnessSigmaDoubleSpinBox->setValue(api::get_vesselness_sigma());
     ui_->VesselnessSigmaSlider->setValue((int)std::round(api::get_vesselness_sigma() * 100));
@@ -63,12 +46,34 @@ void AnalysisPanel::on_notify()
     ui_->MinMaskAreaSpinBox->setValue(api::get_min_mask_area());
     ui_->MinMaskAreaSlider->setValue(api::get_min_mask_area());
 
-    // BW area
-    ui_->BwAreaFilterCheckbox->setChecked(api::get_bwareafilt_enabled());
-    ui_->BwAreaOpenCheckbox->setChecked(api::get_bwareaopen_enabled());
+    // Diaphragm
+    ui_->DiaphragmFactorDoubleSpinBox->setValue(api::get_diaphragm_factor());
+    ui_->DiaphragmFactorSlider->setValue(api::get_diaphragm_factor() * 1000);
+    ui_->DiaphragmPreviewCheckBox->setChecked(api::get_diaphragm_preview_enabled());
+
+    // Barycenter
+    ui_->BarycenterFactorDoubleSpinBox->setValue(api::get_barycenter_factor());
+    ui_->BarycenterFactorSlider->setValue(api::get_barycenter_factor() * 1000);
+    ui_->BarycenterPreviewCheckBox->setChecked(api::get_barycenter_preview_enabled());
 }
 
-void AnalysisPanel::set_vein_mask(bool enabled) { api::set_vein_mask_enabled(enabled); }
+void AnalysisPanel::set_artery_mask(bool enabled)
+{
+    api::set_artery_mask_enabled(enabled);
+    ui_->ArteryCheckBox->setChecked(enabled);
+}
+
+void AnalysisPanel::set_vein_mask(bool enabled)
+{
+    api::set_vein_mask_enabled(enabled);
+    ui_->VeinCheckBox->setChecked(enabled);
+}
+
+void AnalysisPanel::set_choroid_mask(bool enabled)
+{
+    api::set_choroid_mask_enabled(enabled);
+    ui_->ChoroidCheckBox->setChecked(enabled);
+}
 
 void AnalysisPanel::update_time_window()
 {
@@ -111,29 +116,34 @@ void AnalysisPanel::update_min_mask_area_slider(int value)
     ui_->MinMaskAreaSpinBox->setValue(value);
 }
 
-void AnalysisPanel::set_otsu_kind(int index)
+void AnalysisPanel::update_diaphragm_factor(double value)
 {
-    api::set_otsu_kind(static_cast<OtsuKind>(index));
-    parent_->notify();
+    api::set_diaphragm_factor(value);
+    ui_->DiaphragmFactorSlider->setValue(value * 1000);
 }
 
-void AnalysisPanel::set_otsu_window_size(int value) { api::set_otsu_window_size(value); }
-
-void AnalysisPanel::set_otsu_local_threshold(double value) { api::set_otsu_local_threshold((float)value); }
-
-void AnalysisPanel::set_bw_area_filter(bool enabled)
+void AnalysisPanel::update_diaphragm_factor_slider(int value)
 {
-    api::set_bwareaopen_enabled(false);
-    api::set_bwareafilt_enabled(enabled);
-
-    this->on_notify(); // Only analysis panel because this only changes the analysis panel
+    double real_value = (double)value / 1000;
+    api::set_diaphragm_factor(real_value);
+    ui_->DiaphragmFactorDoubleSpinBox->setValue(real_value);
 }
 
-void AnalysisPanel::set_bw_area_open(bool enabled)
-{
-    api::set_bwareafilt_enabled(false);
-    api::set_bwareaopen_enabled(enabled);
+void AnalysisPanel::update_diaphragm_preview(bool enabled) { api::set_diaphragm_preview_enabled(enabled); }
 
-    this->on_notify(); // Same thing here
+void AnalysisPanel::update_barycenter_factor(double value)
+{
+    api::set_barycenter_factor(value);
+    ui_->BarycenterFactorSlider->setValue(value * 1000);
 }
+
+void AnalysisPanel::update_barycenter_factor_slider(int value)
+{
+    double real_value = (double)value / 1000;
+    api::set_barycenter_factor(real_value);
+    ui_->BarycenterFactorDoubleSpinBox->setValue(real_value);
+}
+
+void AnalysisPanel::update_barycenter_preview(bool enabled) { api::set_barycenter_preview_enabled(enabled); }
+
 } // namespace holovibes::gui

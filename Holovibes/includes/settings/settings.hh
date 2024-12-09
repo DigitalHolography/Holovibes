@@ -187,16 +187,14 @@ DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 /*! \brief Analysis cache */
 DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(VeinMaskEnabled, bool);
-DECLARE_SETTING(OtsuEnabled, bool);
+DECLARE_SETTING(ChoroidMaskEnabled, bool);
 DECLARE_SETTING(TimeWindow, int);
 DECLARE_SETTING(VesselnessSigma, double);
 DECLARE_SETTING(MinMaskArea, int);
-DECLARE_SETTING(BwareafiltEnabled, bool);
-DECLARE_SETTING(BwareaopenEnabled, bool);
-
-DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
-DECLARE_SETTING(OtsuWindowSize, int);
-DECLARE_SETTING(OtsuLocalThreshold, float);
+DECLARE_SETTING(DiaphragmFactor, float);
+DECLARE_SETTING(DiaphragmPreviewEnabled, bool);
+DECLARE_SETTING(BarycenterFactor, float);
+DECLARE_SETTING(BarycenterPreviewEnabled, bool);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);

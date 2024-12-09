@@ -569,6 +569,17 @@ inline void set_vein_mask_enabled(bool value)
 }
 
 /*!
+ * \name Choroid Mask
+ *
+ */
+inline bool get_choroid_mask_enabled() { return GET_SETTING(ChoroidMaskEnabled); }
+inline void set_choroid_mask_enabled(bool value)
+{
+    UPDATE_SETTING(ChoroidMaskEnabled, value);
+    pipe_refresh();
+}
+
+/*!
  * \brief Time Window
  *
  */
@@ -577,17 +588,6 @@ inline int get_time_window() { return GET_SETTING(TimeWindow); }
 inline void set_time_window(int value)
 {
     UPDATE_SETTING(TimeWindow, value);
-    pipe_refresh();
-}
-
-/*!
- * \name Otsu
- *
- */
-inline bool get_otsu_enabled() { return GET_SETTING(OtsuEnabled); }
-inline void set_otsu_enabled(bool value)
-{
-    UPDATE_SETTING(OtsuEnabled, value);
     pipe_refresh();
 }
 
@@ -604,34 +604,23 @@ inline void set_vesselness_sigma(double value)
 inline int get_min_mask_area() { return GET_SETTING(MinMaskArea); }
 inline void set_min_mask_area(int value) { return UPDATE_SETTING(MinMaskArea, value); }
 
-inline OtsuKind get_otsu_kind() { return GET_SETTING(OtsuKind); }
-inline void set_otsu_kind(OtsuKind value) { return UPDATE_SETTING(OtsuKind, value); }
-inline int get_otsu_window_size() { return GET_SETTING(OtsuWindowSize); }
-inline void set_otsu_window_size(int value) { UPDATE_SETTING(OtsuWindowSize, value); }
-inline float get_otsu_local_threshold() { return GET_SETTING(OtsuLocalThreshold); }
-inline void set_otsu_local_threshold(float value) { UPDATE_SETTING(OtsuLocalThreshold, value); }
-
-/*!
- * \name Bwareafilt
- *
- */
-inline bool get_bwareafilt_enabled() { return GET_SETTING(BwareafiltEnabled); }
-inline void set_bwareafilt_enabled(bool value)
+inline float get_diaphragm_factor() { return GET_SETTING(DiaphragmFactor); }
+inline void set_diaphragm_factor(float value)
 {
-    UPDATE_SETTING(BwareafiltEnabled, value);
-    pipe_refresh();
+    value = value > 1000 ? 1000 : (value < 0 ? 0 : value);
+    return UPDATE_SETTING(DiaphragmFactor, value);
 }
+inline bool get_diaphragm_preview_enabled() { return GET_SETTING(DiaphragmPreviewEnabled); }
+inline void set_diaphragm_preview_enabled(bool value) { return UPDATE_SETTING(DiaphragmPreviewEnabled, value); }
 
-/*!
- * \name Bwareafilt
- *
- */
-inline bool get_bwareaopen_enabled() { return GET_SETTING(BwareaopenEnabled); }
-inline void set_bwareaopen_enabled(bool value)
+inline float get_barycenter_factor() { return GET_SETTING(BarycenterFactor); }
+inline void set_barycenter_factor(float value)
 {
-    UPDATE_SETTING(BwareaopenEnabled, value);
-    pipe_refresh();
+    value = value > 1000 ? 1000 : (value < 0 ? 0 : value);
+    return UPDATE_SETTING(BarycenterFactor, value);
 }
+inline bool get_barycenter_preview_enabled() { return GET_SETTING(BarycenterPreviewEnabled); }
+inline void set_barycenter_preview_enabled(bool value) { return UPDATE_SETTING(BarycenterPreviewEnabled, value); }
 
 /*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }

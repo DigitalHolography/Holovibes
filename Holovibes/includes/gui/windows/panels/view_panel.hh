@@ -66,16 +66,6 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_fft_shift(bool value);
-    /*!
-     * \brief Enables or Disables Artery mask
-     *
-     */
-    void set_artery_mask(bool value);
-    /*!
-     * \brief Enables or Disables Otsu
-     *
-     */
-    void set_otsu(bool value);
     /*! \brief Enables or Disables registration mode on the main display window.
      *
      * \param value true: enable, false: disable
