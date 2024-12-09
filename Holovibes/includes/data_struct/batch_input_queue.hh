@@ -55,10 +55,13 @@ class BatchInputQueue final : public DisplayQueue
      * The producer is in the critical while enqueueing in a batch
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
+     *
+     * \param frames Pointer to the frame buffers
+     * \param nb_frame Number of frames to enqueue (default = 1)
      */
-    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
-
-    // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void enqueue(const void* const frames,
+                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice,
+                 const int nb_frame = 1);
 
     /*! \brief Copy multiple
      *
@@ -223,7 +226,6 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief The current number of frames in the queue
      *
-     * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
     std::atomic<uint>& curr_nb_frames_;
@@ -264,6 +266,8 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};
+    /*! \brief True when the queue is being resized. */
+    bool resize_in_progress_ = false;
 
     /*! \name Synchronization attributes
      * \{
