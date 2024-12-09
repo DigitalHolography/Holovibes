@@ -62,7 +62,6 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     }
     LOG_INFO("Raw recording: {}", opts.record_raw);
     LOG_INFO("Skip accumulation frames: {}", !opts.noskip_acc);
-    LOG_INFO("Load in GPU: {}", opts.gpu);
     LOG_INFO("Number of frames to skip between each frame: ");
     if (opts.frame_skip)
     {
@@ -216,7 +215,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     auto pipe = holovibes.get_compute_pipe();
     if (holovibes::api::get_convolution_enabled())
     {
-        holovibes::api::load_convolution_matrix(holovibes::UserInterfaceDescriptor::instance().convo_name);
+        holovibes::api::load_convolution_matrix(holovibes::api::get_convolution_file_name());
         pipe->request(ICS::Convolution);
     }
 

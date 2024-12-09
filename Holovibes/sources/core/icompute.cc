@@ -181,12 +181,17 @@ void ICompute::allocate_moments_buffers()
 {
     auto frame_res = input_queue_.get_fd().get_frame_res();
 
-    size_t size = frame_res; // Batch size should always be be 1 here.
+    size_t size = frame_res; // Batch size should always be be 3 here.
     // If it isn't, it is a bug.
 
     moments_env_.moment0_buffer.resize(size);
     moments_env_.moment1_buffer.resize(size);
     moments_env_.moment2_buffer.resize(size);
+
+    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
+        moments_env_.moment_tmp_buffer.resize(size * 3);
+    else
+        moments_env_.moment_tmp_buffer.reset(); // Freeing buffer if not needed
 }
 
 void ICompute::init_cuts()

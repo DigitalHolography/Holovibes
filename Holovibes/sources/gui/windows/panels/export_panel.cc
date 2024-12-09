@@ -27,12 +27,6 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-void ExportPanel::init()
-{
-    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
-}
-
 /*
  * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
  * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
@@ -42,10 +36,16 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
     NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
 }
 
+void ExportPanel::init()
+{
+    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
+    set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
+
+    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
+}
+
 void ExportPanel::on_notify()
 {
-    // TODO
-
     // File extension
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
     auto extension_indexes =
@@ -135,6 +135,11 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
+
+    if (api::get_import_type() == ImportType::File)
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeStrideSpinBox->value()));
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -144,11 +149,6 @@ void ExportPanel::set_record_frame_step(int step)
 }
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
-
-void ExportPanel::init_light_ui()
-{
-    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
-}
 
 QString ExportPanel::browse_record_output_file()
 {
@@ -193,7 +193,7 @@ QString ExportPanel::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
-    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    const std::string file_ext = gui::browse_record_output_file(std_filepath);
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
@@ -204,7 +204,7 @@ QString ExportPanel::browse_record_output_file()
 
 void ExportPanel::set_output_file_name(std::string std_filepath)
 {
-    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    const std::string file_ext = gui::browse_record_output_file(std_filepath);
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
@@ -218,7 +218,7 @@ void ExportPanel::set_record_mode(int index)
     if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api::set_record_mode(static_cast<RecordMode>(index));
+    api::set_record_mode_enum(static_cast<RecordMode>(index));
 
     parent_->notify();
 }
@@ -242,8 +242,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
 
-    api::record_finished();
-
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
 }
@@ -259,7 +257,6 @@ void ExportPanel::start_record()
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    UserInterfaceDescriptor::instance().is_recording_ = true;
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
@@ -279,22 +276,21 @@ void ExportPanel::start_record()
 
 void ExportPanel::activeSignalZone()
 {
-    api::active_signal_zone();
+    gui::active_signal_zone();
     parent_->notify();
 }
 
 void ExportPanel::activeNoiseZone()
 {
-    api::active_noise_zone();
+    gui::active_noise_zone();
     parent_->notify();
 }
 
 void ExportPanel::start_chart_display()
 {
-    if (api::get_chart_display_enabled())
-        return;
+    api::set_chart_display(true);
+    gui::set_chart_display(true);
 
-    api::start_chart_display();
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
             SIGNAL(closed()),
             this,
@@ -306,10 +302,8 @@ void ExportPanel::start_chart_display()
 
 void ExportPanel::stop_chart_display()
 {
-    if (!api::get_chart_display_enabled())
-        return;
-
-    api::stop_chart_display();
+    api::set_chart_display(false);
+    gui::set_chart_display(false);
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }

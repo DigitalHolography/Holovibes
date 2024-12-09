@@ -7,7 +7,7 @@
 #include "common.cuh"
 #include "composite_struct.hh"
 
-/**
+/*!
  * @brief A struct to represent a RGB pixel.
  */
 struct RGBPixel

@@ -4,42 +4,47 @@
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
 
-__global__ void
-kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y)
+int find_max_thrust(float* input, const size_t size)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    int y = idx / width;
-    int x = idx % width;
-
-    if (y < height && x < width)
-        output[(start_y + y) * new_width + (start_x + x)] = input[y * width + x];
+    thrust::device_ptr<float> dev_ptr(input);
+    thrust::device_ptr<float> max_ptr = thrust::max_element(dev_ptr, dev_ptr + size);
+    return max_ptr - dev_ptr;
 }
 
-void convolution_kernel_add_padding(float* output,
-                                    float* kernel,
-                                    const int width,
-                                    const int height,
-                                    const int new_width,
-                                    const int new_height,
-                                    cudaStream_t stream)
+int find_min_thrust(float* input, const size_t size)
 {
-    int start_x = (new_width - width) / 2;
-    int start_y = (new_height - height) / 2;
-
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(width * height, threads);
-    kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
-    cudaCheckError();
+    thrust::device_ptr<float> dev_ptr(input);
+    thrust::device_ptr<float> min_ptr = thrust::min_element(dev_ptr, dev_ptr + size);
+    return min_ptr - dev_ptr;
 }
 
-__global__ void kernel_normalized_list(float* output, int lim, int size)
+/*!
+ * \brief CUDA kernel to generate a normalized list.
+ *
+ * This kernel computes values for a normalized list, subtracting the provided limit (`lim`)
+ * from the index and storing the result in the output array.
+ *
+ * \param [out] output Pointer to the output array where results are stored.
+ * \param [in] lim The limit value to subtract from each index.
+ * \param [in] size The total number of elements to compute.
+ */
+static __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
     const int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
         output[index] = (int)index - lim;
 }
 
+/*!
+ * \brief Launches a CUDA kernel to generate a normalized list.
+ *
+ * This function configures and launches the `kernel_normalized_list` on the GPU.
+ *
+ * \param [out] output Pointer to the output array on the device memory.
+ * \param [in] lim The limit value to subtract from each index.
+ * \param [in] size The total number of elements to compute.
+ * \param [in] stream CUDA stream for asynchronous kernel execution.
+ */
 void normalized_list(float* output, int lim, int size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -48,37 +53,132 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream)
     cudaCheckError();
 }
 
-__device__ float comp_hermite(int n, float x)
+/*!
+ * \brief Computes the value of the Hermite polynomial of degree `n` at a given point `x`.
+ *
+ * This device function computes the Hermite polynomial \( H_n(x) \). The computation uses the
+ * recurrence relation:
+ * \f[
+ * H_n(x) = 2xH_{n-1}(x) - 2(n-1)H_{n-2}(x)
+ * \f]
+ *
+ * \param [in] n The degree of the Hermite polynomial (non-negative integer).
+ * \param [in] x The point at which to evaluate the polynomial.
+ * \return The value of the Hermite polynomial \( H_n(x) \) at \( x \).
+ *
+ */
+static __device__ float comp_hermite(int n, float x)
 {
+    if (n < 0)
+        return 0.0f; // This line is a safeguard for invalid input, though n should always be >= 0.
     if (n == 0)
-        return 1.0f;
+        return 1.0f; // Base case: H_0(x) = 1.
     if (n == 1)
-        return 2.0f * x;
-    if (n > 1)
-        return (2.0f * x * comp_hermite(n - 1, x)) - (2.0f * (n - 1) * comp_hermite(n - 2, x));
-    return 0.0f;
+        return 2.0f * x; // Base case: H_1(x) = 2x.
+
+    float h0 = 1.0f;     // H_0(x)
+    float h1 = 2.0f * x; // H_1(x)
+    float h_curr = 0.0f; // Placeholder for current H_n(x)
+
+    for (int i = 2; i <= n; ++i)
+    {
+        h_curr = (2.0f * x * h1) - (2.0f * (i - 1) * h0);
+        h0 = h1;     // Update H_(n-2)
+        h1 = h_curr; // Update H_(n-1)
+    }
+
+    return h_curr; // Return H_n(x)
 }
 
-__device__ float comp_gaussian(float x, float sigma)
+/*!
+ * \brief Computes the value of a Gaussian function at a given point.
+ *
+ * This device function evaluates the Gaussian (normal distribution) function:
+ * \f[
+ * G(x, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{x^2}{2\sigma^2}}
+ * \f]
+ *
+ * \param [in] x The point at which to evaluate the Gaussian function.
+ * \param [in] sigma The standard deviation (\( \sigma > 0 \)) of the Gaussian distribution.
+ * \return The value of the Gaussian function \( G(x, \sigma) \) at \( x \).
+ *
+ * \note The function assumes that \f$ \sigma > 0 \f$. Passing a non-positive sigma will
+ * lead to undefined behavior (e.g., division by zero).
+ */
+static __device__ float comp_gaussian(float x, float sigma)
 {
     return 1 / (sigma * (sqrt(2 * M_PI))) * exp((-1 * x * x) / (2 * sigma * sigma));
+    // Compute the Gaussian function value.
 }
 
-__device__ float device_comp_dgaussian(float x, float sigma, int n)
+/*!
+ * \brief Computes the nth derivative of a Gaussian function at a given point.
+ *
+ * This device function evaluates the nth derivative of a Gaussian function:
+ * \f[
+ * G^{(n)}(x, \sigma) = A \cdot H_n\left(\frac{x}{\sigma \sqrt{2}}\right) \cdot G(x, \sigma)
+ * \f]
+ * where:
+ * - \( A = \left(-\frac{1}{\sigma \sqrt{2}}\right)^n \)
+ * - \( H_n(x) \) is the nth Hermite polynomial.
+ * - \( G(x, \sigma) \) is the Gaussian function.
+ *
+ * \param [in] x The point at which to evaluate the nth derivative of the Gaussian.
+ * \param [in] sigma The standard deviation (\( \sigma > 0 \)) of the Gaussian function.
+ * \param [in] n The order of the derivative to compute (\( n \geq 0 \)).
+ * \return The value of the nth derivative of the Gaussian function at \( x \).
+ *
+ * \note This function assumes valid input values for `sigma` and `n`. Specifically,
+ *       \( \sigma > 0 \), and \( n \) should be non-negative. Incorrect inputs may
+ *       result in undefined behavior.
+ */
+static __device__ float device_comp_dgaussian(float x, float sigma, int n)
 {
-    float A = pow((-1 / (sigma * sqrt((float)2))), n);
-    float B = comp_hermite(n, x / (sigma * sqrt((float)2)));
-    float C = comp_gaussian(x, sigma);
-    return A * B * C;
+    float A = pow((-1 / (sigma * sqrt((float)2))), n);       // Coefficient for the nth derivative.
+    float B = comp_hermite(n, x / (sigma * sqrt((float)2))); // Hermite polynomial evaluated at normalized x.
+    float C = comp_gaussian(x, sigma);                       // Gaussian function value.
+    return A * B * C;                                        // Combine components to compute the nth derivative.
 }
 
-__global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
+/*!
+ * \brief CUDA kernel to compute the nth derivative of a Gaussian for an array of inputs.
+ *
+ * This kernel computes the nth derivative of a Gaussian function for each element in the input
+ * array and stores the results in the output array. It leverages the `device_comp_dgaussian`
+ * function to perform the computation.
+ *
+ * \param [out] output Pointer to the output array where results are stored (device memory).
+ * \param [in] input Pointer to the input array containing the x values (device memory).
+ * \param [in] input_size The number of elements in the input array.
+ * \param [in] sigma The standard deviation (\( \sigma > 0 \)) of the Gaussian function.
+ * \param [in] n The order of the derivative to compute (\( n \geq 0 \)).
+ *
+ * \note Ensure that the `output` and `input` arrays are allocated in device memory with
+ *       sufficient size to store `input_size` elements.
+ */
+static __global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-        output[index] = device_comp_dgaussian(input[index], sigma, n);
+        output[index] = device_comp_dgaussian(input[index], sigma, n); // Compute the nth derivative.
 }
 
+/*!
+ * \brief Launches a CUDA kernel to compute the nth derivative of a Gaussian function for an array of inputs.
+ *
+ * This function launches `kernel_comp_dgaussian` to compute the nth derivative of a Gaussian function for each element
+ * in the input array. The results are stored in the output array.
+ *
+ * \param [out] output Pointer to the output array in device memory where results are stored.
+ * \param [in] input Pointer to the input array in device memory containing the x values.
+ * \param [in] input_size The number of elements in the input array.
+ * \param [in] sigma The standard deviation (\( \sigma > 0 \)) of the Gaussian function.
+ * \param [in] n The order of the derivative to compute (\( n \geq 0 \)).
+ * \param [in] stream The CUDA stream to be used for asynchronous execution.
+ *
+ * \note Ensure that the `output` and `input` pointers reference valid, allocated memory in the device.
+ *       The sizes of both arrays must be at least `input_size` elements.
+ */
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -87,57 +187,14 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
     cudaCheckError();
 }
 
-namespace
-{
-template <typename T>
-__global__ void kernel_multiply_array_by_scalar(T* input_output, size_t size, const T scalar)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < size)
-        input_output[index] *= scalar;
-}
-
-template <typename T>
-void multiply_array_by_scalar_caller(T* input_output, size_t size, T scalar, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    kernel_multiply_array_by_scalar<<<blocks, threads, 0, stream>>>(input_output, size, scalar);
-    cudaCheckError();
-}
-} // namespace
-
-void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream)
-{
-    multiply_array_by_scalar_caller<float>(input_output, size, scalar, stream);
-}
-
-// CUDA kernel to prepare H hessian matrices
-__global__ void kernel_prepare_hessian(float* output, const float* I, const size_t offset, const int size)
+static __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
     {
-        // Prepare the 2x2 submatrix for point `index`
-        output[index * 3 + offset] = I[index];
-    }
-}
-
-void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream)
-{
-    int blockSize = 256;
-    int numBlocks = (size + blockSize - 1) / blockSize;
-    kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, I, offset, size);
-    cudaCheckError();
-}
-
-__global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
-{
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-    {
-        double a = H[index * 3], b = H[index * 3 + 1], d = H[index * 3 + 2];
+        double a = H[index];
+        double b = H[size + index];
+        double d = H[size * 2 + index];
         double trace = a + d;
         double determinant = a * d - b * b;
         double discriminant = trace * trace - 4 * determinant;
@@ -167,7 +224,7 @@ void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cu
     cudaCheckError();
 }
 
-__global__ void
+static __global__ void
 kernel_apply_diaphragm_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -180,9 +237,8 @@ kernel_apply_diaphragm_mask(float* output, short width, short height, float cent
         float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
         float radius_squared = radius * radius;
 
-        // If the point is inside the circle set the value to 1.
-        if (distance_squared > radius_squared)
-            output[index] = 0;
+        // If the point is outside the circle set the value to 0.
+        output[index] *= (distance_squared <= radius_squared);
     }
 }
 
@@ -203,7 +259,7 @@ void apply_diaphragm_mask(float* output,
     cudaCheckError();
 }
 
-__global__ void
+static __global__ void
 kernel_compute_circle_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -216,11 +272,13 @@ kernel_compute_circle_mask(float* output, short width, short height, float cente
         float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
         float radius_squared = radius * radius;
 
-        // If the point is inside the circle set the value to 1.
-        if (distance_squared <= radius_squared)
-            output[index] = 1;
-        else
-            output[index] = 0;
+        // If the point is inside the circle set the value to 1, else 0.
+        output[index] = (distance_squared <= radius_squared);
+
+        // if (distance_squared <= radius_squared)
+        //     output[index] = 1;
+        // else
+        //     output[index] = 0;
     }
 }
 
@@ -241,7 +299,7 @@ void compute_circle_mask(float* output,
     cudaCheckError();
 }
 
-__global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
+static __global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -263,7 +321,7 @@ void apply_mask_and(float* output, const float* input, const short width, const 
     cudaCheckError();
 }
 
-__global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
+static __global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -285,102 +343,7 @@ void apply_mask_or(float* output, const float* input, const short width, const s
     cudaCheckError();
 }
 
-float* compute_gauss_deriviatives_kernel(
-    int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
-{
-    // Initialize normalized centered at 0 lists, ex for kernel_width = 3 : [-1, 0, 1]
-    float* x;
-    cudaXMalloc(&x, kernel_width * sizeof(float));
-    normalized_list(x, (kernel_width - 1) / 2, kernel_width, stream);
-
-    float* y;
-    cudaXMalloc(&y, kernel_height * sizeof(float));
-    normalized_list(y, (kernel_height - 1) / 2, kernel_height, stream);
-
-    // Initialize X and Y deriviative gaussian kernels
-    float* kernel_x;
-    cudaXMalloc(&kernel_x, kernel_width * sizeof(float));
-    comp_dgaussian(kernel_x, x, kernel_width, sigma, 2, stream);
-
-    float* kernel_y;
-    cudaXMalloc(&kernel_y, kernel_height * sizeof(float));
-    comp_dgaussian(kernel_y, y, kernel_height, sigma, 0, stream);
-
-    cudaXStreamSynchronize(stream);
-
-    float* kernel_result;
-    cudaXMalloc(&kernel_result, sizeof(float) * kernel_width * kernel_height);
-    holovibes::compute::matrix_multiply(kernel_y,
-                                        kernel_x,
-                                        kernel_height,
-                                        kernel_width,
-                                        1,
-                                        kernel_result,
-                                        cublas_handler_,
-                                        CUBLAS_OP_N,
-                                        CUBLAS_OP_N);
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
-    float* result_transpose;
-    cudaXMalloc(&result_transpose, sizeof(float) * kernel_width * kernel_height);
-    cublasSafeCall(cublasSgeam(cublas_handler_,
-                               CUBLAS_OP_T,
-                               CUBLAS_OP_N,
-                               kernel_width,
-                               kernel_height,
-                               &alpha,
-                               kernel_result,
-                               kernel_height,
-                               &beta,
-                               nullptr,
-                               kernel_height,
-                               result_transpose,
-                               kernel_width));
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(kernel_result);
-
-    cudaXFree(x);
-    cudaXFree(y);
-    cudaXFree(kernel_y);
-    cudaXFree(kernel_x);
-
-    return result_transpose;
-}
-
-float* compute_kernel(float sigma)
-{
-    int kernel_size = 2 * std::ceil(2 * sigma) + 1;
-    float* kernel = new float[kernel_size * kernel_size];
-    float half_size = (kernel_size - 1.0f) / 2.0f;
-    float sum = 0.0f;
-
-    int y = 0;
-    for (float i = -half_size; i <= half_size; ++i)
-    {
-        int x = 0;
-        for (float j = -half_size; j <= half_size; ++j)
-        {
-            float value = std::exp(-(i * i + j * j) / (2 * sigma * sigma));
-
-            kernel[x * kernel_size + y] = value;
-
-            sum += value;
-            x++;
-        }
-        y++;
-    }
-
-    for (int i = 0; i < kernel_size * kernel_size; ++i)
-    {
-        kernel[i] /= sum;
-    }
-
-    return kernel;
-}
-
-__global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
+static __global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -399,7 +362,7 @@ __global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, floa
     atomicAdd(d_sum, value);
 }
 
-__global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
+static __global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -522,23 +485,6 @@ void divide_frames_inplace(float* const input_output,
     kernel_divide_frames_float_inplace<<<blocks, threads, 0, stream>>>(input_output, denominator, size);
     cudaCheckError();
 }
-
-namespace
-{
-int find_max_thrust(float* input, size_t size)
-{
-    thrust::device_ptr<float> dev_ptr(input);
-    thrust::device_ptr<float> max_ptr = thrust::max_element(dev_ptr, dev_ptr + size);
-    return max_ptr - dev_ptr;
-}
-
-int find_min_thrust(float* input, size_t size)
-{
-    thrust::device_ptr<float> dev_ptr(input);
-    thrust::device_ptr<float> min_ptr = thrust::min_element(dev_ptr, dev_ptr + size);
-    return min_ptr - dev_ptr;
-}
-} // namespace
 
 // Kernel to normalize an array between a given range
 __global__ void

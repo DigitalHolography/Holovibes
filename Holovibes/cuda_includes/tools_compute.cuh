@@ -64,3 +64,17 @@ void tensor_multiply_vector(float* output,
                             const ushort f_start,
                             const ushort f_end,
                             const cudaStream_t stream);
+
+/*! \brief Pointwise multiplication of the pixels values of 2 float input images.
+ *
+ *  \param[out] output To store the result. Same size of inputs.
+ *  \param[in] input1 First input matrix to multiply.
+ *  \param[in] input2 Second input matrix to multiply.
+ *  \param[in] size Size of each matrix.
+ *  \param[in] stream The CUDA stream to parallelise the computations.
+ */
+void compute_hadamard_product(float* const output,
+                              const float* const input1,
+                              const float* const input2,
+                              const size_t size,
+                              const cudaStream_t stream);

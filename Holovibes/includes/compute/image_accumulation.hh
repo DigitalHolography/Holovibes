@@ -85,6 +85,12 @@ class ImageAccumulation
     /*! \brief Free ressources for image accumulation */
     void dispose();
 
+    /*! \brief Allocate ressources for image accumulation queue for the two cuts. */
+    void init_cuts_queue();
+
+    /*! \brief Free ressources for image accumulation queue for the two cuts. */
+    void dispose_cuts_queue();
+
     /*! \brief Clear image accumulation queue */
     void clear();
 

@@ -1,31 +1,9 @@
 #include "tools_analysis.cuh"
 #include "cuda_memory.cuh"
 #include "tools_analysis_debug.hh"
-
-#include <thrust/device_ptr.h>
-#include <thrust/extrema.h>
+#include "map.cuh"
 
 #define CIRCLE_MASK_RADIUS 0.07f
-
-// __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth)
-// {
-//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-//     if (index < depth * size)
-//     {
-//         const uint depth_index = index / size;
-//         const uint size_index = index % size;
-
-//         atomicAdd(&output[depth_index], A[size_index + depth_index * size] * B[size_index]);
-//     }
-// }
-
-// __global__ void kernel_divide(float* output, size_t depth, size_t size)
-// {
-//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-//     if (index < depth)
-//         output[index] /= size;
-// }
 
 __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
@@ -51,9 +29,7 @@ __global__ void kernel_compute_multiplication_mean_optimized(
 
     // Accéder aux données de manière coalescente si possible
     if (index < size)
-    {
         temp = A[index + i * size] * B[index];
-    }
 
     // Réduction parallèle dans la mémoire partagée
     sdata[thread_id] = temp;
@@ -63,27 +39,16 @@ __global__ void kernel_compute_multiplication_mean_optimized(
     for (uint s = blockDim.x / 2; s > 0; s >>= 1)
     {
         if (thread_id < s)
-        {
             sdata[thread_id] += sdata[thread_id + s];
-        }
         __syncthreads();
     }
 
     // Le thread 0 écrit le résultat partiel
     if (thread_id == 0)
-    {
         atomicAdd(output + i, sdata[0]);
-    }
 }
 
-__global__ void kernel_divide(float* output, size_t denominator, uint depth)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < depth)
-        output[index] /= denominator;
-}
-
-void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
+void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -100,54 +65,8 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
         cudaCheckError();
     }
     blocks = map_blocks_to_problem(depth, threads);
-    kernel_divide<<<blocks, threads, 0, stream>>>(output, size, depth);
+    map_divide(output, depth, size, stream);
     cudaCheckError();
-}
-
-// void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
-// {
-//     uint threads = get_max_threads_1d();
-//     uint blocks = map_blocks_to_problem(depth * size, threads);
-//     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
-//     cudaCheckError();
-
-//     threads = get_max_threads_1d();
-//     blocks = map_blocks_to_problem(depth, threads);
-//     kernel_divide<<<blocks, threads, 0, stream>>>(output, depth, size);
-//     cudaCheckError();
-// }
-
-__global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size, size_t depth)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-    {
-        for (uint i = 0; i < depth; i++)
-            output[i * size + index] = A[i * size + index] * B[index];
-    }
-}
-
-void compute_multiplication(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-
-    kernel_compute_multiplication<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
-    cudaCheckError();
-}
-
-int find_max_thrust(float* input, size_t size)
-{
-    thrust::device_ptr<float> dev_ptr(input);
-    thrust::device_ptr<float> max_ptr = thrust::max_element(dev_ptr, dev_ptr + size);
-    return max_ptr - dev_ptr;
-}
-
-int find_min_thrust(float* input, size_t size)
-{
-    thrust::device_ptr<float> dev_ptr(input);
-    thrust::device_ptr<float> min_ptr = thrust::min_element(dev_ptr, dev_ptr + size);
-    return min_ptr - dev_ptr;
 }
 
 int compute_barycentre_circle_mask(float* output,

@@ -94,7 +94,8 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
-    holovibes::settings::RecordQueueLocation
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::DataType
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -103,8 +104,7 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled,                          \
-    holovibes::settings::DataType
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -154,22 +154,18 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        if (setting<settings::ImageType>() == ImgType::Composite)
-        {
-            // Grey to RGB
+        if (setting<settings::ImageType>() == ImgType::Composite) // Grey to RGB
             zone_size *= 3;
-            buffers_.gpu_postprocess_frame_size *= 3;
-        }
 
         buffers_.gpu_postprocess_frame_size = zone_size;
 
         // Allocate the buffers
         int err = !buffers_.gpu_output_frame.resize(zone_size);
-        err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_postprocess_frame.resize(zone_size);
+        err += !time_transformation_env_.gpu_p_frame.resize(zone_size);
+        err += !buffers_.gpu_complex_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_float_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
 
@@ -216,7 +212,6 @@ class ICompute
         Convolution,
         DisableConvolution,
         Filter,
-        DisableFilter,
 
         // Add other setting here
 

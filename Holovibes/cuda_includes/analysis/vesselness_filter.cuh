@@ -27,7 +27,7 @@ void vesselness_filter(float* output,
                        int kernel_x_size,
                        int kernel_y_size,
                        int frame_res,
-                       holovibes::VesselnessFilterStruct& filter_struct_,
+                       holovibes::VesselnessFilterEnv& filter_struct_,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream);
 

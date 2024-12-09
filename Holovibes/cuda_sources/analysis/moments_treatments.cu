@@ -98,45 +98,6 @@ void compute_mean_1_2(
     cudaCheckError();
 }
 
-// __global__ void
-// kernel_image_centering(float* output, const float* m0_video, const float* m0_mean, const uint frame_size)
-// {
-//     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-//     const size_t mean_index = index % 506;
-//     if (index < frame_size)
-//         output[index] = m0_video[index] - m0_mean[mean_index];
-// }
-
-// void image_centering(
-//     float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const cudaStream_t stream)
-// {
-//     uint threads = get_max_threads_1d();
-//     uint blocks = map_blocks_to_problem(frame_size * 506, threads);
-//     kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_mean, frame_size * 506);
-//     cudaCheckError();
-// }
-
-// __global__ void kernel_image_centering(
-//     float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const uint mean_size)
-// {
-//     // Dynamically allocated shared memory
-//     extern __shared__ float shared_mean[];
-
-//     // Load mean values into shared memory
-//     if (threadIdx.x < mean_size)
-//         shared_mean[threadIdx.x] = m0_mean[threadIdx.x];
-//     __syncthreads(); // Ensure all threads have loaded shared_mean
-
-//     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-
-//     // Ensure we stay within bounds
-//     if (index < frame_size)
-//     {
-//         const size_t mean_index = index % mean_size; // Modulo operation with dynamic mean size
-//         output[index] = m0_video[index] - shared_mean[mean_index];
-//     }
-// }
-
 __global__ void kernel_image_centering(
     float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const uint length_video)
 {

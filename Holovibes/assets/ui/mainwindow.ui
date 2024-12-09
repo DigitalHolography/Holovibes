@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1526</width>
+    <width>1283</width>
     <height>810</height>
    </rect>
   </property>
@@ -381,8 +381,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
-              <string>Number of images averaged together to generate a single output image.
-It's a post-processing step to remove noise</string>
+              <string>The size of the time transformation</string>
              </property>
              <property name="text">
               <string>Nb. img</string>
@@ -449,7 +448,7 @@ It's a post-processing step to remove noise</string>
            <item row="5" column="0">
             <widget class="QLabel" name="BoundaryLabel">
              <property name="toolTip">
-              <string>The boundary</string>
+              <string>The maximum value of the focus</string>
              </property>
              <property name="text">
               <string>Boundary (mm)</string>
@@ -461,6 +460,9 @@ It's a post-processing step to remove noise</string>
            </item>
            <item row="5" column="1">
             <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -706,6 +708,9 @@ It's a post-processing step to remove noise</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Flips the image horizontally</string>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
                 </property>
@@ -734,6 +739,10 @@ It's a post-processing step to remove noise</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Rotates the image by 90° angles.
+The rotation steps counterclockwise</string>
+                </property>
                 <property name="text">
                  <string>Rotate   0</string>
                 </property>
@@ -748,7 +757,7 @@ It's a post-processing step to remove noise</string>
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>set log filter for output</string>
+                 <string>Set log filter for output</string>
                 </property>
                 <property name="text">
                  <string>Log</string>
@@ -762,7 +771,8 @@ It's a post-processing step to remove noise</string>
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
                 <property name="toolTip">
-                 <string>Number of images averaged together to generate a single output image. It's a post-processing step to remove noise</string>
+                 <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
                 </property>
                 <property name="text">
                  <string>Output Image Acc.</string>
@@ -933,7 +943,7 @@ It's a post-processing step to remove noise</string>
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0">
+          <layout class="QGridLayout" name="XYZGridLayout" columnstretch="0,0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
@@ -1122,7 +1132,7 @@ The range of frequencies kept is [z2, z2 + width].</string>
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLabel" name="PaccLabel">
+            <widget class="QLabel" name="PAccLabel">
              <property name="toolTip">
               <string>Number of frequencies kept by the FFT in the time transformation algorithm.
 The range of frequencies kept is [z, z + width]</string>
@@ -3158,6 +3168,9 @@ The range of frequencies kept is [z, z + width]</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Defines what to record</string>
+                </property>
                 <item>
                  <property name="text">
                   <string>Raw Image</string>
@@ -3319,6 +3332,9 @@ The range of frequencies kept is [z, z + width]</string>
                      <width>50</width>
                      <height>16777215</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>The extension of the file; also defines the format of the recording</string>
                    </property>
                    <item>
                     <property name="text">
@@ -3580,7 +3596,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1526</width>
+     <width>1283</width>
      <height>21</height>
     </rect>
    </property>
@@ -5209,7 +5225,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>ImageModeComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(int)</slot>
+   <slot>set_computation_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -6551,7 +6567,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(int)</slot>
+  <slot>set_computation_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_lambda(double)</slot>
   <slot>set_z_distance(double)</slot>
@@ -6667,7 +6683,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
-  <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>

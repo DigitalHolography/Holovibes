@@ -96,3 +96,23 @@ void tensor_multiply_vector(float* output,
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
 }
+
+__global__ void kernel_compute_hadamard_product(float* const output,
+                                                const float* const input1,
+                                                const float* const input2,
+                                                const size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+        output[index] = input1[index] * input2[index];
+}
+
+void compute_hadamard_product(
+    float* output, const float* const input1, const float* const input2, const size_t size, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_compute_hadamard_product<<<blocks, threads, 0, stream>>>(output, input1, input2, size);
+    cudaCheckError();
+}

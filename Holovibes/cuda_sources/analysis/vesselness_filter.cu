@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "tools_analysis.cuh"
 #include "tools_analysis_debug.hh"
+#include "map.cuh"
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -210,7 +211,7 @@ void compute_I(float* output,
 
     gaussian_imfilter_sep(output, g_mul, kernel_x_size, kernel_y_size, frame_res, convolution_tmp_buffer, stream);
 
-    multiply_array_by_scalar(output, frame_res, A, stream);
+    map_multiply(output, frame_res, A, stream);
 }
 
 void vesselness_filter(float* output,
@@ -222,7 +223,7 @@ void vesselness_filter(float* output,
                        int kernel_x_size,
                        int kernel_y_size,
                        int frame_res,
-                       holovibes::VesselnessFilterStruct& filter_struct_,
+                       holovibes::VesselnessFilterEnv& filter_struct_,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream)
 {
@@ -241,7 +242,7 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 0, stream);
+    cudaXMemcpyAsync(filter_struct_.H, filter_struct_.I, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice, stream);
 
     compute_I(filter_struct_.I,
               input,
@@ -253,7 +254,11 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 1, stream);
+    cudaXMemcpyAsync(filter_struct_.H + frame_res,
+                     filter_struct_.I,
+                     sizeof(float) * frame_res,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     compute_I(filter_struct_.I,
               input,
@@ -265,7 +270,11 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 2, stream);
+    cudaXMemcpyAsync(filter_struct_.H + frame_res * 2,
+                     filter_struct_.I,
+                     sizeof(float) * frame_res,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     cudaXMemsetAsync(filter_struct_.lambda_1, 0, frame_res * sizeof(float), stream);
     cudaXMemsetAsync(filter_struct_.lambda_2, 0, frame_res * sizeof(float), stream);

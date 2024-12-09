@@ -97,30 +97,7 @@ void multiply_three_vectors(
     cudaCheckError();
 }
 
-// __global__ void
-// kernel_computeMean(const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth)
-// {
-//     // Calcul des indices globaux
-//     int x = blockIdx.x * blockDim.x + threadIdx.x; // index de ligne
-//     int y = blockIdx.y * blockDim.y + threadIdx.y; // index de colonne
-
-//     if (x < rows && y < cols)
-//     {
-//         float sum = 0.0f;
-
-//         // Somme sur la 3ème dimension
-//         for (int z = 0; z < depth; ++z)
-//         {
-//             int index3D = x * cols + y + z * rows * cols;
-//             sum += M0[index3D] * vascularPulse[z];
-//         }
-
-//         // Stocker la moyenne dans le tableau résultat
-//         result[x * cols + y] = sum / depth;
-//     }
-// }
-
-__global__ void kernel_computeMean(
+__global__ void kernel_compute_mean(
     const float* M0_ff_video_centered, const float* vascularPulse_centered, float* result, size_t size, int depth)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -138,7 +115,7 @@ __global__ void kernel_computeMean(
     }
 }
 
-void computeMean(
+void compute_mean(
     const float* M0, const float* vascularPulse, float* result, size_t size, int depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -146,7 +123,7 @@ void computeMean(
     // dim3 blockSize(16, 16);
     // dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, (cols + blockSize.y - 1) / blockSize.y);
 
-    kernel_computeMean<<<blocks, threads, 0, stream>>>(M0, vascularPulse, result, size, depth);
+    kernel_compute_mean<<<blocks, threads, 0, stream>>>(M0, vascularPulse, result, size, depth);
     cudaCheckError();
 }
 
@@ -192,7 +169,7 @@ void compute_first_correlation(float* output,
                                float* vascular_pulse,
                                int nnz_mask_vesslness_clean,
                                size_t length_video, // length_video here is actual time window
-                               VesselnessFilterStruct& filter_struct_,
+                               VesselnessFilterEnv& filter_struct_,
                                size_t size,
                                cudaStream_t stream)
 {
@@ -201,7 +178,7 @@ void compute_first_correlation(float* output,
     float vascular_mean = compute_mean(vascular_pulse, length_video);
     subtract_constant(filter_struct_.vascular_pulse_centered, vascular_pulse, vascular_mean, length_video, stream);
 
-    computeMean(M0_ff_video_centered, filter_struct_.vascular_pulse_centered, output, size, length_video, stream);
+    compute_mean(M0_ff_video_centered, filter_struct_.vascular_pulse_centered, output, size, length_video, stream);
 
     compute_std(M0_ff_video_centered, filter_struct_.std_M0_ff_video_centered, size, length_video, stream);
 

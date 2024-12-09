@@ -9,13 +9,13 @@
 
 typedef unsigned int uint;
 
+int find_max_thrust(float* input, const size_t size);
+
+int find_min_thrust(float* input, const size_t size);
+
 void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
-
-void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream);
-
-void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream);
 
 void apply_diaphragm_mask(float* output,
                           const float center_X,
@@ -39,9 +39,6 @@ void apply_mask_and(
 
 void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream);
 
-float* compute_gauss_deriviatives_kernel(
-    int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream);
-
 void convolution_kernel_add_padding(float* output,
                                     float* kernel,
                                     const int width,
@@ -49,8 +46,6 @@ void convolution_kernel_add_padding(float* output,
                                     const int new_width,
                                     const int new_height,
                                     cudaStream_t stream);
-
-float* compute_kernel(float sigma);
 
 void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream);
 

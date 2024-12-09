@@ -9,7 +9,7 @@
 
 #include "logger.hh"
 
-/**
+/*!
  * @brief Apply the colors on the image cube
  * @param input input complex buffer
  * @param output output rgb float buffer
@@ -37,7 +37,7 @@ kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t r
     }
 }
 
-/**
+/*!
  * @brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color
  * gradient on a position
  * @param colors The buffer to fill (range * 3 * sizeof(float))
@@ -78,7 +78,7 @@ __global__ static void kernel_precompute_colors(float* colors, size_t range, hol
     }
 }
 
-/**
+/*!
  * @brief Compute the rgb color of each pixel of the image
  * @param input The input complex buffer
  * @param output The output rgb float buffer (1 pixel = 3 floats)

@@ -39,8 +39,9 @@ namespace holovibes
 struct CoreBuffersEnv;
 struct VesselnessMaskEnv;
 struct MomentsEnv;
-struct FirstMaskChoroidStruct;
-struct OtsuStruct;
+struct FirstMaskChoroidEnv;
+struct OtsuEnv;
+struct BwAreaEnv;
 } // namespace holovibes
 
 namespace holovibes::analysis
@@ -61,19 +62,17 @@ class Analysis
              MomentsEnv& moments_env,
              const cudaStream_t& stream,
              InitSettings settings)
-        : gaussian_128_kernel_buffer_()
-        , cuComplex_buffer_()
+        : cuComplex_buffer_()
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
         , fd_(input_fd)
         , vesselness_mask_env_(vesselness_mask_env)
         , moments_env_(moments_env)
-        , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
         , realtime_settings_(settings)
     {
         // Create for Analysis its own cublas handler associated to its personal cuda stream
-        [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
+        cublasCreate_v2(&cublas_handler_);
         cublasSetStream(cublas_handler_, stream_);
 
         // TODO: remove everything below when done
@@ -87,7 +86,19 @@ class Analysis
         load_bin_video_file(RELATIVE_PATH("../../Obj_M1_data_video_permuted.bin"), m1_bin_video_, stream_);
     }
 
-    /*! \brief Initialize convolution by allocating the corresponding buffer */
+    /*!
+     * \brief Initializes GPU buffers, kernel parameters, and resources required for vesselness
+     *        filtering and vascular pulse computation.
+     *
+     * This function prepares various structures, allocates GPU memory, computes Gaussian
+     * kernel parameters, and initializes vesselness filter buffers and other resources.
+     *
+     * Key operations include:
+     * - Calculating Gaussian kernel dimensions and parameters.
+     * - Allocating and resizing buffers for vesselness and vascular processing.
+     * - Initializing Gaussian derivative kernels for vesselness computations.
+     * - Preparing circular video buffers for temporal data.
+     */
     void init();
 
     /*! \brief Insert mask computing */
@@ -99,11 +110,17 @@ class Analysis
     /*! \brief Insert vein mask*/
     void insert_vein_mask();
 
+    /*! \brief Insert choroid mask */
+    void insert_choroid_mask();
+
     /*! \brief Insert both masks*/
     void insert_vesselness();
 
-    /*! \brief Insert choroid mask */
-    void insert_choroid_mask();
+    /*! \brief Getter for the mask result buffer */
+    float* get_mask_result();
+
+    /*! \brief Getter for the mask number of non zero count */
+    size_t get_mask_nnz();
 
     template <typename T>
     inline void update_setting(T setting)
@@ -116,7 +133,25 @@ class Analysis
     }
 
   private:
-    // Below init_analysis functions
+    /*!
+     * \brief Initializes parameters for a vesselness filter by computing and transposing
+     *        derivative Gaussian kernels on the GPU.
+     *
+     * This function generates normalized coordinate lists for x and y dimensions, computes
+     * the X and Y derivative Gaussian kernels, multiplies them to form a filter kernel,
+     * and transposes the result. All computations are performed on the GPU.
+     *
+     * \param [out] result_transpose Pointer to the GPU memory where the transposed result is stored.
+     * \param [out] target Pointer to the GPU memory where the intermediate result is stored.
+     * \param [in] sigma Standard deviation of the Gaussian kernel.
+     * \param [in] x_size Size of the x-dimension.
+     * \param [in] y_size Size of the y-dimension.
+     * \param [in] x_lim Range limit for normalization in the x-dimension.
+     * \param [in] y_lim Range limit for normalization in the y-dimension.
+     * \param [in] p Order of the derivative in the x-dimension.
+     * \param [in] q Order of the derivative in the y-dimension.
+     * \param [in] stream CUDA stream for asynchronous execution.
+     */
     void init_params_vesselness_filter(float* result_transpose,
                                        float* target,
                                        float sigma,
@@ -127,8 +162,28 @@ class Analysis
                                        int p,
                                        int q,
                                        cudaStream_t stream);
-    /**
-     * @brief Helper function to get a settings value.
+
+    /*! \brief To be remove, only for test */
+    void insert_bin_moments();
+
+    /*! \brief Compute pretreatment to be able to do the different masks, such as the temporal mean of M0 */
+    void compute_pretreatment();
+
+    /*! \brief Compute vesselness response, which includes the first vesselness mask */
+    void compute_vesselness_response();
+
+    /*! \brief Compute the barycentres and the circle mask, which includes the mask vesselness clean */
+    void compute_barycentres_and_circle_mask();
+
+    /*! \brief Compute the first correlation, which leads to R_vascular_pulse */
+    void compute_correlation();
+
+    /*! \brief Compute the segment vessels, which includes quantizedVesselCorrelation_, an image with only values from 1
+     * to 5 */
+    void compute_segment_vessels();
+
+    /*!
+     * \brief Helper function to get a settings value.
      */
     template <typename T>
     auto setting()
@@ -139,44 +194,41 @@ class Analysis
         }
     }
 
-    /*! \brief Buffer used for gaussian blur 128x128 convolution kernel */
-    cuda_tools::CudaUniquePtr<cuComplex> gaussian_128_kernel_buffer_;
-
     /*! \brief Temporary complex buffer used for FFT computations */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
     std::shared_ptr<FunctionVector> fn_compute_vect_;
 
-    /*! \brief Main buffers */
-    CoreBuffersEnv& buffers_;
-
     /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
+
+    /*! \brief Main buffers */
+    CoreBuffersEnv& buffers_;
 
     /*! \brief Vesselness mask environment */
     VesselnessMaskEnv& vesselness_mask_env_;
 
     /*! \brief Vesselness filter buffers struct */
-    VesselnessFilterStruct vesselness_filter_struct_;
+    VesselnessFilterEnv vesselness_filter_struct_;
 
-    /*! \brief FirstMaskChoroidStruct buffers struct */
-    FirstMaskChoroidStruct first_mask_choroid_struct_;
+    /*! \brief FirstMaskChoroidEnv buffers struct */
+    FirstMaskChoroidEnv first_mask_choroid_struct_;
 
-    /*! \brief Temporary Otsu buffers struct */
-    OtsuStruct otsu_struct_;
+    /*! \brief Reference to the OtsuEnv to get access to otsu buffers */
+    OtsuEnv otsu_env_;
 
-    /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
-    CufftHandle convolution_plan_;
+    /*! \brief Reference to the BwAreaEnv to get access to otsu buffers */
+    BwAreaEnv bw_area_env_;
+
+    /*! \brief Reference to the MomentsEnv to get access to moments buffers */
+    MomentsEnv& moments_env_;
 
     /*! \brief Cublas handler used for matrices multiplications */
     cublasHandle_t cublas_handler_;
 
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
-
-    /*! \brief Reference to the MomentsEnv to get access to moments buffers */
-    MomentsEnv& moments_env_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> m0_bin_video_;
@@ -189,18 +241,8 @@ class Analysis
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<float> float_buffer_;
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
-    /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<float> otsu_histo_buffer_2_;
+    /*! \brief Buffer containing the final resulting mask */
+    cuda_tools::CudaUniquePtr<float> mask_result_buffer_;
 };
 } // namespace holovibes::analysis
 

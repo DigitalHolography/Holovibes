@@ -10,6 +10,7 @@
 #include "tools.hh"
 #include "frame_desc.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 #include <map>
 
@@ -40,8 +41,11 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_data_not_moments = !(api::get_data_type() == RecordedDataType::MOMENTS);
+    const bool not_raw_not_moments = !is_raw && is_data_not_moments;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
+    ui_->ImageModeComboBox->setEnabled(is_data_not_moments);
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
@@ -49,16 +53,18 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
+    const bool is_batch_size_enabled = !api::is_recording() && is_data_not_moments;
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ &&
-                                      api::get_data_type() != RecordedDataType::MOMENTS);
+    ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
+    ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
+    ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
-    ui_->TimeTransformationComboBox->setEnabled(!is_raw);
+    ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
@@ -68,11 +74,14 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     // Z (focus)
-    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaLabel->setEnabled(not_raw_not_moments);
+    ui_->LambdaSpinBox->setEnabled(not_raw_not_moments);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
-    ui_->ZDoubleSpinBox->setEnabled(!is_raw);
+    ui_->ZLabel->setEnabled(not_raw_not_moments);
+    ui_->ZDoubleSpinBox->setEnabled(not_raw_not_moments);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary() * 1000);
 
     // Filter2D
@@ -99,8 +108,11 @@ void ImageRenderingPanel::on_notify()
     }
     else
     {
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
-            QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+        int index = 0;
+        if (!api::get_filter_file_name().empty())
+            index = ui_->InputFilterQuickSelectComboBox->findText(QString::fromStdString(api::get_filter_file_name()));
+
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
     }
 
     // Convolution
@@ -110,8 +122,12 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setVisible(api::get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
-        QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
+
+    int index = 0;
+    if (!api::get_convolution_file_name().empty())
+        index = ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution_file_name()));
+
+    ui_->KernelQuickSelectComboBox->setCurrentIndex(index);
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -128,49 +144,25 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_image_mode(int mode)
+void ImageRenderingPanel::set_computation_mode(int mode)
 {
     if (api::get_import_type() == ImportType::None)
         return;
 
-    if (mode == static_cast<int>(Computation::Raw))
+    Computation comp_mode = static_cast<Computation>(mode);
+
+    gui::close_windows();
+    api::set_computation_mode(comp_mode);
+    gui::create_window(comp_mode, parent_->window_max_size);
+
+    if (comp_mode == Computation::Hologram)
     {
-        api::close_windows();
-        api::close_critical_compute();
-        api::set_raw_mode(parent_->window_max_size);
-
-        parent_->notify();
-        parent_->layout_toggled();
-    }
-    else if (mode == static_cast<int>(Computation::Hologram))
-    {
-        // That function is used to reallocate the buffers since the Square
-        // input mode could have changed
-        /* Close windows & destory thread compute */
-        api::close_windows();
-        api::close_critical_compute();
-
-        api::change_window(static_cast<int>(WindowKind::XYview));
-
-        api::set_holographic_mode(parent_->window_max_size);
-
         /* Filter2D */
         camera::FrameDescriptor fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-
-        /* Record Frame Calculation. Only in file mode */
-        if (api::get_import_type() == ImportType::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-
-        /* Batch size */
-        // The batch size is set with the value present in GUI.
-        // update_batch_size();
-
-        /* Notify */
-        parent_->notify();
     }
+
+    parent_->notify();
 }
 
 void ImageRenderingPanel::update_batch_size()
@@ -182,11 +174,6 @@ void ImageRenderingPanel::update_batch_size()
 void ImageRenderingPanel::update_time_stride()
 {
     api::update_time_stride(ui_->TimeStrideSpinBox->value());
-
-    if (api::get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
     parent_->notify();
 }
 
@@ -225,34 +212,14 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     LOG_FUNC();
 
-    if (value.toStdString() != UserInterfaceDescriptor::instance().filter_name)
-    {
-        api::enable_filter(value.toStdString());
-        parent_->notify();
-    }
-}
-
-void ImageRenderingPanel::refresh_input_filter()
-{
-    LOG_FUNC();
-
-    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
-    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-
-    auto filename = UserInterfaceDescriptor::instance().filter_name;
-
-    if (filename == UID_FILTER_TYPE_DEFAULT)
-    {
-        LOG_INFO("--- || ---");
-        return;
-    }
-
-    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    std::string v = value.toStdString();
+    api::enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    api::set_filter2d_view(checked);
+    gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
 }
 
@@ -327,7 +294,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
         return;
 
     if (value)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+        api::enable_convolution(api::get_convolution_file_name());
     else
         api::disable_convolution();
 
@@ -336,16 +303,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (!api::get_convolution_enabled())
-        return;
-
-    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-
-    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
-
+    std::string v = value.toStdString();
+    api::enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
     parent_->notify();
 }
 

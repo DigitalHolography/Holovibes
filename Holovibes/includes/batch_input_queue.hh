@@ -143,6 +143,9 @@ class BatchInputQueue final : public DisplayQueue
 
     inline void* get_last_image() const override
     {
+        if (is_empty())
+            return nullptr;
+
         if (device_ == Device::GPU)
         {
             const std::lock_guard<std::mutex> lock(m_producer_busy_);

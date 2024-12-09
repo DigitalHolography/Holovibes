@@ -18,7 +18,7 @@ struct rect
     int h;
 };
 
-/**
+/*!
  * @brief Check that the selected zone is not out of bounds, if so replace it to take the entiere image
  * @param zone The selected zone on the UI
  * @param frame_res The total number of pixel in one frame
@@ -36,7 +36,7 @@ static void check_zone(rect& zone, const uint frame_res, const int line_size)
     }
 }
 
-/**
+/*!
  * @brief Copy the selected zone to a contiguous rgb pixel buffer
  * @param input The whole rgb image
  * @param zone_data The output rgb buffer
@@ -59,7 +59,7 @@ __global__ static void kernel_copy_zone(
     }
 }
 
-/**
+/*!
  * @brief Normalize an rgb image by dividing each pixel component by the given average.
  * @param image A contiguous rgb pixel buffer that represent the image.
  * @param image_res The number of pixel in the image.
