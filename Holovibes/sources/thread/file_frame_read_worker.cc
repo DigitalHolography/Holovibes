@@ -256,18 +256,18 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     size_t frames_enqueued = 0;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        fps_limiter_.wait(setting<settings::InputFPS>() / setting<settings::BatchSize>());
+        uint real_frames_enqueued =
+            std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
+        fps_limiter_.wait(setting<settings::InputFPS>() / real_frames_enqueued);
 
         if (Holovibes::instance().is_cli)
         {
-            while (api::get_input_queue()->get_total_nb_frames() + setting<settings::BatchSize>() - 1 >=
+            while (api::get_input_queue()->get_total_nb_frames() + real_frames_enqueued - 1 >=
                        api::get_input_queue()->get_size() &&
                    !stop_requested_)
             {
             }
         }
-        uint real_frames_enqueued =
-            std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
         input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
                                      cudaMemcpyDeviceToDevice,
                                      real_frames_enqueued);

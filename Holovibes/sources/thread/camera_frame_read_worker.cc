@@ -59,18 +59,16 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
                                          const camera::FrameDescriptor& camera_fd)
 {
     cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
-    for (unsigned i = 0; i < captured_fd.count1; ++i)
+    if (captured_fd.count1 > 0)
     {
-        auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();
-        input_queue_.load()->enqueue(ptr, copy_kind);
+        auto ptr1 = (uint8_t*)(captured_fd.region1);
+        input_queue_.load()->enqueue(ptr1, copy_kind, captured_fd.count1);
     }
-
-    for (unsigned i = 0; i < captured_fd.count2; ++i)
+    if (captured_fd.count2 > 0)
     {
-        auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.get_frame_size();
-        input_queue_.load()->enqueue(ptr, copy_kind);
+        auto ptr2 = (uint8_t*)(captured_fd.region2);
+        input_queue_.load()->enqueue(ptr2, copy_kind, captured_fd.count2);
     }
-
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
     *temperature_ = camera_->get_temperature();

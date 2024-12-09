@@ -193,6 +193,11 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
             // End of critical section between enqueue (producer) & resize
             // (consumer)
             m_producer_busy_.unlock();
+
+            while (resize_in_progress_)
+            {
+                continue;
+            }
         }
         frames_left -= frames_to_enqueue;
     }
@@ -276,11 +281,10 @@ void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
 
 void BatchInputQueue::resize(const uint new_batch_size)
 {
+    resize_in_progress_ = true;
     // No action on any batch must be proceed
     const std::lock_guard<std::mutex> lock(m_producer_busy_);
-
     // Critical section between the enqueue (producer) & the resize (consumer)
-
     // Synchronize all active CUDA streams
     if (device_ == Device::GPU)
     {
@@ -297,8 +301,8 @@ void BatchInputQueue::resize(const uint new_batch_size)
     create_queue(new_batch_size);
 
     make_empty();
-
     // End of critical section
+    resize_in_progress_ = false;
 }
 
 // void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind =
