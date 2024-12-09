@@ -269,7 +269,8 @@ void Analysis::insert_first_analysis_masks()
     LOG_FUNC();
 
     if (setting<settings::ImageType>() == ImgType::Moments_0 &&
-        (setting<settings::ArteryMaskEnabled>() || setting<settings::VeinMaskEnabled>()))
+        (setting<settings::ArteryMaskEnabled>() || setting<settings::VeinMaskEnabled>() ||
+         setting<settings::ChoroidMaskEnabled>()))
     {
         fn_compute_vect_->push_back(
             [=]()
@@ -294,9 +295,7 @@ void Analysis::insert_artery_mask()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 &&
-        setting<settings::ArteryMaskEnabled>()) //&&
-                                                //! setting<settings::VeinMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
     {
         fn_compute_vect_->push_back(
             [=]()
@@ -331,9 +330,7 @@ void Analysis::insert_vein_mask()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 &&
-        setting<settings::VeinMaskEnabled>()) //&&
-                                              //! setting<settings::ArteryMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
     {
         fn_compute_vect_->push_back(
             [=]()
@@ -368,8 +365,7 @@ void Analysis::insert_choroid_mask()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
-        setting<settings::ArteryMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ChoroidMaskEnabled>())
     {
         fn_compute_vect_->push_back(
             [=]()
@@ -419,25 +415,12 @@ void Analysis::insert_choroid_mask()
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
-                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
-            });
-    }
-}
-
-void Analysis::insert_vesselness()
-{
-    LOG_FUNC();
-
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
-        setting<settings::ArteryMaskEnabled>())
-    {
-        fn_compute_vect_->push_back(
-            [=]()
-            {
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            vesselness_mask_env_.quantizedVesselCorrelation_,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToDevice);
+                apply_mask_or(buffers_.gpu_postprocess_frame, mask_result_buffer_, fd_.width, fd_.height, stream_);
+                cudaXMemcpyAsync(mask_result_buffer_,
+                                 buffers_.gpu_postprocess_frame,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }

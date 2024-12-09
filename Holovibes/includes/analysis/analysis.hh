@@ -25,7 +25,8 @@
     holovibes::settings::VesselnessSigma,          \
     holovibes::settings::MinMaskArea,              \
     holovibes::settings::DiaphragmFactor,          \
-    holovibes::settings::BarycenterFactor
+    holovibes::settings::BarycenterFactor,         \
+    holovibes::settings::ChoroidMaskEnabled
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -112,9 +113,6 @@ class Analysis
 
     /*! \brief Insert choroid mask */
     void insert_choroid_mask();
-
-    /*! \brief Insert both masks*/
-    void insert_vesselness();
 
     /*! \brief Getter for the mask result buffer */
     float* get_mask_result();

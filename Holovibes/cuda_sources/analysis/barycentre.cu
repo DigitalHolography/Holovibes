@@ -3,8 +3,6 @@
 #include "tools_analysis_debug.hh"
 #include "map.cuh"
 
-#define CIRCLE_MASK_RADIUS 0.07f
-
 __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
