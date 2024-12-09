@@ -255,7 +255,6 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
-
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         fps_limiter_.wait(setting<settings::InputFPS>() / setting<settings::BatchSize>());
@@ -268,9 +267,10 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
-                                     setting<settings::BatchSize>(),
-                                     cudaMemcpyDeviceToDevice);
+        input_queue_.load()->enqueue(
+            gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
+            cudaMemcpyDeviceToDevice,
+            std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued));
 
         current_nb_frames_read_ +=
             std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);

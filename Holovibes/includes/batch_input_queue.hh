@@ -59,8 +59,8 @@ class BatchInputQueue final : public DisplayQueue
      * \param nb_frame Number of frames to enqueue (default = 1)
      */
     void enqueue(const void* const frames,
-                 const int nb_frame = 1,
-                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
+                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice,
+                 const int nb_frame = 1);
 
     /*! \brief Copy multiple
      *

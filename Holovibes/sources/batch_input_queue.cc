@@ -1,5 +1,5 @@
 #include <cassert>
-
+#include "logger.hh"
 #include "holovibes.hh"
 
 #include "batch_input_queue.hh"
@@ -121,7 +121,7 @@ void BatchInputQueue::stop_producer()
     }
 }
 
-void BatchInputQueue::enqueue(const void* const frames, const int nb_frame, const cudaMemcpyKind memcpy_kind)
+void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind memcpy_kind, const int nb_frame)
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
@@ -129,70 +129,72 @@ void BatchInputQueue::enqueue(const void* const frames, const int nb_frame, cons
     if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
 
-    if (curr_batch_counter_ + nb_frame > batch_size_)
+    int frames_left = nb_frame;
+    while (frames_left > 0)
     {
-        int slice = batch_size_ - curr_batch_counter_;
-        enqueue(frames, slice, memcpy_kind);
-        enqueue((void*)((char*)frames + (slice * fd_.get_frame_size())), nb_frame - slice, memcpy_kind);
-        return;
-    }
-
-    if (curr_batch_counter_ == 0) // Enqueue in a new batch
-    {
-        // The producer might be descheduled before locking.
-        // Consumer might modified curr_batch_counter_ here by the resize
-        // However, it sets its value to 0 so the condition is still true.
-        m_producer_busy_.lock();
-        batch_mutexes_[end_index_].lock();
-    }
-
-    // Critical section between enqueue (producer) & resize (consumer)
-
-    // Static_cast to avoid overflow
-    char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
-
-    if (device_ == Device::GPU)
-        cudaXMemcpyAsync(new_frame_adress,
-                         frames,
-                         sizeof(char) * fd_.get_frame_size() * nb_frame,
-                         memcpy_kind,
-                         batch_streams_[end_index_]);
-    else
-        cudaXMemcpyAsync(new_frame_adress, frames, sizeof(char) * fd_.get_frame_size() * nb_frame, memcpy_kind);
-
-    // No sync needed here, the host doesn't need to wait for the copy to
-    // end. Only the consumer needs to be sure the data is here before
-    // manipulating it.
-
-    // Increase the number of frames in the current batch
-    curr_batch_counter_ += nb_frame;
-
-    // The current batch is full
-    if (curr_batch_counter_ == batch_size_)
-    {
-        curr_batch_counter_ = 0;
-        const uint prev_end_index = end_index_;
-        end_index_ = (end_index_ + 1) % max_size_;
-
-        // The queue is full (in terms of batch)
-        if (size_ == max_size_)
+        uint frames_to_enqueue = std::min((uint)frames_left, batch_size_ - curr_batch_counter_);
+        if (curr_batch_counter_ == 0) // Enqueue in a new batch
         {
-            has_overwritten_ = true;
-            start_index_ = (start_index_ + 1) % max_size_;
+            // The producer might be descheduled before locking.
+            // Consumer might modified curr_batch_counter_ here by the resize
+            // However, it sets its value to 0 so the condition is still true.
+            m_producer_busy_.lock();
+            batch_mutexes_[end_index_].lock();
         }
+
+        // Critical section between enqueue (producer) & resize (consumer)
+
+        // Static_cast to avoid overflow
+        char* const new_frame_adress =
+            data_.get() +
+            ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
+
+        if (device_ == Device::GPU)
+            cudaXMemcpyAsync(new_frame_adress,
+                             frames,
+                             sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
+                             memcpy_kind,
+                             batch_streams_[end_index_]);
         else
-        {
-            size_++;
-            curr_nb_frames_ += batch_size_;
-        }
+            cudaXMemcpyAsync(new_frame_adress,
+                             frames,
+                             sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
+                             memcpy_kind);
 
-        // Unlock the current batch mutex
-        batch_mutexes_[prev_end_index].unlock();
-        // No batch are busy anymore
-        // End of critical section between enqueue (producer) & resize
-        // (consumer)
-        m_producer_busy_.unlock();
+        // No sync needed here, the host doesn't need to wait for the copy to
+        // end. Only the consumer needs to be sure the data is here before
+        // manipulating it.
+
+        // Increase the number of frames in the current batch
+        curr_batch_counter_ += frames_to_enqueue;
+
+        // The current batch is full
+        if (curr_batch_counter_ == batch_size_)
+        {
+            curr_batch_counter_ = 0;
+            const uint prev_end_index = end_index_;
+            end_index_ = (end_index_ + 1) % max_size_;
+
+            // The queue is full (in terms of batch)
+            if (size_ == max_size_)
+            {
+                has_overwritten_ = true;
+                start_index_ = (start_index_ + 1) % max_size_;
+            }
+            else
+            {
+                size_++;
+                curr_nb_frames_ += batch_size_;
+            }
+
+            // Unlock the current batch mutex
+            batch_mutexes_[prev_end_index].unlock();
+            // No batch are busy anymore
+            // End of critical section between enqueue (producer) & resize
+            // (consumer)
+            m_producer_busy_.unlock();
+        }
+        frames_left -= frames_to_enqueue;
     }
 }
 
