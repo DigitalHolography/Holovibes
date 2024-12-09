@@ -65,6 +65,7 @@ class Analysis
              const camera::FrameDescriptor& input_fd,
              VesselnessMaskEnv& vesselness_mask_env,
              MomentsEnv& moments_env,
+             ChartMeanVesselsEnv& chart_mean_vessels_env,
              const cudaStream_t& stream,
              InitSettings settings)
         : cuComplex_buffer_()
@@ -75,6 +76,7 @@ class Analysis
         , moments_env_(moments_env)
         , stream_(stream)
         , realtime_settings_(settings)
+        , chart_mean_vessels_env_(chart_mean_vessels_env)
     {
         // Create for Analysis its own cublas handler associated to its personal cuda stream
         cublasCreate_v2(&cublas_handler_);

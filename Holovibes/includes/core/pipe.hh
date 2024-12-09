@@ -122,6 +122,7 @@ class Pipe : public ICompute
                                                          input.get_fd(),
                                                          vesselness_mask_env_,
                                                          moments_env_,
+                                                         chart_mean_vessels_env_,
                                                          stream_,
                                                          settings);
 

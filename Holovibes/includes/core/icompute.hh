@@ -272,7 +272,13 @@ class ICompute
 
     std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue() { return chart_env_.chart_display_queue_; };
 
-    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue() { return chart_env_.chart_record_queue_; }
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue() { return chart_env_.chart_record_queue_; };
+
+    std::unique_ptr<ConcurrentDeque<double>>& get_chart_mean_vessels_queue()
+    {
+        return chart_mean_vessels_env_.chart_display_queue_;
+    };
+
     /*! \} */
 
   protected:
@@ -398,6 +404,9 @@ class ICompute
 
     /*! \brief Vesselness masks environment. */
     VesselnessMaskEnv vesselness_mask_env_;
+
+    /*! \brief Chart environment. */
+    ChartMeanVesselsEnv chart_mean_vessels_env_;
 
     /*! \name Cuda */
     /*! \brief Pland 2D. Used for spatial fft performed on the complex input frame. */

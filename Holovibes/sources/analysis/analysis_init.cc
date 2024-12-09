@@ -109,6 +109,7 @@ void Analysis::init()
     bw_area_env_.uint_buffer_2_.safe_resize(frame_res);
     bw_area_env_.size_t_gpu_.resize(1);
     bw_area_env_.float_buffer_.safe_resize(frame_res);
+    chart_mean_vessels_env_.float_gpu_.resize(1);
 
     // Step 3: Allocate histogram buffer for Otsu thresholding
     otsu_env_.otsu_histo_buffer_.resize(OTSU_BINS);

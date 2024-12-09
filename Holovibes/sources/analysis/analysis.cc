@@ -17,6 +17,7 @@
 #include "tools_analysis_debug.hh"
 #include "tools_compute.cuh"
 #include "map.cuh"
+#include "chart_mean_vessels.cuh"
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
@@ -458,10 +459,11 @@ void Analysis::insert_chart()
                 double point = get_sum_with_mask(buffers_.gpu_postprocess_frame,
                                                  mask_buffer,
                                                  buffers_.gpu_postprocess_frame_size,
+                                                 chart_mean_vessels_env_.float_gpu_,
                                                  stream_);
                 double mean = point / (float)nb_nnz;
 
-                chart_env_.chart_display_queue_->push_back(mean);
+                chart_mean_vessels_env_.chart_display_queue_->push_back(mean);
             });
     }
 }
