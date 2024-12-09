@@ -280,14 +280,6 @@ void ViewPanel::set_registration(bool value)
     parent_->notify();
 }
 
-void ViewPanel::set_artery_mask(bool value) { api::set_artery_mask_enabled(value); }
-
-void ViewPanel::set_otsu(bool value)
-{
-    api::set_otsu_enabled(value);
-    parent_->notify();
-}
-
 void ViewPanel::update_lens_view(bool checked)
 {
     api::set_lens_view(checked);

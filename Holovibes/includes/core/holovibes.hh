@@ -122,15 +122,14 @@
     holovibes::settings::DataType,                               \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
-    holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::ChoroidMaskEnabled,                     \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::VesselnessSigma,                        \
-    holovibes::settings::OtsuKind,                               \
-    holovibes::settings::OtsuWindowSize,                         \
-    holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::MinMaskArea,                            \
-    holovibes::settings::BwareafiltEnabled,                      \
-    holovibes::settings::BwareaopenEnabled
+    holovibes::settings::DiaphragmFactor,                        \
+    holovibes::settings::DiaphragmPreviewEnabled,                \
+    holovibes::settings::BarycenterFactor,                       \
+    holovibes::settings::BarycenterPreviewEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -465,14 +464,13 @@ class Holovibes
                                              settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},
                                              settings::VeinMaskEnabled{false},
-                                             settings::OtsuEnabled{false},
+                                             settings::ChoroidMaskEnabled{false},
                                              settings::VesselnessSigma{2.0},
-                                             settings::OtsuKind{OtsuKind::Global},
-                                             settings::OtsuWindowSize{15},
-                                             settings::OtsuLocalThreshold{0.15f},
                                              settings::MinMaskArea{10},
-                                             settings::BwareafiltEnabled{false},
-                                             settings::BwareaopenEnabled{false}))
+                                             settings::DiaphragmFactor{0.4f},
+                                             settings::DiaphragmPreviewEnabled{false},
+                                             settings::BarycenterFactor{0.07f},
+                                             settings::BarycenterPreviewEnabled{false}))
     {
     }
 
