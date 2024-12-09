@@ -267,15 +267,15 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-        input_queue_.load()->enqueue(
-            gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
-            cudaMemcpyDeviceToDevice,
-            std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued));
-
-        current_nb_frames_read_ +=
+        uint real_frames_enqueued =
             std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
-        processed_frames_ += std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
-        frames_enqueued += std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
+        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
+                                     cudaMemcpyDeviceToDevice,
+                                     real_frames_enqueued);
+
+        current_nb_frames_read_ += real_frames_enqueued;
+        processed_frames_ += real_frames_enqueued;
+        frames_enqueued += real_frames_enqueued;
 
         compute_fps();
 
