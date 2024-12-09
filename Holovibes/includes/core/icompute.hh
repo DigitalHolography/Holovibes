@@ -85,6 +85,7 @@
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
+    holovibes::settings::ChartMeanVesselsEnabled,                \
     holovibes::settings::OtsuEnabled,                            \
     holovibes::settings::VesselnessSigma,                        \
     holovibes::settings::MinMaskArea
