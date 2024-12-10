@@ -49,15 +49,20 @@ class BatchInputQueue final : public DisplayQueue
 
     ~BatchInputQueue();
 
-    /*! \brief Enqueue a frame in the queue
+    /*! \brief Enqueues frames into the batch input queue with CUDA memory transfer.
      *
-     * Called by the producer.
-     * The producer is in the critical while enqueueing in a batch
-     * and exit this critical section when a batch of frames is full
-     * in order to let the resize occure if needed.
+     * This function handles the transfer of frames from the input source to the internal
+     * batch-based queue. Depending on the device type (CPU or GPU) and the memory copy
+     * direction, it ensures data consistency and synchronizes correctly with concurrent
+     * operations. Frames are enqueued in batches, and when a batch is full, the queue
+     * updates its state, potentially overwriting older batches if the queue is full.
      *
-     * \param frames Pointer to the frame buffers
-     * \param nb_frame Number of frames to enqueue (default = 1)
+     * \param[in] frames Pointer to the source frames to be enqueued.
+     * \param memcpy_kind Type of memory copy operation (e.g., cudaMemcpyHostToDevice).
+     * \param nb_frame Number of frames to enqueue.
+     *
+     * \throws std::runtime_error If the memory copy direction is incompatible with the
+     *         current device type (e.g., copying to GPU while the queue is on CPU).
      */
     void enqueue(const void* const frames,
                  const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice,
