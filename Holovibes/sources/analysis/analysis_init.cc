@@ -109,7 +109,6 @@ void Analysis::init()
     bw_area_env_.uint_buffer_2_.safe_resize(frame_res);
     bw_area_env_.size_t_gpu_.resize(1);
     bw_area_env_.float_buffer_.safe_resize(frame_res);
-    chart_mean_vessels_env_.float_gpu_.resize(1);
 
     // Step 3: Allocate histogram buffer for Otsu thresholding
     otsu_env_.otsu_histo_buffer_.resize(OTSU_BINS);
@@ -216,5 +215,9 @@ void Analysis::init()
     // Step 10: Allocate the final result buffer and set it to 0
     mask_result_buffer_.safe_resize(frame_res);
     cudaXMemset(mask_result_buffer_, 0, frame_res * sizeof(float));
+
+    // Other
+    chart_mean_vessels_env_.float_gpu_.resize(1);
+    chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<double>());
 }
 } // namespace holovibes::analysis
