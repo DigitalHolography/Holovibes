@@ -26,7 +26,7 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     __syncthreads();
 
     // Populate shared histogram
-    if (idx < imgSize)
+    if (idx < imgSize && image[idx] != 0)
     {
         int bin = static_cast<int>(image[idx] * (NUM_BINS - 1));
         atomicAdd(shared_hist + bin, 1);
@@ -271,10 +271,64 @@ __global__ void rescale_csv_kernel(float* output, const float* input, size_t siz
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
     {
-        // Transformation : [-1, 1] -> [0, 1]
-        output[idx] = (input[idx] + 1.0f) / 2; //* 127.5f;
+        // Transformation : [-1, 1] -> [0, 255]
+        output[idx] = input[idx] == 0 ? 0.0f : ((input[idx] + 1.0f) * 127.5f);
     }
 }
+
+__global__ void copy_nz(float* output, const float* input, size_t size, int* out_size)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < size)
+    {
+        if (input[idx] != 0)
+        {
+            int pos = atomicAdd(out_size, 1);
+            output[pos] = input[idx];
+        }
+    }
+}
+
+// Check if optimizable in future with `reduce.cuh` functions.
+// __global__ void histogram_kernel_multi(const float* image, uint* hist, float* bin_centers, int imgSize) {}
+
+// __global__ void
+// histogram_kernel_multi(const float* image, uint* hist, float* bin_centers, float minVal, float maxVal, int imgSize)
+// {
+//     // Calcul des indices globaux
+//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+//     // Calcul de la largeur de chaque bin
+//     float binWidth = (maxVal - minVal) / NUM_BINS;
+
+//     // Calcul de l'histogramme
+//     if (idx < imgSize)
+//     {
+//         float pixel = image[idx];
+//         int binIdx = min(NUM_BINS - 1, int((pixel - minVal) / binWidth));
+//         atomicAdd(&hist[binIdx], 1); // Utilise atomicAdd pour éviter les conflits
+//     }
+
+//     // Calcule les centres des bins pour un seul thread (thread 0)
+//     if (idx == 0)
+//     {
+//         for (int i = 0; i < NUM_BINS; ++i)
+//         {
+//             bin_centers[i] = minVal + (i + 0.5f) * binWidth;
+//         }
+//     }
+// }
+
+// __global__ void normalize_histogram(uint* hist, float* normalized_hist, int imgSize)
+// {
+//     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+//     if (idx < NUM_BINS)
+//     {
+//         normalized_hist[idx] = static_cast<float>(hist[idx]) / imgSize;
+//     }
+// }
 
 __global__ void histogram_kernel_multi(const float* image, uint* hist, int imgSize)
 {
@@ -286,13 +340,15 @@ __global__ void histogram_kernel_multi(const float* image, uint* hist, int imgSi
     // Initialize shared memory histogram
     if (tid < NUM_BINS)
         shared_hist[tid] = 0;
+    if (idx < NUM_BINS)
+        hist[idx] = 0;
     __syncthreads();
 
     // Populate shared histogram
-    if (idx < imgSize)
+    if (idx < imgSize && image[idx] != 0)
     {
         int bin = static_cast<int>(image[idx]);
-        atomicAdd(&shared_hist[bin], 1);
+        atomicAdd(shared_hist + bin, 1);
     }
     __syncthreads();
 
@@ -313,11 +369,31 @@ void otsu_multi_thresholding(const float* input_d,
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
+    print_in_file_gpu<float>(input_d, 1, size, "input", stream);
 
     rescale_csv_kernel<<<blocks, threads, 0, stream>>>(otsu_rescale, input_d, size);
+    print_in_file_gpu<float>(otsu_rescale, 1, size, "rescaled", stream);
 
-    // cudaXMalloc(&hist, NUM_BINS * sizeof(uint));
-    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(otsu_rescale, histo_buffer_d, size);
+    float* tmp;
+    cudaXMalloc(&tmp, size * sizeof(float));
+    int* out_size;
+    int out_size_h = 0;
+
+    cudaMalloc(&out_size, sizeof(int));
+    cudaMemcpy(out_size, &out_size_h, sizeof(int), cudaMemcpyHostToDevice);
+
+    copy_nz<<<blocks, threads, 0, stream>>>(tmp, otsu_rescale, size, out_size);
+    cudaXStreamSynchronize(stream);
+
+    cudaMemcpy(&out_size_h, out_size, sizeof(int), cudaMemcpyDeviceToHost);
+    LOG_INFO(out_size_h);
+    print_in_file_gpu<float>(tmp, 1, out_size_h, "nz_vals", stream);
+
+    float* d_bin_centers;
+    cudaMalloc(&d_bin_centers, NUM_BINS * sizeof(float));
+    cudaMemset(histo_buffer_d, 0, NUM_BINS * sizeof(uint));
+    histogram_kernel_multi<<<blocks, threads>>>(tmp, histo_buffer_d, out_size_h);
+    // histogram_kernel_multi<<<blocks, threads>>>(tmp, histo_buffer_d, d_bin_centers, -1, 1, out_size_h);
     // histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
     cudaXStreamSynchronize(stream);
     print_in_file_gpu<uint>(histo_buffer_d, 1, 256, "histo", stream);
@@ -342,6 +418,7 @@ void otsu_multi_thresholding(const float* input_d,
     }
 
     float total_prob = std::accumulate(prob.begin(), prob.end(), 0.0f);
+    LOG_INFO(total_prob);
     for (auto& p : prob)
     {
         p /= total_prob;
