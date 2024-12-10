@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>141</width>
-      <height>22</height>
+      <height>24</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="headerLayout">
@@ -156,5 +156,6 @@
   <slot>change_points_nb(int)</slot>
   <slot>change_curve(int)</slot>
   <slot>toggle_dark_mode()</slot>
+  <slot>on_close_chart()</slot>
  </slots>
 </ui>

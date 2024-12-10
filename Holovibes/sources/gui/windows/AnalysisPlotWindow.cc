@@ -3,7 +3,9 @@
 #include "ui_analysisplotwindow.h"
 #pragma warning(pop)
 #include "AnalysisPlotWindow.hh"
+#include "API.hh"
 #include "concurrent_deque.hh"
+#include "GUI.hh"
 
 #define WIDTH 580
 #define HEIGHT 250
