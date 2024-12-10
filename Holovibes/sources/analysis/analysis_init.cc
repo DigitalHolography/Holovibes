@@ -218,6 +218,8 @@ void Analysis::init()
 
     // Other
     chart_mean_vessels_env_.float_gpu_.resize(1);
-    chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<double>());
+    if (chart_mean_vessels_env_.chart_display_queue_.get() == nullptr)
+        chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<double>());
+    chart_mean_vessels_env_.chart_display_queue_->push_back(1.0f);
 }
 } // namespace holovibes::analysis

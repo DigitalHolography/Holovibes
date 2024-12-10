@@ -621,7 +621,11 @@ inline int get_min_mask_area() { return GET_SETTING(MinMaskArea); }
 inline void set_min_mask_area(int value) { return UPDATE_SETTING(MinMaskArea, value); }
 
 inline bool get_chart_mean_vessels_enabled() { return GET_SETTING(ChartMeanVesselsEnabled); }
-inline void set_chart_mean_vessels_enabled(bool value) { UPDATE_SETTING(ChartMeanVesselsEnabled, value); }
+inline void set_chart_mean_vessels_enabled(bool value)
+{
+    UPDATE_SETTING(ChartMeanVesselsEnabled, value);
+    pipe_refresh();
+}
 
 inline OtsuKind get_otsu_kind() { return GET_SETTING(OtsuKind); }
 inline void set_otsu_kind(OtsuKind value) { return UPDATE_SETTING(OtsuKind, value); }
