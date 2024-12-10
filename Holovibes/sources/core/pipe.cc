@@ -298,6 +298,7 @@ void Pipe::refresh()
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
+
         insert_cuts_record();
 
         // Used for phase increase
