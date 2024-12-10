@@ -226,6 +226,77 @@ void FourierTransform::insert_time_transform()
     }
 }
 
+template <typename T>
+void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <>
+void write_1D_array_to_file<cuComplex>(const cuComplex* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j].x << " " << array[i * cols + j].y << "| ";
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <typename T>
+void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    T* result = new T[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
+}
+
 void FourierTransform::insert_stft()
 {
     LOG_FUNC();
@@ -248,6 +319,9 @@ void FourierTransform::insert_moments()
         {
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
+            print_in_file_gpu<float>(moments_env_.stft_res_buffer, 512, 512, "stft_res_buffer", stream_);
+            print_in_file_gpu<float>(moments_env_.f0_buffer, 512, 1, "f0_buffer", stream_);
+
             tensor_multiply_vector(moments_env_.moment0_buffer,
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f0_buffer,
@@ -255,6 +329,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
+            print_in_file_gpu<float>(moments_env_.moment0_buffer, 512, 512, "moment0_buffer", stream_);
 
             // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
             // frequencies at order 1
@@ -265,6 +340,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
+            print_in_file_gpu<float>(moments_env_.moment1_buffer, 512, 512, "moment1_buffer", stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
             // frequencies at order 2
@@ -275,6 +351,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
+            print_in_file_gpu<float>(moments_env_.moment2_buffer, 512, 512, "moment2_buffer", stream_);
         });
 }
 

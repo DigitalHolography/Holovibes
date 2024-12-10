@@ -27,7 +27,38 @@
 namespace holovibes
 {
 
-void write_1D_array_to_file(const cuComplex* array, int rows, int cols, const std::string& filename)
+template <typename T>
+void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <>
+void write_1D_array_to_file<cuComplex>(const cuComplex* array, int rows, int cols, const std::string& filename)
 {
     // Open the file in write mode
     std::ofstream outFile(filename);
@@ -56,14 +87,15 @@ void write_1D_array_to_file(const cuComplex* array, int rows, int cols, const st
     std::cout << "1D array written to the file " << filename << std::endl;
 }
 
-void print_in_file_gpu(const cuComplex* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+template <typename T>
+void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
 {
     if (input == nullptr)
         return;
-    cuComplex* result = new cuComplex[rows * col];
-    cudaXMemcpyAsync(result, input, rows * col * sizeof(cuComplex), cudaMemcpyDeviceToHost, stream);
+    T* result = new T[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
     cudaXStreamSynchronize(stream);
-    write_1D_array_to_file(result, rows, col, "test_" + filename + ".txt");
+    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
 }
 
 void Pipe::keep_contiguous(int nb_elm_to_add) const
@@ -326,10 +358,29 @@ void Pipe::refresh()
         // Spatial transform
         fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
 
+        // fn_compute_vect_->push_back(
+        //     [&]()
+        //     {
+        //         print_in_file_gpu<cuComplex>(buffers_.gpu_spatial_transformation_buffer,
+        //                                      512,
+        //                                      512,
+        //                                      "gpu_spatial_buffer",
+        //                                      stream_);
+        //     });
         // Move frames from gpu_space_transformation_buffer to
         // gpu_time_transformation_queue (with respect to
         // time_stride)
         insert_transfer_for_time_transformation();
+        // fn_compute_vect_->push_back(
+        //     [&]()
+        //     {
+        //         print_in_file_gpu<cuComplex>(
+        //             ((cuComplex*)time_transformation_env_.gpu_time_transformation_queue->get_start()),
+        //             512,
+        //             512,
+        //             "gpu_time_transformation_queue",
+        //             stream_);
+        //     });
         insert_wait_time_transformation_size();
 
         // time transform
@@ -337,8 +388,8 @@ void Pipe::refresh()
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
-        if (ImgType::Moments_0 == api::get_img_type())
-            print_in_file_gpu(time_transformation_env_.gpu_p_acc_buffer, 512, 512, "gpu_p_acc_buffer", stream_);
+        // if (ImgType::Moments_0 == api::get_img_type())
+        // print_in_file_gpu(time_transformation_env_.gpu_p_acc_buffer, 512, 512, "gpu_p_acc_buffer", stream_);
 
         insert_cuts_record();
 
@@ -530,47 +581,6 @@ void Pipe::insert_output_enqueue_hologram_mode()
         });
 }
 
-template <typename T>
-void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
-{
-    // Open the file in write mode
-    std::ofstream outFile(filename);
-
-    // Check if the file was opened successfully
-    if (!outFile)
-    {
-        std::cerr << "Error: Unable to open the file " << filename << std::endl;
-        return;
-    }
-
-    // Write the 1D array in row-major order to the file
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            outFile << array[i * cols + j]; // Calculate index in row-major order
-            if (j < cols - 1)
-                outFile << " "; // Separate values in a row by a space
-        }
-        outFile << std::endl; // New line after each row
-    }
-
-    // Close the file
-    outFile.close();
-    std::cout << "1D array written to the file " << filename << std::endl;
-}
-
-template <typename T>
-void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
-{
-    if (input == nullptr)
-        return;
-    T* result = new T[rows * col];
-    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream);
-    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
-}
-
 void Pipe::insert_filter2d_view()
 {
     ImgType type = setting<settings::ImageType>();
@@ -581,7 +591,7 @@ void Pipe::insert_filter2d_view()
             [this]()
             {
                 int a = 2;
-                print_in_file_gpu<float>(moments_env_.moment0_buffer, 512, 512, "m0", stream_);
+                // print_in_file_gpu<float>(moments_env_.moment0_buffer, 512, 512, "m0", stream_);
             });
     }
     if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())

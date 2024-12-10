@@ -112,17 +112,16 @@ void fresnel_transform(cuComplex* input,
 {
     // print_in_file_gpu(input, 512, 512, "input", stream);
     // print_in_file_gpu(lens, 512, 512, "lens", stream);
-    // ALEXIS GUSTAVE input is wrong
     apply_mask(input, lens, output, frame_resolution, batch_size, stream);
     // print_in_file_gpu(output, 512, 512, "output_apply_mask", stream);
-
+    // Perfect here
     // No sync needed between kernel call and cufft call
     cudaCheckError();
     // FFT
 
     cufftSafeCall(cufftXtExec(plan2D, output, output, CUFFT_FORWARD));
-    print_in_file_gpu(output, 512, 512, "output_fftXTExec", stream);
-
+    // print_in_file_gpu(output, 512, 512, "output_fftXTExec", stream);
+    // Good Here
     // Same, no sync needed since everything is executed on the stream 0
 
     cudaCheckError();

@@ -60,7 +60,8 @@ void FileFrameReadWorker::run()
 
     try
     {
-        input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>());
+        // C++ is 0 indexed, but the GUI is 1 indexed, so we need to adjust it with "-1"
+        input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>() - 1);
 
         read_file();
     }
@@ -273,7 +274,6 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             break;
 
         input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
-
         current_nb_frames_read_++;
         processed_frames_++;
         frames_enqueued++;
