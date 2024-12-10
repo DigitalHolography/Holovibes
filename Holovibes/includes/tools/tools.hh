@@ -31,6 +31,7 @@ using ulong = unsigned long;
 
 #include "logger.hh"
 #include "notifier.hh"
+#include "chrono.hh"
 
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
@@ -64,7 +65,15 @@ namespace holovibes
 void get_good_size(ushort& width, ushort& height, ushort window_size);
 
 /*! \brief Return the first not used filename available from the parameter filename as a base */
-std::string get_record_filename(std::string filename);
+
+/*! \brief Preprend a string to a file path and append a number if the file already exists
+ *
+ * \param file_path The file path to modify
+ * \param prepend The string to prepend
+ *
+ * \return The new file path
+ */
+std::string get_record_filename(std::string file_path, std::string prepend = Chrono::get_current_date());
 
 /*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
 QString create_absolute_qt_path(const std::string& relative_path);
