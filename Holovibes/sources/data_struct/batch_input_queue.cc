@@ -130,7 +130,7 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
         throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
 
     int frames_left = nb_frame;
-    int original_batch_size = batch_size_;
+
     while (frames_left > 0)
     {
         if (curr_batch_counter_ == 0) // Enqueue in a new batch
@@ -141,8 +141,9 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
             m_producer_busy_.lock();
             batch_mutexes_[end_index_].lock();
         }
-        uint frames_to_enqueue = std::min((uint)frames_left, batch_size_ - curr_batch_counter_);
         // Critical section between enqueue (producer) & resize (consumer)
+
+        uint frames_to_enqueue = std::min((uint)frames_left, batch_size_ - curr_batch_counter_);
 
         // Static_cast to avoid overflow
         char* const new_frame_adress =
@@ -193,12 +194,12 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
             // End of critical section between enqueue (producer) & resize
             // (consumer)
             m_producer_busy_.unlock();
+
+            // block the worker after completing a batch to allow the resizing of the queue.
             if (resize_in_progress_)
             {
                 while (resize_in_progress_)
-                {
                     continue;
-                }
                 return;
             }
         }
