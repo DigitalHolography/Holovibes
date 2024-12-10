@@ -15,8 +15,6 @@
 
 #include <map>
 
-namespace api = ::holovibes::api;
-
 namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
@@ -41,69 +39,68 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 
 void ImageRenderingPanel::on_notify()
 {
-    auto& api = API;
-    const bool is_raw = api.compute.get_compute_mode() == Computation::Raw;
-    const bool is_data_not_moments = !(api.input.get_data_type() == RecordedDataType::MOMENTS);
+    const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
+    const bool is_data_not_moments = !(api_.input.get_data_type() == RecordedDataType::MOMENTS);
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
 
-    ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api.compute.get_compute_mode()));
+    ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled(is_data_not_moments);
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
-    ui_->TimeStrideSpinBox->setValue(api.transform.get_time_stride());
-    ui_->TimeStrideSpinBox->setSingleStep(api.transform.get_batch_size());
-    ui_->TimeStrideSpinBox->setMinimum(api.transform.get_batch_size());
+    ui_->TimeStrideSpinBox->setValue(api_.transform.get_time_stride());
+    ui_->TimeStrideSpinBox->setSingleStep(api_.transform.get_batch_size());
+    ui_->TimeStrideSpinBox->setMinimum(api_.transform.get_batch_size());
 
-    const bool is_batch_size_enabled = !api.record.is_recording() && is_data_not_moments;
-    ui_->BatchSizeSpinBox->setValue(api.transform.get_batch_size());
+    const bool is_batch_size_enabled = !api_.record.is_recording() && is_data_not_moments;
+    ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
     ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
-    ui_->BatchSizeSpinBox->setMaximum(api.input.get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setMaximum(api_.input.get_input_buffer_size());
 
     ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
     ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
-    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api.transform.get_space_transformation()));
+    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_space_transformation()));
     ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
-    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api.transform.get_time_transformation()));
+    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api.view.get_cuts_view_enabled());
-    ui_->timeTransformationSizeSpinBox->setValue(api.transform.get_time_transformation_size());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api_.view.get_cuts_view_enabled());
+    ui_->timeTransformationSizeSpinBox->setValue(api_.transform.get_time_transformation_size());
 
     // Z (focus)
     ui_->LambdaLabel->setEnabled(not_raw_not_moments);
     ui_->LambdaSpinBox->setEnabled(not_raw_not_moments);
-    ui_->LambdaSpinBox->setValue(api.transform.get_lambda() * 1.0e9f);
+    ui_->LambdaSpinBox->setValue(api_.transform.get_lambda() * 1.0e9f);
     ui_->ZLabel->setEnabled(not_raw_not_moments);
     ui_->ZDoubleSpinBox->setEnabled(not_raw_not_moments);
-    ui_->ZDoubleSpinBox->setValue(api.transform.get_z_distance() * 1000);
+    ui_->ZDoubleSpinBox->setValue(api_.transform.get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->ZSlider->setEnabled(not_raw_not_moments);
-    ui_->BoundaryDoubleSpinBox->setValue(api.information.get_boundary() * 1000);
+    ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 
     // Filter2D
-    bool filter2D_enabled = !is_raw && api.filter2d.get_filter2d_enabled();
+    bool filter2D_enabled = !is_raw && api_.filter2d.get_filter2d_enabled();
     ui_->Filter2D->setEnabled(!is_raw);
     ui_->Filter2D->setChecked(filter2D_enabled);
 
     ui_->Filter2DView->setVisible(filter2D_enabled);
-    ui_->Filter2DView->setChecked(!is_raw && api.view.get_filter2d_view_enabled());
+    ui_->Filter2DView->setChecked(!is_raw && api_.view.get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setVisible(filter2D_enabled);
-    ui_->Filter2DN1SpinBox->setValue(api.filter2d.get_filter2d_n1());
+    ui_->Filter2DN1SpinBox->setValue(api_.filter2d.get_filter2d_n1());
 
     ui_->Filter2DN2SpinBox->setVisible(filter2D_enabled);
-    ui_->Filter2DN2SpinBox->setValue(api.filter2d.get_filter2d_n2());
+    ui_->Filter2DN2SpinBox->setValue(api_.filter2d.get_filter2d_n2());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
 
     // Filter
     ui_->InputFilterLabel->setVisible(filter2D_enabled);
     ui_->InputFilterQuickSelectComboBox->setVisible(filter2D_enabled);
-    if (!api.filter2d.get_filter_enabled())
+    if (!api_.filter2d.get_filter_enabled())
     {
         ui_->InputFilterQuickSelectComboBox->setCurrentIndex(
             ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
@@ -111,25 +108,25 @@ void ImageRenderingPanel::on_notify()
     else
     {
         int index = 0;
-        if (!api.filter2d.get_filter_file_name().empty())
+        if (!api_.filter2d.get_filter_file_name().empty())
             index = ui_->InputFilterQuickSelectComboBox->findText(
-                QString::fromStdString(api.filter2d.get_filter_file_name()));
+                QString::fromStdString(api_.filter2d.get_filter_file_name()));
 
         ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
     }
 
     // Convolution
-    ui_->ConvoCheckBox->setVisible(api.compute.get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api.global_pp.get_convolution_enabled());
+    ui_->ConvoCheckBox->setVisible(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->ConvoCheckBox->setChecked(api_.global_pp.get_convolution_enabled());
 
-    ui_->DivideConvoCheckBox->setVisible(api.global_pp.get_convolution_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api.global_pp.get_divide_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setVisible(api.global_pp.get_convolution_enabled());
+    ui_->DivideConvoCheckBox->setVisible(api_.global_pp.get_convolution_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api_.global_pp.get_divide_convolution_enabled());
+    ui_->KernelQuickSelectComboBox->setVisible(api_.global_pp.get_convolution_enabled());
 
     int index = 0;
-    if (!api.global_pp.get_convolution_file_name().empty())
-        index =
-            ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api.global_pp.get_convolution_file_name()));
+    if (!api_.global_pp.get_convolution_file_name().empty())
+        index = ui_->KernelQuickSelectComboBox->findText(
+            QString::fromStdString(api_.global_pp.get_convolution_file_name()));
 
     ui_->KernelQuickSelectComboBox->setCurrentIndex(index);
 }
@@ -150,20 +147,19 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_computation_mode(int mode)
 {
-    auto& api = API;
-    if (api.input.get_import_type() == ImportType::None)
+    if (api_.input.get_import_type() == ImportType::None)
         return;
 
     Computation comp_mode = static_cast<Computation>(mode);
 
     gui::close_windows();
-    api.compute.set_computation_mode(comp_mode);
+    api_.compute.set_computation_mode(comp_mode);
     gui::create_window(comp_mode, parent_->window_max_size);
 
     if (comp_mode == Computation::Hologram)
     {
         /* Filter2D */
-        camera::FrameDescriptor fd = api.input.get_fd();
+        camera::FrameDescriptor fd = api_.input.get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
 
@@ -172,32 +168,31 @@ void ImageRenderingPanel::set_computation_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    API.transform.update_batch_size(ui_->BatchSizeSpinBox->value());
+    api_.transform.update_batch_size(ui_->BatchSizeSpinBox->value());
     parent_->notify();
 }
 
 void ImageRenderingPanel::update_time_stride()
 {
-    API.transform.update_time_stride(ui_->TimeStrideSpinBox->value());
+    api_.transform.update_time_stride(ui_->TimeStrideSpinBox->value());
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    auto& api = API;
-    if (api.compute.get_compute_mode() == Computation::Raw)
+    if (api_.compute.get_compute_mode() == Computation::Raw)
         return;
 
-    api.filter2d.set_filter2d_enabled(checked);
+    api_.filter2d.set_filter2d_enabled(checked);
 
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = api.input.get_fd();
+        const camera::FrameDescriptor& fd = api_.input.get_fd();
         const int size_max = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
         ui_->Filter2DN2SpinBox->setMaximum(size_max);
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
-        api.filter2d.set_filter2d_n2(size_max);
+        api_.filter2d.set_filter2d_n2(size_max);
         ui_->Filter2DN2SpinBox->setValue(size_max);
     }
     else
@@ -206,12 +201,12 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n) { API.filter2d.set_filter2d_n1(n); }
+void ImageRenderingPanel::set_filter2d_n1(int n) { api_.filter2d.set_filter2d_n1(n); }
 
 void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
-    API.filter2d.set_filter2d_n2(n);
+    api_.filter2d.set_filter2d_n2(n);
 }
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
@@ -219,12 +214,12 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
     LOG_FUNC();
 
     std::string v = value.toStdString();
-    API.filter2d.enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
+    api_.filter2d.enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    API.view.set_filter2d_view(checked);
+    api_.view.set_filter2d_view(checked);
     gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
 }
@@ -245,7 +240,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
         throw;
     }
 
-    API.transform.set_space_transformation(st);
+    api_.transform.set_space_transformation(st);
     parent_->notify();
 }
 
@@ -254,28 +249,28 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
 
-    API.transform.set_time_transformation(tt);
+    api_.transform.set_time_transformation(tt);
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    API.transform.update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
+    api_.transform.update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
     parent_->notify();
 }
 
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
-    API.transform.set_lambda(static_cast<float>(value) * 1.0e-9f);
-    ui_->BoundaryDoubleSpinBox->setValue(API.information.get_boundary() * 1000);
+    api_.transform.set_lambda(static_cast<float>(value) * 1.0e-9f);
+    ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
     float z_distance = value / 1000.0f;
 
-    API.transform.set_z_distance(z_distance);
+    api_.transform.set_z_distance(z_distance);
 
     // Keep consistency between the slider and double box
     const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
@@ -284,27 +279,26 @@ void ImageRenderingPanel::set_z_distance_slider(int value)
 
 void ImageRenderingPanel::set_z_distance(const double value)
 {
-    API.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
+    api_.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
 
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
     ui_->ZDoubleSpinBox->setValue(value);
 }
 
-void ImageRenderingPanel::increment_z() { set_z_distance(API.transform.get_z_distance() * 1000 + z_step_); }
+void ImageRenderingPanel::increment_z() { set_z_distance(api_.transform.get_z_distance() * 1000 + z_step_); }
 
-void ImageRenderingPanel::decrement_z() { set_z_distance(API.transform.get_z_distance() * 1000 - z_step_); }
+void ImageRenderingPanel::decrement_z() { set_z_distance(api_.transform.get_z_distance() * 1000 - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    auto& api = API;
-    if (api.input.get_import_type() == ImportType::None)
+    if (api_.input.get_import_type() == ImportType::None)
         return;
 
     if (value)
-        api.global_pp.enable_convolution(api.global_pp.get_convolution_file_name());
+        api_.global_pp.enable_convolution(api_.global_pp.get_convolution_file_name());
     else
-        api.global_pp.disable_convolution();
+        api_.global_pp.disable_convolution();
 
     parent_->notify();
 }
@@ -312,13 +306,13 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
     std::string v = value.toStdString();
-    API.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
+    api_.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    API.global_pp.set_divide_convolution_enabled(value);
+    api_.global_pp.set_divide_convolution_enabled(value);
     parent_->notify();
 }
 

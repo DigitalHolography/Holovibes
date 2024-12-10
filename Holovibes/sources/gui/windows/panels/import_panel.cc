@@ -13,8 +13,6 @@
 #include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
-namespace api = ::holovibes::api;
-
 namespace holovibes::gui
 {
 ImportPanel::ImportPanel(QWidget* parent)
@@ -26,16 +24,15 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify()
 {
-    auto& api = API;
-    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api.input.get_input_file_start_index()));
-    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api.input.get_input_file_end_index()));
-    const char step = api.input.get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_start_index()));
+    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_end_index()));
+    const char step = api_.input.get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
     ui_->ImportStartIndexSpinBox->setSingleStep(step);
     ui_->ImportEndIndexSpinBox->setSingleStep(step);
 
-    const bool no_comp = api.compute.get_is_computation_stopped();
+    const bool no_comp = api_.compute.get_is_computation_stopped();
     ui_->InputBrowseToolButton->setEnabled(no_comp);
-    ui_->FileReaderProgressBar->setVisible(!no_comp && api.input.get_import_type() == ImportType::File);
+    ui_->FileReaderProgressBar->setVisible(!no_comp && api_.input.get_import_type() == ImportType::File);
 }
 
 void ImportPanel::load_gui(const json& j_us)
@@ -92,7 +89,7 @@ void ImportPanel::import_file(const QString& filename)
     import_line_edit->insert(filename);
 
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt = API.input.import_file(filename.toStdString());
+    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
 
     if (input_file_opt)
     {
@@ -113,8 +110,8 @@ void ImportPanel::import_file(const QString& filename)
 
         // Changing the settings is straight-up better than changing the UI
         // This whole logic will need to go in the API at one point
-        API.input.set_input_file_start_index(1);
-        API.input.set_input_file_end_index(nb_frames);
+        api_.input.set_input_file_start_index(1);
+        api_.input.set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);
@@ -128,7 +125,7 @@ void ImportPanel::import_file(const QString& filename)
 void ImportPanel::import_stop()
 {
     gui::close_windows();
-    API.input.import_stop();
+    api_.input.import_stop();
     parent_->notify();
 }
 
@@ -136,37 +133,40 @@ void ImportPanel::import_stop()
 void ImportPanel::import_start()
 {
     gui::close_windows();
-    if (API.input.import_start())
-        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(API.compute.get_compute_mode()));
+    if (api_.input.import_start())
+        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
 }
 
-void ImportPanel::update_fps() { API.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
+void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
 void ImportPanel::update_import_file_path()
 {
-    API.input.set_input_file_path(ui_->ImportPathLineEdit->text().toStdString());
+    api_.input.set_input_file_path(ui_->ImportPathLineEdit->text().toStdString());
 }
 
-void ImportPanel::update_load_file_in_gpu() { API.input.set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked()); }
+void ImportPanel::update_load_file_in_gpu()
+{
+    api_.input.set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());
+}
 
 void ImportPanel::update_input_file_start_index()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
 
-    API.input.set_input_file_start_index(start_spinbox->value() - 1);
+    api_.input.set_input_file_start_index(start_spinbox->value() - 1);
 
-    start_spinbox->setValue(static_cast<int>(API.input.get_input_file_start_index()) + 1);
-    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(API.input.get_input_file_end_index()));
+    start_spinbox->setValue(static_cast<int>(api_.input.get_input_file_start_index()) + 1);
+    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_end_index()));
 }
 
 void ImportPanel::update_input_file_end_index()
 {
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    API.input.set_input_file_end_index(end_spinbox->value());
+    api_.input.set_input_file_end_index(end_spinbox->value());
 
-    end_spinbox->setValue(static_cast<int>(API.input.get_input_file_end_index()));
-    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(API.input.get_input_file_start_index()) + 1);
+    end_spinbox->setValue(static_cast<int>(api_.input.get_input_file_end_index()));
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_start_index()) + 1);
 }
 
 } // namespace holovibes::gui
