@@ -143,11 +143,11 @@ void AnalysisPanel::show_chart()
     gui::set_analysis_chart_display(true);
     api::set_chart_mean_vessels_enabled(true);
 
-    connect(UserInterfaceDescriptor::instance().analysis_plot_window_.get(),
-            SIGNAL(closed()),
-            this,
-            SLOT(on_close_chart()),
-            Qt::UniqueConnection);
+    // connect(UserInterfaceDescriptor::instance().analysis_plot_window_.get(),
+    //         SIGNAL(closed()),
+    //         this,
+    //         SLOT(on_close_chart()),
+    //         Qt::UniqueConnection);
 }
 
 void AnalysisPanel::on_close_chart()

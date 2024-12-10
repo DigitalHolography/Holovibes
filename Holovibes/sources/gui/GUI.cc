@@ -62,6 +62,7 @@ void close_windows()
     UI.sliceYZ.reset(nullptr);
     UI.filter2d_window.reset(nullptr);
     UI.lens_window.reset(nullptr);
+    UI.analysis_plot_window_.reset(nullptr);
     UI.plot_window_.reset(nullptr);
     UI.raw_window.reset(nullptr);
 }
@@ -211,7 +212,7 @@ void set_analysis_chart_display(bool enabled)
                                         UI.auto_scale_point_threshold_,
                                         "Vessels means"));
     else
-        UI.plot_window_.reset(nullptr);
+        UI.analysis_plot_window_.reset(nullptr);
 }
 
 void set_3d_cuts_view(bool enabled, uint max_window_size)

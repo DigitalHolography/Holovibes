@@ -33,7 +33,12 @@ AnalysisPlotWindow::AnalysisPlotWindow(ConcurrentDeque<double>& data_vect,
 
 AnalysisPlotWindow::~AnalysisPlotWindow() {}
 
-void AnalysisPlotWindow::closeEvent(QCloseEvent* event) { emit closed(); }
+void AnalysisPlotWindow::closeEvent(QCloseEvent* event)
+{
+    gui::set_analysis_chart_display(false);
+    api::set_chart_mean_vessels_enabled(false);
+    emit closed();
+}
 
 void AnalysisPlotWindow::resizeEvent(QResizeEvent* e)
 {
