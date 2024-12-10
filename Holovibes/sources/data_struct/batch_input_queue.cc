@@ -143,7 +143,7 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
         }
         // Critical section between enqueue (producer) & resize (consumer)
 
-        uint frames_to_enqueue = std::min((uint)frames_left, batch_size_ - curr_batch_counter_);
+        uint frames_to_enqueue = std::min(static_cast<uint>(frames_left), batch_size_ - curr_batch_counter_);
 
         // Static_cast to avoid overflow
         char* const new_frame_adress =
