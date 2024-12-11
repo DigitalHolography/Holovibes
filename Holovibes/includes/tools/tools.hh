@@ -64,12 +64,10 @@ namespace holovibes
 /*! \brief return width and height with the same ratio and the max of the two being window_size */
 void get_good_size(ushort& width, ushort& height, ushort window_size);
 
-/*! \brief Return the first not used filename available from the parameter filename as a base */
-
 /*! \brief Preprend a string to a file path and append a number if the file already exists
  *
- * \param file_path The file path to modify
- * \param prepend The string to prepend
+ * \param[in] file_path The file path to modify
+ * \param[in] prepend The string to prepend
  *
  * \return The new file path
  */
