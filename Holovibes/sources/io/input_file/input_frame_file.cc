@@ -6,7 +6,6 @@ namespace holovibes::io_files
 size_t InputFrameFile::read_frames(char* buffer, size_t frames_to_read, int* flag_packed)
 {
     *flag_packed = (frame_size_ / (float)(fd_.width * fd_.height)) * 8;
-    long testy = ftell(file_);
 
     size_t frames_read = std::fread(buffer, frame_size_, frames_to_read, file_);
 
