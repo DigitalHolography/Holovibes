@@ -1,5 +1,7 @@
 #include <sstream>
 
+#include "shift_corners.cuh"
+
 #include "fourier_transform.hh"
 
 #include "cublas_handle.hh"
@@ -319,17 +321,14 @@ void FourierTransform::insert_moments()
         {
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
-            print_in_file_gpu<float>(moments_env_.stft_res_buffer, 512, 512, "stft_res_buffer", stream_);
-            print_in_file_gpu<float>(moments_env_.f0_buffer, 512, 1, "f0_buffer", stream_);
-
             tensor_multiply_vector(moments_env_.moment0_buffer,
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f0_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
-            print_in_file_gpu<float>(moments_env_.moment0_buffer, 512, 512, "moment0_buffer", stream_);
+            // shift_corners(moments_env_.moment0_buffer, 1, 512, 512, stream_);
 
             // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
             // frequencies at order 1
@@ -337,10 +336,9 @@ void FourierTransform::insert_moments()
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f1_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
-            print_in_file_gpu<float>(moments_env_.moment1_buffer, 512, 512, "moment1_buffer", stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
             // frequencies at order 2
@@ -348,10 +346,9 @@ void FourierTransform::insert_moments()
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f2_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
-            print_in_file_gpu<float>(moments_env_.moment2_buffer, 512, 512, "moment2_buffer", stream_);
         });
 }
 

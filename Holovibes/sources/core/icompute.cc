@@ -26,7 +26,8 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    float d = setting<settings::CameraFps>() / time_transformation_size;
+    float fs = setting<settings::CameraFps>();
+    float d = fs / time_transformation_size;
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f0(new float[time_transformation_size]);
@@ -43,10 +44,10 @@ void ICompute::fft_freqs()
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
     if (time_transformation_size % 2 == 0)
     {
-        for (uint i = 0; i <= time_transformation_size / 2; i++)
-            f1[i] = i * d;
+        for (uint i = 1; i <= time_transformation_size / 2; i++)
+            f1[i - 1] = i * d;
 
-        for (uint i = time_transformation_size / 2; i < time_transformation_size - 1; i++)
+        for (uint i = time_transformation_size / 2; i < time_transformation_size; i++)
             f1[i] = -((float)time_transformation_size - i) * d;
     }
     // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
@@ -59,7 +60,7 @@ void ICompute::fft_freqs()
             f1[i] = (i - (float)time_transformation_size) * d;
     }
     for (uint i = 0; i < time_transformation_size; i++)
-        f1[i] /= 1000;
+        f1[i] /= 1000.0f;
     cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f2 (f2 = f1^2)
