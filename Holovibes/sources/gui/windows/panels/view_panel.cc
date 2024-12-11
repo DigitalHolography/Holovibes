@@ -109,14 +109,14 @@ void ViewPanel::on_notify()
     window_selection->setEnabled(!is_raw);
 
     // Enable only row that are actually displayed on the screen
-    QListView* window_slection_view = qobject_cast<QListView*>(window_selection->view());
-    window_slection_view->setRowHidden(1, !api::get_enabled(WindowKind::XZview));
-    window_slection_view->setRowHidden(2, !api::get_enabled(WindowKind::YZview));
-    window_slection_view->setRowHidden(3, !api::get_filter2d_view_enabled());
+    QListView* window_selection_view = qobject_cast<QListView*>(window_selection->view());
+    window_selection_view->setRowHidden(1, !api::get_enabled(WindowKind::XZview));
+    window_selection_view->setRowHidden(2, !api::get_enabled(WindowKind::YZview));
+    window_selection_view->setRowHidden(3, !api::get_filter2d_view_enabled());
 
     // If one view gets disabled set to the standard XY view
     int index = static_cast<int>(api::get_current_window_type());
-    if (window_slection_view->isRowHidden(index))
+    if (window_selection_view->isRowHidden(index))
     {
         index = 0;
         parent_->change_window(index);
