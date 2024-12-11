@@ -447,7 +447,6 @@ void Analysis::insert_vesselness()
 void Analysis::insert_chart()
 {
     LOG_FUNC();
-    // TODO ChartMeanVesselsEnabled settings
     if (setting<settings::ChartMeanVesselsEnabled>() && setting<settings::ImageType>() == ImgType::Moments_0 &&
         (setting<settings::VeinMaskEnabled>() || setting<settings::ArteryMaskEnabled>()))
     {

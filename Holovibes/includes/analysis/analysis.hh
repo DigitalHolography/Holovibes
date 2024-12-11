@@ -32,8 +32,7 @@
     holovibes::settings::VesselnessSigma,          \
     holovibes::settings::MinMaskArea
 
-
-#define ALL_SETTINGS REALTIME_SETTINGS
+#pragma endregion
 
 // clang-format on
 
@@ -199,9 +198,7 @@ class Analysis
     auto setting()
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
             return realtime_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Temporary complex buffer used for FFT computations */

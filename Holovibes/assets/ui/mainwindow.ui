@@ -2781,10 +2781,10 @@ The range of frequencies kept is [z, z + width]</string>
               <bool>true</bool>
              </property>
              <property name="toolTip">
-              <string>Show means</string>
+              <string>Shows a chart view displaying Arteries, Veins and Choroid means</string>
              </property>
              <property name="text">
-              <string>Start</string>
+              <string>Show means</string>
              </property>
              <property name="shortcut">
               <string>Ctrl+T</string>

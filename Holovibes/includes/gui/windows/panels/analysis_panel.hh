@@ -53,7 +53,6 @@ class AnalysisPanel : public Panel
     void set_bw_area_open(bool enabled);
 
     void show_chart();
-    void on_close_chart();
     // private:
 };
 } // namespace holovibes::gui

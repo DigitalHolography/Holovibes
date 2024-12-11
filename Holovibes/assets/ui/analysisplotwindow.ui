@@ -156,6 +156,5 @@
   <slot>change_points_nb(int)</slot>
   <slot>change_curve(int)</slot>
   <slot>toggle_dark_mode()</slot>
-  <slot>on_close_chart()</slot>
  </slots>
 </ui>

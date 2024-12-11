@@ -140,20 +140,8 @@ void AnalysisPanel::set_bw_area_open(bool enabled)
 
 void AnalysisPanel::show_chart()
 {
-    gui::set_analysis_chart_display(true);
-    api::set_chart_mean_vessels_enabled(true);
-
-    // connect(UserInterfaceDescriptor::instance().analysis_plot_window_.get(),
-    //         SIGNAL(closed()),
-    //         this,
-    //         SLOT(on_close_chart()),
-    //         Qt::UniqueConnection);
-}
-
-void AnalysisPanel::on_close_chart()
-{
-    gui::set_analysis_chart_display(false);
-    api::set_chart_mean_vessels_enabled(false);
+    if (api::set_chart_mean_vessels_enabled(true))
+        gui::set_analysis_chart_display(true);
 }
 
 } // namespace holovibes::gui

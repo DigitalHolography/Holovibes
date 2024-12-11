@@ -1242,6 +1242,19 @@ void set_chart_display(bool enabled)
     }
 }
 
+bool set_chart_mean_vessels_enabled(bool enabled)
+{
+    // Checks if it is right to enable vessels charting at this moment.
+    if (!(enabled && get_img_type() == ImgType::Moments_0 && (get_vein_mask_enabled() || get_artery_mask_enabled())))
+        enabled = false;
+    if (get_chart_mean_vessels_enabled() != enabled)
+    {
+        UPDATE_SETTING(ChartMeanVesselsEnabled, enabled);
+        pipe_refresh();
+    }
+    return enabled;
+}
+
 #pragma endregion
 
 #pragma region Record

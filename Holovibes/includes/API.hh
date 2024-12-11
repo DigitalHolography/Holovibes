@@ -716,6 +716,16 @@ void update_registration_zone(float value);
  */
 void set_chart_display(bool enabled);
 
+/*!
+ * \brief Enables the chart mean computation.
+ * The UI then fetches the data and prints it in a chart.
+ * If the conditions are not met to enable the setting, it won't be updated.
+ *
+ * \param value True = enabled, False = disabled
+ * \return The new value of the setting.
+ */
+bool set_chart_mean_vessels_enabled(bool enabled);
+
 /*! \brief Adds or removes lens view.
  *
  * \param[in] enabled true: enable, false: disable
