@@ -38,7 +38,7 @@ static __global__ void kernel_complex_to_modulus(
     if (index >= frame_res)
         return;
 
-    for (int i = f_start; i <= f_end; i++)
+    for (int i = f_start; i < f_end; i++)
     {
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;
@@ -133,9 +133,8 @@ void input_queue_to_input_buffer(void* const output,
      */
     static const auto convert_8_bit = [] __device__(const uchar input_pixel)
     {
-        // max uchar value is 255, multiplied by 257 you have 65535 which is max
-        // ushort
-        return static_cast<float>(input_pixel) * 257;
+        // cast to float
+        return static_cast<float>(input_pixel);
     };
     static const auto convert_16_bit = [] __device__(const ushort input_pixel)
     { return static_cast<float>(input_pixel); };
