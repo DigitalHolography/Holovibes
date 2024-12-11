@@ -91,7 +91,7 @@ void Analysis::compute_vesselness_response()
                       stream_);
 
     // Uncomment if using real moments
-    // shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+    shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
     // Compute and apply a circular diaphragm mask on the vesselness output
     apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
@@ -281,7 +281,7 @@ void Analysis::insert_first_analysis_masks()
                 // Reset the mask result to 0
                 cudaXMemsetAsync(mask_result_buffer_, 0, sizeof(float) * buffers_.gpu_postprocess_frame_size, stream_);
 
-                insert_bin_moments();
+                // insert_bin_moments();
                 compute_pretreatment();
                 compute_vesselness_response();
                 compute_barycentres_and_circle_mask();
