@@ -69,14 +69,12 @@ class IApi
 {
   public:
     // Take reference to parent in ctor
-    IApi() {}
-
-    void set_api(Api* api) { api_ = api; }
+    IApi(const Api* api) { api_ = api; }
 
     virtual ~IApi() = default;
 
   protected:
-    Api* api_;
+    const Api* api_;
 };
 
 } // namespace holovibes::api

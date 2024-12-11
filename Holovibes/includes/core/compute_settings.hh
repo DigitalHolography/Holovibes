@@ -18,25 +18,25 @@ class ComputeSettingsApi
      *
      * \param[in] path The absolute path of the .json file where the settings will be saved.
      */
-    void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
+    void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath) const;
 
     /*! \brief Returns the compute settings as a json object.
      *
      * \return nlohmann::json The compute settings as a json object
      */
-    json compute_settings_to_json();
+    json compute_settings_to_json() const;
 
     /*! \brief Load and set settings from a .json file.
      *
      * \param[in] path the absolute path of the .json file.
      */
-    void load_compute_settings(const std::string& path);
+    void load_compute_settings(const std::string& path) const;
 
     /*! \brief Change buffer size from a .json file.
      *
      * \param[in] path the absolute path of the .json file.
      */
-    void import_buffer(const std::string& path);
+    void import_buffer(const std::string& path) const;
 };
 
 } // namespace holovibes::api

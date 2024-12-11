@@ -13,6 +13,11 @@ class InformationApi : public IApi
 {
 
   public:
+    InformationApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Credits
 
     /*! \brief Authors of the project */

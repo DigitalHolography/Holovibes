@@ -16,6 +16,10 @@ class ContrastApi : public IApi
 {
 
   public:
+    ContrastApi(const Api* api)
+        : IApi(api)
+    {
+    }
 #pragma region Internals
 
     /*! \brief Returns the setting of the window kind specified

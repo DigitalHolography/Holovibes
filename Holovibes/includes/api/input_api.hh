@@ -13,6 +13,11 @@ class InputApi : public IApi
 {
 
   public:
+    InputApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Input
 
     /*! \brief Return the current frame descriptor used. A file must be loaded or a camera must be running in order to

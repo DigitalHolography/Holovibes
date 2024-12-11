@@ -21,6 +21,10 @@ class WindowPostProcessApi : public IApi
 {
 
   public:
+    WindowPostProcessApi(const Api* api)
+        : IApi(api)
+    {
+    }
 #pragma region Internals
 
 /*! \brief Test whether the current window is a Filter2D window. If it is, print a warning in the log and return

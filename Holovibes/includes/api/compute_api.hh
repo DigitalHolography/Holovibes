@@ -13,6 +13,11 @@ class ComputeApi : public IApi
 {
 
   public:
+    ComputeApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
     /*! \brief Return whether the computation is stopped or not.
      *
      * \return bool True if the computation is stopped, false otherwise

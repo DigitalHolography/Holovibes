@@ -13,6 +13,11 @@ class TransformApi : public IApi
 {
 
   public:
+    TransformApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Batch
 
     /*! \brief Returns the batch size.

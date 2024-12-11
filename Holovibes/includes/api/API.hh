@@ -33,18 +33,19 @@ class Api
   private:
     // Private ctor
     Api()
+        : composite(this)
+        , compute(this)
+        , contrast(this)
+        , filter2d(this)
+        , global_pp(this)
+        , information(this)
+        , input(this)
+        , record(this)
+        , transform(this)
+        , view(this)
+        , window_pp(this)
+        , settings()
     {
-        composite.set_api(this);
-        compute.set_api(this);
-        contrast.set_api(this);
-        filter2d.set_api(this);
-        global_pp.set_api(this);
-        information.set_api(this);
-        input.set_api(this);
-        record.set_api(this);
-        transform.set_api(this);
-        view.set_api(this);
-        window_pp.set_api(this);
     }
 
     Api(const Api&) = delete;
@@ -59,18 +60,18 @@ class Api
     }
 
   public:
-    CompositeApi composite;
-    ComputeApi compute;
-    ContrastApi contrast;
-    Filter2dApi filter2d;
-    GlobalPostProcessApi global_pp;
-    InformationApi information;
-    InputApi input;
-    RecordApi record;
-    TransformApi transform;
-    ViewApi view;
-    WindowPostProcessApi window_pp;
-    ComputeSettingsApi settings;
+    const CompositeApi composite;
+    const ComputeApi compute;
+    const ContrastApi contrast;
+    const Filter2dApi filter2d;
+    const GlobalPostProcessApi global_pp;
+    const InformationApi information;
+    const InputApi input;
+    const RecordApi record;
+    const TransformApi transform;
+    const ViewApi view;
+    const WindowPostProcessApi window_pp;
+    const ComputeSettingsApi settings;
 };
 
 } // namespace holovibes::api

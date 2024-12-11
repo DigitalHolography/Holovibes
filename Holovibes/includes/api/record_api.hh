@@ -13,6 +13,11 @@ class RecordApi : public IApi
 {
 
   public:
+    RecordApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Record File
 
     /*! \brief Return the absolute path of where the record will be saved.

@@ -14,6 +14,11 @@ class GlobalPostProcessApi : public IApi
 {
 
   public:
+    GlobalPostProcessApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Registration
 
     /*! \brief Returns whether the registration is enabled or not. The registration is a post-processing step used to

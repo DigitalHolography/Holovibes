@@ -13,6 +13,10 @@ class CompositeApi : public IApi
 {
 
   public:
+    CompositeApi(const Api* api)
+        : IApi(api)
+    {
+    }
 #pragma region Composite
 
     /*! \brief Return the composite kind

@@ -21,6 +21,11 @@ class ViewApi : public IApi
 {
 
   public:
+    ViewApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Focused Window
 
     /*! \brief Returns the type of the focused window. This setting is only useful if you use functions overload that

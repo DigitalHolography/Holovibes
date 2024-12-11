@@ -13,6 +13,11 @@ class Filter2dApi : public IApi
 {
 
   public:
+    Filter2dApi(const Api* api)
+        : IApi(api)
+    {
+    }
+
 #pragma region Filter 2D
 
     /*! \brief Returns whether the filter 2D is enabled
