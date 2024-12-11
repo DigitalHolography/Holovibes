@@ -61,45 +61,12 @@
       <height>20</height>
      </rect>
     </property>
-    <property name="currentText">
-     <string>Average Signal</string>
-    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
     <item>
      <property name="text">
-      <string>Average Signal</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Average Noise</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Average Signal/ Average Noise</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>10log10(Average Signal/ Average Noise)</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Std Signal</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Std Signal / Average Noise</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Std Signal / Average Signal</string>
+      <string>Mean</string>
      </property>
     </item>
    </widget>

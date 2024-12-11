@@ -207,10 +207,14 @@ void set_chart_display(bool enabled)
 void set_analysis_chart_display(bool enabled)
 {
     if (enabled)
+    {
+        if (UI.analysis_plot_window_)
+            UI.analysis_plot_window_->activateWindow();
         UI.analysis_plot_window_.reset(
             new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
                                         UI.auto_scale_point_threshold_,
                                         "Vessels means"));
+    }
     else
         UI.analysis_plot_window_.reset(nullptr);
 }
