@@ -149,7 +149,10 @@ void InformationWorker::compute_fps(const long long waited_time)
         temperature_ = it->second->load();
 
     if ((it = fps_map.find(IntType::INPUT_FPS)) != fps_map.end())
-        input_fps_ = it->second->load();
+    {
+        input_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        it->second->store(0);
+    }
 
     if ((it = fps_map.find(IntType::OUTPUT_FPS)) != fps_map.end())
     {
