@@ -1,5 +1,14 @@
 ## Changelog
 
+### 14.2.0
+
+- The UI can record again
+- When closing a view, calculations of this view are stopped
+- Record in ps1 do not overwrite a file with the same name
+- When getting frames from the camera or the file memory transfer are now batched
+- Input fps are calculated correctly
+- Some UI related crash are now fixed (start = end index, 3d cuts, ...)
+
 ### 14.1.0
 
 - Restucuration of the API
