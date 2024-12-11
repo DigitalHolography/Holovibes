@@ -58,8 +58,8 @@ class BatchInputQueue final : public DisplayQueue
      * updates its state, potentially overwriting older batches if the queue is full.
      *
      * \param[in] frames Pointer to the source frames to be enqueued.
-     * \param memcpy_kind Type of memory copy operation (e.g., cudaMemcpyHostToDevice).
-     * \param nb_frame Number of frames to enqueue.
+     * \param[in] memcpy_kind Type of memory copy operation (e.g., cudaMemcpyHostToDevice).
+     * \param[in] nb_frame Number of frames to enqueue.
      *
      * \throws std::runtime_error If the memory copy direction is incompatible with the
      *         current device type (e.g., copying to GPU while the queue is on CPU).
@@ -72,8 +72,8 @@ class BatchInputQueue final : public DisplayQueue
      *
      * Called by the consumer.
      *
-     * \param dest The destination queue
-     * \param nb_elts Number of elts to copy multiple (must be lower than batch_size)
+     * \param[in] dest The destination queue
+     * \param[in] nb_elts Number of elts to copy multiple (must be lower than batch_size)
      */
     void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -82,7 +82,7 @@ class BatchInputQueue final : public DisplayQueue
      * Called by the consumer.
      * Call copy multiple with nb_elts == batch_size_
      *
-     * \param dest The destination queue
+     * \param[in] dest The destination queue
      */
     void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -98,9 +98,9 @@ class BatchInputQueue final : public DisplayQueue
      * The queue must have at least a batch of frames filled
      * Called by the consumer.
      *
-     * \param dest Dequeue in the destination buffer
-     * \param depth Depth of frame
-     * \param func Apply a function to the batch of frames being dequeued
+     * \param[in] dest Dequeue in the destination buffer
+     * \param[in] depth Depth of frame
+     * \param[in] func Apply a function to the batch of frames being dequeued
      */
     void dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func);
 
@@ -118,9 +118,10 @@ class BatchInputQueue final : public DisplayQueue
      * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue.
      * Useful to keep using the pointer.
      *
-     * \param fd
-     * \param size
-     * \param gpu
+     * \param[in] fd The new frame descriptor
+     * \param[in] size The new number of batches in the queue
+     * \param[in] batch_size The new number of frames in a batch
+     * \param[in] device The device on which the queue is allocated
      */
     void rebuild(const camera::FrameDescriptor& fd,
                  const unsigned int size,
