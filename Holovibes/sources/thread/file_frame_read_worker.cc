@@ -273,10 +273,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
                                      real_frames_enqueued);
 
         current_nb_frames_read_ += real_frames_enqueued;
-        processed_frames_ += real_frames_enqueued;
         frames_enqueued += real_frames_enqueued;
 
-        compute_fps();
+        *current_fps_ += real_frames_enqueued;
 
         if (stop_requested_)
             break;

@@ -69,8 +69,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
         auto ptr2 = static_cast<uint8_t*>(captured_fd.region2);
         input_queue_.load()->enqueue(ptr2, copy_kind, captured_fd.count2);
     }
-    processed_frames_ += captured_fd.count1 + captured_fd.count2;
-    compute_fps();
+
+    *current_fps_ += captured_fd.count1 + captured_fd.count2;
     *temperature_ = camera_->get_temperature();
 
     input_queue_.load()->sync_current_batch();
