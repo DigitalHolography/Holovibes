@@ -41,6 +41,7 @@ void FileFrameReadWorker::run()
         static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());
 
     // Open file.
+
     try
     {
         open_file();
@@ -238,7 +239,6 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                              frames_total_size,
                              cudaMemcpyHostToDevice,
                              stream_);
-            // cudaXMemcpy(gpu_file_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice);
         }
 
         cudaStreamSynchronize(stream_);
@@ -256,15 +256,14 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     size_t frames_enqueued = 0;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        uint real_frames_enqueued =
-            std::min((size_t)setting<settings::BatchSize>(), nb_frames_to_enqueue - frames_enqueued);
+        uint real_frames_enqueued = static_cast<uint>(
+            std::min(static_cast<size_t>(setting<settings::BatchSize>()), nb_frames_to_enqueue - frames_enqueued));
         fps_limiter_.wait(setting<settings::InputFPS>() / real_frames_enqueued);
 
         if (Holovibes::instance().is_cli)
         {
-            while (api::get_input_queue()->get_total_nb_frames() + real_frames_enqueued - 1 >=
-                       api::get_input_queue()->get_size() &&
-                   !stop_requested_)
+            // Wait for a batch to be dequeued before enqueuing a new one
+            while (api::get_input_queue()->get_size() >= api::get_input_queue()->get_max_size() && !stop_requested_)
             {
             }
         }
