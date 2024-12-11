@@ -27,8 +27,8 @@ OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
 OverlayManager::~OverlayManager()
 {
     units::RectFd empty_zone;
-    api::set_signal_zone(empty_zone);
-    api::set_noise_zone(empty_zone);
+    API.record.set_signal_zone(empty_zone);
+    API.record.set_noise_zone(empty_zone);
 }
 
 void OverlayManager::hide_overlay()

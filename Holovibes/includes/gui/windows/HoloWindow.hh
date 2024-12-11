@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include "icompute.hh"
 #include "RawWindow.hh"
+#include "display_queue.hh"
 
 namespace holovibes::gui
 {

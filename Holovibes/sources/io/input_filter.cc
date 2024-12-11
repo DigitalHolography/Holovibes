@@ -114,7 +114,7 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
         // bytes. This line skips the padding at the end of each row.
         e = fseek(f, width % 4, std::ios::cur);
     }
-    api::set_input_filter(cache_image);
+    API.filter2d.set_input_filter(cache_image);
     fclose(f);
 }
 
@@ -183,7 +183,7 @@ void bilinear_interpolation(
 
 void InputFilter::interpolate_filter(size_t fd_width, size_t fd_height)
 {
-    auto cache_image = api::get_input_filter();
+    auto cache_image = API.filter2d.get_input_filter();
     std::vector<float> copy_filter(cache_image.begin(), cache_image.end());
 
     cache_image.resize(fd_width * fd_height);
@@ -191,7 +191,7 @@ void InputFilter::interpolate_filter(size_t fd_width, size_t fd_height)
 
     bilinear_interpolation(copy_filter.data(), cache_image.data(), width, height, fd_width, fd_height);
 
-    api::set_input_filter(cache_image);
+    API.filter2d.set_input_filter(cache_image);
 
     width = static_cast<unsigned int>(fd_width);
     height = static_cast<unsigned int>(fd_height);

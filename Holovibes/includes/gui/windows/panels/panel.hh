@@ -16,6 +16,11 @@ namespace Ui
 class MainWindow;
 } // namespace Ui
 
+namespace holovibes::api
+{
+class Api;
+}
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -70,6 +75,7 @@ class Panel : public QGroupBox
   protected:
     MainWindow* parent_;
     Ui::MainWindow* ui_;
+    api::Api& api_;
 
   private:
     /*! \brief Recursively search the parent tree to find the MainWindow */

@@ -7,12 +7,15 @@
 #include "MainWindow.hh"
 #include <QGraphicsDropShadowEffect>
 
+#include "API.hh"
+
 namespace holovibes::gui
 {
 Panel::Panel(QWidget* parent)
     : QGroupBox(parent)
     , parent_(find_main_window(parent))
     , ui_(parent_->get_ui())
+    , api_(API)
 {
     QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
     effect->setBlurRadius(5);

@@ -30,6 +30,11 @@
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
+namespace holovibes::api
+{
+class Api;
+}
+
 namespace holovibes::gui
 {
 /*! \class MainWindow
@@ -205,6 +210,7 @@ class MainWindow : public QMainWindow
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
     std::shared_ptr<LightUI> light_ui_;
+    api::Api& api_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;

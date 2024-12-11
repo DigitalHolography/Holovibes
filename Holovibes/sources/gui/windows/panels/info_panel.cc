@@ -4,10 +4,8 @@
 
 #include "info_panel.hh"
 #include "MainWindow.hh"
+#include "information_worker.hh"
 #include "logger.hh"
-#include "API.hh"
-
-namespace api = ::holovibes::api;
 
 namespace holovibes::gui
 {
