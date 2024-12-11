@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region Registration
 
-void GlobalPostProcessApi::update_registration_zone(float value)
+void GlobalPostProcessApi::update_registration_zone(float value) const
 {
     if (!is_between(value, 0.f, 1.f) || api_->input.get_import_type() == ImportType::None)
         return;
@@ -16,7 +16,7 @@ void GlobalPostProcessApi::update_registration_zone(float value)
     api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
-void GlobalPostProcessApi::set_registration_enabled(bool value)
+void GlobalPostProcessApi::set_registration_enabled(bool value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -29,7 +29,7 @@ void GlobalPostProcessApi::set_registration_enabled(bool value)
 
 #pragma region Renormalization
 
-void GlobalPostProcessApi::set_renorm_enabled(bool value)
+void GlobalPostProcessApi::set_renorm_enabled(bool value) const
 {
     UPDATE_SETTING(RenormEnabled, value);
     api_->compute.pipe_refresh();
@@ -41,7 +41,7 @@ void GlobalPostProcessApi::set_renorm_enabled(bool value)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
-void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
+void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const
 {
     auto& holo = Holovibes::instance();
 
@@ -115,7 +115,7 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
     }
 }
 
-void GlobalPostProcessApi::load_convolution_matrix(std::string filename)
+void GlobalPostProcessApi::load_convolution_matrix(std::string filename) const
 {
     set_convolution_enabled(true);
     set_convo_matrix({});
@@ -142,7 +142,7 @@ void GlobalPostProcessApi::load_convolution_matrix(std::string filename)
 
 #pragma region Conv Divide
 
-void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value)
+void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
 {
     if (api_->input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
         !get_convolution_enabled())
@@ -156,7 +156,7 @@ void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value)
 
 #pragma region Convolution
 
-void GlobalPostProcessApi::enable_convolution(const std::string& filename)
+void GlobalPostProcessApi::enable_convolution(const std::string& filename) const
 {
     if (api_->input.get_import_type() == ImportType::None)
         return;
@@ -185,7 +185,7 @@ void GlobalPostProcessApi::enable_convolution(const std::string& filename)
     }
 }
 
-void GlobalPostProcessApi::disable_convolution()
+void GlobalPostProcessApi::disable_convolution() const
 {
     set_convo_matrix({});
     set_convolution_enabled(false);

@@ -26,7 +26,7 @@ class TransformApi : public IApi
      *
      * \return uint the batch size
      */
-    inline uint get_batch_size() { return GET_SETTING(BatchSize); }
+    inline uint get_batch_size() const { return GET_SETTING(BatchSize); }
 
     /*! \brief Modifies the batch size. Updates time stride if needed.
      *
@@ -42,14 +42,14 @@ class TransformApi : public IApi
      *
      * \return bool true if the time stride needs to be updated
      */
-    bool set_batch_size(uint value);
+    bool set_batch_size(uint value) const;
 
     /*! \brief Modifies the batch size. Updates time stride if needed.
      *
      * \param[in] batch_size the new value
      * \warning This function is intended for realtime use.
      */
-    void update_batch_size(uint batch_size);
+    void update_batch_size(uint batch_size) const;
 
 #pragma endregion
 
@@ -66,7 +66,7 @@ class TransformApi : public IApi
      *
      * \return uint the time stride
      */
-    inline uint get_time_stride() { return GET_SETTING(TimeStride); }
+    inline uint get_time_stride() const { return GET_SETTING(TimeStride); }
 
     /*! \brief Modifies the time stride. Must be a multiple of `batch_size` and greater equal than `batch_size`.
      *
@@ -79,14 +79,14 @@ class TransformApi : public IApi
      * \param[in] value the new value
      * \warning This function is not intended for realtime use.
      */
-    void set_time_stride(uint value);
+    void set_time_stride(uint value) const;
 
     /*! \brief Modifies the time stride. Must be a multiple of `batch_size` and greater equal than `batch_size`.
      *
      * \param[in] time_stride the new value
      * \warning This function is intended for realtime use.
      */
-    void update_time_stride(const uint time_stride);
+    void update_time_stride(const uint time_stride) const;
 
 #pragma endregion
 
@@ -96,40 +96,40 @@ class TransformApi : public IApi
      *
      * \return SpaceTransformation the space transformation algorithm
      */
-    inline SpaceTransformation get_space_transformation() { return GET_SETTING(SpaceTransformation); }
+    inline SpaceTransformation get_space_transformation() const { return GET_SETTING(SpaceTransformation); }
 
     /*! \brief Modifies the space transformation algorithm used (either Fresnel or Angular Spectrum).
      *
      * \param[in] value the new value
      * \warning This function is intended for realtime use.
      */
-    void set_space_transformation(const SpaceTransformation value);
+    void set_space_transformation(const SpaceTransformation value) const;
 
     /*! \brief Returns the wave length of the laser (in nm).
      *
      * \return float the wave length (in nm)
      */
-    inline float get_lambda() { return GET_SETTING(Lambda); }
+    inline float get_lambda() const { return GET_SETTING(Lambda); }
 
     /*!
      * \brief Sets the wave length of the laser (in nm).
      *
      * \param[in] value the new value (in nm)
      */
-    void set_lambda(float value);
+    void set_lambda(float value) const;
 
     /*! \brief Returns the distance in meter for the z-coordinate (the focus).
      *
      * \return float the z-coordinate distance in meter.
      */
-    inline float get_z_distance() { return GET_SETTING(ZDistance); }
+    inline float get_z_distance() const { return GET_SETTING(ZDistance); }
 
     /*!
      * \brief Sets the distance in meter for the z-coordinate (the focus).
      *
      * \param[in] value The new z-coordinate distance in meter.
      */
-    void set_z_distance(float value);
+    void set_z_distance(float value) const;
 
 #pragma endregion
 
@@ -140,7 +140,7 @@ class TransformApi : public IApi
      *
      * \return uint the time transformation size
      */
-    inline uint get_time_transformation_size() { return GET_SETTING(TimeTransformationSize); }
+    inline uint get_time_transformation_size() const { return GET_SETTING(TimeTransformationSize); }
 
     /*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must
      * be greater than 0.
@@ -148,7 +148,7 @@ class TransformApi : public IApi
      * \param[in] value the new value
      * \warning This function is not intended for realtime use.
      */
-    inline void set_time_transformation_size(uint value) { UPDATE_SETTING(TimeTransformationSize, value); }
+    inline void set_time_transformation_size(uint value) const { UPDATE_SETTING(TimeTransformationSize, value); }
 
     /*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must
      * be greater than 0.
@@ -156,20 +156,20 @@ class TransformApi : public IApi
      * \param[in] value the new value
      * \warning This function is intended for realtime use.
      */
-    void update_time_transformation_size(uint time_transformation_size);
+    void update_time_transformation_size(uint time_transformation_size) const;
 
     /*! \brief Returns the time transformation algorithm used (STFT, PAC, etc.).
      *
      * \return TimeTransformation the time transformation algorithm
      */
-    inline TimeTransformation get_time_transformation() { return GET_SETTING(TimeTransformation); }
+    inline TimeTransformation get_time_transformation() const { return GET_SETTING(TimeTransformation); }
 
     /*! \brief Sets the time transformation algorithm used (STFT, PAC, etc.).
      *
      * \param[in] value the new value
      * \warning This function is intended for realtime use.
      */
-    void set_time_transformation(const TimeTransformation value);
+    void set_time_transformation(const TimeTransformation value) const;
 
 #pragma endregion
 
@@ -183,7 +183,7 @@ class TransformApi : public IApi
      *
      * \return uint the min accumulation frequency
      */
-    inline uint get_p_index() { return GET_SETTING(P).start; }
+    inline uint get_p_index() const { return GET_SETTING(P).start; }
 
     /*! \brief Sets the min accumulation frequency for time transformation. Must be in range [0,
      * `time_transformation_size - get_p_accu_level - 1`].
@@ -193,7 +193,7 @@ class TransformApi : public IApi
      *
      * \param[in] value the new min accumulation frequency
      */
-    void set_p_index(uint value);
+    void set_p_index(uint value) const;
 
     /*! \brief Returns the number of frequencies accumulated for the time transformation. Is in range [0,
      * `time_transformation_size - get_p_index - 1`].
@@ -203,7 +203,7 @@ class TransformApi : public IApi
      *
      * \return uint the number of frequencies accumulated
      */
-    inline uint get_p_accu_level() { return GET_SETTING(P).width; }
+    inline uint get_p_accu_level() const { return GET_SETTING(P).width; }
 
     /*! \brief Sets the number of frequencies accumulated for the time transformation. Must be in range [0,
      * `time_transformation_size - get_p_index - 1`].
@@ -213,7 +213,7 @@ class TransformApi : public IApi
      *
      * \param[in] p_value the new number of frequencies accumulated
      */
-    void set_p_accu_level(uint p_value);
+    void set_p_accu_level(uint p_value) const;
 
     /*! \brief Returns the min eigen value index kept by the SVD. Is in range [0, `time_transformation_size -
      * get_p_accu_level - 1`].
@@ -222,7 +222,7 @@ class TransformApi : public IApi
      *
      * \return uint the new min eigen value index kept
      */
-    inline uint get_q_index() { return GET_SETTING(Q).start; }
+    inline uint get_q_index() const { return GET_SETTING(Q).start; }
 
     /*! \brief Sets the min eigen value index kept by the SVD. Must be in range [0, `time_transformation_size -
      * get_q_accu_level - 1`].
@@ -231,7 +231,7 @@ class TransformApi : public IApi
      *
      * \param[in] value the new min eigen value index kept
      */
-    void set_q_index(uint value);
+    void set_q_index(uint value) const;
 
     /*! \brief Returns the number of eigen values kept by the SVD. Is in range [0, `time_transformation_size -
      * get_q_index - 1`].
@@ -240,7 +240,7 @@ class TransformApi : public IApi
      *
      * \return uint the number of eigen values kept
      */
-    inline uint get_q_accu_level() { return GET_SETTING(Q).width; }
+    inline uint get_q_accu_level() const { return GET_SETTING(Q).width; }
 
     /*! \brief Sets the number of eigen values kept by the SVD. Must be in range [0, `time_transformation_size -
      * get_q_index
@@ -250,13 +250,13 @@ class TransformApi : public IApi
      *
      * \param[in] value the new number of eigen values kept
      */
-    void set_q_accu_level(uint value);
+    void set_q_accu_level(uint value) const;
 
     /*! \brief Adjust the value of `p_index` and `p_accu_level` according to `time_transformation_size` */
-    void check_p_limits();
+    void check_p_limits() const;
 
     /*! \brief Adjust the value of `q_index` and `q_accu_level` according to `time_transformation_size` */
-    void check_q_limits();
+    void check_q_limits() const;
 
 #pragma endregion
 
@@ -267,66 +267,66 @@ class TransformApi : public IApi
      *
      * \return uint the x cut start index
      */
-    inline uint get_x_cuts() { return GET_SETTING(X).start; }
+    inline uint get_x_cuts() const { return GET_SETTING(X).start; }
 
     /*! \brief Sets the start index for the x cut accumulation. Must be in range [0, `time_transformation_size -
      * get_x_accu_level - 1`].
      *
      * \param[in] x_value the new x cut start index
      */
-    void set_x_cuts(uint x_value);
+    void set_x_cuts(uint x_value) const;
 
     /*! \brief Returns the start index for the y cut accumulation. Is in range [0, `time_transformation_size -
      * get_y_accu_level - 1`].
      *
      * \return uint the y cut start index
      */
-    inline uint get_y_cuts() { return GET_SETTING(Y).start; }
+    inline uint get_y_cuts() const { return GET_SETTING(Y).start; }
 
     /*! \brief Sets the start index for the y cut accumulation. Must be in range [0, `time_transformation_size -
      * get_y_accu_level - 1`].
      *
      * \param[in] y_value the new y cut start index
      */
-    void set_y_cuts(uint y_value);
+    void set_y_cuts(uint y_value) const;
 
     /*! \brief Modifies the start index for the x and y cuts accumulation.
      *
      * \param[in] x value to modify
      * \param[in] y value to modify
      */
-    void set_x_y(uint x, uint y);
+    void set_x_y(uint x, uint y) const;
 
     /*! \brief Returns the x cut accumulation level. Is in range [0, `time_transformation_size - get_x_cuts - 1`].
      *
      * \return uint the x cut accumulation level
      */
-    inline uint get_x_accu_level() { return GET_SETTING(X).width; }
+    inline uint get_x_accu_level() const { return GET_SETTING(X).width; }
 
     /*! \brief Sets the x cut accumulation level. Must be in range [0, `time_transformation_size - get_x_cuts - 1`].
      *
      * \param[in] x_value the new x cut accumulation level
      */
-    void set_x_accu_level(uint x_value);
+    void set_x_accu_level(uint x_value) const;
 
     /*! \brief Returns the y cut accumulation level. Is in range [0, `time_transformation_size - get_y_cuts - 1`].
      *
      * \return uint the y cut accumulation level
      */
-    inline uint get_y_accu_level() { return GET_SETTING(Y).width; }
+    inline uint get_y_accu_level() const { return GET_SETTING(Y).width; }
 
     /*! \brief Sets the y cut accumulation level. Must be in range [0, `time_transformation_size - get_y_cuts - 1`].
      *
      * \param[in] y_value the new y cut accumulation level
      */
-    void set_y_accu_level(uint y_value);
+    void set_y_accu_level(uint y_value) const;
 
     /*! \brief Returns the capacity (in number of frames) of the output buffers containing the result of the time
      * transformation cuts.
      *
      * \return uint the capacity of the output buffer
      */
-    inline uint get_time_transformation_cuts_output_buffer_size()
+    inline uint get_time_transformation_cuts_output_buffer_size() const
     {
         return GET_SETTING(TimeTransformationCutsOutputBufferSize);
     }
@@ -336,7 +336,7 @@ class TransformApi : public IApi
      *
      * \param[in] value the new capacity
      */
-    inline void set_time_transformation_cuts_output_buffer_size(uint value)
+    inline void set_time_transformation_cuts_output_buffer_size(uint value) const
     {
         UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
     }
@@ -352,7 +352,7 @@ class TransformApi : public IApi
      *
      * \return bool true: enabled, false: disabled
      */
-    inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
+    inline bool get_fft_shift_enabled() const { return GET_SETTING(FftShiftEnabled); }
 
     /*! \brief Enables or Disables the fft shift
      *
@@ -361,13 +361,13 @@ class TransformApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_fft_shift_enabled(bool value);
+    void set_fft_shift_enabled(bool value) const;
 
     /*! \brief Enables or Disables unwrapping 2d
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_unwrapping_2d(const bool value);
+    void set_unwrapping_2d(const bool value) const;
 
 #pragma endregion
 };

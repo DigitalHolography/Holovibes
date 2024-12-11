@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region 3D Cuts View
 
-bool ViewApi::set_3d_cuts_view(bool enabled)
+bool ViewApi::set_3d_cuts_view(bool enabled) const
 {
     // No 3d cuts in moments mode
     if (api_->input.get_import_type() == ImportType::None || api_->input.get_data_type() == RecordedDataType::MOMENTS)
@@ -58,7 +58,7 @@ bool ViewApi::set_3d_cuts_view(bool enabled)
 
 #pragma region Filter2D View
 
-void ViewApi::set_filter2d_view(bool enabled)
+void ViewApi::set_filter2d_view(bool enabled) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
@@ -85,7 +85,7 @@ void ViewApi::set_filter2d_view(bool enabled)
 
 #pragma region Chart View
 
-void ViewApi::set_chart_display(bool enabled)
+void ViewApi::set_chart_display(bool enabled) const
 {
     if (get_chart_display_enabled() == enabled)
         return;
@@ -109,7 +109,7 @@ void ViewApi::set_chart_display(bool enabled)
 
 #pragma region Lens View
 
-void ViewApi::set_lens_view(bool enabled)
+void ViewApi::set_lens_view(bool enabled) const
 {
     if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
         api_->input.get_data_type() == RecordedDataType::MOMENTS && enabled)
@@ -130,7 +130,7 @@ void ViewApi::set_lens_view(bool enabled)
 
 #pragma region Raw View
 
-void ViewApi::set_raw_view(bool enabled)
+void ViewApi::set_raw_view(bool enabled) const
 {
     if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
         api_->input.get_data_type() == RecordedDataType::MOMENTS)
@@ -158,7 +158,7 @@ void ViewApi::set_raw_view(bool enabled)
 
 #pragma region Last Image
 
-void* ViewApi::get_raw_last_image()
+void* ViewApi::get_raw_last_image() const
 {
     if (api_->compute.get_input_queue())
         return api_->compute.get_input_queue().get()->get_last_image();
@@ -166,7 +166,7 @@ void* ViewApi::get_raw_last_image()
     return nullptr;
 }
 
-void* ViewApi::get_hologram_last_image()
+void* ViewApi::get_hologram_last_image() const
 {
     if (api_->compute.get_gpu_output_queue())
         return api_->compute.get_gpu_output_queue().get()->get_last_image();

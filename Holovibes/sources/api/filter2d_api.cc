@@ -9,7 +9,7 @@ namespace holovibes::api
 
 #pragma region Filter
 
-void Filter2dApi::set_filter2d_enabled(bool checked)
+void Filter2dApi::set_filter2d_enabled(bool checked) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -18,13 +18,13 @@ void Filter2dApi::set_filter2d_enabled(bool checked)
     api_->compute.pipe_refresh();
 }
 
-void Filter2dApi::set_filter2d_n1(int value)
+void Filter2dApi::set_filter2d_n1(int value) const
 {
     UPDATE_SETTING(Filter2dN1, value);
     api_->compute.pipe_refresh();
 }
 
-void Filter2dApi::set_filter2d_n2(int value)
+void Filter2dApi::set_filter2d_n2(int value) const
 {
     UPDATE_SETTING(Filter2dN2, value);
     api_->compute.pipe_refresh();
@@ -36,7 +36,7 @@ void Filter2dApi::set_filter2d_n2(int value)
 
 inline static const std::filesystem::path dir(GET_EXE_DIR);
 
-void Filter2dApi::load_input_filter(const std::string& file)
+void Filter2dApi::load_input_filter(const std::string& file) const
 {
     auto& holo = Holovibes::instance();
     try
@@ -53,7 +53,7 @@ void Filter2dApi::load_input_filter(const std::string& file)
     }
 }
 
-void Filter2dApi::enable_filter(const std::string& filename)
+void Filter2dApi::enable_filter(const std::string& filename) const
 {
     if (filename == get_filter_file_name())
         return;

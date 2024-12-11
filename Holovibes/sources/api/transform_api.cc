@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region Batch
 
-bool TransformApi::set_batch_size(uint value)
+bool TransformApi::set_batch_size(uint value) const
 {
     bool request_time_stride_update = false;
     UPDATE_SETTING(BatchSize, value);
@@ -33,7 +33,7 @@ bool TransformApi::set_batch_size(uint value)
     return request_time_stride_update;
 }
 
-void TransformApi::update_batch_size(uint batch_size)
+void TransformApi::update_batch_size(uint batch_size) const
 {
     if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
         batch_size = 1;
@@ -50,7 +50,7 @@ void TransformApi::update_batch_size(uint batch_size)
 
 #pragma region Time Stride
 
-void TransformApi::set_time_stride(uint value)
+void TransformApi::set_time_stride(uint value) const
 {
     UPDATE_SETTING(TimeStride, value);
 
@@ -63,7 +63,7 @@ void TransformApi::set_time_stride(uint value)
         UPDATE_SETTING(TimeStride, value - value % batch_size);
 }
 
-void TransformApi::update_time_stride(const uint time_stride)
+void TransformApi::update_time_stride(const uint time_stride) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
@@ -79,7 +79,7 @@ void TransformApi::update_time_stride(const uint time_stride)
 
 #pragma region Space Tr.
 
-void TransformApi::set_space_transformation(const SpaceTransformation value)
+void TransformApi::set_space_transformation(const SpaceTransformation value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || get_space_transformation() == value)
         return;
@@ -88,7 +88,7 @@ void TransformApi::set_space_transformation(const SpaceTransformation value)
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_lambda(float value)
+void TransformApi::set_lambda(float value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -97,7 +97,7 @@ void TransformApi::set_lambda(float value)
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_z_distance(float value)
+void TransformApi::set_z_distance(float value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -114,7 +114,7 @@ void TransformApi::set_z_distance(float value)
 
 #pragma region Time Tr.
 
-void TransformApi::update_time_transformation_size(uint time_transformation_size)
+void TransformApi::update_time_transformation_size(uint time_transformation_size) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
@@ -129,7 +129,7 @@ void TransformApi::update_time_transformation_size(uint time_transformation_size
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
 }
 
-void TransformApi::set_time_transformation(const TimeTransformation value)
+void TransformApi::set_time_transformation(const TimeTransformation value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || get_time_transformation() == value)
         return;
@@ -143,7 +143,7 @@ void TransformApi::set_time_transformation(const TimeTransformation value)
 
 #pragma region Time Tr.Freq.
 
-void TransformApi::set_p_index(uint value)
+void TransformApi::set_p_index(uint value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -158,25 +158,25 @@ void TransformApi::set_p_index(uint value)
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_p_accu_level(uint p_value)
+void TransformApi::set_p_accu_level(uint p_value) const
 {
     SET_SETTING(P, width, p_value);
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_q_index(uint value)
+void TransformApi::set_q_index(uint value) const
 {
     SET_SETTING(Q, start, value);
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_q_accu_level(uint value)
+void TransformApi::set_q_accu_level(uint value) const
 {
     SET_SETTING(Q, width, value);
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::check_p_limits()
+void TransformApi::check_p_limits() const
 {
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
@@ -189,7 +189,7 @@ void TransformApi::check_p_limits()
         set_p_index(upper_bound);
 }
 
-void TransformApi::check_q_limits()
+void TransformApi::check_q_limits() const
 {
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
@@ -206,13 +206,13 @@ void TransformApi::check_q_limits()
 
 #pragma region Time Tr.Cuts
 
-void TransformApi::set_x_accu_level(uint x_value)
+void TransformApi::set_x_accu_level(uint x_value) const
 {
     SET_SETTING(X, width, x_value);
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_x_cuts(uint value)
+void TransformApi::set_x_cuts(uint value) const
 {
     if (value < api_->input.get_fd().width)
     {
@@ -221,13 +221,13 @@ void TransformApi::set_x_cuts(uint value)
     }
 }
 
-void TransformApi::set_y_accu_level(uint y_value)
+void TransformApi::set_y_accu_level(uint y_value) const
 {
     SET_SETTING(Y, width, y_value);
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_y_cuts(uint value)
+void TransformApi::set_y_cuts(uint value) const
 {
     if (value < api_->input.get_fd().height)
     {
@@ -236,7 +236,7 @@ void TransformApi::set_y_cuts(uint value)
     }
 }
 
-void TransformApi::set_x_y(uint x, uint y)
+void TransformApi::set_x_y(uint x, uint y) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
@@ -254,7 +254,7 @@ void TransformApi::set_x_y(uint x, uint y)
 
 #pragma region Specials
 
-void TransformApi::set_unwrapping_2d(const bool value)
+void TransformApi::set_unwrapping_2d(const bool value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -263,7 +263,7 @@ void TransformApi::set_unwrapping_2d(const bool value)
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_fft_shift_enabled(bool value)
+void TransformApi::set_fft_shift_enabled(bool value) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;

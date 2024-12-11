@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region Record Mode
 
-void RecordApi::set_record_mode_enum(RecordMode value)
+void RecordApi::set_record_mode_enum(RecordMode value) const
 {
     stop_record();
 
@@ -33,7 +33,7 @@ void RecordApi::set_record_mode_enum(RecordMode value)
     }
 }
 
-std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode)
+std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) const
 {
     static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
         {RecordMode::RAW, {OutputFormat::HOLO}},
@@ -51,7 +51,7 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode)
 
 #pragma region Recording
 
-bool RecordApi::start_record_preconditions()
+bool RecordApi::start_record_preconditions() const
 {
     std::optional<size_t> nb_frames_to_record = get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
@@ -68,7 +68,7 @@ bool RecordApi::start_record_preconditions()
     return true;
 }
 
-void RecordApi::start_record(std::function<void()> callback)
+void RecordApi::start_record(std::function<void()> callback) const
 {
     if (!start_record_preconditions()) // Check if the record can be started
         return;
@@ -85,7 +85,7 @@ void RecordApi::start_record(std::function<void()> callback)
     NotifierManager::notify<bool>("acquisition_started", true);       // notifying MainWindow
 }
 
-void RecordApi::stop_record()
+void RecordApi::stop_record() const
 {
     LOG_FUNC();
 
@@ -100,13 +100,13 @@ void RecordApi::stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-bool RecordApi::is_recording() { return Holovibes::instance().is_recording(); }
+bool RecordApi::is_recording() const { return Holovibes::instance().is_recording(); }
 
 #pragma endregion
 
 #pragma region Buffer
 
-void RecordApi::set_record_queue_location(Device device)
+void RecordApi::set_record_queue_location(Device device) const
 {
     // we check since this function is always triggered when we save the advanced settings, even if the location was not
     // modified
@@ -121,7 +121,7 @@ void RecordApi::set_record_queue_location(Device device)
     }
 }
 
-void RecordApi::set_record_buffer_size(uint value)
+void RecordApi::set_record_buffer_size(uint value) const
 {
     // since this function is always triggered when we save the advanced settings, even if the location was not modified
     if (get_record_buffer_size() != value)

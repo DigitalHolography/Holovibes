@@ -5,7 +5,7 @@
 namespace holovibes::api
 {
 
-void ComputeApi::close_critical_compute()
+void ComputeApi::close_critical_compute() const
 {
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.disable_convolution();
@@ -25,9 +25,9 @@ void ComputeApi::close_critical_compute()
     Holovibes::instance().stop_compute();
 }
 
-void ComputeApi::stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
+void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
 
-void ComputeApi::handle_update_exception()
+void ComputeApi::handle_update_exception() const
 {
     api_->transform.set_p_index(0);
     api_->transform.set_time_transformation_size(1);
@@ -37,7 +37,7 @@ void ComputeApi::handle_update_exception()
 
 #pragma region Pipe
 
-void ComputeApi::disable_pipe_refresh()
+void ComputeApi::disable_pipe_refresh() const
 {
     try
     {
@@ -49,7 +49,7 @@ void ComputeApi::disable_pipe_refresh()
     }
 }
 
-void ComputeApi::enable_pipe_refresh()
+void ComputeApi::enable_pipe_refresh() const
 {
     try
     {
@@ -61,7 +61,7 @@ void ComputeApi::enable_pipe_refresh()
     }
 }
 
-void ComputeApi::pipe_refresh()
+void ComputeApi::pipe_refresh() const
 {
     if (api_->input.get_import_type() == ImportType::None)
         return;
@@ -77,7 +77,7 @@ void ComputeApi::pipe_refresh()
     }
 }
 
-void ComputeApi::create_pipe()
+void ComputeApi::create_pipe() const
 {
     LOG_FUNC();
     try
@@ -94,7 +94,7 @@ void ComputeApi::create_pipe()
 
 #pragma region Compute Mode
 
-void ComputeApi::set_computation_mode(Computation mode)
+void ComputeApi::set_computation_mode(Computation mode) const
 {
     if (api_->input.get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
         return;
@@ -118,7 +118,7 @@ void ComputeApi::set_computation_mode(Computation mode)
 
 #pragma region Img Type
 
-ApiCode ComputeApi::set_view_mode(const ImgType type)
+ApiCode ComputeApi::set_view_mode(const ImgType type) const
 {
     if (type == get_img_type())
         return ApiCode::NO_CHANGE;
@@ -149,7 +149,7 @@ ApiCode ComputeApi::set_view_mode(const ImgType type)
     return ApiCode::OK;
 }
 
-void ComputeApi::loaded_moments_data()
+void ComputeApi::loaded_moments_data() const
 {
     api_->transform.set_batch_size(3);  // Moments are read in batch of 3 (since there are three moments)
     api_->transform.set_time_stride(3); // The user can change the time stride, but setting it to 3

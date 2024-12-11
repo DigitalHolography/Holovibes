@@ -23,7 +23,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return ViewWindow the setting of the window kind
      */
-    inline ViewWindow get_window(WindowKind kind)
+    inline ViewWindow get_window(WindowKind kind) const
     {
         switch (kind)
         {
@@ -47,26 +47,26 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return bool true if the log scale is enabled
      */
-    inline bool get_log_enabled(WindowKind kind) { return get_window(kind).log_enabled; }
+    inline bool get_log_enabled(WindowKind kind) const { return get_window(kind).log_enabled; }
 
     /*! \brief Returns whether the log scale is enabled on the current window
      *
      * \return bool true if the log scale is enabled
      */
-    bool get_log_enabled();
+    bool get_log_enabled() const;
 
     /*! \brief Enables or Disables log scale on the specified window kind
      *
      * \param[in] kind the window kind
      * \param[in] value true: enable, false: disable
      */
-    void set_log_enabled(WindowKind kind, bool value);
+    void set_log_enabled(WindowKind kind, bool value) const;
 
     /*! \brief Enables or Disables log scale on the current window
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_log_enabled(bool value);
+    void set_log_enabled(bool value) const;
 
 #pragma endregion
 
@@ -79,7 +79,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return float the contrast min value
      */
-    float get_contrast_min(WindowKind kind);
+    float get_contrast_min(WindowKind kind) const;
 
     /*! \brief Returns the contrast max value of the focused window.
      *
@@ -87,7 +87,7 @@ class ContrastApi : public IApi
      *
      * \return float the contrast max value
      */
-    float get_contrast_min();
+    float get_contrast_min() const;
 
     /*! \brief Sets the contrast min value of the specified window kind.
      *
@@ -96,7 +96,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \param[in] value the new contrast min value
      */
-    void set_contrast_min(WindowKind kind, float value);
+    void set_contrast_min(WindowKind kind, float value) const;
 
     /*! \brief Sets the contrast min value of the focused window.
      *
@@ -104,7 +104,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast min value
      */
-    void set_contrast_min(float value);
+    void set_contrast_min(float value) const;
 
     /*! \brief Returns the contrast max value of the specified window kind.
      *
@@ -113,7 +113,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return float the contrast max value
      */
-    float get_contrast_max(WindowKind kind);
+    float get_contrast_max(WindowKind kind) const;
 
     /*! \brief Returns the contrast max value of the focused window.
      *
@@ -121,7 +121,7 @@ class ContrastApi : public IApi
      *
      * \return float the contrast max value
      */
-    float get_contrast_max();
+    float get_contrast_max() const;
 
     /*! \brief Sets the contrast max value of the specified window kind.
      *
@@ -130,7 +130,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \param[in] value the new contrast max value
      */
-    void set_contrast_max(WindowKind kind, float value);
+    void set_contrast_max(WindowKind kind, float value) const;
 
     /*! \brief Sets the contrast max value of the focused window.
      *
@@ -138,7 +138,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast max value
      */
-    void set_contrast_max(float value);
+    void set_contrast_max(float value) const;
 
     /*! \brief Updates the contrast of the specified window kind.
      *
@@ -148,7 +148,7 @@ class ContrastApi : public IApi
      * \param[in] min the new contrast min value
      * \param[in] max the new contrast max value
      */
-    void update_contrast(WindowKind kind, float min, float max);
+    void update_contrast(WindowKind kind, float min, float max) const;
 
 #pragma endregion
 
@@ -159,26 +159,26 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return bool true if the contrast is enabled
      */
-    inline bool get_contrast_enabled(WindowKind kind) { return get_window(kind).contrast.enabled; }
+    inline bool get_contrast_enabled(WindowKind kind) const { return get_window(kind).contrast.enabled; }
 
     /*! \brief Returns whether the contrast is enabled on the current window
      *
      * \return bool true if the contrast is enabled
      */
-    bool get_contrast_enabled();
+    bool get_contrast_enabled() const;
 
     /*! \brief Enables or Disables the contrast on the specified window kind
      *
      * \param[in] kind the window kind
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_enabled(WindowKind kind, bool value);
+    void set_contrast_enabled(WindowKind kind, bool value) const;
 
     /*! \brief Enables or Disables the contrast on the current window
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_enabled(bool value);
+    void set_contrast_enabled(bool value) const;
 
 #pragma endregion
 
@@ -189,26 +189,26 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return bool true if the contrast auto refresh is enabled
      */
-    inline bool get_contrast_auto_refresh(WindowKind kind) { return get_window(kind).contrast.auto_refresh; }
+    inline bool get_contrast_auto_refresh(WindowKind kind) const { return get_window(kind).contrast.auto_refresh; }
 
     /*! \brief Returns whether the contrast auto refresh is enabled on the current window
      *
      * \return bool true if the contrast auto refresh is enabled
      */
-    bool get_contrast_auto_refresh();
+    bool get_contrast_auto_refresh() const;
 
     /*! \brief Enables or Disables the contrast auto refresh on the specified window kind
      *
      * \param[in] kind the window kind
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_auto_refresh(WindowKind kind, bool value);
+    void set_contrast_auto_refresh(WindowKind kind, bool value) const;
 
     /*! \brief Enables or Disables the contrast auto refresh on the current window
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_auto_refresh(bool value);
+    void set_contrast_auto_refresh(bool value) const;
 
 #pragma endregion
 
@@ -219,26 +219,26 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind
      * \return bool true if the contrast is inverted
      */
-    inline bool get_contrast_invert(WindowKind kind) { return get_window(kind).contrast.invert; }
+    inline bool get_contrast_invert(WindowKind kind) const { return get_window(kind).contrast.invert; }
 
     /*! \brief Returns whether the contrast is inverted (min and max will be swaped) on the current window
      *
      * \return bool true if the contrast is inverted
      */
-    bool get_contrast_invert();
+    bool get_contrast_invert() const;
 
     /*! \brief Enables or Disables the contrast invert on the specified window kind
      *
      * \param[in] kind the window kind
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_invert(WindowKind kind, bool value);
+    void set_contrast_invert(WindowKind kind, bool value) const;
 
     /*! \brief Enables or Disables the contrast invert on the current window
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_contrast_invert(bool value);
+    void set_contrast_invert(bool value) const;
 
 #pragma endregion
 
@@ -249,28 +249,28 @@ class ContrastApi : public IApi
      *
      * \return float the contrast lower threshold
      */
-    inline float get_contrast_lower_threshold() { return GET_SETTING(ContrastLowerThreshold); }
+    inline float get_contrast_lower_threshold() const { return GET_SETTING(ContrastLowerThreshold); }
 
     /*! \brief Sets the contrast lower threshold pourcentage. This setting is used to determine which percentile will be
      * used for the min contrast value when computing the auto contrast. Must be in range [0, 100].
      *
      * \param[in] value the new contrast lower threshold in range [0, 100]
      */
-    inline void set_contrast_lower_threshold(float value) { UPDATE_SETTING(ContrastLowerThreshold, value); }
+    inline void set_contrast_lower_threshold(float value) const { UPDATE_SETTING(ContrastLowerThreshold, value); }
 
     /*! \brief Returns the contrast upper threshold pourcentage. This setting is used to determine which percentile will
      * be used for the max contrast value when computing the auto contrast. Is in range [0, 100].
      *
      * \return float the contrast upper threshold
      */
-    inline float get_contrast_upper_threshold() { return GET_SETTING(ContrastUpperThreshold); }
+    inline float get_contrast_upper_threshold() const { return GET_SETTING(ContrastUpperThreshold); }
 
     /*! \brief Sets the contrast upper threshold pourcentage. This setting is used to determine which percentile will be
      * used for the max contrast value when computing the auto contrast. Must be in range [0, 100].
      *
      * \param[in] value the new contrast upper threshold in range [0, 100]
      */
-    inline void set_contrast_upper_threshold(float value) { UPDATE_SETTING(ContrastUpperThreshold, value); }
+    inline void set_contrast_upper_threshold(float value) const { UPDATE_SETTING(ContrastUpperThreshold, value); }
 
     /*! \brief Returns the offset used to compute the autocontrast for the XZ and YZ views (cuts). Is in range [0,
      * get_fd().width / 2].
@@ -288,7 +288,7 @@ class ContrastApi : public IApi
      *
      * \return uint the cuts contrast offset in range [0, get_fd().width / 2]
      */
-    inline uint get_cuts_contrast_p_offset() { return static_cast<uint>(GET_SETTING(CutsContrastPOffset)); }
+    inline uint get_cuts_contrast_p_offset() const { return static_cast<uint>(GET_SETTING(CutsContrastPOffset)); }
 
     /*! \brief Sets the offset used to compute the autocontrast for the XZ and YZ views (cuts). Must be in range [0,
      * get_fd().width / 2].
@@ -306,7 +306,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new cuts contrast offset in range [0, get_fd().width / 2]
      */
-    inline void set_cuts_contrast_p_offset(uint value) { UPDATE_SETTING(CutsContrastPOffset, value); }
+    inline void set_cuts_contrast_p_offset(uint value) const { UPDATE_SETTING(CutsContrastPOffset, value); }
 
 #pragma endregion
 
@@ -317,38 +317,38 @@ class ContrastApi : public IApi
      *
      * \return bool true if the reticle display is enabled
      */
-    inline bool get_reticle_display_enabled() { return GET_SETTING(ReticleDisplayEnabled); }
+    inline bool get_reticle_display_enabled() const { return GET_SETTING(ReticleDisplayEnabled); }
 
     /*! \brief Enables or Disables the reticle display. The reticle display is a rect region where the contrast is
      * calculated on.
      *
      * \param[in] value true: enable, false: disable
      */
-    void set_reticle_display_enabled(bool value);
+    void set_reticle_display_enabled(bool value) const;
 
     /*! \brief Returns the reticle scale. The reticle scale is the size of the reticle display.
      *
      * \return float the reticle scale
      */
-    inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
+    inline float get_reticle_scale() const { return GET_SETTING(ReticleScale); }
 
     /*! \brief Sets the reticle scale. The reticle scale is the size of the reticle display.
      *
      * \param[in] value the new reticle scale
      */
-    void set_reticle_scale(float value);
+    void set_reticle_scale(float value) const;
 
     /*! \brief Returns the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
      * \return units::RectFd the reticle zone
      */
-    inline units::RectFd get_reticle_zone() { return GET_SETTING(ReticleZone); };
+    inline units::RectFd get_reticle_zone() const { return GET_SETTING(ReticleZone); };
 
     /*! \brief Sets the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
      * \param[in] rect the new reticle zone
      */
-    inline void set_reticle_zone(const units::RectFd& rect) { UPDATE_SETTING(ReticleZone, rect); };
+    inline void set_reticle_zone(const units::RectFd& rect) const { UPDATE_SETTING(ReticleZone, rect); };
 
 #pragma endregion
 };

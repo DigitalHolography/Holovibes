@@ -33,23 +33,6 @@ class Api
   private:
     // Private ctor
     Api()
-        : composite()
-        , compute()
-        , contrast()
-        , filter2d()
-        , global_pp()
-        , information()
-        , input()
-        , record()
-        , transform()
-        , view()
-        , window_pp()
-        , settings()
-    {
-        init();
-    }
-
-    void init()
     {
         composite.set_api(this);
         compute.set_api(this);
@@ -63,6 +46,9 @@ class Api
         view.set_api(this);
         window_pp.set_api(this);
     }
+
+    Api(const Api&) = delete;
+    Api& operator=(const Api&) = delete;
 
   public:
     // Singleton

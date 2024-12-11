@@ -10,7 +10,7 @@ namespace holovibes::api
 
 #pragma region Internals
 
-void InputApi::camera_none()
+void InputApi::camera_none() const
 {
     api_->compute.close_critical_compute();
 
@@ -25,7 +25,7 @@ void InputApi::camera_none()
 
 #pragma region File Offest
 
-void InputApi::set_input_file_start_index(size_t value)
+void InputApi::set_input_file_start_index(size_t value) const
 {
     const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
     // Ensures that moments are read 3 by 3
@@ -37,7 +37,7 @@ void InputApi::set_input_file_start_index(size_t value)
         set_input_file_end_index(value + (is_data_moments ? 3 : 1));
 }
 
-void InputApi::set_input_file_end_index(size_t value)
+void InputApi::set_input_file_end_index(size_t value) const
 {
     const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
     // Ensures that moments are read 3 by 3
@@ -53,7 +53,7 @@ void InputApi::set_input_file_end_index(size_t value)
 
 #pragma region File Import
 
-bool InputApi::import_start()
+bool InputApi::import_start() const
 {
     LOG_FUNC();
 
@@ -88,7 +88,7 @@ bool InputApi::import_start()
     return true;
 }
 
-void InputApi::import_stop()
+void InputApi::import_stop() const
 {
     if (get_import_type() == ImportType::None)
         return;
@@ -104,7 +104,7 @@ void InputApi::import_stop()
     set_import_type(ImportType::None);
 }
 
-std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string& filename)
+std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string& filename) const
 {
     if (!filename.empty())
     {
@@ -157,7 +157,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
 
 #pragma region Cameras
 
-bool InputApi::set_camera_kind(CameraKind c, bool save)
+bool InputApi::set_camera_kind(CameraKind c, bool save) const
 {
     LOG_FUNC(static_cast<int>(c));
     camera_none();

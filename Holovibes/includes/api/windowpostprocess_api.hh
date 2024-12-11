@@ -45,7 +45,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return the value of the setting
      */
-    inline ViewXYZ get_window_xyz(WindowKind kind)
+    inline ViewXYZ get_window_xyz(WindowKind kind) const
     {
         switch (kind)
         {
@@ -75,7 +75,7 @@ class WindowPostProcessApi : public IApi
      * \param[in] kind the kind of window
      * \param[in] value the new value of the setting
      */
-    inline void set_window_xyz(WindowKind kind, ViewXYZ value)
+    inline void set_window_xyz(WindowKind kind, ViewXYZ value) const
     {
         switch (kind)
         {
@@ -103,7 +103,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the horizontal flip is activated
      */
-    inline bool get_horizontal_flip(WindowKind kind)
+    inline bool get_horizontal_flip(WindowKind kind) const
     {
         NOT_FILTER2D_R(kind, "horizontal flip", false);
         return get_window_xyz(kind).horizontal_flip;
@@ -113,20 +113,20 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the horizontal flip is activated
      */
-    bool get_horizontal_flip();
+    bool get_horizontal_flip() const;
 
     /*! \brief Sets the horizontal flip state of the specified window
      *
      * \param[in] kind the kind of window
      * \param[in] value the new value of the horizontal flip state
      */
-    void set_horizontal_flip(WindowKind kind, bool value);
+    void set_horizontal_flip(WindowKind kind, bool value) const;
 
     /*! \brief Sets the horizontal flip state of the current window
      *
      * \param[in] value the new value of the horizontal flip state
      */
-    void set_horizontal_flip(bool value);
+    void set_horizontal_flip(bool value) const;
 
     /*! \brief Returns the rotation of the specified window. The rotation is in degrees and is applied anti-clockwise.
      * Only 0, 90, 180 and 270 degrees are supported.
@@ -135,7 +135,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return float the rotation of the window
      */
-    inline float get_rotation(WindowKind kind)
+    inline float get_rotation(WindowKind kind) const
     {
         NOT_FILTER2D_R(kind, "rotation", 0.0f);
         return get_window_xyz(kind).rotation;
@@ -146,7 +146,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return float the rotation of the window
      */
-    float get_rotation();
+    float get_rotation() const;
 
     /*! \brief Sets the rotation of the specified window. The rotation is in degrees and is applied anti-clockwise. Only
      * 0, 90, 180 and 270 degrees are supported.
@@ -154,14 +154,14 @@ class WindowPostProcessApi : public IApi
      * \param[in] kind the kind of window
      * \param[in] value the new rotation of the window either: 0, 90, 180 or 270 degrees.
      */
-    void set_rotation(WindowKind kind, float value);
+    void set_rotation(WindowKind kind, float value) const;
 
     /*! \brief Sets the rotation of the current window. The rotation is in degrees and is applied anti-clockwise. Only
      * 0, 90, 180 and 270 degrees are supported.
      *
      * \param[in] value the new rotation of the window either: 0, 90, 180 or 270 degrees.
      */
-    void set_rotation(float value);
+    void set_rotation(float value) const;
 
 #pragma endregion
 
@@ -177,7 +177,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return uint the size of the accumulation window.
      */
-    inline uint get_accumulation_level(WindowKind kind)
+    inline uint get_accumulation_level(WindowKind kind) const
     {
         NOT_FILTER2D_R(kind, "accumulation", 30);
         return get_window_xyz(kind).output_image_accumulation;
@@ -191,7 +191,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return uint the size of the accumulation window.
      */
-    uint get_accumulation_level();
+    uint get_accumulation_level() const;
 
     /*! \brief Sets the size of the accumulation window for the specified window. Must be greater than 0.
      *
@@ -202,7 +202,7 @@ class WindowPostProcessApi : public IApi
      * \param[in] kind the kind of window
      * \param[in] value the new size of the accumulation window.
      */
-    void set_accumulation_level(WindowKind kind, uint value);
+    void set_accumulation_level(WindowKind kind, uint value) const;
 
     /*! \brief Sets the size of the accumulation window for the current window. Must be greater than 0.
      *
@@ -212,7 +212,7 @@ class WindowPostProcessApi : public IApi
      *
      * \param[in] value the new size of the accumulation window, greater than 0.
      */
-    void set_accumulation_level(uint value);
+    void set_accumulation_level(uint value) const;
 
 #pragma endregion
 
@@ -223,14 +223,14 @@ class WindowPostProcessApi : public IApi
      *
      * \return uint the value of the raw bit shift.
      */
-    inline unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
+    inline unsigned int get_raw_bitshift() const { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
 
     /*! \brief Sets value of raw bit shift. When raw data is displayed, pixels will be equal to: `px = px *
      * 2^RawBitshift`
      *
      * \param[in] value the new value of the raw bit shift.
      */
-    inline void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
+    inline void set_raw_bitshift(unsigned int value) const { UPDATE_SETTING(RawBitshift, value); }
 
 #pragma endregion
 
@@ -242,7 +242,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the window is enabled
      */
-    inline bool get_enabled(WindowKind kind)
+    inline bool get_enabled(WindowKind kind) const
     {
         NOT_FILTER2D_R(kind, "enabled", false);
         return get_window_xyz(kind).enabled;
@@ -252,14 +252,14 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the window is enabled
      */
-    bool get_enabled();
+    bool get_enabled() const;
 
     /*! \brief Sets the enabled state of the specified window
      *
      * \param[in] kind the kind of window
      * \param[in] value the new value of the enabled state
      */
-    inline void set_enabled(WindowKind kind, bool value)
+    inline void set_enabled(WindowKind kind, bool value) const
     {
         NOT_FILTER2D(kind, "enabled");
         auto window = get_window_xyz(kind);
@@ -271,7 +271,7 @@ class WindowPostProcessApi : public IApi
      *
      * \param[in] value the new value of the enabled state
      */
-    void set_enabled(bool value);
+    void set_enabled(bool value) const;
 
 #pragma endregion
 };

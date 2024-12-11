@@ -89,7 +89,7 @@ class InformationApi : public IApi
      *
      * \return const std::vector<std::string> credits in columns
      */
-    constexpr std::vector<std::string> get_credits()
+    constexpr std::vector<std::string> get_credits() const
     {
         std::vector<std::string> res{"", "", ""};
 
@@ -109,14 +109,14 @@ class InformationApi : public IApi
      *
      * \return bool benchmark mode
      */
-    inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
+    inline bool get_benchmark_mode() const { return GET_SETTING(BenchmarkMode); }
 
     /*! \brief Activate or deactivate the benchmark mode. If activated, information about the computation (fps, memory
      * usage, etc.) will be written in a file.
      *
      * \param[in] value the new value
      */
-    inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
+    inline void set_benchmark_mode(bool value) const { UPDATE_SETTING(BenchmarkMode, value); }
 
 #pragma endregion
 
@@ -126,16 +126,16 @@ class InformationApi : public IApi
      *
      * \return float boundary
      */
-    float get_boundary();
+    float get_boundary() const;
 
     /*! \brief Gets the documentation url
      *
      * \return const std::string url
      */
-    const std::string get_documentation_url();
+    const std::string get_documentation_url() const;
 
     /*! \brief Displays information */
-    void start_information_display();
+    void start_information_display() const;
 
 #pragma endregion
 };
