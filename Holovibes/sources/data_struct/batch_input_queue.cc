@@ -150,17 +150,11 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
             data_.get() +
             ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-        if (device_ == Device::GPU)
-            cudaXMemcpyAsync(new_frame_adress,
-                             frames,
-                             sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
-                             memcpy_kind,
-                             batch_streams_[end_index_]);
-        else
-            cudaXMemcpyAsync(new_frame_adress,
-                             frames,
-                             sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
-                             memcpy_kind);
+        cudaXMemcpyAsync(new_frame_adress,
+                         frames,
+                         sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
+                         memcpy_kind,
+                         batch_streams_[end_index_]);
 
         // No sync needed here, the host doesn't need to wait for the copy to
         // end. Only the consumer needs to be sure the data is here before

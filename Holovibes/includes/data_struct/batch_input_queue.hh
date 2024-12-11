@@ -54,8 +54,9 @@ class BatchInputQueue final : public DisplayQueue
      * This function handles the transfer of frames from the input source to the internal
      * batch-based queue. Depending on the device type (CPU or GPU) and the memory copy
      * direction, it ensures data consistency and synchronizes correctly with concurrent
-     * operations. Frames are enqueued in batches, and when a batch is full, the queue
+     * operations. Frames are enqueued into a batch. When a batch is full, the queue
      * updates its state, potentially overwriting older batches if the queue is full.
+     * If nb_frames is greater than the batch size, the function enqueues multiple batches.
      *
      * \param[in] frames Pointer to the source frames to be enqueued.
      * \param[in] memcpy_kind Type of memory copy operation (e.g., cudaMemcpyHostToDevice).
@@ -72,8 +73,9 @@ class BatchInputQueue final : public DisplayQueue
      *
      * Called by the consumer.
      *
-     * \param[in] dest The destination queue
+     * \param[out] dest The destination queue
      * \param[in] nb_elts Number of elts to copy multiple (must be lower than batch_size)
+     * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
      */
     void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -82,7 +84,8 @@ class BatchInputQueue final : public DisplayQueue
      * Called by the consumer.
      * Call copy multiple with nb_elts == batch_size_
      *
-     * \param[in] dest The destination queue
+     * \param[out] dest The destination queue
+     * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
      */
     void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -98,7 +101,7 @@ class BatchInputQueue final : public DisplayQueue
      * The queue must have at least a batch of frames filled
      * Called by the consumer.
      *
-     * \param[in] dest Dequeue in the destination buffer
+     * \param[out] dest Dequeue in the destination buffer
      * \param[in] depth Depth of frame
      * \param[in] func Apply a function to the batch of frames being dequeued
      */
