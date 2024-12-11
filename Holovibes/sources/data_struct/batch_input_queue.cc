@@ -1,5 +1,5 @@
 #include <cassert>
-
+#include "logger.hh"
 #include "holovibes.hh"
 
 #include "batch_input_queue.hh"
@@ -121,7 +121,7 @@ void BatchInputQueue::stop_producer()
     }
 }
 
-void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
+void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind memcpy_kind, const int nb_frame)
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
@@ -129,62 +129,75 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
 
-    if (curr_batch_counter_ == 0) // Enqueue in a new batch
+    int frames_left = nb_frame;
+
+    while (frames_left > 0)
     {
-        // The producer might be descheduled before locking.
-        // Consumer might modified curr_batch_counter_ here by the resize
-        // However, it sets its value to 0 so the condition is still true.
-        m_producer_busy_.lock();
-        batch_mutexes_[end_index_].lock();
-    }
+        if (curr_batch_counter_ == 0) // Enqueue in a new batch
+        {
+            // The producer might be descheduled before locking.
+            // Consumer might modified curr_batch_counter_ here by the resize
+            // However, it sets its value to 0 so the condition is still true.
+            m_producer_busy_.lock();
+            batch_mutexes_[end_index_].lock();
+        }
+        // Critical section between enqueue (producer) & resize (consumer)
 
-    // Critical section between enqueue (producer) & resize (consumer)
+        uint frames_to_enqueue = std::min(static_cast<uint>(frames_left), batch_size_ - curr_batch_counter_);
 
-    // Static_cast to avoid overflow
-    char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
+        // Static_cast to avoid overflow
+        char* const new_frame_adress =
+            data_.get() +
+            ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-    if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
-                         input_frame,
-                         sizeof(char) * fd_.get_frame_size(),
+                         frames,
+                         sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
                          memcpy_kind,
                          batch_streams_[end_index_]);
-    else
-        cudaXMemcpyAsync(new_frame_adress, input_frame, sizeof(char) * fd_.get_frame_size(), memcpy_kind);
 
-    // No sync needed here, the host doesn't need to wait for the copy to
-    // end. Only the consumer needs to be sure the data is here before
-    // manipulating it.
+        // No sync needed here, the host doesn't need to wait for the copy to
+        // end. Only the consumer needs to be sure the data is here before
+        // manipulating it.
 
-    // Increase the number of frames in the current batch
-    curr_batch_counter_++;
+        // Increase the number of frames in the current batch
+        curr_batch_counter_ += frames_to_enqueue;
 
-    // The current batch is full
-    if (curr_batch_counter_ == batch_size_)
-    {
-        curr_batch_counter_ = 0;
-        const uint prev_end_index = end_index_;
-        end_index_ = (end_index_ + 1) % max_size_;
-
-        // The queue is full (in terms of batch)
-        if (size_ == max_size_)
+        // The current batch is full
+        if (curr_batch_counter_ == batch_size_)
         {
-            has_overwritten_ = true;
-            start_index_ = (start_index_ + 1) % max_size_;
-        }
-        else
-        {
-            size_++;
-            curr_nb_frames_ += batch_size_;
-        }
+            curr_batch_counter_ = 0;
+            const uint prev_end_index = end_index_;
+            end_index_ = (end_index_ + 1) % max_size_;
 
-        // Unlock the current batch mutex
-        batch_mutexes_[prev_end_index].unlock();
-        // No batch are busy anymore
-        // End of critical section between enqueue (producer) & resize
-        // (consumer)
-        m_producer_busy_.unlock();
+            // The queue is full (in terms of batch)
+            if (size_ == max_size_)
+            {
+                has_overwritten_ = true;
+                start_index_ = (start_index_ + 1) % max_size_;
+            }
+            else
+            {
+                size_++;
+                curr_nb_frames_ += batch_size_;
+            }
+
+            // Unlock the current batch mutex
+            batch_mutexes_[prev_end_index].unlock();
+            // No batch are busy anymore
+            // End of critical section between enqueue (producer) & resize
+            // (consumer)
+            m_producer_busy_.unlock();
+
+            // block the worker after completing a batch to allow the resizing of the queue.
+            if (resize_in_progress_)
+            {
+                while (resize_in_progress_)
+                    continue;
+                return;
+            }
+        }
+        frames_left -= frames_to_enqueue;
     }
 }
 
@@ -266,11 +279,10 @@ void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
 
 void BatchInputQueue::resize(const uint new_batch_size)
 {
+    resize_in_progress_ = true;
     // No action on any batch must be proceed
     const std::lock_guard<std::mutex> lock(m_producer_busy_);
-
     // Critical section between the enqueue (producer) & the resize (consumer)
-
     // Synchronize all active CUDA streams
     if (device_ == Device::GPU)
     {
@@ -287,8 +299,8 @@ void BatchInputQueue::resize(const uint new_batch_size)
     create_queue(new_batch_size);
 
     make_empty();
-
     // End of critical section
+    resize_in_progress_ = false;
 }
 
 // void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind =

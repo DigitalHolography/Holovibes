@@ -30,5 +30,6 @@ class Filter2DWindow : public BasicOpenGLWindow
     void paintGL() override;
 
     void focusInEvent(QFocusEvent*) override;
+    void closeEvent(QCloseEvent*) override;
 };
 } // namespace holovibes::gui
