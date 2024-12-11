@@ -220,5 +220,6 @@ class MainWindow : public QMainWindow
     Subscriber<bool> acquisition_finished_subscriber_;
     bool acquisition_finished_notification_received;
     Subscriber<bool> set_preset_subscriber_;
+    Subscriber<bool> notify_subscriber_;
 };
 } // namespace holovibes::gui

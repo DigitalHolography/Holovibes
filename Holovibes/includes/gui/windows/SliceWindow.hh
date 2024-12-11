@@ -33,5 +33,6 @@ class SliceWindow : public BasicOpenGLWindow
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void focusInEvent(QFocusEvent*) override;
+    void closeEvent(QCloseEvent*) override;
 };
 } // namespace holovibes::gui
