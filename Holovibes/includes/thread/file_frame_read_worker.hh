@@ -8,7 +8,8 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::InputFPS                  \
+    holovibes::settings::InputFPS,                 \
+    holovibes::settings::BatchSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::InputFilePath,            \

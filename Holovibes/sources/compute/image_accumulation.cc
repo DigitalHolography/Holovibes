@@ -30,6 +30,7 @@ void ImageAccumulation::insert_image_accumulation(float& gpu_postprocess_frame,
                            gpu_postprocess_frame_size,
                            gpu_postprocess_frame_xz,
                            gpu_postprocess_frame_yz);
+
     insert_copy_accumulation_result(setting<settings::XY>(),
                                     &gpu_postprocess_frame,
                                     setting<settings::XZ>(),
@@ -49,13 +50,7 @@ void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_
     if (!gpu_accumulation_queue || accumulation_level != gpu_accumulation_queue->get_max_size())
     {
         gpu_accumulation_queue.reset(new Queue(fd, accumulation_level));
-
-        // accumulation queue successfully allocated
-        if (!gpu_average_frame)
-        {
-            auto frame_size = gpu_accumulation_queue->get_fd().get_frame_size();
-            gpu_average_frame.resize(frame_size);
-        }
+        gpu_average_frame.resize(gpu_accumulation_queue->get_fd().get_frame_size());
     }
 }
 
@@ -119,9 +114,16 @@ void ImageAccumulation::dispose_cuts_queue()
     LOG_FUNC();
 
     if (!(setting<settings::XZ>().output_image_accumulation > 1))
+    {
         image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
+        image_acc_env_.gpu_float_average_xz_frame.reset(nullptr);
+    }
+
     if (!(setting<settings::YZ>().output_image_accumulation > 1))
+    {
         image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
+        image_acc_env_.gpu_float_average_yz_frame.reset(nullptr);
+    }
 }
 
 void ImageAccumulation::clear()

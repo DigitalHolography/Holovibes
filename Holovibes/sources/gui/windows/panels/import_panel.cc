@@ -26,7 +26,7 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify()
 {
-    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api::get_input_file_start_index()));
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api::get_input_file_start_index() + 1));
     ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api::get_input_file_end_index()));
     const char step = api::get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
     ui_->ImportStartIndexSpinBox->setSingleStep(step);
@@ -112,7 +112,7 @@ void ImportPanel::import_file(const QString& filename)
 
         // Changing the settings is straight-up better than changing the UI
         // This whole logic will need to go in the API at one point
-        api::set_input_file_start_index(1);
+        api::set_input_file_start_index(0);
         api::set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file

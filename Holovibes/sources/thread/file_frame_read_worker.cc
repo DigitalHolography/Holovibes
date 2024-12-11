@@ -41,6 +41,7 @@ void FileFrameReadWorker::run()
         static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());
 
     // Open file.
+
     try
     {
         open_file();
@@ -166,13 +167,12 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = static_cast<unsigned int>(
-        setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
+    const unsigned int file_buffer_size = static_cast<unsigned int>(setting<settings::FileBufferSize>());
 
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, total_nb_frames_to_read_ - current_nb_frames_read_);
+        size_t frames_to_read = std::min(file_buffer_size, total_nb_frames_to_read_ - current_nb_frames_read_);
 
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
@@ -239,7 +239,6 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                              frames_total_size,
                              cudaMemcpyHostToDevice,
                              stream_);
-            // cudaXMemcpy(gpu_file_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice);
         }
 
         cudaStreamSynchronize(stream_);
@@ -255,30 +254,30 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
-
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        // fps_handler_.wait();
-        fps_limiter_.wait(setting<settings::InputFPS>()); // realtime_settings_.get<settings::InputFPS>().value);
+        uint real_frames_enqueued = static_cast<uint>(
+            std::min(static_cast<size_t>(setting<settings::BatchSize>()), nb_frames_to_enqueue - frames_enqueued));
+        fps_limiter_.wait(setting<settings::InputFPS>() / real_frames_enqueued);
 
         if (Holovibes::instance().is_cli)
         {
-            while (api::get_input_queue()->get_size() == api::get_input_queue()->get_total_nb_frames() &&
-                   !stop_requested_)
+            // Wait for a batch to be dequeued before enqueuing a new one
+            while (api::get_input_queue()->get_size() >= api::get_input_queue()->get_max_size() && !stop_requested_)
             {
             }
         }
+        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
+                                     cudaMemcpyDeviceToDevice,
+                                     real_frames_enqueued);
+
+        current_nb_frames_read_ += real_frames_enqueued;
+        frames_enqueued += real_frames_enqueued;
+
+        *current_fps_ += real_frames_enqueued;
 
         if (stop_requested_)
             break;
-
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
-
-        current_nb_frames_read_++;
-        processed_frames_++;
-        frames_enqueued++;
-
-        compute_fps();
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to

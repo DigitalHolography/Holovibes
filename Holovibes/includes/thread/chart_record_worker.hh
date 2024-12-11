@@ -19,11 +19,6 @@
 
 #define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
 
-namespace holovibes
-{
-std::string get_record_filename(std::string filename);
-} // namespace holovibes
-
 namespace holovibes::worker
 {
 /*! \class ChartRecordWorker
