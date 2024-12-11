@@ -31,42 +31,21 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
     }
 }
 
-std::string get_record_filename(std::string filename)
+std::string get_record_filename(std::string file_path, std::string prepend)
 {
-    size_t dot_index = filename.find_last_of('.');
-    if (dot_index == std::string::npos)
-        dot_index = filename.size();
+    std::filesystem::path filePath(file_path);
+    std::string filename = filePath.filename().stem().string();
+    std::string extension = filePath.extension().string();
+    std::string path = filePath.parent_path().string();
+    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename;
+    std::filesystem::path newFilePath = oldFilePath.string() + extension;
 
-    // Make sure 2 files don't have the same name by adding _1 / _2 / _3 ... in
-    // the name
-    unsigned i = 1;
-
-    auto name_index = filename.find_last_of('\\');
-    if (name_index == std::string::npos)
+    for (int i = 1; std::filesystem::exists(newFilePath); ++i)
     {
-        // If no slash found, assume the last index before the dot is where to insert the date
-        name_index = filename.find_last_of('.') - 1;
+        newFilePath = oldFilePath.string() + "_" + std::to_string(i) + extension;
     }
 
-    auto search = filename;
-    search.insert(name_index + 1, Chrono::get_current_date() + "_");
-
-    while (std::filesystem::exists(search))
-    {
-        if (i == 1)
-        {
-            search.insert(dot_index + 7, "_1", 0, 2); // + 7 because of the date
-            ++i;
-            continue;
-        }
-        unsigned digits_nb = static_cast<unsigned int>(std::to_string(i - 1).length());
-        search.replace(dot_index + 7, digits_nb + 1, "_" + std::to_string(i));
-        ++i;
-    }
-    i--;
-    if (i == 0)
-        return filename;
-    return filename.insert(dot_index, "_" + std::to_string(i));
+    return newFilePath.string();
 }
 
 QString create_absolute_qt_path(const std::string& relative_path)
