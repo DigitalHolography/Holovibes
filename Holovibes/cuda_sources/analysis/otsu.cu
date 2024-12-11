@@ -4,7 +4,8 @@
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
 #include "cuda_memory.cuh"
-
+#include "tools_analysis.cuh"
+#include "vascular_pulse.cuh"
 #include "tools_analysis_debug.hh"
 using uint = unsigned int;
 
@@ -177,16 +178,19 @@ void compute_binarise_otsu_bradley(float* output_d,
     cudaXStreamSynchronize(stream);
 }
 
-float get_var_btwclas(const std::vector<float>& var_btwcls, size_t i, size_t j)
+float get_var_btwclas(const float* var_btwcls, size_t i, size_t j)
 {
     uint idx = (i * (2 * NUM_BINS - i + 1)) / 2 + j - i;
     return var_btwcls[idx];
 }
 
-void set_var_btwcls(const std::vector<float>& prob,
-                    std::vector<float>& var_btwcls,
-                    std::vector<float>& zeroth_moment,
-                    std::vector<float>& first_moment)
+// __device__ float get_var_btwclas_device(const float* var_btwcls, size_t i, size_t j)
+// {
+//     size_t idx = (i * (2 * NUM_BINS - i + 1)) / 2 + j - i;
+//     return var_btwcls[idx];
+// }
+
+void set_var_btwcls(const float* prob, float* var_btwcls, float* zeroth_moment, float* first_moment)
 {
     // Calculer les moments cumulés et remplir var_btwcls
     uint idx;
@@ -219,13 +223,84 @@ void set_var_btwcls(const std::vector<float>& prob,
     }
 }
 
-float set_thresh_indices(std::vector<float>& var_btwcls,
+// __global__ void
+// set_var_btwcls_kernel(const float* hist, float* var_btwcls, float* zeroth_moment, float* first_moment, size_t
+// num_bins)
+// {
+//     int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+//     if (tid == 0)
+//     {
+//         zeroth_moment[tid] = hist[0];
+//         first_moment[tid] = hist[0];
+//     }
+
+//     if (tid < NUM_BINS)
+//     {
+//         // Calcul des moments cumulés
+//         zeroth_moment[tid] = zeroth_moment[tid - 1] + hist[tid];
+//         first_moment[tid] = first_moment[tid - 1] + tid * hist[tid];
+
+//         if (zeroth_moment[tid] > 0)
+//         {
+//             var_btwcls[tid] = (first_moment[tid] * first_moment[tid]) / zeroth_moment[tid];
+//         }
+//     }
+
+//     __syncthreads();
+
+//     // Calcul pour chaque combinaison (i, j)
+//     // if (tid < num_bins * (num_bins + 1) / 2)
+//     // {
+//     //     int i = 0, j = tid;
+//     //     while (j >= num_bins - i)
+//     //     {
+//     //         j -= (num_bins - i);
+//     //         i++;
+//     //     }
+
+//     //     if (i < j)
+//     //     {
+//     //         float zeroth_moment_ij = zeroth_moment[j] - (i > 0 ? zeroth_moment[i - 1] : 0);
+//     //         if (zeroth_moment_ij > 0)
+//     //         {
+//     //             float first_moment_ij = first_moment[j] - (i > 0 ? first_moment[i - 1] : 0);
+//     //             var_btwcls[tid] = (first_moment_ij * first_moment_ij) / zeroth_moment_ij;
+//     //         }
+//     //     }
+//     // }
+
+//     int total_iterations = (NUM_BINS * (NUM_BINS - 1)) / 2;
+
+//     // Vérifiez si le thread est valide
+//     if (tid >= total_iterations)
+//         return;
+
+//     // Transformez l'index linéaire en indices (i, j)
+//     int i = 1, j = 0, temp = tid;
+//     while (temp >= NUM_BINS - i)
+//     {
+//         temp -= (NUM_BINS - i);
+//         i++;
+//     }
+//     j = i + temp;
+
+//     // Calculez les moments pour le couple (i, j)
+//     float zeroth_moment_ij = zeroth_moment[j] - zeroth_moment[i - 1];
+//     if (zeroth_moment_ij > 0)
+//     {
+//         float first_moment_ij = first_moment[j] - first_moment[i - 1];
+//         var_btwcls[tid + NUM_BINS] = (first_moment_ij * first_moment_ij) / zeroth_moment_ij;
+//     }
+// }
+
+float set_thresh_indices(float* var_btwcls,
                          size_t hist_idx,
                          size_t thresh_idx,
                          size_t thresh_count,
                          float sigma_max,
-                         std::vector<size_t>& current_indices,
-                         std::vector<size_t>& thresh_indices)
+                         size_t* current_indices,
+                         size_t* thresh_indices)
 {
     float sigma;
 
@@ -254,7 +329,7 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
         if (sigma > sigma_max)
         {
             sigma_max = sigma;
-            for (size_t i = 0; i < thresh_indices.size(); ++i)
+            for (size_t i = 0; i < thresh_count; ++i)
             {
                 thresh_indices[i] = current_indices[i];
             }
@@ -264,171 +339,183 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
     return sigma_max;
 }
 
-// void threshold_multiotsu(image = None, classes = 3, nbins = 256, *, hist = None)
-
-__global__ void rescale_csv_kernel(float* output, const float* input, size_t size)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < size)
-    {
-        // Transformation : [-1, 1] -> [0, 255]
-        output[idx] = input[idx] == 0 ? 0.0f : ((input[idx] + 1.0f) * 127.5f);
-    }
-}
-
-__global__ void copy_nz(float* output, const float* input, size_t size, int* out_size)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (idx < size)
-    {
-        if (input[idx] != 0)
-        {
-            int pos = atomicAdd(out_size, 1);
-            output[pos] = input[idx];
-        }
-    }
-}
-
-// Check if optimizable in future with `reduce.cuh` functions.
-// __global__ void histogram_kernel_multi(const float* image, uint* hist, float* bin_centers, int imgSize) {}
-
-// __global__ void
-// histogram_kernel_multi(const float* image, uint* hist, float* bin_centers, float minVal, float maxVal, int imgSize)
+// __device__ float atomicMaxFloat(float* address, float val)
 // {
-//     // Calcul des indices globaux
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+//     int* address_as_int = (int*)address;
+//     int old = *address_as_int, assumed;
 
-//     // Calcul de la largeur de chaque bin
-//     float binWidth = (maxVal - minVal) / NUM_BINS;
-
-//     // Calcul de l'histogramme
-//     if (idx < imgSize)
+//     do
 //     {
-//         float pixel = image[idx];
-//         int binIdx = min(NUM_BINS - 1, int((pixel - minVal) / binWidth));
-//         atomicAdd(&hist[binIdx], 1); // Utilise atomicAdd pour éviter les conflits
-//     }
+//         assumed = old;
+//         old = atomicCAS(address_as_int, assumed, __float_as_int(fmaxf(val, __int_as_float(assumed))));
+//     } while (assumed != old);
 
-//     // Calcule les centres des bins pour un seul thread (thread 0)
-//     if (idx == 0)
+//     return __int_as_float(old);
+// }
+
+// __global__ void set_thresh_indices_kernel(const float* var_btwcls,
+//                                           size_t num_bins,
+//                                           size_t thresh_count,
+//                                           float* sigma_max_device,
+//                                           size_t* current_indices,
+//                                           size_t* thresh_indices)
+// {
+//     int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+//     if (tid < num_bins - thresh_count)
 //     {
-//         for (int i = 0; i < NUM_BINS; ++i)
+//         float sigma = 0.0f;
+
+//         // Générer les indices pour ce thread
+//         for (size_t t = 0; t < thresh_count; t++)
 //         {
-//             bin_centers[i] = minVal + (i + 0.5f) * binWidth;
+//             current_indices[t] = tid + t;
+//         }
+
+//         // Calculer sigma pour ces indices
+//         sigma += get_var_btwclas_device(var_btwcls, 0, current_indices[0]);
+//         sigma += get_var_btwclas_device(var_btwcls, current_indices[thresh_count - 1] + 1, num_bins - 1);
+
+//         for (size_t t = 0; t < thresh_count - 1; t++)
+//         {
+//             sigma += get_var_btwclas_device(var_btwcls, current_indices[t] + 1, current_indices[t + 1]);
+//         }
+
+//         // Vérifier si sigma est un maximum
+//         atomicMaxFloat(sigma_max_device, sigma);
+
+//         __syncthreads();
+
+//         // Mettre à jour les indices de seuil si max
+//         if (*sigma_max_device == sigma)
+//         {
+//             for (size_t t = 0; t < thresh_count; t++)
+//             {
+//                 thresh_indices[t] = current_indices[t];
+//             }
+//         }
+//     }
+// }
+// __global__ float set_thresh_indices_kernel(const float* var_btwcls,
+//                                            size_t hist_idx,
+//                                            size_t thresh_idx,
+//                                            size_t thresh_count,
+//                                            float* sigma_max,
+//                                            size_t* current_indices,
+//                                            size_t* thresh_indices)
+// {
+//     extern __shared__ float shared_sigma_max[];
+//     float sigma;
+
+//     if (thresh_idx < thresh_count)
+//     {
+//         for (size_t idx = hist_idx + blockIdx.x * blockDim.x + threadIdx.x; idx < NUM_BINS - thresh_count +
+//         thresh_idx;
+//              idx += blockDim.x * gridDim.x)
+//         {
+//             current_indices[thresh_idx] = idx;
+//             atomicMaxFloat(sigma_max,
+//                            set_thresh_indices_kernel<<<1, 1>>>(var_btwcls,
+//                                                                idx + 1,
+//                                                                thresh_idx + 1,
+//                                                                thresh_count,
+//                                                                sigma_max,
+//                                                                current_indices,
+//                                                                thresh_indices));
+//         }
+//     }
+//     else
+//     {
+//         sigma = get_var_btwclas(var_btwcls, 0, current_indices[0]) +
+//                 get_var_btwclas(var_btwcls, current_indices[thresh_count - 1] + 1, NUM_BINS - 1);
+//         for (size_t idx = 0; idx < thresh_count - 1; idx++)
+//         {
+//             sigma += get_var_btwclas(var_btwcls, current_indices[idx] + 1, current_indices[idx + 1]);
+//         }
+//         if (sigma > *sigma_max)
+//         {
+//             *sigma_max = sigma;
+//             for (size_t i = 0; i < thresh_count; ++i)
+//             {
+//                 thresh_indices[i] = current_indices[i];
+//             }
 //         }
 //     }
 // }
 
-// __global__ void normalize_histogram(uint* hist, float* normalized_hist, int imgSize)
-// {
-//     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-//     if (idx < NUM_BINS)
-//     {
-//         normalized_hist[idx] = static_cast<float>(hist[idx]) / imgSize;
-//     }
-// }
-
-__global__ void histogram_kernel_multi(const float* image, uint* hist, int imgSize)
+__global__ void
+histogram_kernel_multi(const float* image, float* hist, float* bin_centers, float minVal, float maxVal, int imgSize)
 {
-    extern __shared__ uint shared_hist[]; // Shared memory for histogram bins
+    // Calcul des indices globaux
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int tid = threadIdx.x;
-    int idx = blockIdx.x * blockDim.x + tid;
+    // Calcul de la largeur de chaque bin
+    float binWidth = (maxVal - minVal) / NUM_BINS;
 
-    // Initialize shared memory histogram
-    if (tid < NUM_BINS)
-        shared_hist[tid] = 0;
-    if (idx < NUM_BINS)
-        hist[idx] = 0;
-    __syncthreads();
-
-    // Populate shared histogram
-    if (idx < imgSize && image[idx] != 0)
+    // Calcul de l'histogramme
+    if (idx < imgSize)
     {
-        int bin = static_cast<int>(image[idx]);
-        atomicAdd(shared_hist + bin, 1);
+        float pixel = image[idx];
+        int binIdx = min(NUM_BINS - 1, int((pixel - minVal) / binWidth));
+        atomicAdd(&hist[binIdx], 1); // Utilise atomicAdd pour éviter les conflits
     }
-    __syncthreads();
 
-    // Merge shared histograms into global memory
-    if (tid < NUM_BINS)
-        atomicAdd(&hist[tid], shared_hist[tid]);
+    // Calcule les centres des bins pour un seul thread (thread 0)
+    if (idx == 0)
+    {
+        for (int i = 0; i < NUM_BINS; ++i)
+        {
+            bin_centers[i] = minVal + (i + 0.5f) * binWidth;
+        }
+    }
 }
 
-void otsu_multi_thresholding(const float* input_d,
-                             float* otsu_rescale,
-                             uint* histo_buffer_d,
+__global__ void
+get_thresholds(float* thresholds_d, const float* bin_centers_d, const size_t* thresh_indices, size_t thresh_count)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < thresh_count)
+        thresholds_d[idx] = bin_centers_d[thresh_indices[idx]];
+}
+
+void otsu_multi_thresholding(float* input_d,
+                             float* histo_buffer_d,
+                             float* bin_centers_d,
                              float* thresholds_d,
                              size_t nclasses,
                              size_t size,
                              const cudaStream_t stream)
 {
+    print_in_file_gpu<float>(input_d, 1, size, "input", stream);
 
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
-    size_t shared_mem_size = NUM_BINS * sizeof(uint);
-    print_in_file_gpu<float>(input_d, 1, size, "input", stream);
+    // size_t shared_mem_size = NUM_BINS * sizeof(uint);
 
-    rescale_csv_kernel<<<blocks, threads, 0, stream>>>(otsu_rescale, input_d, size);
-    print_in_file_gpu<float>(otsu_rescale, 1, size, "rescaled", stream);
-
-    float* tmp;
-    cudaXMalloc(&tmp, size * sizeof(float));
-    int* out_size;
-    int out_size_h = 0;
-
-    cudaMalloc(&out_size, sizeof(int));
-    cudaMemcpy(out_size, &out_size_h, sizeof(int), cudaMemcpyHostToDevice);
-
-    copy_nz<<<blocks, threads, 0, stream>>>(tmp, otsu_rescale, size, out_size);
+    cudaMemset(histo_buffer_d, 0, NUM_BINS * sizeof(float));
+    histogram_kernel_multi<<<blocks, threads>>>(input_d, histo_buffer_d, bin_centers_d, -1, 1, size);
+    divide_constant(histo_buffer_d, size, NUM_BINS, stream);
     cudaXStreamSynchronize(stream);
 
-    cudaMemcpy(&out_size_h, out_size, sizeof(int), cudaMemcpyDeviceToHost);
-    LOG_INFO(out_size_h);
-    print_in_file_gpu<float>(tmp, 1, out_size_h, "nz_vals", stream);
-
-    float* d_bin_centers;
-    cudaMalloc(&d_bin_centers, NUM_BINS * sizeof(float));
-    cudaMemset(histo_buffer_d, 0, NUM_BINS * sizeof(uint));
-    histogram_kernel_multi<<<blocks, threads>>>(tmp, histo_buffer_d, out_size_h);
-    // histogram_kernel_multi<<<blocks, threads>>>(tmp, histo_buffer_d, d_bin_centers, -1, 1, out_size_h);
-    // histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu<uint>(histo_buffer_d, 1, 256, "histo", stream);
+    print_in_file_gpu<float>(histo_buffer_d, 1, 256, "histo", stream);
+    print_in_file_gpu<float>(bin_centers_d, 1, 256, "bins", stream);
 
     // Transferer GPU TO CPU.
-    uint hist[NUM_BINS];
-    // cudaXMalloc(&hist, NUM_BINS * sizeof(uint));
-    cudaXMemcpy(hist, histo_buffer_d, NUM_BINS * sizeof(uint), cudaMemcpyDeviceToHost);
-    uint nvalues = 0;
-    for (uint i = 0; i < NUM_BINS; i++)
-    {
-        if (hist[i] > 0)
-            nvalues++;
-    }
+    float hist[NUM_BINS];
+
+    cudaXMemcpy(hist, histo_buffer_d, NUM_BINS * sizeof(float), cudaMemcpyDeviceToHost);
+
+    int nvalues = count_non_zero<float>(histo_buffer_d, 1, NUM_BINS, stream);
     std::cout << "nvalues : " << nvalues << std::endl;
-    CHECK(nvalues >= nclasses, "NIK ZEBI");
-
-    std::vector<float> prob(NUM_BINS);
-    for (uint i = 0; i < NUM_BINS; i++)
-    {
-        prob[i] = static_cast<float>(hist[i]);
-    }
-
-    float total_prob = std::accumulate(prob.begin(), prob.end(), 0.0f);
-    LOG_INFO(total_prob);
-    for (auto& p : prob)
-    {
-        p /= total_prob;
-    }
-    print_in_file_cpu(prob.data(), 1, 256, "prob");
+    CHECK(nvalues >= nclasses,
+          "otsu_multi_thresholding: At least {} non-zero values needed, got {}",
+          nclasses,
+          nvalues);
 
     std::vector<float> thresh(nclasses - 1);
-    std::vector<uint> bin_center(NUM_BINS);
-    for (uint i = 0; i < NUM_BINS; i++)
-        bin_center[i] = i;
+    std::vector<float> bin_center(NUM_BINS);
+
+    cudaXMemcpy(bin_center.data(), bin_centers_d, NUM_BINS * sizeof(float), cudaMemcpyDeviceToHost);
 
     if (nvalues == nclasses)
     {
@@ -437,7 +524,7 @@ void otsu_multi_thresholding(const float* input_d,
         {
             if (thresh_idx == 2)
                 break;
-            if (prob[i] > 0)
+            if (hist[i] > 0)
                 thresh[thresh_idx++] = static_cast<float>(i);
         }
     }
@@ -445,14 +532,66 @@ void otsu_multi_thresholding(const float* input_d,
     {
         uint thresh_count = nclasses - 1; // classes = 3 mais on fait classes-1.
 
-        std::vector<size_t> thresh_indices(thresh_count);
-        std::vector<size_t> current_indices(thresh_count);
-        std::vector<float> var_btwcls(NUM_BINS * (NUM_BINS + 1) / 2, 0.0f);
-        std::vector<float> zeroth_moment(NUM_BINS, 0.0f);
-        std::vector<float> first_moment(NUM_BINS, 0.0f);
+        // size_t* thresh_indices;
+        // size_t* current_indices;
 
-        set_var_btwcls(prob, var_btwcls, zeroth_moment, first_moment);
+        // float* var_btwcls;
+        // float* zeroth_moment;
+        // float* first_moment;
+
+        // cudaXMalloc(&thresh_indices, thresh_count * sizeof(float));
+        // cudaXMalloc(&current_indices, thresh_count * sizeof(float));
+
+        // cudaXMalloc(&var_btwcls, (NUM_BINS * (NUM_BINS + 1) / 2) * sizeof(float));
+        // cudaXMalloc(&zeroth_moment, NUM_BINS * sizeof(float));
+        // cudaXMalloc(&first_moment, NUM_BINS * sizeof(float));
+
+        // cudaXMemset(var_btwcls, 0, (NUM_BINS * (NUM_BINS + 1) / 2) * sizeof(float));
+        // cudaXMemset(zeroth_moment, 0, NUM_BINS * sizeof(float));
+        // cudaXMemset(first_moment, 0, NUM_BINS * sizeof(float));
+
+        size_t thresh_indices[3];
+        size_t current_indices[3];
+
+        float var_btwcls[(NUM_BINS * (NUM_BINS + 1) / 2)];
+        float zeroth_moment[NUM_BINS];
+        float first_moment[NUM_BINS];
+
+        set_var_btwcls(hist, var_btwcls, zeroth_moment, first_moment);
         set_thresh_indices(var_btwcls, 0, 0, thresh_count, 0.5f, current_indices, thresh_indices);
+
+        // dim3 blockDim(256);
+        // dim3 gridDim((NUM_BINS + blockDim.x - 1) / blockDim.x);
+
+        // // Appel des kernels
+        // set_var_btwcls_kernel<<<gridDim, blockDim, 0, stream>>>(histo_buffer_d,
+        //                                                         var_btwcls,
+        //                                                         zeroth_moment,
+        //                                                         first_moment,
+        //                                                         NUM_BINS);
+
+        // float sigma_max_host = 0.0f;
+        // float* sigma_max_device;
+        // cudaMalloc(&sigma_max_device, sizeof(float));
+        // cudaMemcpy(sigma_max_device, &sigma_max_host, sizeof(float), cudaMemcpyHostToDevice);
+
+        // set_thresh_indices_kernel<<<gridDim, blockDim, 0, stream>>>(var_btwcls,
+        //                                                             NUM_BINS,
+        //                                                             thresh_count,
+        //                                                             sigma_max_device,
+        //                                                             current_indices,
+        //                                                             thresh_indices);
+        // set_thresh_indices_kernel<<<gridDim, blockDim, 0, stream>>>(var_btwcls,
+        //                                                             0,
+        //                                                             0,
+        //                                                             thresh_count,
+        //                                                             0.5f,
+        //                                                             current_indices,
+        //                                                             thresh_indices);
+
+        // get_thresholds<<<blocks, threads>>>(thresholds_d, bin_centers_d, thresh_indices, thresh_count);
+
+        // print_in_file_gpu<float>(thresholds_d, 1, thresh_count, "thresh", stream);
 
         /* le res est tresh indices*/
 
@@ -466,17 +605,9 @@ void otsu_multi_thresholding(const float* input_d,
     for (int i = 0; i < nclasses - 1; i++)
     {
         LOG_INFO(i);
-        LOG_INFO((static_cast<float>(thresh[i]) / 255) * 2 - 1);
-        test[i] = (static_cast<float>(thresh[i]) / 255) * 2 - 1;
+        LOG_INFO(thresh[i]);
+        test[i] = thresh[i];
     }
-    // test[1] += 0.01f;
-    // test[0] = 0.207108953480839f;
-    // test[1] = 0.334478400506137f;
-    // test[2] = 0.458741275652768f;
-    // test[0] = 0.2f;
-    // test[1] = 0.3254902f;
-    // test[2] = 0.45098039f;
-    // test[2] = 0.334478400506137f;
     cudaXMemcpy(thresholds_d, test, 3 * sizeof(float), cudaMemcpyHostToDevice);
     delete[] test;
 }

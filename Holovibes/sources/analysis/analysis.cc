@@ -389,7 +389,8 @@ void Analysis::insert_first_analysis_masks()
                             vesselness_mask_env_.m0_ff_video_cb_->get_frame_count() * sizeof(float),
                             cudaMemcpyDeviceToDevice);
 
-                int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
+                int nnz =
+                    count_non_zero<float>(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
                 compute_first_correlation(vesselness_mask_env_.R_vascular_pulse_,
                                           vesselness_mask_env_.m0_ff_video_centered_,
                                           vesselness_filter_struct_.vascular_pulse,
@@ -441,24 +442,27 @@ void Analysis::insert_first_analysis_masks()
                                              512,
                                              "before_threshold",
                                              stream_);
-                    std::cout << count_non_zero(vesselness_mask_env_.before_threshold, fd_.height, fd_.width, stream_)
+                    std::cout << count_non_zero<float>(vesselness_mask_env_.before_threshold,
+                                                       fd_.height,
+                                                       fd_.width,
+                                                       stream_)
                               << std::endl;
-                }
-                float* otsu_rescale;
-                cudaXMalloc(&otsu_rescale, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-                uint* histo_buffer_d;
-                cudaXMalloc(&histo_buffer_d, sizeof(uint) * OTSU_BINS);
+                    int before_threshold_size =
+                        remove_zeros(vesselness_mask_env_.before_threshold, fd_.height * fd_.width);
+                    float* histo_buffer_d;
+                    cudaXMalloc(&histo_buffer_d, sizeof(float) * OTSU_BINS);
+                    float* d_bin_centers;
+                    cudaMalloc(&d_bin_centers, OTSU_BINS * sizeof(float));
 
-                if (i_ == 0)
                     otsu_multi_thresholding(vesselness_mask_env_.before_threshold,
-                                            otsu_rescale,
                                             histo_buffer_d,
+                                            d_bin_centers,
                                             vesselness_filter_struct_.thresholds + 1,
                                             4,
-                                            buffers_.gpu_postprocess_frame_size,
+                                            before_threshold_size,
                                             stream_);
-                cudaXFree(otsu_rescale);
-                cudaXFree(histo_buffer_d);
+                    cudaXFree(histo_buffer_d);
+                }
 
                 // float thresholds[3] = {0.207108953480839f,
                 //                        0.334478400506137f,

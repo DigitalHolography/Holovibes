@@ -37,3 +37,5 @@ __global__ void kernel_complex_to_modulus(float* output, const cuComplex* input,
  *  \param[in] stream The CUDA stream to perform computations.
  */
 void circ_shift(float* output, float* input, uint width, uint height, int shift_x, int shift_y, cudaStream_t stream);
+
+size_t remove_zeros(float* d_array, size_t size);

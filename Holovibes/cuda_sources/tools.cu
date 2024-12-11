@@ -9,6 +9,10 @@
 
 #include <cassert>
 
+#include <thrust/device_vector.h>
+#include <thrust/copy.h>
+#include <thrust/remove.h>
+
 using camera::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::CudaUniquePtr;
@@ -74,4 +78,18 @@ void circ_shift(float* output, float* input, uint width, uint height, int shift_
     circ_shift_kernel<<<lblocks, lthreads, 0, stream>>>(output, input, width, height, shift_x, shift_y);
 
     cudaCheckError();
+}
+
+size_t remove_zeros(float* d_array, size_t size)
+{
+    thrust::device_vector<float> input(d_array, d_array + size);
+    thrust::device_vector<float> output(size);
+
+    auto end = thrust::remove_copy(input.begin(), input.end(), output.begin(), 0.0f);
+
+    size_t new_size = end - output.begin();
+    thrust::copy(output.begin(), output.begin() + new_size, input.begin());
+
+    cudaXMemcpy(d_array, thrust::raw_pointer_cast(input.data()), new_size * sizeof(float), cudaMemcpyDeviceToDevice);
+    return new_size;
 }

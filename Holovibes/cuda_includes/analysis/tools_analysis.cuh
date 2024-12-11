@@ -1,4 +1,4 @@
-/*! \file
+/*! \file tools_analysis.cuh
  *
  * \brief Utils functions for Analysis functions
  */
@@ -6,6 +6,10 @@
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include "cuda_memory.cuh"
+#include "matrix_operations.hh"
+#include <thrust/device_ptr.h>
+#include <thrust/extrema.h>
 
 typedef unsigned int uint;
 
@@ -54,8 +58,6 @@ float* compute_kernel(float sigma);
 
 void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream);
 
-int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream);
-
 void divide_frames_inplace(float* const input_output,
                            const float* const denominator,
                            const uint size,
@@ -64,3 +66,6 @@ void divide_frames_inplace(float* const input_output,
 void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);
 
 void im2uint8(float* image, size_t size, float minVal = 0.0f, float maxVal = 1.0f);
+
+template <typename T>
+int count_non_zero(const T* const input, const int rows, const int cols, cudaStream_t stream);
