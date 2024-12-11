@@ -15,6 +15,6 @@ FPSLimiter::FPSLimiter()
 void FPSLimiter::wait(size_t target_fps)
 {
     chrono_.start();
-    chrono_.wait(1 / (double)target_fps);
+    chrono_.wait(1.0 / (double)target_fps);
 }
 } // namespace holovibes

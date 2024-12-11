@@ -333,6 +333,8 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
     UI.record_output_directory_ = std::move(parentPath);
     UI.output_filename_ = std::move(fileNameWithoutExt);
+    UI.record_output_directory_ = std::move(parentPath);
+    UI.output_filename_ = std::move(fileNameWithoutExt);
 
     return fileExt;
 }
