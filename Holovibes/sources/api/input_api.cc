@@ -56,7 +56,7 @@ void set_input_file_start_index(size_t value)
 
 void set_input_file_end_index(size_t value)
 {
-    if (value < 0)
+    if (value <= 0)
         value = 1; // Cannot read no frames, so end index can't be 0
     // Ensures that moments are read 3 by 3, and at least 3 (hence the value < 3 check)
     // In moments mode, the end index must at least be
