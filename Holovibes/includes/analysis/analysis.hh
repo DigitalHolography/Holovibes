@@ -19,18 +19,15 @@
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
     holovibes::settings::VeinMaskEnabled,          \
-    holovibes::settings::ChartMeanVesselsEnabled,  \
-    holovibes::settings::OtsuEnabled,              \
-    holovibes::settings::OtsuKind,                 \
-    holovibes::settings::OtsuWindowSize,           \
-    holovibes::settings::OtsuLocalThreshold,       \
-    holovibes::settings::BwareafiltEnabled,        \
-    holovibes::settings::BwareaopenEnabled,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
     holovibes::settings::VesselnessSigma,          \
-    holovibes::settings::MinMaskArea
+    holovibes::settings::MinMaskArea,              \
+    holovibes::settings::DiaphragmFactor,          \
+    holovibes::settings::BarycenterFactor,         \
+    holovibes::settings::ChoroidMaskEnabled,       \
+    holovibes::settings::ChartMeanVesselsEnabled
 
 #pragma endregion
 

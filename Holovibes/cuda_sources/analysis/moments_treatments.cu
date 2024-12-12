@@ -1,4 +1,5 @@
 #include "cuda_memory.cuh"
+#include "map.cuh"
 
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
@@ -38,20 +39,15 @@ void subtract_frame_from_sum(float* const input_output,
     cudaCheckError();
 }
 
-static __global__ void
-kernel_compute_mean(float* const output, const float* const input, const size_t time_window, const size_t frame_size)
-{
-    const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < frame_size)
-        output[index] = input[index] / time_window;
-}
-
-void compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size, cudaStream_t stream)
+void compute_mean(float* const output,
+                  const float* const input,
+                  const size_t time_window,
+                  const size_t frame_size,
+                  cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_compute_mean<<<blocks, threads, 0, stream>>>(output, input, time_window, frame_size);
-    cudaCheckError();
+    map_divide(output, input, frame_size, time_window, stream);
 }
 
 __global__ void
@@ -112,8 +108,8 @@ __global__ void kernel_image_centering(
 void image_centering(float* output,
                      const float* m0_video,
                      const float* m0_mean,
-                     const uint frame_size,
-                     const uint length_video,
+                     const size_t frame_size,
+                     const size_t length_video,
                      const cudaStream_t stream)
 {
     // Determine optimal thread count per block

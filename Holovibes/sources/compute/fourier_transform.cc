@@ -252,7 +252,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f0_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
 
@@ -262,7 +262,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f1_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
 
@@ -272,7 +272,7 @@ void FourierTransform::insert_moments()
                                    moments_env_.stft_res_buffer,
                                    moments_env_.f2_buffer,
                                    fd_.get_frame_res(),
-                                   moments_env_.f_start,
+                                   moments_env_.f_start - 1,
                                    moments_env_.f_end,
                                    stream_);
         });

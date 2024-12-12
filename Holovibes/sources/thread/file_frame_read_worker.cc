@@ -60,7 +60,7 @@ void FileFrameReadWorker::run()
 
     try
     {
-        input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>());
+        input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>() - 1);
 
         read_file();
     }

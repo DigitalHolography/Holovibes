@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "tools_analysis_debug.hh"
 #include "compute_env.hh"
+#include "map.cuh"
 
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
@@ -11,21 +12,6 @@
 #include <thrust/reduce.h>
 #include <thrust/functional.h>
 #include <cmath>
-
-__global__ void kernel_divide_constant(float* vascular_pulse, int value, size_t size)
-{
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-        vascular_pulse[index] /= value;
-}
-
-void divide_constant(float* vascular_pulse, int value, size_t size, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    kernel_divide_constant<<<blocks, threads, 0, stream>>>(vascular_pulse, value, size);
-    cudaCheckError();
-}
 
 __global__ void kernel_divide(float* input_output, float* denominator_array, size_t size)
 {
@@ -81,15 +67,23 @@ void subtract_constant(float* output, float* input, float value, size_t size, cu
     cudaCheckError();
 }
 
-__global__ void kernel_multiply_three_vectors(float* output, float* input1, float* input2, float* input3, size_t size)
+__global__ void kernel_multiply_three_vectors(float* const output,
+                                              const float* const input1,
+                                              const float* const input2,
+                                              const float* const input3,
+                                              const size_t size)
 {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
         output[index] = input1[index] * input2[index] * input3[index];
 }
 
-void multiply_three_vectors(
-    float* output, float* input1, float* input2, float* input3, size_t size, cudaStream_t stream)
+void multiply_three_vectors(float* const output,
+                            const float* const input1,
+                            const float* const input2,
+                            const float* const input3,
+                            const size_t size,
+                            const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -120,18 +114,15 @@ void compute_mean(
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    // dim3 blockSize(16, 16);
-    // dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, (cols + blockSize.y - 1) / blockSize.y);
-
     kernel_compute_mean<<<blocks, threads, 0, stream>>>(M0, vascularPulse, result, size, depth);
     cudaCheckError();
 }
 
 __global__ void kernel_compute_std(const float* input, float* output, int size, int depth)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (idx < size)
+    if (index < size)
     {
         double mean = 0.0f;
         double variance = 0.0f;
@@ -139,20 +130,20 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
         // Compute mean along the third dimension
         for (int k = 0; k < depth; ++k)
         {
-            mean += input[idx + size * k];
+            mean += input[index + size * k];
         }
         mean /= depth - 1;
 
         // Compute variance along the third dimension
         for (int k = 0; k < depth; ++k)
         {
-            float diff = input[idx + size * k] - mean;
+            float diff = input[index + size * k] - mean;
             variance += diff * diff;
         }
         variance /= depth - 1;
 
         // Store the standard deviation in the output array
-        output[idx] = (float)sqrt(variance);
+        output[index] = sqrtf(variance);
     }
 }
 
@@ -164,16 +155,16 @@ void compute_std(const float* input, float* output, int size, int depth, cudaStr
     cudaCheckError();
 }
 
-void compute_first_correlation(float* output,
-                               float* M0_ff_video_centered,
-                               float* vascular_pulse,
-                               int nnz_mask_vesslness_clean,
-                               size_t length_video, // length_video here is actual time window
-                               VesselnessFilterEnv& filter_struct_,
-                               size_t size,
-                               cudaStream_t stream)
+void compute_first_correlation(float* const output,
+                               float* const M0_ff_video_centered,
+                               float* const vascular_pulse,
+                               const int nnz_mask_vesslness_clean,
+                               const size_t length_video, // length_video here is actual time window
+                               const VesselnessFilterEnv& filter_struct_,
+                               const size_t size,
+                               const cudaStream_t stream)
 {
-    divide_constant(vascular_pulse, nnz_mask_vesslness_clean, length_video, stream);
+    map_divide(vascular_pulse, length_video, nnz_mask_vesslness_clean, stream);
 
     float vascular_mean = compute_mean(vascular_pulse, length_video);
     subtract_constant(filter_struct_.vascular_pulse_centered, vascular_pulse, vascular_mean, length_video, stream);

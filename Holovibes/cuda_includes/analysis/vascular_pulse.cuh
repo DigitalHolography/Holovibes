@@ -9,15 +9,18 @@
 
 using holovibes::VesselnessFilterEnv;
 
-void compute_first_correlation(float* output,
-                               float* M0_ff_video_centered,
-                               float* vascular_pulse,
-                               int nnz_mask_vesslness_clean,
-                               size_t length_video,
-                               VesselnessFilterEnv& filter_struct_,
-                               size_t size,
-                               cudaStream_t stream);
-void multiply_three_vectors(
-    float* output, float* input1, float* input2, float* input3, size_t size, cudaStream_t stream);
+void compute_first_correlation(float* const output,
+                               float* const M0_ff_video_centered,
+                               float* const vascular_pulse,
+                               const int nnz_mask_vesslness_clean,
+                               const size_t length_video,
+                               const VesselnessFilterEnv& filter_struct_,
+                               const size_t size,
+                               const cudaStream_t stream);
 
-void divide_constant(float* vascular_pulse, int value, size_t size, cudaStream_t stream);
+void multiply_three_vectors(float* const output,
+                            const float* const input1,
+                            const float* const input2,
+                            const float* const input3,
+                            const size_t size,
+                            const cudaStream_t stream);

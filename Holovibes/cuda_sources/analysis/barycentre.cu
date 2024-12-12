@@ -3,8 +3,6 @@
 #include "tools_analysis_debug.hh"
 #include "map.cuh"
 
-#define CIRCLE_MASK_RADIUS 0.07f
-
 __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -68,6 +66,7 @@ int compute_barycentre_circle_mask(float* output,
                                    float* input,
                                    size_t width,
                                    size_t height,
+                                   float barycentre_factor,
                                    cudaStream_t stream,
                                    int CRV_index)
 {
@@ -79,7 +78,7 @@ int compute_barycentre_circle_mask(float* output,
     compute_circle_mask(output,
                         barycentre_index % width,
                         std::floor(barycentre_index / height),
-                        CIRCLE_MASK_RADIUS * (width + height) / 2,
+                        barycentre_factor * (width + height) / 2,
                         width,
                         height,
                         stream);
@@ -87,7 +86,7 @@ int compute_barycentre_circle_mask(float* output,
     compute_circle_mask(crv_circle_mask,
                         CRV_index % width,
                         std::floor(CRV_index / height),
-                        CIRCLE_MASK_RADIUS * (width + height) / 2,
+                        barycentre_factor * (width + height) / 2,
                         width,
                         height,
                         stream);

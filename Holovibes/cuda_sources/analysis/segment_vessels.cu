@@ -4,14 +4,17 @@
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
 
-__global__ void kernel_minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean, uint size)
+__global__ void kernel_minus_negation_times_2(float* const input_output, const float* const input, const size_t size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-        R_vascular_pulse[index] -= !mask_vesselnessClean[index] * 2;
+        input_output[index] -= !input[index] * 2;
 }
 
-void minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean, uint size, cudaStream_t stream)
+void minus_negation_times_2(float* const R_vascular_pulse,
+                            const float* const mask_vesselnessClean,
+                            const size_t size,
+                            const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -19,7 +22,7 @@ void minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean
     cudaCheckError();
 }
 
-void negation(float* input_output, uint size, cudaStream_t stream)
+void negation(float* const input_output, const size_t size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -28,13 +31,17 @@ void negation(float* input_output, uint size, cudaStream_t stream)
     map_generic(input_output, size, map_function, stream);
 }
 
-__global__ void kernel_quantize(float* output, float* input, float* thresholds, int length_input, int lenght_threshold)
+__global__ void kernel_quantize(float* const output,
+                                const float* const input,
+                                const float* const thresholds,
+                                const int length_input,
+                                const int lenght_threshold)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (idx < length_input)
+    if (index < length_input)
     {
-        float value = input[idx];
+        float value = input[index];
         int quantized_level = 1;
 
         for (int t = 0; t < lenght_threshold; ++t)
@@ -45,12 +52,16 @@ __global__ void kernel_quantize(float* output, float* input, float* thresholds, 
                 break;
         }
 
-        output[idx] = quantized_level;
+        output[index] = quantized_level;
     }
 }
 
-void imquantize(
-    float* output, float* input, float* thresholds, int length_input, int lenght_threshold, cudaStream_t stream)
+void imquantize(float* const output,
+                const float* const input,
+                const float* const thresholds,
+                const size_t length_input,
+                const size_t lenght_threshold,
+                const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(length_input, threads);
@@ -58,13 +69,13 @@ void imquantize(
     cudaCheckError();
 }
 
-void segment_vessels(float* output,
-                     float* new_thresholds,
-                     float* R_VascularPulse,
-                     float* mask_vesselness_clean,
-                     uint size,
-                     float* thresholds,
-                     cudaStream_t stream)
+void segment_vessels(float* const output,
+                     float* const new_thresholds,
+                     float* const R_VascularPulse,
+                     const float* const mask_vesselness_clean,
+                     const size_t size,
+                     const float* thresholds,
+                     const cudaStream_t stream)
 {
     float minus_one = -1;
     cudaXMemcpyAsync(new_thresholds + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
@@ -74,7 +85,12 @@ void segment_vessels(float* output,
     imquantize(output, R_VascularPulse, new_thresholds, size, 4, stream);
 }
 
-void is_equal_to_either(float* output, float* input, uint size, float value1, float value2, cudaStream_t stream)
+void is_equal_to_either(float* const output,
+                        const float* const input,
+                        const size_t size,
+                        const float value1,
+                        const float value2,
+                        const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -84,12 +100,18 @@ void is_equal_to_either(float* output, float* input, uint size, float value1, fl
     map_generic(output, input, size, map_function, stream);
 }
 
-void compute_first_mask_artery(float* output, float* input, uint size, cudaStream_t stream)
+void compute_first_mask_artery(float* const output,
+                               const float* const input,
+                               const size_t size,
+                               const cudaStream_t stream)
 {
     is_equal_to_either(output, input, size, 5, 4, stream);
 }
 
-void compute_first_mask_vein(float* output, float* input, uint size, cudaStream_t stream)
+void compute_first_mask_vein(float* const output,
+                             const float* const input,
+                             const size_t size,
+                             const cudaStream_t stream)
 {
     is_equal_to_either(output, input, size, 2, 3, stream);
 }
