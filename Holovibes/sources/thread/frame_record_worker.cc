@@ -43,15 +43,6 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
-std::string prepend_string_to_filepath(std::string file_path, std::string str)
-{
-    std::filesystem::path filePath(file_path);
-    std::string filename = filePath.filename().string();
-    std::string path = filePath.parent_path().string();
-    std::filesystem::path newFilePath = path + "/" + str + "_" + filename;
-    return newFilePath.string();
-}
-
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -93,10 +84,9 @@ void FrameRecordWorker::run()
     {
         std::string record_file_path;
         if (Holovibes::instance().is_cli)
-            record_file_path = prepend_string_to_filepath(setting<settings::RecordFilePath>(), "R");
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), "R");
         else
-            record_file_path =
-                prepend_string_to_filepath(setting<settings::RecordFilePath>(), Chrono::get_current_date());
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>());
 
         static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                            {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},

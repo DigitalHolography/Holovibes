@@ -49,23 +49,33 @@ class BatchInputQueue final : public DisplayQueue
 
     ~BatchInputQueue();
 
-    /*! \brief Enqueue a frame in the queue
+    /*! \brief Enqueues frames into the batch input queue with CUDA memory transfer.
      *
-     * Called by the producer.
-     * The producer is in the critical while enqueueing in a batch
-     * and exit this critical section when a batch of frames is full
-     * in order to let the resize occure if needed.
+     * This function handles the transfer of frames from the input source to the internal
+     * batch-based queue. Depending on the device type (CPU or GPU) and the memory copy
+     * direction, it ensures data consistency and synchronizes correctly with concurrent
+     * operations. Frames are enqueued into a batch. When a batch is full, the queue
+     * updates its state, potentially overwriting older batches if the queue is full.
+     * If nb_frames is greater than the batch size, the function enqueues multiple batches.
+     *
+     * \param[in] frames Pointer to the source frames to be enqueued.
+     * \param[in] memcpy_kind Type of memory copy operation (e.g., cudaMemcpyHostToDevice).
+     * \param[in] nb_frame Number of frames to enqueue.
+     *
+     * \throws std::runtime_error If the memory copy direction is incompatible with the
+     *         current device type (e.g., copying to GPU while the queue is on CPU).
      */
-    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
-
-    // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void enqueue(const void* const frames,
+                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice,
+                 const int nb_frame = 1);
 
     /*! \brief Copy multiple
      *
      * Called by the consumer.
      *
-     * \param dest The destination queue
-     * \param nb_elts Number of elts to copy multiple (must be lower than batch_size)
+     * \param[out] dest The destination queue
+     * \param[in] nb_elts Number of elts to copy multiple (must be lower than batch_size)
+     * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
      */
     void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -74,7 +84,8 @@ class BatchInputQueue final : public DisplayQueue
      * Called by the consumer.
      * Call copy multiple with nb_elts == batch_size_
      *
-     * \param dest The destination queue
+     * \param[out] dest The destination queue
+     * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
      */
     void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -90,9 +101,9 @@ class BatchInputQueue final : public DisplayQueue
      * The queue must have at least a batch of frames filled
      * Called by the consumer.
      *
-     * \param dest Dequeue in the destination buffer
-     * \param depth Depth of frame
-     * \param func Apply a function to the batch of frames being dequeued
+     * \param[out] dest Dequeue in the destination buffer
+     * \param[in] depth Depth of frame
+     * \param[in] func Apply a function to the batch of frames being dequeued
      */
     void dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func);
 
@@ -110,9 +121,10 @@ class BatchInputQueue final : public DisplayQueue
      * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue.
      * Useful to keep using the pointer.
      *
-     * \param fd
-     * \param size
-     * \param gpu
+     * \param[in] fd The new frame descriptor
+     * \param[in] size The new number of batches in the queue
+     * \param[in] batch_size The new number of frames in a batch
+     * \param[in] device The device on which the queue is allocated
      */
     void rebuild(const camera::FrameDescriptor& fd,
                  const unsigned int size,
@@ -223,7 +235,6 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief The current number of frames in the queue
      *
-     * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
     std::atomic<uint>& curr_nb_frames_;
@@ -264,6 +275,9 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};
+
+    /*! \brief True when the queue is being resized. */
+    std::atomic<bool> resize_in_progress_ = false;
 
     /*! \name Synchronization attributes
      * \{

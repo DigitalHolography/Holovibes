@@ -34,6 +34,7 @@ namespace holovibes::gui
 {
 namespace
 {
+
 void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 {
     class DoubleValidator : public QValidator
@@ -62,8 +63,11 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
     QLineEdit* lineEdit = doubleSpinBox->findChild<QLineEdit*>();
     lineEdit->setValidator(new DoubleValidator(lineEdit->validator()));
 }
+
 } // namespace
+
 #pragma region Constructor - Destructor
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
@@ -81,6 +85,7 @@ MainWindow::MainWindow(QWidget* parent)
                                        })
     , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
     , api_(API)
+    , notify_subscriber_("notify", [this](bool success) { notify(); })
 {
     disable_notify();
 

@@ -27,26 +27,28 @@ void InputApi::camera_none() const
 
 void InputApi::set_input_file_start_index(size_t value) const
 {
-    const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
-    // Ensures that moments are read 3 by 3
-    if (is_data_moments)
-        value -= value % 3;
-
-    UPDATE_SETTING(InputFileStartIndex, value);
-    if (value >= get_input_file_end_index())
-        set_input_file_end_index(value + (is_data_moments ? 3 : 1));
-}
-
-void InputApi::set_input_file_end_index(size_t value) const
-{
-    const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
     // Ensures that moments are read 3 by 3
     if (get_data_type() == RecordedDataType::MOMENTS)
         value -= value % 3;
 
+    UPDATE_SETTING(InputFileStartIndex, value);
+    if (value >= get_input_file_end_index())
+        set_input_file_end_index(value + 1);
+}
+
+void InputApi::set_input_file_end_index(size_t value) const
+{
+    if (value <= 0)
+        value = 1; // Cannot read no frames, so end index can't be 0
+    // Ensures that moments are read 3 by 3, and at least 3 (hence the value < 3 check)
+    // In moments mode, the end index must at least be
+    uchar mod = value % 3;
+    if (get_data_type() == RecordedDataType::MOMENTS && (mod != 0 || value < 3))
+        value += 3 - mod; // 'ceiling' moments
+
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
-        set_input_file_start_index(value - (value + (is_data_moments ? 3 : 1)));
+        set_input_file_start_index(value - 1);
 }
 
 #pragma endregion

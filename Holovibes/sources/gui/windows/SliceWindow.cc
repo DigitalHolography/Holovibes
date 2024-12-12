@@ -205,5 +205,21 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
     API.view.change_window(kView == KindOfView::SliceXZ ? WindowKind::XZview : WindowKind::YZview);
+    NotifierManager::notify("notify", true);
+}
+
+void SliceWindow::closeEvent(QCloseEvent* e)
+{
+    if (kView == KindOfView::SliceXZ)
+        API.window_pp.set_enabled(WindowKind::XZview, false);
+    else if (kView == KindOfView::SliceYZ)
+        API.window_pp.set_enabled(WindowKind::YZview, false);
+
+    if (!API.window_pp.get_enabled(WindowKind::XZview) && !API.window_pp.get_enabled(WindowKind::YZview))
+    {
+        API.view.set_3d_cuts_view(false);
+        gui::set_3d_cuts_view(false, 0);
+        NotifierManager::notify("notify", true);
+    }
 }
 } // namespace holovibes::gui

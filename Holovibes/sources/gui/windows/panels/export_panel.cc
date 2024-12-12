@@ -189,14 +189,7 @@ QString ExportPanel::browse_record_output_file()
     if (filepath.isEmpty())
         return QString::fromStdString(api_.record.get_record_file_path());
 
-    // Convert QString to std::string
-    std::string std_filepath = filepath.toStdString();
-
-    const std::string file_ext = gui::browse_record_output_file(std_filepath);
-    // Will pick the item combobox related to file_ext if it exists, else, nothing is done
-    ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
-
-    parent_->notify();
+    set_output_file_name(filepath.toStdString());
 
     return filepath;
 }

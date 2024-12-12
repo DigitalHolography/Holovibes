@@ -9,13 +9,13 @@
 #include <QScreen>
 #include <QWheelEvent>
 
-#include "API.hh"
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "cuda_memory.cuh"
 #include "common.cuh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace holovibes
 {
@@ -412,6 +412,22 @@ void RawWindow::closeEvent(QCloseEvent* event)
     if (kView == KindOfView::Raw || kView == KindOfView::Hologram)
     {
         save_gui("holo window");
+    }
+
+    // If raw view closed, deactivate it and update the ui
+    if (kView == KindOfView::Raw)
+    {
+        api::set_raw_view(false);
+        gui::set_raw_view(false, 0);
+        NotifierManager::notify("notify", true);
+    }
+
+    // If lens view closed, deactivate it and update the ui
+    else if (kView == KindOfView::Lens)
+    {
+        api::set_lens_view(false);
+        gui::set_lens_view(false, 0);
+        NotifierManager::notify("notify", true);
     }
 }
 
