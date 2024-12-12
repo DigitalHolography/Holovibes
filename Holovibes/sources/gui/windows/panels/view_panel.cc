@@ -109,7 +109,7 @@ void ViewPanel::on_notify()
     // Enable only row that are actually displayed on the screen
     QListView* window_selection_view = qobject_cast<QListView*>(window_selection->view());
     window_selection_view->setRowHidden(1, !api_.window_pp.get_enabled(WindowKind::XZview));
-    window_eslection_view->setRowHidden(2, !api_.window_pp.get_enabled(WindowKind::YZview));
+    window_selection_view->setRowHidden(2, !api_.window_pp.get_enabled(WindowKind::YZview));
     window_selection_view->setRowHidden(3, !api_.view.get_filter2d_view_enabled());
 
     // If one view gets disabled set to the standard XY view

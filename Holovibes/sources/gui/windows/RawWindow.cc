@@ -417,7 +417,7 @@ void RawWindow::closeEvent(QCloseEvent* event)
     // If raw view closed, deactivate it and update the ui
     if (kView == KindOfView::Raw)
     {
-        api::set_raw_view(false);
+        API.view.set_raw_view(false);
         gui::set_raw_view(false, 0);
         NotifierManager::notify("notify", true);
     }
@@ -425,7 +425,7 @@ void RawWindow::closeEvent(QCloseEvent* event)
     // If lens view closed, deactivate it and update the ui
     else if (kView == KindOfView::Lens)
     {
-        api::set_lens_view(false);
+        API.view.set_lens_view(false);
         gui::set_lens_view(false, 0);
         NotifierManager::notify("notify", true);
     }

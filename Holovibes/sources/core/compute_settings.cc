@@ -89,6 +89,7 @@ void ComputeSettingsApi::import_buffer(const std::string& json_path) const
     auto advanced_settings = AdvancedSettings();
 
     auto buffer_settings = AdvancedSettings::BufferSizes();
+
     try
     {
         from_json(j_cs, buffer_settings);

@@ -512,7 +512,7 @@ void MainWindow::load_gui()
 
 void MainWindow::set_preset_file_on_gpu()
 {
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
+    std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
     api_.settings.import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
