@@ -109,6 +109,8 @@ void set_computation_mode(Computation mode)
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
+
+    pipe_refresh();
 }
 
 #pragma endregion
