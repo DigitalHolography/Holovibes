@@ -17,6 +17,9 @@
 #include "tools_analysis_debug.hh"
 #include "imbinarize.cuh"
 
+#include <iostream>
+#include <chrono>
+
 #define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
 
@@ -454,6 +457,7 @@ void Analysis::insert_first_analysis_masks()
                     float* d_bin_centers;
                     cudaMalloc(&d_bin_centers, OTSU_BINS * sizeof(float));
 
+                    auto start = std::chrono::high_resolution_clock::now();
                     otsu_multi_thresholding(vesselness_mask_env_.before_threshold,
                                             histo_buffer_d,
                                             d_bin_centers,
@@ -461,6 +465,11 @@ void Analysis::insert_first_analysis_masks()
                                             4,
                                             before_threshold_size,
                                             stream_);
+                    auto end = std::chrono::high_resolution_clock::now();
+
+                    // Calculer la durée d'exécution
+                    std::chrono::duration<double> duration = end - start;
+                    std::cout << "Temps d'exécution: " << duration.count() << " secondes" << std::endl;
                     cudaXFree(histo_buffer_d);
                 }
 
