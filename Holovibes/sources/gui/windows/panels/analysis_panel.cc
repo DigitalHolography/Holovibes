@@ -59,22 +59,34 @@ void AnalysisPanel::on_notify()
     ui_->BarycenterPreviewCheckBox->setChecked(api::get_barycenter_preview_enabled());
 }
 
+void maybe_disable_chart()
+{
+    if (api::get_chart_mean_vessels_enabled() && !api::set_chart_mean_vessels_enabled(true))
+        gui::set_analysis_chart_display(false);
+}
+
 void AnalysisPanel::set_artery_mask(bool enabled)
 {
     api::set_artery_mask_enabled(enabled);
     ui_->ArteryCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::set_vein_mask(bool enabled)
 {
     api::set_vein_mask_enabled(enabled);
     ui_->VeinCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::set_choroid_mask(bool enabled)
 {
     api::set_choroid_mask_enabled(enabled);
     ui_->ChoroidCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::update_time_window()

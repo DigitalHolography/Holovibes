@@ -1051,7 +1051,7 @@ The range of frequencies kept is [z, z + width].</string>
               <string>index of the image displayed</string>
              </property>
              <property name="minimum">
-              <number>0</number>
+              <number>1</number>
              </property>
             </widget>
            </item>

@@ -395,7 +395,7 @@ class Holovibes
                                              settings::ImageType{ImgType::Modulus},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
-                                             settings::P{ViewPQ{}},
+                                             settings::P{ViewPQ{1, 0}},
                                              settings::Q{ViewPQ{}},
                                              settings::XY{ViewXYZ{}},
                                              settings::XZ{ViewXYZ{}},

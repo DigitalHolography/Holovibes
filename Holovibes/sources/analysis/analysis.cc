@@ -431,7 +431,8 @@ void Analysis::insert_chart()
 {
     LOG_FUNC();
     if (setting<settings::ChartMeanVesselsEnabled>() && setting<settings::ImageType>() == ImgType::Moments_0 &&
-        (setting<settings::VeinMaskEnabled>() || setting<settings::ArteryMaskEnabled>()))
+        (setting<settings::VeinMaskEnabled>() || setting<settings::ArteryMaskEnabled>() ||
+         setting<settings::ChoroidMaskEnabled>()))
     {
         fn_compute_vect_->push_back(
             [=]()
