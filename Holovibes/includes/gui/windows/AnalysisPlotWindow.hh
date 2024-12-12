@@ -40,7 +40,7 @@ class AnalysisPlotWindow : public QMainWindow
      * \param title title of the window
      * \param parent Qt parent
      */
-    AnalysisPlotWindow(ConcurrentDeque<double>& data_vect,
+    AnalysisPlotWindow(ConcurrentDeque<ChartMeanVesselsPoint>& data_vect,
                        const size_t auto_scale_point_threshold,
                        const QString title,
                        QWidget* parent = nullptr);

@@ -39,7 +39,7 @@ class AnalysisCurvePlot : public QWidget
      * \param height height of the plot in pixels
      * \param parent Qt parent
      */
-    AnalysisCurvePlot(ConcurrentDeque<double>& data_vect,
+    AnalysisCurvePlot(ConcurrentDeque<ChartMeanVesselsPoint>& data_vect,
                       const size_t auto_scale_point_threshold,
                       const QString title,
                       const unsigned int width,
@@ -120,15 +120,15 @@ class AnalysisCurvePlot : public QWidget
     QChartView* chart_view;
 
     /*! \brief Reference to Deque containing Chart data */
-    ConcurrentDeque<double>& data_vect_;
+    ConcurrentDeque<ChartMeanVesselsPoint>& data_vect_;
     /*! \brief Number of points to draw */
     unsigned int points_nb_;
     /*! \brief QTimer used to draw every TIMER_FREQ milliseconds */
     QTimer timer_;
     /*! \brief Ptr to function who get value of curve in tuple */
-    std::function<double(const double&)> curve_get_;
+    std::function<double(const ChartMeanVesselsPoint&)> curve_get_;
     /*! \brief Local copy of data_vect data */
-    std::vector<double> chart_vector_;
+    std::vector<ChartMeanVesselsPoint> chart_vector_;
 
     /*! \brief Numbers of new points to wait before running auto scale */
     size_t auto_scale_point_threshold_;

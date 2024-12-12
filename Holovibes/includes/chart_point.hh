@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief definition of struct use for chart
  */
 #pragma once
 
@@ -8,7 +8,7 @@ namespace holovibes
 {
 /*! \class ChartPoint
  *
- * \brief #TODO Add a description for this struct
+ * \brief struct use for export chart
  */
 struct ChartPoint
 {
@@ -20,4 +20,16 @@ struct ChartPoint
     double std_signal_div_avg_noise;
     double std_signal_div_avg_signal;
 };
+
+/*! \class ChartMeanVesselsPoint
+ *
+ * \brief struct use for showing Chart Mean Vessels
+ */
+struct ChartMeanVesselsPoint
+{
+    double mean_artery;
+    double mean_veins;
+    double mean_choroid;
+};
+
 } // namespace holovibes

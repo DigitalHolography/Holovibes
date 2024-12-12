@@ -12,7 +12,7 @@
 
 namespace holovibes::gui
 {
-AnalysisPlotWindow::AnalysisPlotWindow(ConcurrentDeque<double>& data_vect,
+AnalysisPlotWindow::AnalysisPlotWindow(ConcurrentDeque<ChartMeanVesselsPoint>& data_vect,
                                        const size_t auto_scale_point_threshold,
                                        const QString title,
                                        QWidget* parent)

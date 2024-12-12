@@ -217,9 +217,8 @@ void Analysis::init()
     cudaXMemset(mask_result_buffer_, 0, frame_res * sizeof(float));
 
     // Other
-    chart_mean_vessels_env_.float_gpu_.resize(1);
+    chart_mean_vessels_env_.float_buffer_gpu_.resize(8);
     if (chart_mean_vessels_env_.chart_display_queue_.get() == nullptr)
-        chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<double>());
-    chart_mean_vessels_env_.chart_display_queue_->push_back(1.0f);
+        chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartMeanVesselsPoint>());
 }
 } // namespace holovibes::analysis

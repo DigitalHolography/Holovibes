@@ -438,17 +438,13 @@ void Analysis::insert_chart()
             [=]()
             {
                 float* mask_buffer = get_mask_result();
-                size_t nb_nnz = get_mask_nnz();
-                double point = get_sum_with_mask(moments_env_.moment0_buffer,
-                                                 mask_buffer,
-                                                 fd_.get_frame_size(),
-                                                 chart_mean_vessels_env_.float_gpu_,
-                                                 stream_);
-                if (nb_nnz)
-                {
-                    double mean = point / (float)nb_nnz;
-                    chart_mean_vessels_env_.chart_display_queue_->push_back(mean);
-                }
+                auto points = get_sum_with_mask(moments_env_.moment0_buffer, // TODO change with the correct buffer
+                                                vesselness_mask_env_.quantizedVesselCorrelation_,
+                                                fd_.get_frame_size(),
+                                                chart_mean_vessels_env_.float_buffer_gpu_,
+                                                stream_);
+
+                chart_mean_vessels_env_.chart_display_queue_->push_back(points);
             });
     }
 }

@@ -10,19 +10,27 @@ __global__ void get_sum_with_mask_kernel(const float* input, const float* mask, 
 
     if (idx < size)
     {
-        atomicAdd(sum_res, input[idx] * mask[idx]);
+        atomicAdd(sum_res + ((int)mask[idx]) * 2, 1);
+        atomicAdd(sum_res + ((int)mask[idx]) * 2 + 1, input[idx]);
     }
 }
 
-float get_sum_with_mask(const float* input, const float* mask, size_t size, float* sum_res, cudaStream_t stream)
+holovibes::ChartMeanVesselsPoint
+get_sum_with_mask(const float* input, const float* mask, size_t size, float* sum_res, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    float res = 0.0f;
+    float sum_res_host[8];
 
-    cudaXMemset(sum_res, 0.0f, sizeof(float));
+    cudaXMemset(sum_res, 0.0f, sizeof(float) * 8);
     get_sum_with_mask_kernel<<<blocks, threads, 0, stream>>>(input, mask, size, sum_res);
     cudaStreamSynchronize(stream);
-    cudaXMemcpy(&res, sum_res, sizeof(float), cudaMemcpyDeviceToHost);
-    return res;
+
+    cudaXMemcpy(&sum_res_host, sum_res, sizeof(float) * 8, cudaMemcpyDeviceToHost);
+
+    return {
+        sum_res_host[2] / sum_res_host[3],
+        sum_res_host[4] / sum_res_host[5],
+        sum_res_host[6] / sum_res_host[7],
+    };
 }

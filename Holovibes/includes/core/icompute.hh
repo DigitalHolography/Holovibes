@@ -271,7 +271,7 @@ class ICompute
 
     std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue() { return chart_env_.chart_record_queue_; };
 
-    std::unique_ptr<ConcurrentDeque<double>>& get_chart_mean_vessels_queue()
+    std::unique_ptr<ConcurrentDeque<ChartMeanVesselsPoint>>& get_chart_mean_vessels_queue()
     {
         return chart_mean_vessels_env_.chart_display_queue_;
     };

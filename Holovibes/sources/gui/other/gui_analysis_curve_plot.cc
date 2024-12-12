@@ -1,5 +1,6 @@
 #include "gui_analysis_curve_plot.hh"
 #include "PlotWindow.hh"
+#include "chart_point.hh"
 
 #define WIDTH 600
 #define HEIGHT 300
@@ -10,7 +11,7 @@
 
 namespace holovibes::gui
 {
-AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<double>& data_vect,
+AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<ChartMeanVesselsPoint>& data_vect,
                                      const size_t auto_scale_point_threshold,
                                      const QString title,
                                      const unsigned int width,
@@ -20,7 +21,7 @@ AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<double>& data_vect,
     , data_vect_(data_vect)
     , points_nb_(POINTS)
     , timer_(this)
-    , curve_get_([](const double& data) { return data; })
+    , curve_get_([](const ChartMeanVesselsPoint& point) { return point.mean_veins; }) // TODO maybe change to artery
     , auto_scale_point_threshold_(auto_scale_point_threshold)
     , auto_scale_curr_points_(0)
 {
@@ -62,8 +63,22 @@ AnalysisCurvePlot::~AnalysisCurvePlot()
 
 void AnalysisCurvePlot::change_curve(int curve_to_plot)
 {
-    // TODO later
-    curve_get_ = [](const double& data) { return data; };
+
+    switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
+    {
+
+    case CurvePlot::CurveName::AVG_SIGNAL: // TODO change to artery
+        curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_artery; };
+        break;
+    case CurvePlot::CurveName::AVG_NOISE: // TODO change to veins
+        curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_veins; };
+        break;
+    case CurvePlot::CurveName::AVG_SIGNAL_DIV_AVG_NOISE: // TODO change to choroid
+        curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_choroid; };
+        break;
+    default:
+        abort();
+    }
 }
 
 QSize AnalysisCurvePlot::minimumSizeHint() const { return QSize(WIDTH, HEIGHT); }
@@ -98,7 +113,7 @@ void AnalysisCurvePlot::load_data_vector()
         for (size_t i = 0; i < copied_elts_nb; ++i)
         {
             float x = i;
-            float y = curve_get_(chart_vector_[i]);
+            double y = curve_get_(chart_vector_[i]);
             new_data.push_back(QPointF(x, y));
         }
 
@@ -114,12 +129,12 @@ void AnalysisCurvePlot::load_data_vector()
 
 void AnalysisCurvePlot::auto_scale()
 {
-    std::vector<double> tmp = chart_vector_;
+    std::vector<ChartMeanVesselsPoint> tmp = chart_vector_;
 
-    auto minmax =
-        std::minmax_element(tmp.cbegin(),
-                            tmp.cend(),
-                            [&](const double& lhs, const double& rhs) { return curve_get_(lhs) < curve_get_(rhs); });
+    auto minmax = std::minmax_element(tmp.cbegin(),
+                                      tmp.cend(),
+                                      [&](const ChartMeanVesselsPoint& lhs, const ChartMeanVesselsPoint& rhs)
+                                      { return curve_get_(lhs) < curve_get_(rhs); });
 
     double min = curve_get_(*(minmax.first));
     double max = curve_get_(*(minmax.second));
