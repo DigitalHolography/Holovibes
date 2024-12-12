@@ -153,20 +153,6 @@ void AnalysisCurvePlot::update()
         data_vect_.pop_front();
 }
 
-void AnalysisCurvePlot::toggle_dark_mode(bool dark_mode)
-{
-    auto theme = QChart::ChartTheme::ChartThemeLight;
-    auto line_color = QColor::fromRgb(0, 0, 0);
-
-    if (dark_mode)
-    {
-        theme = QChart::ChartTheme::ChartThemeDark;
-        line_color = QColor::fromRgb(255, 255, 255);
-    }
-
-    chart->setTheme(theme);
-    line_series->setColor(line_color);
-}
 } // namespace holovibes::gui
 #undef WIDTH
 #undef HEIGHT

@@ -69,7 +69,12 @@ void AnalysisPanel::on_notify()
     ui_->BwAreaOpenCheckbox->setChecked(api::get_bwareaopen_enabled());
 }
 
-void AnalysisPanel::set_vein_mask(bool enabled) { api::set_vein_mask_enabled(enabled); }
+void AnalysisPanel::set_vein_mask(bool enabled)
+{
+    api::set_vein_mask_enabled(enabled);
+    if (!enabled)
+        api::set_analysis_chart_display(false);
+}
 
 void AnalysisPanel::update_time_window()
 {

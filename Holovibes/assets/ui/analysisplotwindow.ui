@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>141</width>
+      <width>261</width>
       <height>24</height>
      </rect>
     </property>
@@ -50,25 +50,19 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QComboBox" name="CurveNameComboBox">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Mean</string>
+        </property>
+       </item>
+      </widget>
+     </item>
     </layout>
-   </widget>
-   <widget class="QComboBox" name="CurveNameComboBox">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>10</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <item>
-     <property name="text">
-      <string>Mean</string>
-     </property>
-    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

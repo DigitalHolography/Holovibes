@@ -208,12 +208,14 @@ void set_analysis_chart_display(bool enabled)
 {
     if (enabled)
     {
+        // If the window already exists, put it in front of the desktop. Else, create it.
         if (UI.analysis_plot_window_)
             UI.analysis_plot_window_->activateWindow();
-        UI.analysis_plot_window_.reset(
-            new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
-                                        UI.auto_scale_point_threshold_,
-                                        "Vessels means"));
+        else
+            UI.analysis_plot_window_.reset(
+                new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
+                                            UI.auto_scale_point_threshold_,
+                                            "Vessels means"));
     }
     else
         UI.analysis_plot_window_.reset(nullptr);
