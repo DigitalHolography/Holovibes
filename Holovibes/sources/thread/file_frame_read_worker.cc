@@ -156,11 +156,12 @@ void FileFrameReadWorker::remove_fast_update_map_entries()
 void FileFrameReadWorker::read_file_in_gpu()
 {
     // Read and copy the entire file
-    size_t frames_read = read_copy_file(total_nb_frames_to_read_);
+    int flag_packed = 0;
+    size_t frames_read = read_copy_file(total_nb_frames_to_read_, &flag_packed);
 
     while (!stop_requested_)
     {
-        enqueue_loop(frames_read);
+        enqueue_loop(frames_read, flag_packed);
         current_nb_frames_read_ = 0;
     }
 }
@@ -168,6 +169,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 void FileFrameReadWorker::read_file_batch()
 {
     const unsigned int file_buffer_size = static_cast<unsigned int>(setting<settings::FileBufferSize>());
+    int flag_packed = 0;
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -175,10 +177,10 @@ void FileFrameReadWorker::read_file_batch()
         size_t frames_to_read = std::min(file_buffer_size, total_nb_frames_to_read_ - current_nb_frames_read_);
 
         // Read batch in cpu and copy it to gpu
-        size_t frames_read = read_copy_file(frames_to_read);
+        size_t frames_read = read_copy_file(frames_to_read, &flag_packed);
 
         // Enqueue the batch frames one by one into the destination queue
-        enqueue_loop(frames_read);
+        enqueue_loop(frames_read, flag_packed);
 
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
@@ -190,21 +192,20 @@ void FileFrameReadWorker::read_file_batch()
     }
 }
 
-size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
+size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read, int* flag_packed)
 {
     // Read
     size_t frames_read = 0;
-    int flag_packed;
 
     try
     {
-        frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
+        frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
-        if (flag_packed % 8 != 0) // Irregular encoding (not aligned on bytes)
+        if (*flag_packed % 8 != 0) // Irregular encoding (not aligned on bytes)
         {
             const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-            size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
+            size_t packed_frame_size = fd.width * fd.height * (*flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
                 // Memcopy in the gpu buffer
@@ -215,13 +216,13 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                                  stream_);
 
                 // Convert 12bit frame to 16bit
-                if (flag_packed == 12)
+                if (*flag_packed == 12)
                     unpack_12_to_16bit((short*)(gpu_file_frame_buffer_ + i * frame_size_),
                                        frame_size_ / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
                                        stream_);
-                else if (flag_packed == 10)
+                else if (*flag_packed == 10)
                     unpack_10_to_16bit((short*)(gpu_file_frame_buffer_ + i * frame_size_),
                                        frame_size_ / 2,
                                        (unsigned char*)gpu_packed_buffer_,
@@ -230,18 +231,9 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                 else
                     throw io_files::FileException("Image encoding format not supported: {} bits", flag_packed);
             }
-        }
-        else
-        {
-            // Memcopy in the gpu buffer
-            cudaXMemcpyAsync(gpu_file_frame_buffer_,
-                             cpu_frame_buffer_,
-                             frames_total_size,
-                             cudaMemcpyHostToDevice,
-                             stream_);
-        }
 
-        cudaStreamSynchronize(stream_);
+            cudaStreamSynchronize(stream_);
+        }
     }
     catch (const io_files::FileException& e)
     {
@@ -251,7 +243,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
     return frames_read;
 }
 
-void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
+void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue, int flag_packed)
 {
     size_t frames_enqueued = 0;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
@@ -267,9 +259,19 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
-                                     cudaMemcpyDeviceToDevice,
-                                     real_frames_enqueued);
+
+        if (flag_packed % 8 != 0) // Frames where previously copied to the gpu buffer
+        {
+            input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
+                                         cudaMemcpyDeviceToDevice,
+                                         real_frames_enqueued);
+        }
+        else // Frames on the CPU enqueue them directly to GPU
+        {
+            input_queue_.load()->enqueue(cpu_frame_buffer_ + frames_enqueued * frame_size_,
+                                         cudaMemcpyHostToDevice,
+                                         real_frames_enqueued);
+        }
 
         current_nb_frames_read_ += real_frames_enqueued;
         frames_enqueued += real_frames_enqueued;

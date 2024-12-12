@@ -164,15 +164,17 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Read frames in cpu and copy in gpu
      *
      * \param frames_to_read The number of frames to read
+     * \param flag_packed Return number of bit packed.
      * \return The number of frames read
      */
-    size_t read_copy_file(size_t frames_to_read);
+    size_t read_copy_file(size_t frames_to_read, int* flag_packed);
 
     /*! \brief Enqueue frames_read in the input_queue with a speed related to the given fps
      *
      * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to input_queue
+     * \param flag_packed The number of bits
      */
-    void enqueue_loop(size_t nb_frames_to_enqueue);
+    void enqueue_loop(size_t nb_frames_to_enqueue, int flag_packed);
 
     /*! \brief Returns the number of frames to allocate depending on whether or not the file is loaded in GPU.
      *
