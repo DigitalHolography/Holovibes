@@ -27,7 +27,7 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     __syncthreads();
 
     // Populate shared histogram
-    if (idx < imgSize && image[idx] != 0)
+    if (idx < imgSize)
     {
         int bin = static_cast<int>(image[idx] * (NUM_BINS - 1));
         atomicAdd(shared_hist + bin, 1);
@@ -186,7 +186,7 @@ float get_var_btwclas(const float* var_btwcls, size_t i, size_t j)
 
 void set_var_btwcls(const float* prob, float* var_btwcls, float* zeroth_moment, float* first_moment)
 {
-    // Calculer les moments cumulés et remplir var_btwcls
+    // Compute the cumsum of the moments.
     uint idx;
     float zeroth_moment_ij, first_moment_ij;
 
@@ -262,30 +262,37 @@ float set_thresh_indices(float* var_btwcls,
 }
 
 __global__ void
-histogram_kernel_multi(const float* image, float* hist, float* bin_centers, float minVal, float maxVal, int imgSize)
+histogram_kernel_multi(const float* image, float* hist, float* bin_centers, float min_val, float max_val, int size)
 {
-    // Calcul des indices globaux
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // Shared memory for histogram bins
+    extern __shared__ uint shared_hist[];
 
-    // Calcul de la largeur de chaque bin
-    float binWidth = (maxVal - minVal) / NUM_BINS;
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + tid;
 
-    // Calcul de l'histogramme
-    if (idx < imgSize)
+    // Compute the width of a bin.
+    float bin_width = (max_val - min_val) / NUM_BINS;
+
+    // Initialize shared memory histogram
+    if (tid < NUM_BINS)
     {
-        float pixel = image[idx];
-        int binIdx = min(NUM_BINS - 1, int((pixel - minVal) / binWidth));
-        atomicAdd(&hist[binIdx], 1); // Utilise atomicAdd pour éviter les conflits
+        shared_hist[tid] = 0;
+        hist[tid] = 0;
+        bin_centers[tid] = min_val + (tid + 0.5f) * bin_width;
     }
+    __syncthreads();
 
-    // Calcule les centres des bins pour un seul thread (thread 0)
-    if (idx == 0)
+    // Populate shared histogram
+    if (idx < size)
     {
-        for (int i = 0; i < NUM_BINS; ++i)
-        {
-            bin_centers[i] = minVal + (i + 0.5f) * binWidth;
-        }
+        int bin_idx = min(NUM_BINS - 1, int((image[idx] - min_val) / bin_width));
+        atomicAdd(&shared_hist[bin_idx], 1);
     }
+    __syncthreads();
+
+    // Merge shared histograms into global memory
+    if (tid < NUM_BINS)
+        atomicAdd(&hist[tid], shared_hist[tid]);
 }
 
 void otsu_multi_thresholding(float* input_d,
@@ -298,9 +305,16 @@ void otsu_multi_thresholding(float* input_d,
 {
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
+    size_t shared_mem_size = (NUM_BINS + 1) * sizeof(float);
 
+    // Getting the histograms and the corresponding bins centers.
     cudaMemset(histo_buffer_d, 0, NUM_BINS * sizeof(float));
-    histogram_kernel_multi<<<blocks, threads>>>(input_d, histo_buffer_d, bin_centers_d, -1, 1, size);
+    histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d,
+                                                                         histo_buffer_d,
+                                                                         bin_centers_d,
+                                                                         -1,
+                                                                         1,
+                                                                         size);
     divide_constant(histo_buffer_d, size, NUM_BINS, stream);
     cudaXStreamSynchronize(stream);
 
@@ -349,36 +363,10 @@ void otsu_multi_thresholding(float* input_d,
         }
     }
 
-    // for (int i = 0; i < thresh_count; i++)
-    // {
-    //     LOG_INFO(i);
-    //     LOG_INFO(thresh[i]);
-    // }
+    for (int i = 0; i < thresh_count; i++)
+    {
+        LOG_INFO(i);
+        LOG_INFO(thresh[i]);
+    }
     cudaXMemcpy(thresholds_d, thresh.data(), thresh_count * sizeof(float), cudaMemcpyHostToDevice);
 }
-
-// size_t* thresh_indices;
-// size_t* current_indices;
-
-// float* var_btwcls;
-// float* zeroth_moment;
-// float* first_moment;
-
-// cudaXMalloc(&thresh_indices, thresh_count * sizeof(float));
-// cudaXMalloc(&current_indices, thresh_count * sizeof(float));
-
-// cudaXMalloc(&var_btwcls, (NUM_BINS * (NUM_BINS + 1) / 2) * sizeof(float));
-// cudaXMalloc(&zeroth_moment, NUM_BINS * sizeof(float));
-// cudaXMalloc(&first_moment, NUM_BINS * sizeof(float));
-
-// cudaXMemset(var_btwcls, 0, (NUM_BINS * (NUM_BINS + 1) / 2) * sizeof(float));
-// cudaXMemset(zeroth_moment, 0, NUM_BINS * sizeof(float));
-// cudaXMemset(first_moment, 0, NUM_BINS * sizeof(float));
-
-// __global__ void
-// get_thresholds(float* thresholds_d, const float* bin_centers_d, const size_t* thresh_indices, size_t thresh_count)
-// {
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-//     if (idx < thresh_count)
-//         thresholds_d[idx] = bin_centers_d[thresh_indices[idx]];
-// }
