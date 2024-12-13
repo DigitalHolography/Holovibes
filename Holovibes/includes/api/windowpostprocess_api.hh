@@ -146,8 +146,8 @@ class WindowPostProcessApi : public IApi
     /*! \brief Sets the rotation of the specified window (or the current window if not specified). The rotation is in
      * degrees and is applied anti-clockwise. Only 0, 90, 180 and 270 degrees are supported.
      *
-     * \param[in] kind the kind of window or the current window if not specified.
      * \param[in] value the new rotation of the window either: 0, 90, 180 or 270 degrees.
+     * \param[in] kind the kind of window or the current window if not specified.
      */
     void set_rotation(float value, WindowKind kind = get_current_window_type()) const;
 
