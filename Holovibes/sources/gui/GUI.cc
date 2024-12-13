@@ -88,7 +88,7 @@ void create_window(Computation window_kind, ushort window_size)
     {
         UI.mainDisplay.reset(new holovibes::gui::RawWindow(pos,
                                                            size,
-                                                           api.compute.get_input_queue().get(),
+                                                           api.compute.get_gpu_output_queue().get(),
                                                            static_cast<float>(width) / static_cast<float>(height)));
         UI.mainDisplay->setBitshift(api.window_pp.get_raw_bitshift());
     }
@@ -186,8 +186,9 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
         // set positions of new windows according to the position of the main GL
         // window and Lens window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
-        UI.raw_window.reset(
-            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), API.compute.get_input_queue().get()));
+        UI.raw_window.reset(new gui::RawWindow(pos,
+                                               QSize(raw_window_width, raw_window_height),
+                                               API.compute.get_compute_pipe().get_raw_view_queue().get()));
 
         UI.raw_window->setTitle("Raw view");
     }

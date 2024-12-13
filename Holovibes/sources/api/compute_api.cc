@@ -112,6 +112,8 @@ void ComputeApi::set_computation_mode(Computation mode) const
     else
         api_->record.set_record_mode_enum(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
+
+    pipe_refresh();
 }
 
 #pragma endregion

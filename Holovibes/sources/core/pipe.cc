@@ -442,13 +442,9 @@ void Pipe::insert_dequeue_input()
         {
             (*processed_output_fps_) += setting<settings::BatchSize>();
 
-            // FIXME: It seems this enqueue is useless because the RawWindow use
-            // the gpu input queue for display
-            /* safe_enqueue_output(
-            **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(input_queue_.get_start()),
-            **    "Can't enqueue the input frame in gpu_output_queue");
-            */
+            safe_enqueue_output(gpu_output_queue_,
+                                static_cast<unsigned short*>(input_queue_.get_last_image()),
+                                "Can't enqueue the input frame in gpu_output_queue");
 
             // Dequeue a batch
             input_queue_.dequeue();
