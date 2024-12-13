@@ -34,6 +34,7 @@ using ulong = unsigned long;
 #include "chrono.hh"
 
 #include <nlohmann/json.hpp>
+
 using json = ::nlohmann::json;
 
 std::string engineering_notation(double n, int nb_significand_digit);

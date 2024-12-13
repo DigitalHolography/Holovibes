@@ -1,11 +1,13 @@
 #include "record_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
 #pragma region Record Mode
 
-void set_record_mode_enum(RecordMode value)
+void RecordApi::set_record_mode_enum(RecordMode value) const
 {
     stop_record();
 
@@ -16,7 +18,7 @@ void set_record_mode_enum(RecordMode value)
     {
         try
         {
-            auto pipe = get_compute_pipe();
+            auto pipe = api_->compute.get_compute_pipe();
             if (is_recording())
                 stop_record();
 
@@ -31,7 +33,7 @@ void set_record_mode_enum(RecordMode value)
     }
 }
 
-std::vector<OutputFormat> get_supported_formats(RecordMode mode)
+std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) const
 {
     static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
         {RecordMode::RAW, {OutputFormat::HOLO}},
@@ -49,9 +51,9 @@ std::vector<OutputFormat> get_supported_formats(RecordMode mode)
 
 #pragma region Recording
 
-bool start_record_preconditions()
+bool RecordApi::start_record_preconditions() const
 {
-    std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
+    std::optional<size_t> nb_frames_to_record = get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
 
     if (!nb_frame_checked)
@@ -66,7 +68,7 @@ bool start_record_preconditions()
     return true;
 }
 
-void start_record(std::function<void()> callback)
+void RecordApi::start_record(std::function<void()> callback) const
 {
     if (!start_record_preconditions()) // Check if the record can be started
         return;
@@ -83,7 +85,7 @@ void start_record(std::function<void()> callback)
     NotifierManager::notify<bool>("acquisition_started", true);       // notifying MainWindow
 }
 
-void stop_record()
+void RecordApi::stop_record() const
 {
     LOG_FUNC();
 
@@ -98,13 +100,13 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-bool is_recording() { return Holovibes::instance().is_recording(); }
+bool RecordApi::is_recording() const { return Holovibes::instance().is_recording(); }
 
 #pragma endregion
 
 #pragma region Buffer
 
-void set_record_queue_location(Device device)
+void RecordApi::set_record_queue_location(Device device) const
 {
     // we check since this function is always triggered when we save the advanced settings, even if the location was not
     // modified
@@ -119,7 +121,7 @@ void set_record_queue_location(Device device)
     }
 }
 
-void set_record_buffer_size(uint value)
+void RecordApi::set_record_buffer_size(uint value) const
 {
     // since this function is always triggered when we save the advanced settings, even if the location was not modified
     if (get_record_buffer_size() != value)

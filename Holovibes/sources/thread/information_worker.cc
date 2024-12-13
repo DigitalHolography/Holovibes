@@ -72,8 +72,8 @@ void InformationWorker::run()
         if (waited_time >= 1000)
         {
             compute_fps(waited_time);
-            std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
+            std::shared_ptr<Queue> gpu_output_queue = API.compute.get_gpu_output_queue();
+            std::shared_ptr<BatchInputQueue> input_queue = API.compute.get_input_queue();
             std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
 
             if (gpu_output_queue && input_queue)
@@ -315,7 +315,7 @@ void InformationWorker::display_gui_information()
         }
     }
 
-    if (api::get_import_type() != ImportType::None)
+    if (API.input.get_import_type() != ImportType::None)
     {
         for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
         {

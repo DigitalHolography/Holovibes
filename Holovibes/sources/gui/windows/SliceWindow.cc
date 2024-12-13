@@ -41,7 +41,7 @@ void SliceWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
-    if (api::get_img_type() == ImgType::Composite)
+    if (API.compute.get_img_type() == ImgType::Composite)
         overlay_manager_.enable<Rainbow>();
     else
         overlay_manager_.create_default();
@@ -153,7 +153,7 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / API.view.get_display_rate());
 }
 
 void SliceWindow::paintGL()
@@ -204,20 +204,20 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_window(kView == KindOfView::SliceXZ ? WindowKind::XZview : WindowKind::YZview);
+    API.view.change_window(kView == KindOfView::SliceXZ ? WindowKind::XZview : WindowKind::YZview);
     NotifierManager::notify("notify", true);
 }
 
 void SliceWindow::closeEvent(QCloseEvent* e)
 {
     if (kView == KindOfView::SliceXZ)
-        api::set_enabled(WindowKind::XZview, false);
+        API.window_pp.set_enabled(false, WindowKind::XZview);
     else if (kView == KindOfView::SliceYZ)
-        api::set_enabled(WindowKind::YZview, false);
+        API.window_pp.set_enabled(false, WindowKind::YZview);
 
-    if (!api::get_enabled(WindowKind::XZview) && !api::get_enabled(WindowKind::YZview))
+    if (!API.window_pp.get_enabled(WindowKind::XZview) && !API.window_pp.get_enabled(WindowKind::YZview))
     {
-        api::set_3d_cuts_view(false);
+        API.view.set_3d_cuts_view(false);
         gui::set_3d_cuts_view(false, 0);
         NotifierManager::notify("notify", true);
     }

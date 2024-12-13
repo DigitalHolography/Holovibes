@@ -91,7 +91,7 @@ void FrameRecordWorker::run()
         static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                            {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
                                                            {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
-        RecordedDataType data_type = m[api::get_record_mode()];
+        RecordedDataType data_type = m[API.record.get_record_mode()];
 
         output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
@@ -106,7 +106,7 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        auto input_queue = api::get_input_queue();
+        auto input_queue = API.compute.get_input_queue();
 
         if (input_queue->has_overwritten())
             input_queue->reset_override();
@@ -151,25 +151,11 @@ void FrameRecordWorker::run()
 
             record_queue_.load()->dequeue(frame_buffer,
                                           stream_,
-                                          api::get_record_queue_location() == holovibes::Device::GPU
+                                          API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
-            // FIXME: to check if it's still relevant
-            // if (api::get_record_queue_location()) {
-            //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
-            //     output_frame_file->write_frame(frame_buffer, output_frame_size);
-            // }
-            // else
-            // {
-            //     {
-            //         MutexGuard mGuard(record_queue_.load()->get_guard());
-            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()),
-            //         record_queue_.load()->get_size() * output_frame_size);
-            //     }
-            //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
-            // }
             (*processed_fps)++;
             nb_frames_recorded++;
 

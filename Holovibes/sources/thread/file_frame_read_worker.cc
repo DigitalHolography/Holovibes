@@ -262,8 +262,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         if (Holovibes::instance().is_cli)
         {
-            // Wait for a batch to be dequeued before enqueuing a new one
-            while (api::get_input_queue()->get_size() >= api::get_input_queue()->get_max_size() && !stop_requested_)
+            const auto input_queue = API.compute.get_input_queue();
+            // Wait for the queue to have enough space before enqueuing
+            while (input_queue->get_size() >= input_queue->get_max_size() && !stop_requested_)
             {
             }
         }
