@@ -29,9 +29,9 @@
 #include "settings/settings.hh"
 #include "fast_updates_holder.hh"
 #include "custom_type_traits.hh"
-#include "fps_limiter.hh"
 #include <optional>
 #include "logger.hh"
+#include "chrono.hh"
 
 // Fast forward declarations
 namespace holovibes
@@ -172,9 +172,9 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Enqueue frames_read in the input_queue with a speed related to the given fps
      *
      * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to input_queue
-     * \param flag_packed The number of bits
+     * \param on_gup True if the frames are already in the gpu_buffer
      */
-    void enqueue_loop(size_t nb_frames_to_enqueue, int flag_packed);
+    void enqueue_loop(size_t nb_frames_to_enqueue, bool on_gup);
 
     /*! \brief Returns the number of frames to allocate depending on whether or not the file is loaded in GPU.
      *
@@ -225,11 +225,11 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     char* gpu_packed_buffer_;
 
-    /**
-     * @brief The Fps limiter used in the enqueue loop to limit the number of frames enqueued
+    /*!
+     * @brief The Chrono used in the enqueue loop to limit the number of frames enqueued
      * per seconds.
      */
-    FPSLimiter fps_limiter_;
+    Chrono chrono_;
 
     /**
      * @brief All the settings used by the FileFrameReadWorker that should be updated

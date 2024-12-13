@@ -159,9 +159,24 @@ void FileFrameReadWorker::read_file_in_gpu()
     int flag_packed = 0;
     size_t frames_read = read_copy_file(total_nb_frames_to_read_, &flag_packed);
 
+    // LOG_ERROR("Reading file");
+
+    // if (flag_packed % 8 == 0) // Transfer frames to GPU
+    // {
+    //     cudaXMemcpyAsync(gpu_packed_buffer_,
+    //                      cpu_frame_buffer_,
+    //                      frame_size_ * frames_read,
+    //                      cudaMemcpyHostToDevice,
+    //                      stream_);
+
+    //     cudaStreamSynchronize(stream_);
+
+    //     LOG_ERROR("Image encoding format not supported: {} bits", flag_packed);
+    // }
+
     while (!stop_requested_)
     {
-        enqueue_loop(frames_read, flag_packed);
+        enqueue_loop(frames_read, false);
         current_nb_frames_read_ = 0;
     }
 }
@@ -172,6 +187,7 @@ void FileFrameReadWorker::read_file_batch()
     int flag_packed = 0;
 
     // Read the entire file by batch
+    chrono_.start();
     while (!stop_requested_)
     {
         size_t frames_to_read = std::min(file_buffer_size, total_nb_frames_to_read_ - current_nb_frames_read_);
@@ -180,7 +196,7 @@ void FileFrameReadWorker::read_file_batch()
         size_t frames_read = read_copy_file(frames_to_read, &flag_packed);
 
         // Enqueue the batch frames one by one into the destination queue
-        enqueue_loop(frames_read, flag_packed);
+        enqueue_loop(frames_read, flag_packed % 8 != 0);
 
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
@@ -200,12 +216,12 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read, int* flag_pack
     try
     {
         frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, flag_packed);
-        size_t frames_total_size = frames_read * frame_size_;
 
         if (*flag_packed % 8 != 0) // Irregular encoding (not aligned on bytes)
         {
             const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
             size_t packed_frame_size = fd.width * fd.height * (*flag_packed / 8.f);
+
             for (size_t i = 0; i < frames_read; ++i)
             {
                 // Memcopy in the gpu buffer
@@ -243,24 +259,28 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read, int* flag_pack
     return frames_read;
 }
 
-void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue, int flag_packed)
+void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue, bool on_gpu)
 {
     size_t frames_enqueued = 0;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         uint real_frames_enqueued = static_cast<uint>(
             std::min(static_cast<size_t>(setting<settings::BatchSize>()), nb_frames_to_enqueue - frames_enqueued));
-        fps_limiter_.wait(setting<settings::InputFPS>() / real_frames_enqueued);
 
-        if (Holovibes::instance().is_cli)
+        // If the input fps is too high, we don't need to wait because context switch will drop too many FPS
+        double wait = 1.0 / (double)setting<settings::InputFPS>();
+        if (wait > 1.0e-4)
         {
-            // Wait for a batch to be dequeued before enqueuing a new one
-            while (api::get_input_queue()->get_size() >= api::get_input_queue()->get_max_size() && !stop_requested_)
-            {
-            }
+            chrono_.wait(wait * real_frames_enqueued);
+            chrono_.start();
         }
 
-        if (flag_packed % 8 != 0) // Frames where previously copied to the gpu buffer
+        // Ensure that the input queue is not full
+        while (api::get_input_queue()->get_size() >= api::get_input_queue()->get_max_size() - 1 && !stop_requested_)
+        {
+        }
+
+        if (on_gpu) // Frames where previously copied to the gpu buffer
         {
             input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
                                          cudaMemcpyDeviceToDevice,
