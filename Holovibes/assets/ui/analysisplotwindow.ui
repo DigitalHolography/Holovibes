@@ -57,7 +57,17 @@
        </property>
        <item>
         <property name="text">
-         <string>Mean</string>
+         <string>Artery mean</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Vein mean</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Choroid mean</string>
         </property>
        </item>
       </widget>

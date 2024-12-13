@@ -50,15 +50,11 @@ class AnalysisCurvePlot : public QWidget
     ~AnalysisCurvePlot();
 
     /*! \brief Different curve options */
-    enum CurveName
+    enum AnalysisCurveName
     {
-        AVG_SIGNAL = 0,
-        AVG_NOISE = 1,
-        AVG_SIGNAL_DIV_AVG_NOISE = 2,
-        LOG_AVG_SIGNAL_DIV_AVG_NOISE = 3,
-        STD_SIGNAL = 4,
-        STD_SIGNAL_DIV_AVG_NOISE = 5,
-        STD_SIGNAL_DIV_AVG_SIGNAL = 6,
+        ARTERY_MEAN = 0,
+        VEIN_MEAN = 1,
+        CHOROID_MEAN = 2
     };
 
     /*! \brief This property holds the recommended minimum size for the widget. */
@@ -114,6 +110,8 @@ class AnalysisCurvePlot : public QWidget
   private:
     /*! \brief Data points on the chart */
     QLineSeries* line_series;
+    QLineSeries* line_series_2;
+    QLineSeries* line_series_3;
     /*! \brief The chart itself */
     QChart* chart;
     /*! \brief QtWidget used to display the chart on a window */

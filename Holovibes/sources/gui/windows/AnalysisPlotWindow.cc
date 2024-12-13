@@ -8,7 +8,7 @@
 #include "GUI.hh"
 
 #define WIDTH 580
-#define HEIGHT 250
+#define HEIGHT 350
 
 namespace holovibes::gui
 {
@@ -29,6 +29,7 @@ AnalysisPlotWindow::AnalysisPlotWindow(ConcurrentDeque<ChartMeanVesselsPoint>& d
 
     QSpinBox* p = findChild<QSpinBox*>("PointsNbSpinBox");
     change_points_nb(p->value());
+    curve_plot_.change_curve(0); // Initializing curve
 }
 
 AnalysisPlotWindow::~AnalysisPlotWindow() {}

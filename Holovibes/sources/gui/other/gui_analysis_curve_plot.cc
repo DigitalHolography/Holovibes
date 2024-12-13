@@ -1,6 +1,7 @@
 #include "gui_analysis_curve_plot.hh"
-#include "PlotWindow.hh"
 #include "chart_point.hh"
+
+#include <QLegendMarker>
 
 #define WIDTH 600
 #define HEIGHT 300
@@ -8,6 +9,8 @@
 #define SIZE_OFFSET 20
 #define TIMER_FREQ 40
 #define POINTS 200
+
+#include <iostream>
 
 namespace holovibes::gui
 {
@@ -26,15 +29,29 @@ AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<ChartMeanVesselsPoint>& dat
     , auto_scale_curr_points_(0)
 {
     line_series = new QLineSeries();
+    line_series_2 = new QLineSeries();
+    line_series_3 = new QLineSeries();
     chart = new QChart();
     chart_view = new QChartView(chart, parent);
 
     chart->setTheme(QChart::ChartTheme::ChartThemeDark);
     line_series->setColor(QColor::fromRgb(255, 255, 255));
+    line_series_2->setColor(QColor::fromRgb(235, 64, 52));
+    line_series_3->setColor(QColor::fromRgb(0, 128, 0));
 
     chart->legend()->hide();
     chart->addSeries(line_series);
+    chart->addSeries(line_series_2);
+    chart->addSeries(line_series_3);
     chart->createDefaultAxes();
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    QList<QLegendMarker*> list = chart->legend()->markers();
+    // std::cout << "Labels: " << list[0]->label().toStdString() << std::endl;
+    list[0]->setLabel("Arteries");
+    list[1]->setLabel("Veins");
+    list[2]->setLabel("Choroid");
 
     // reverse the x axis
     // chart->axisX()->setRange(0, points_nb_);
@@ -57,6 +74,8 @@ AnalysisCurvePlot::AnalysisCurvePlot(ConcurrentDeque<ChartMeanVesselsPoint>& dat
 AnalysisCurvePlot::~AnalysisCurvePlot()
 {
     delete line_series;
+    delete line_series_2;
+    delete line_series_3;
     delete chart;
     delete chart_view;
 }
@@ -64,16 +83,16 @@ AnalysisCurvePlot::~AnalysisCurvePlot()
 void AnalysisCurvePlot::change_curve(int curve_to_plot)
 {
 
-    switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
+    switch (static_cast<AnalysisCurvePlot::AnalysisCurveName>(curve_to_plot))
     {
 
-    case CurvePlot::CurveName::AVG_SIGNAL: // TODO change to artery
+    case AnalysisCurvePlot::AnalysisCurveName::ARTERY_MEAN:
         curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_artery; };
         break;
-    case CurvePlot::CurveName::AVG_NOISE: // TODO change to veins
+    case AnalysisCurvePlot::AnalysisCurveName::VEIN_MEAN:
         curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_veins; };
         break;
-    case CurvePlot::CurveName::AVG_SIGNAL_DIV_AVG_NOISE: // TODO change to choroid
+    case AnalysisCurvePlot::AnalysisCurveName::CHOROID_MEAN:
         curve_get_ = [](const ChartMeanVesselsPoint& point) { return point.mean_choroid; };
         break;
     default:
@@ -102,19 +121,25 @@ void AnalysisCurvePlot::resizeEvent(QResizeEvent* e)
 void AnalysisCurvePlot::load_data_vector()
 {
     QList<QPointF> new_data;
+    QList<QPointF> new_data_2;
+    QList<QPointF> new_data_3;
 
     if (!data_vect_.empty())
     {
         size_t copied_elts_nb = data_vect_.fill_array(chart_vector_, points_nb_);
         new_data.reserve(static_cast<int>(copied_elts_nb));
+        new_data_2.reserve(static_cast<int>(copied_elts_nb));
+        new_data_3.reserve(static_cast<int>(copied_elts_nb));
 
         ++auto_scale_curr_points_;
 
         for (size_t i = 0; i < copied_elts_nb; ++i)
         {
             float x = i;
-            double y = curve_get_(chart_vector_[i]);
-            new_data.push_back(QPointF(x, y));
+            // double y = curve_get_(chart_vector_[i]);
+            new_data.push_back(QPointF(x, chart_vector_[i].mean_artery));
+            new_data_2.push_back(QPointF(x, chart_vector_[i].mean_veins));
+            new_data_3.push_back(QPointF(x, chart_vector_[i].mean_choroid));
         }
 
         if (auto_scale_curr_points_ > auto_scale_point_threshold_)
@@ -125,24 +150,28 @@ void AnalysisCurvePlot::load_data_vector()
     }
 
     line_series->replace(new_data);
+    line_series_2->replace(new_data_2);
+    line_series_3->replace(new_data_3);
 }
 
 void AnalysisCurvePlot::auto_scale()
 {
     std::vector<ChartMeanVesselsPoint> tmp = chart_vector_;
 
-    auto minmax = std::minmax_element(tmp.cbegin(),
-                                      tmp.cend(),
-                                      [&](const ChartMeanVesselsPoint& lhs, const ChartMeanVesselsPoint& rhs)
-                                      { return curve_get_(lhs) < curve_get_(rhs); });
+    double min =
+        std::min_element(tmp.cbegin(),
+                         tmp.cend(),
+                         [&](const ChartMeanVesselsPoint& lhs, const ChartMeanVesselsPoint& rhs) { return lhs < rhs; })
+            ->min();
 
-    double min = curve_get_(*(minmax.first));
-    double max = curve_get_(*(minmax.second));
+    double max =
+        std::min_element(tmp.cbegin(),
+                         tmp.cend(),
+                         [&](const ChartMeanVesselsPoint& lhs, const ChartMeanVesselsPoint& rhs) { return lhs > rhs; })
+            ->max();
+
     double offset = (max - min) / 10.0;
 
-    // chart->axisY()->setRange(min - offset, max + offset);
-
-    // FIXME axisY is deprecated, we take first vertical axis, verify
     chart->axes(Qt::Vertical).front()->setRange(min - offset, max + offset);
 }
 
