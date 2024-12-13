@@ -18,6 +18,7 @@ class InformationApi : public IApi
     {
     }
 
+  private:
 #pragma region Credits
 
     /*! \brief Authors of the project */
@@ -90,6 +91,7 @@ class InformationApi : public IApi
 
                                                    "Michael Atlan"};
 
+  public:
     /*! \brief Gets the credits
      *
      * \return const std::vector<std::string> credits in columns

@@ -20,6 +20,8 @@ class ContrastApi : public IApi
         : IApi(api)
     {
     }
+
+  private:
 #pragma region Internals
 
     /*! \brief Returns the setting of the window kind specified
@@ -42,207 +44,153 @@ class ContrastApi : public IApi
         }
     }
 
+    /*! \brief Returns the type of the focused window. This setting is only useful if you use functions overload that
+     * does not take a WindowKind as parameter (for contrast, log and other window specific computation).
+     *
+     * \return WindowKind the current window type
+     */
+    inline static WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
+
 #pragma endregion
 
+  public:
 #pragma region Log
 
-    /*! \brief Returns whether the log scale is enabled on the specified window kind
+    /*! \brief Returns whether the log scale is enabled on the specified window kind (or the current window if not
+     * specified).
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the log scale is enabled
      */
-    inline bool get_log_enabled(WindowKind kind) const { return get_window(kind).log_enabled; }
+    inline bool get_log_enabled(WindowKind kind = get_current_window_type()) const
+    {
+        return get_window(kind).log_enabled;
+    }
 
-    /*! \brief Returns whether the log scale is enabled on the current window
-     *
-     * \return bool true if the log scale is enabled
-     */
-    bool get_log_enabled() const;
-
-    /*! \brief Enables or Disables log scale on the specified window kind
-     *
-     * \param[in] kind the window kind
-     * \param[in] value true: enable, false: disable
-     */
-    void set_log_enabled(WindowKind kind, bool value) const;
-
-    /*! \brief Enables or Disables log scale on the current window
+    /*! \brief Enables or Disables log scale on the specified window kind (or the current window if not specified).
      *
      * \param[in] value true: enable, false: disable
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_log_enabled(bool value) const;
+    void set_log_enabled(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
 #pragma region Contrast Range
 
-    /*! \brief Returns the contrast min value of the specified window kind.
+    /*! \brief Returns the contrast min value of the specified window kind (or the current window if not specified).
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return float the contrast min value
      */
-    float get_contrast_min(WindowKind kind) const;
+    float get_contrast_min(WindowKind kind = get_current_window_type()) const;
 
-    /*! \brief Returns the contrast max value of the focused window.
-     *
-     * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
-     *
-     * \return float the contrast max value
-     */
-    float get_contrast_min() const;
-
-    /*! \brief Sets the contrast min value of the specified window kind.
-     *
-     * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
-     *
-     * \param[in] kind the window kind
-     * \param[in] value the new contrast min value
-     */
-    void set_contrast_min(WindowKind kind, float value) const;
-
-    /*! \brief Sets the contrast min value of the focused window.
+    /*! \brief Sets the contrast min value of the specified window kind (or the current window if not specified).
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
      *
      * \param[in] value the new contrast min value
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_contrast_min(float value) const;
+    void set_contrast_min(float value, WindowKind kind = get_current_window_type()) const;
 
-    /*! \brief Returns the contrast max value of the specified window kind.
+    /*! \brief Returns the contrast max value of the specified window kind (or the current window if not specified).
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return float the contrast max value
      */
-    float get_contrast_max(WindowKind kind) const;
+    float get_contrast_max(WindowKind kind = get_current_window_type()) const;
 
-    /*! \brief Returns the contrast max value of the focused window.
-     *
-     * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
-     *
-     * \return float the contrast max value
-     */
-    float get_contrast_max() const;
-
-    /*! \brief Sets the contrast max value of the specified window kind.
-     *
-     * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
-     *
-     * \param[in] kind the window kind
-     * \param[in] value the new contrast max value
-     */
-    void set_contrast_max(WindowKind kind, float value) const;
-
-    /*! \brief Sets the contrast max value of the focused window.
+    /*! \brief Sets the contrast max value of the specified window kind (or the current window if not specified).
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
      *
      * \param[in] value the new contrast max value
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_contrast_max(float value) const;
+    void set_contrast_max(float value, WindowKind kind = get_current_window_type()) const;
 
-    /*! \brief Updates the contrast of the specified window kind.
+    /*! \brief Updates the contrast of the specified window kind (or the current window if not specified).
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
      *
-     * \param[in] kind the window kind
      * \param[in] min the new contrast min value
      * \param[in] max the new contrast max value
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void update_contrast(WindowKind kind, float min, float max) const;
+    void update_contrast(float min, float max, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
 #pragma region Contrast Enabled
 
-    /*! \brief Returns whether the contrast is enabled on the specified window kind
+    /*! \brief Returns whether the contrast is enabled on the specified window kind (or the current window if not
+     * specified).
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the contrast is enabled
      */
-    inline bool get_contrast_enabled(WindowKind kind) const { return get_window(kind).contrast.enabled; }
+    inline bool get_contrast_enabled(WindowKind kind = get_current_window_type()) const
+    {
+        return get_window(kind).contrast.enabled;
+    }
 
-    /*! \brief Returns whether the contrast is enabled on the current window
-     *
-     * \return bool true if the contrast is enabled
-     */
-    bool get_contrast_enabled() const;
-
-    /*! \brief Enables or Disables the contrast on the specified window kind
-     *
-     * \param[in] kind the window kind
-     * \param[in] value true: enable, false: disable
-     */
-    void set_contrast_enabled(WindowKind kind, bool value) const;
-
-    /*! \brief Enables or Disables the contrast on the current window
+    /*! \brief Enables or Disables the contrast on the specified window kind (or the current window if not specified).
      *
      * \param[in] value true: enable, false: disable
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_contrast_enabled(bool value) const;
+    void set_contrast_enabled(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
 #pragma region Contrast Auto Refresh
 
-    /*! \brief Returns whether the contrast auto refresh is enabled on the specified window kind
+    /*! \brief Returns whether the contrast auto refresh is enabled on the specified window kind (or the current window
+     * if not specified).
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the contrast auto refresh is enabled
      */
-    inline bool get_contrast_auto_refresh(WindowKind kind) const { return get_window(kind).contrast.auto_refresh; }
+    inline bool get_contrast_auto_refresh(WindowKind kind = get_current_window_type()) const
+    {
+        return get_window(kind).contrast.auto_refresh;
+    }
 
-    /*! \brief Returns whether the contrast auto refresh is enabled on the current window
-     *
-     * \return bool true if the contrast auto refresh is enabled
-     */
-    bool get_contrast_auto_refresh() const;
-
-    /*! \brief Enables or Disables the contrast auto refresh on the specified window kind
-     *
-     * \param[in] kind the window kind
-     * \param[in] value true: enable, false: disable
-     */
-    void set_contrast_auto_refresh(WindowKind kind, bool value) const;
-
-    /*! \brief Enables or Disables the contrast auto refresh on the current window
+    /*! \brief Enables or Disables the contrast auto refresh on the specified window kind (or the current window
+     * if not specified).
      *
      * \param[in] value true: enable, false: disable
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_contrast_auto_refresh(bool value) const;
+    void set_contrast_auto_refresh(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
 #pragma region Contrast Invert
 
-    /*! \brief Returns whether the contrast is inverted (min and max will be swaped) on the specified window kind
+    /*! \brief Returns whether the contrast is inverted (min and max will be swaped) on the specified window kind (or
+     * the current window if not specified).
      *
-     * \param[in] kind the window kind
+     * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the contrast is inverted
      */
-    inline bool get_contrast_invert(WindowKind kind) const { return get_window(kind).contrast.invert; }
+    inline bool get_contrast_invert(WindowKind kind = get_current_window_type()) const
+    {
+        return get_window(kind).contrast.invert;
+    }
 
-    /*! \brief Returns whether the contrast is inverted (min and max will be swaped) on the current window
-     *
-     * \return bool true if the contrast is inverted
-     */
-    bool get_contrast_invert() const;
-
-    /*! \brief Enables or Disables the contrast invert on the specified window kind
-     *
-     * \param[in] kind the window kind
-     * \param[in] value true: enable, false: disable
-     */
-    void set_contrast_invert(WindowKind kind, bool value) const;
-
-    /*! \brief Enables or Disables the contrast invert on the current window
+    /*! \brief Enables or Disables the contrast invert on the specified window kind (or the current window
+     * if not specified).
      *
      * \param[in] value true: enable, false: disable
+     * \param[in] kind the window kind or the current window if not specified
      */
-    void set_contrast_invert(bool value) const;
+    void set_contrast_invert(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 

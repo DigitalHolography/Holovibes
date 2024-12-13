@@ -21,8 +21,8 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
             while (api_->compute.get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
                 continue;
 
-            api_->window_pp.set_enabled(WindowKind::YZview, true);
-            api_->window_pp.set_enabled(WindowKind::XZview, true);
+            api_->window_pp.set_enabled(true, WindowKind::YZview);
+            api_->window_pp.set_enabled(true, WindowKind::XZview);
             set_cuts_view_enabled(true);
 
             api_->compute.pipe_refresh();
@@ -36,8 +36,8 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
     }
     else
     {
-        api_->window_pp.set_enabled(WindowKind::YZview, false);
-        api_->window_pp.set_enabled(WindowKind::XZview, false);
+        api_->window_pp.set_enabled(false, WindowKind::YZview);
+        api_->window_pp.set_enabled(false, WindowKind::XZview);
         set_cuts_view_enabled(false);
 
         api_->compute.get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
@@ -70,7 +70,7 @@ void ViewApi::set_filter2d_view(bool enabled) const
         while (pipe->is_requested(ICS::Filter2DView))
             continue;
 
-        api_->contrast.set_log_enabled(WindowKind::Filter2D, true);
+        api_->contrast.set_log_enabled(true, WindowKind::Filter2D);
         api_->compute.pipe_refresh();
     }
     else

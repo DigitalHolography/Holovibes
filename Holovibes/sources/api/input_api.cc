@@ -142,7 +142,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
             API.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
         }
 
-        // update the buffer size with the old values to avoid InputApi::surcharging the gpu memory in case of big
+        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
         // buffers used when the file was recorded
         set_input_buffer_size(input_buffer_size);
         api_->record.set_record_buffer_size(record_buffer_size);

@@ -211,9 +211,9 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
 void SliceWindow::closeEvent(QCloseEvent* e)
 {
     if (kView == KindOfView::SliceXZ)
-        API.window_pp.set_enabled(WindowKind::XZview, false);
+        API.window_pp.set_enabled(false, WindowKind::XZview);
     else if (kView == KindOfView::SliceYZ)
-        API.window_pp.set_enabled(WindowKind::YZview, false);
+        API.window_pp.set_enabled(false, WindowKind::YZview);
 
     if (!API.window_pp.get_enabled(WindowKind::XZview) && !API.window_pp.get_enabled(WindowKind::YZview))
     {

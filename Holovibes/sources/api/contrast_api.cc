@@ -15,17 +15,6 @@ float ftruncate(const int precision, float value)
 
 #pragma endregion
 
-#pragma region Log
-
-bool ContrastApi::get_log_enabled() const { return get_log_enabled(api_->view.get_current_window_type()); }
-
-void ContrastApi::set_log_enabled(bool value) const
-{
-    return set_log_enabled(api_->view.get_current_window_type(), value);
-}
-
-#pragma endregion
-
 #pragma region Contrast
 
 float ContrastApi::get_contrast_min(WindowKind kind) const
@@ -34,9 +23,7 @@ float ContrastApi::get_contrast_min(WindowKind kind) const
     return get_log_enabled(kind) ? min : log10(min);
 }
 
-float ContrastApi::get_contrast_min() const { return get_contrast_min(api_->view.get_current_window_type()); }
-
-void ContrastApi::set_contrast_min(WindowKind kind, float value) const
+void ContrastApi::set_contrast_min(float value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
         return;
@@ -61,20 +48,13 @@ void ContrastApi::set_contrast_min(WindowKind kind, float value) const
     api_->compute.pipe_refresh();
 }
 
-void ContrastApi::set_contrast_min(float value) const
-{
-    return set_contrast_min(api_->view.get_current_window_type(), value);
-}
-
 float ContrastApi::get_contrast_max(WindowKind kind) const
 {
     float max = get_window(kind).contrast.max;
     return get_log_enabled(kind) ? max : log10(max);
 }
 
-float ContrastApi::get_contrast_max() const { return get_contrast_max(api_->view.get_current_window_type()); }
-
-void ContrastApi::set_contrast_max(WindowKind kind, float value) const
+void ContrastApi::set_contrast_max(float value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
         return;
@@ -99,12 +79,7 @@ void ContrastApi::set_contrast_max(WindowKind kind, float value) const
     api_->compute.pipe_refresh();
 }
 
-void ContrastApi::set_contrast_max(float value) const
-{
-    return set_contrast_max(api_->view.get_current_window_type(), value);
-}
-
-void ContrastApi::update_contrast(WindowKind kind, float min, float max) const
+void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
 {
     min = min > 1.0f ? min : 1.0f;
     max = max > 1.0f ? max : 1.0f;
@@ -129,9 +104,7 @@ void ContrastApi::update_contrast(WindowKind kind, float min, float max) const
 
 #pragma region Contrast Enabled
 
-bool ContrastApi::get_contrast_enabled() const { return get_contrast_enabled(api_->view.get_current_window_type()); }
-
-void ContrastApi::set_contrast_enabled(WindowKind kind, bool value) const
+void ContrastApi::set_contrast_enabled(bool value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
@@ -149,21 +122,11 @@ void ContrastApi::set_contrast_enabled(WindowKind kind, bool value) const
     api_->compute.pipe_refresh();
 }
 
-void ContrastApi::set_contrast_enabled(bool value) const
-{
-    return set_contrast_enabled(api_->view.get_current_window_type(), value);
-}
-
 #pragma endregion
 
 #pragma region Contrast Auto Refresh
 
-bool ContrastApi::get_contrast_auto_refresh() const
-{
-    return get_contrast_auto_refresh(api_->view.get_current_window_type());
-}
-
-void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value) const
+void ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
         return;
@@ -181,18 +144,11 @@ void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value) const
     api_->compute.pipe_refresh();
 }
 
-void ContrastApi::set_contrast_auto_refresh(bool value) const
-{
-    return set_contrast_auto_refresh(api_->view.get_current_window_type(), value);
-}
-
 #pragma endregion
 
 #pragma region Contrast Invert
 
-bool ContrastApi::get_contrast_invert() const { return get_contrast_invert(api_->view.get_current_window_type()); }
-
-void ContrastApi::set_contrast_invert(WindowKind kind, bool value) const
+void ContrastApi::set_contrast_invert(bool value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
         return;
@@ -210,16 +166,11 @@ void ContrastApi::set_contrast_invert(WindowKind kind, bool value) const
     api_->compute.pipe_refresh();
 }
 
-void ContrastApi::set_contrast_invert(bool value) const
-{
-    return set_contrast_invert(api_->view.get_current_window_type(), value);
-}
-
 #pragma endregion
 
 #pragma region Log
 
-void ContrastApi::set_log_enabled(WindowKind kind, const bool value) const
+void ContrastApi::set_log_enabled(const bool value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;

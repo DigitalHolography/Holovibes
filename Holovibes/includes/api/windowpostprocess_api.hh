@@ -25,8 +25,9 @@ class WindowPostProcessApi : public IApi
         : IApi(api)
     {
     }
-#pragma region Internals
 
+  private:
+#pragma region Internals
 /*! \brief Test whether the current window is a Filter2D window. If it is, print a warning in the log and return
  * r_value.
  *
@@ -97,126 +98,91 @@ class WindowPostProcessApi : public IApi
         }
     }
 
+    /*! \brief Returns the type of the focused window. This setting is only useful if you use functions overload that
+     * does not take a WindowKind as parameter (for contrast, log and other window specific computation).
+     *
+     * \return WindowKind the current window type
+     */
+    inline static WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
+
 #pragma endregion
 
+  public:
 #pragma region Geometry Settings
 
-    /*! \brief Returns whether the horizontal flip is activated on the specified window
+    /*! \brief Returns whether the horizontal flip is activated on the specified window (or the current window if not
+     * specified)
      *
-     * \param[in] kind the kind of window
+     * \param[in] kind the kind of window or the current window if not specified
      *
      * \return bool true if the horizontal flip is activated
      */
-    inline bool get_horizontal_flip(WindowKind kind) const
+    inline bool get_horizontal_flip(WindowKind kind = get_current_window_type()) const
     {
         NOT_FILTER2D_R(kind, "horizontal flip", false);
         return get_window_xyz(kind).horizontal_flip;
     }
 
-    /*! \brief Returns whether the horizontal flip is activated on the current window
-     *
-     * \return bool true if the horizontal flip is activated
-     */
-    bool get_horizontal_flip() const;
-
-    /*! \brief Sets the horizontal flip state of the specified window
-     *
-     * \param[in] kind the kind of window
-     * \param[in] value the new value of the horizontal flip state
-     */
-    void set_horizontal_flip(WindowKind kind, bool value) const;
-
-    /*! \brief Sets the horizontal flip state of the current window
+    /*! \brief Sets the horizontal flip state of the specified window (or the current window if not specified)
      *
      * \param[in] value the new value of the horizontal flip state
+     * \param[in] kind the kind of window or the current window if not specified
      */
-    void set_horizontal_flip(bool value) const;
+    void set_horizontal_flip(bool value, WindowKind kind = get_current_window_type()) const;
 
-    /*! \brief Returns the rotation of the specified window. The rotation is in degrees and is applied anti-clockwise.
-     * Only 0, 90, 180 and 270 degrees are supported.
+    /*! \brief Returns the rotation of the specified window (or the current window if not specified). The rotation is in
+     * degrees and is applied anti-clockwise. Only 0, 90, 180 and 270 degrees are supported.
      *
-     * \param[in] kind the kind of window
+     * \param[in] kind the kind of window or the current window if not specified.
      *
      * \return float the rotation of the window
      */
-    inline float get_rotation(WindowKind kind) const
+    inline float get_rotation(WindowKind kind = get_current_window_type()) const
     {
         NOT_FILTER2D_R(kind, "rotation", 0.0f);
         return get_window_xyz(kind).rotation;
     }
 
-    /*! \brief Returns the rotation of the current window. The rotation is in degrees and is applied anti-clockwise.
-     * Only 0, 90, 180 and 270 degrees are supported.
+    /*! \brief Sets the rotation of the specified window (or the current window if not specified). The rotation is in
+     * degrees and is applied anti-clockwise. Only 0, 90, 180 and 270 degrees are supported.
      *
-     * \return float the rotation of the window
-     */
-    float get_rotation() const;
-
-    /*! \brief Sets the rotation of the specified window. The rotation is in degrees and is applied anti-clockwise. Only
-     * 0, 90, 180 and 270 degrees are supported.
-     *
-     * \param[in] kind the kind of window
+     * \param[in] kind the kind of window or the current window if not specified.
      * \param[in] value the new rotation of the window either: 0, 90, 180 or 270 degrees.
      */
-    void set_rotation(WindowKind kind, float value) const;
-
-    /*! \brief Sets the rotation of the current window. The rotation is in degrees and is applied anti-clockwise. Only
-     * 0, 90, 180 and 270 degrees are supported.
-     *
-     * \param[in] value the new rotation of the window either: 0, 90, 180 or 270 degrees.
-     */
-    void set_rotation(float value) const;
+    void set_rotation(float value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
 #pragma region Accumulation
 
-    /*! \brief Returns the size of the accumulation window for the specified window. The accumulation is a post
-     * processing step that takes `get_accumulation_level` images as input and average them to output a single image.
+    /*! \brief Returns the size of the accumulation window for the specified window (or the current window if not
+     * specified). The accumulation is a post processing step that takes `get_accumulation_level` images as input and
+     * average them to output a single image.
      *
      * High values of accumulation level will reduce the noise in the image but will also reduce the frame rate and
      * increase motion artifacts. An accumulation level of 1 will disable the accumulation.
      *
-     * \param[in] kind the kind of window
+     * \param[in] kind the kind of window or the current window if not specified.
      *
      * \return uint the size of the accumulation window.
      */
-    inline uint get_accumulation_level(WindowKind kind) const
+    inline uint get_accumulation_level(WindowKind kind = get_current_window_type()) const
     {
         NOT_FILTER2D_R(kind, "accumulation", 30);
         return get_window_xyz(kind).output_image_accumulation;
     }
 
-    /*! \brief Returns the size of the accumulation window for the current window. The accumulation is a post processing
-     * step that takes `get_accumulation_level` images as input and average them to output a single image.
-     *
-     * High values of accumulation level will reduce the noise in the image but will also reduce the frame rate and
-     * increase motion artifacts. An accumulation level of 1 will disable the accumulation.
-     *
-     * \return uint the size of the accumulation window.
-     */
-    uint get_accumulation_level() const;
-
-    /*! \brief Sets the size of the accumulation window for the specified window. Must be greater than 0.
+    /*! \brief Sets the size of the accumulation window for the specified window (or the current window if not
+     * specified). Must be greater than 0.
      *
      * The accumulation is a post processing step that takes `get_accumulation_level` images as input and average them
      * to output a single image. High values of accumulation level will reduce the noise in the image but will also
      * reduce the frame rate and increase motion artifacts. An accumulation level of 1 will disable the accumulation.
      *
-     * \param[in] kind the kind of window
      * \param[in] value the new size of the accumulation window.
+     * \param[in] kind the kind of window or the current window if not specified.
      */
-    void set_accumulation_level(WindowKind kind, uint value) const;
-
-    /*! \brief Sets the size of the accumulation window for the current window. Must be greater than 0.
-     *
-     * The accumulation is a post processing step that takes `get_accumulation_level` images as input and average them
-     * to output a single image. High values of accumulation level will reduce the noise in the image but will also
-     * reduce the frame rate and increase motion artifacts. An accumulation level of 1 will disable the accumulation.
-     *
-     * \param[in] value the new size of the accumulation window, greater than 0.
-     */
-    void set_accumulation_level(uint value) const;
+    void set_accumulation_level(uint value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -240,30 +206,24 @@ class WindowPostProcessApi : public IApi
 
 #pragma region Enabled
 
-    /*! \brief Returns whether the specified window is enabled or not
+    /*! \brief Returns whether the specified window (or the current window if not specified) is enabled or not
      *
-     * \param[in] kind the kind of window
+     * \param[in] kind the kind of window or the current window if not specified.
      *
      * \return bool true if the window is enabled
      */
-    inline bool get_enabled(WindowKind kind) const
+    inline bool get_enabled(WindowKind kind = get_current_window_type()) const
     {
         NOT_FILTER2D_R(kind, "enabled", false);
         return get_window_xyz(kind).enabled;
     }
 
-    /*! \brief Returns whether the current window is enabled or not
+    /*! \brief Sets the enabled state of the specified window (or the current window if not specified).
      *
-     * \return bool true if the window is enabled
-     */
-    bool get_enabled() const;
-
-    /*! \brief Sets the enabled state of the specified window
-     *
-     * \param[in] kind the kind of window
      * \param[in] value the new value of the enabled state
+     * \param[in] kind the kind of window or the current window if not specified.
      */
-    inline void set_enabled(WindowKind kind, bool value) const
+    inline void set_enabled(bool value, WindowKind kind = get_current_window_type()) const
     {
         NOT_FILTER2D(kind, "enabled");
         auto window = get_window_xyz(kind);
@@ -271,11 +231,7 @@ class WindowPostProcessApi : public IApi
         set_window_xyz(kind, window);
     }
 
-    /*! \brief Sets the enabled state of the current window
-     *
-     * \param[in] value the new value of the enabled state
-     */
-    void set_enabled(bool value) const;
+    friend class ContrastApi;
 
 #pragma endregion
 };

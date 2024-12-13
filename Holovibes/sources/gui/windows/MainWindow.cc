@@ -324,7 +324,7 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
         {
             if (accu)
-                api_.window_pp.set_accumulation_level(WindowKind::XYview, 1);
+                api_.window_pp.set_accumulation_level(1, WindowKind::XYview);
             api_.compute.close_critical_compute();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
