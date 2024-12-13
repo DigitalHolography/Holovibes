@@ -118,7 +118,7 @@ void Converts::insert_to_modulus_moments(float* output, const ushort f_start, co
             complex_to_modulus_moments(output,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        fd_.get_frame_res(),
-                                       f_start - 1,
+                                       f_start,
                                        f_end,
                                        stream_);
         });
@@ -220,7 +220,8 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
                 unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_->push_back(
-                [=]() {
+                [=]()
+                {
                     unwrap_2d(unwrap_res_2d_->gpu_angle_,
                               gpu_postprocess_frame,
                               plan_unwrap_2d_,
@@ -293,7 +294,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
         }
         else
             fn_compute_vect_->push_back(
-                [=]() {
+                [=]()
+                {
                     rescale_float(gpu_postprocess_frame, unwrap_res_->gpu_angle_current_, fd_.get_frame_res(), stream_);
                 });
     }
