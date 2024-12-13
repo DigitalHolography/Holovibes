@@ -9,6 +9,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <nlohmann/json.hpp>
+
 using json = ::nlohmann::json;
 
 namespace Ui

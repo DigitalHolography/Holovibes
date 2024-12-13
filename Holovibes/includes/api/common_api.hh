@@ -13,9 +13,6 @@
 #include "compute_settings_struct.hh"
 #include "enum_api_code.hh"
 
-#include <nlohmann/json_fwd.hpp>
-using json = ::nlohmann::json;
-
 /*! \brief Return the value of setting T in the holovibes global setting
  * Usage:
  * ```cpp
