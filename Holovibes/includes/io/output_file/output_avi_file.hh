@@ -77,6 +77,6 @@ class OutputAviFile : public OutputFrameFile, public AviFile
     /*! \brief The object used to write in the file */
     cv::VideoWriter video_writer_;
     /*! \brief The size of the image side to get a square video */
-    size_t size_length_;
+    unsigned short size_length_;
 };
 } // namespace holovibes::io_files
