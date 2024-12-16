@@ -35,8 +35,7 @@ void OutputAviFile::write_header()
     }
 }
 
-static void move_frame(
-    uchar* output, const char* frame, const unsigned short width, const unsigned short height, const int byte_type)
+static void move_frame(uchar* output, const char* frame, const ushort width, const ushort height, const int byte_type)
 {
     // compute ratio between width and height to know which dimension to fill
     size_t width_ratio = std::max(width / height, 1);
