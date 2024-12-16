@@ -41,9 +41,7 @@ static void move_frame(
     // compute ratio between width and height to know which dimension to fill
     size_t width_ratio = std::max(width / height, 1);
     size_t height_ratio = std::max(height / width, 1);
-    size_t add_byte_type = 0;
-    if (byte_type == camera::Endianness::LittleEndian)
-        add_byte_type = 1;
+    boolean add_byte_type = byte_type == camera::Endianness::LittleEndian;
     for (size_t i = 0; i < height * width_ratio; i += width_ratio)
     {
         for (size_t j = 0; j < width * height_ratio; j += height_ratio)
