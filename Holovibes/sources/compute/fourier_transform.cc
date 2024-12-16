@@ -362,7 +362,7 @@ void FourierTransform::insert_pca()
         });
 }
 
-void FourierTransform::insert_ssa_stft(ViewPQ view_q)
+void FourierTransform::insert_ssa_stft(ViewQ view_q)
 {
     LOG_FUNC();
 
@@ -396,7 +396,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            ViewPQ q_struct = view_q;
+            ViewQ q_struct = view_q;
             int q = q_struct.width != 0 ? q_struct.start : 0;
             int q_acc = q_struct.width != 0 ? q_struct.width : time_transformation_size;
             int q_index = q * time_transformation_size;
