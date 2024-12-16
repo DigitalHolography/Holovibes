@@ -19,6 +19,7 @@
 
 #include "concurrent_deque.hh"
 #include "chart_point.hh"
+#include "enum_analysis_curve_mode.hh"
 
 namespace holovibes::gui
 {
@@ -48,14 +49,6 @@ class AnalysisCurvePlot : public QWidget
 
     /*! \brief AnalysisCurvePlot destructor */
     ~AnalysisCurvePlot();
-
-    /*! \brief Different curve options */
-    enum AnalysisCurveName
-    {
-        ARTERY_MEAN = 0,
-        VEIN_MEAN = 1,
-        CHOROID_MEAN = 2
-    };
 
     /*! \brief This property holds the recommended minimum size for the widget. */
     QSize minimumSizeHint() const override;
@@ -100,16 +93,22 @@ class AnalysisCurvePlot : public QWidget
      */
     void set_points_nb(const unsigned int n);
 
+    /*!
+     * \brief Ensures that the next point(s) drawn on the chart also scales it appropriately.
+     *
+     */
+    void request_rescale();
+
   public slots:
     /*! \brief Updates the chart */
     void update();
 
     /*! \brief Change the curve ploted by changing curve_get_ */
-    void change_curve(int curve_to_plot);
+    void change_curve(AnalysisCurveName curve_to_plot);
 
   private:
     /*! \brief Data points on the chart */
-    QLineSeries* line_series;
+    QLineSeries* line_series_1;
     QLineSeries* line_series_2;
     QLineSeries* line_series_3;
     /*! \brief The chart itself */
@@ -125,6 +124,8 @@ class AnalysisCurvePlot : public QWidget
     QTimer timer_;
     /*! \brief Ptr to function who get value of curve in tuple */
     std::function<double(const ChartMeanVesselsPoint&)> curve_get_;
+    /*! \brief The current curve type. */
+    AnalysisCurveName current_curve_;
     /*! \brief Local copy of data_vect data */
     std::vector<ChartMeanVesselsPoint> chart_vector_;
 

@@ -158,12 +158,12 @@ void AnalysisPanel::update_barycenter_factor_slider(int value)
     ui_->BarycenterFactorDoubleSpinBox->setValue(real_value);
 }
 
+void AnalysisPanel::update_barycenter_preview(bool enabled) { api::set_barycenter_preview_enabled(enabled); }
+
 void AnalysisPanel::show_chart()
 {
     if (api::set_chart_mean_vessels_enabled(true))
         gui::set_analysis_chart_display(true);
 }
-
-void AnalysisPanel::update_barycenter_preview(bool enabled) { api::set_barycenter_preview_enabled(enabled); }
 
 } // namespace holovibes::gui

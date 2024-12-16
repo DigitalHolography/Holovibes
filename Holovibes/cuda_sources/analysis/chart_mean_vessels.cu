@@ -29,8 +29,8 @@ get_sum_with_mask(const float* input, const float* mask, size_t size, float* sum
     cudaXMemcpy(&sum_res_host, sum_res, sizeof(float) * 8, cudaMemcpyDeviceToHost);
 
     return {
-        sum_res_host[2] / sum_res_host[3],
-        sum_res_host[4] / sum_res_host[5],
-        sum_res_host[6] / sum_res_host[7],
+        sum_res_host[3] / sum_res_host[2],
+        sum_res_host[5] / sum_res_host[4],
+        sum_res_host[7] / sum_res_host[6],
     };
 }

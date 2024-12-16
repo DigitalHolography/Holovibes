@@ -29,7 +29,7 @@ AnalysisPlotWindow::AnalysisPlotWindow(ConcurrentDeque<ChartMeanVesselsPoint>& d
 
     QSpinBox* p = findChild<QSpinBox*>("PointsNbSpinBox");
     change_points_nb(p->value());
-    curve_plot_.change_curve(0); // Initializing curve
+    curve_plot_.change_curve(static_cast<AnalysisCurveName>(0)); // Initializing curve
 }
 
 AnalysisPlotWindow::~AnalysisPlotWindow() {}
@@ -54,7 +54,10 @@ void AnalysisPlotWindow::auto_scale() { curve_plot_.auto_scale(); }
 
 void AnalysisPlotWindow::change_points_nb(int n) { curve_plot_.set_points_nb(n); }
 
-void AnalysisPlotWindow::change_curve(int curve_to_plot) { curve_plot_.change_curve(curve_to_plot); }
+void AnalysisPlotWindow::change_curve(int curve_to_plot)
+{
+    curve_plot_.change_curve(static_cast<AnalysisCurveName>(curve_to_plot));
+}
 } // namespace holovibes::gui
 
 #undef WIDTH
