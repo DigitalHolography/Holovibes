@@ -64,8 +64,8 @@ void Rendering::Convolution::Update()
 
 void Rendering::Filter::Update()
 {
-    this->enabled = api::get_filter_enabled();
-    this->type = api::get_filter_file_name();
+    this->enabled = API.filter2d.get_filter_enabled();
+    this->type = API.filter2d.get_filter_file_name();
 }
 
 void Rendering::Filter2D::Update()
@@ -248,7 +248,7 @@ void Rendering::Load()
 {
     UPDATE_SETTING(TimeStride, this->time_transformation_stride);
     UPDATE_SETTING(ComputeMode, this->image_mode);
-    api::set_batch_size(this->batch_size);
+    API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);
     UPDATE_SETTING(TimeTransformation, this->time_transformation);

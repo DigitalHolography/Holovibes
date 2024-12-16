@@ -15,7 +15,7 @@ RegistrationOverlay::RegistrationOverlay(BasicOpenGLWindow* parent)
 
 void RegistrationOverlay::setBuffer()
 {
-    const float scale = api::get_registration_zone();
+    const float scale = API.global_pp.get_registration_zone();
 
     scale_.x = scale;
     scale_.y = scale;

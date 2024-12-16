@@ -6,7 +6,6 @@
 
 #include "Overlay.hh"
 #include "unit.hh"
-#include "API.hh"
 
 namespace holovibes::gui
 {

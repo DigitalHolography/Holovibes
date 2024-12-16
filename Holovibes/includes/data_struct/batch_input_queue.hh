@@ -275,6 +275,7 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};
+
     /*! \brief True when the queue is being resized. */
     std::atomic<bool> resize_in_progress_ = false;
 

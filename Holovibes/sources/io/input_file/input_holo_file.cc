@@ -160,7 +160,8 @@ void InputHoloFile::import_compute_settings()
         this->load_footer();
     }
 
-    api::set_data_type(RecordedDataType::RAW);
+    auto& api = API;
+    api.input.set_data_type(RecordedDataType::RAW);
 
     // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
@@ -172,7 +173,7 @@ void InputHoloFile::import_compute_settings()
     else if (holo_file_header_.version == 5 || holo_file_header_.version == 6)
         ; // Version 6 was skipped because of a versioning error, it is considered the same as 5
     else if (holo_file_header_.version == 7) // Version that adds data type in the header
-        api::set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
+        api.input.set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
     else
         LOG_ERROR("HOLO file version not supported!");
 
@@ -191,7 +192,7 @@ void InputHoloFile::import_compute_settings()
         from_json(full_meta_data_, raw_footer_);
 
         auto info_json = meta_data_["info"];
-        api::set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
+        api.input.set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
     }
 
     // update GSH with the footer values
@@ -200,8 +201,8 @@ void InputHoloFile::import_compute_settings()
     // When reading moments, the batch size is force set to one.
     // This is because moments don't need to and shouldn't be batched;
     // every single frame is necessary
-    if (api::get_data_type() == RecordedDataType::MOMENTS)
-        api::loaded_moments_data();
+    if (api.input.get_data_type() == RecordedDataType::MOMENTS)
+        api.compute.loaded_moments_data();
 }
 
 void InputHoloFile::import_info() const
@@ -213,8 +214,8 @@ void InputHoloFile::import_info() const
     try
     {
         // Pixel are considered square
-        api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
-        api::set_input_fps(meta_data_["info"]["input_fps"]);
+        API.input.set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
+        API.input.set_input_fps(meta_data_["info"]["input_fps"]);
     }
     catch (std::exception&)
     {

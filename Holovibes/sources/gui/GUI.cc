@@ -68,7 +68,8 @@ void close_windows()
 
 void create_window(Computation window_kind, ushort window_size)
 {
-    const camera::FrameDescriptor& fd = api::get_fd();
+    auto& api = API;
+    const camera::FrameDescriptor& fd = api.input.get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_size);
@@ -87,22 +88,22 @@ void create_window(Computation window_kind, ushort window_size)
     {
         UI.mainDisplay.reset(new holovibes::gui::RawWindow(pos,
                                                            size,
-                                                           api::get_input_queue().get(),
+                                                           api.compute.get_gpu_output_queue().get(),
                                                            static_cast<float>(width) / static_cast<float>(height)));
-        UI.mainDisplay->setBitshift(api::get_raw_bitshift());
+        UI.mainDisplay->setBitshift(api.window_pp.get_raw_bitshift());
     }
     else
     {
         UI.mainDisplay.reset(new gui::HoloWindow(pos,
                                                  size,
-                                                 api::get_gpu_output_queue().get(),
+                                                 api.compute.get_gpu_output_queue().get(),
                                                  UI.sliceXZ,
                                                  UI.sliceYZ,
                                                  static_cast<float>(width) / static_cast<float>(height)));
         UI.mainDisplay->set_is_resize(false);
         UI.mainDisplay->resetTransform();
-        UI.mainDisplay->setAngle(api::get_rotation());
-        UI.mainDisplay->setFlip(api::get_horizontal_flip());
+        UI.mainDisplay->setAngle(api.window_pp.get_rotation());
+        UI.mainDisplay->setFlip(api.window_pp.get_horizontal_flip());
     }
 
     UI.mainDisplay->setTitle(QString("XY view"));
@@ -119,7 +120,7 @@ void refresh_window(ushort window_size)
     }
 
     gui::close_windows();
-    gui::create_window(api::get_compute_mode(), window_size);
+    gui::create_window(API.compute.get_compute_mode(), window_size);
 
     UI.mainDisplay->setScale(old_scale);
     UI.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
@@ -129,7 +130,7 @@ void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)
     {
-        const camera::FrameDescriptor& fd = api::get_fd();
+        const camera::FrameDescriptor& fd = API.input.get_fd();
         ushort filter2d_window_width = fd.width;
         ushort filter2d_window_height = fd.height;
         get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
@@ -137,9 +138,10 @@ void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
         // set positions of new windows according to the position of the
         // main GL window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
-        UI.filter2d_window.reset(new gui::Filter2DWindow(pos,
-                                                         QSize(filter2d_window_width, filter2d_window_height),
-                                                         api::get_compute_pipe()->get_filter2d_view_queue().get()));
+        UI.filter2d_window.reset(
+            new gui::Filter2DWindow(pos,
+                                    QSize(filter2d_window_width, filter2d_window_height),
+                                    API.compute.get_compute_pipe()->get_filter2d_view_queue().get()));
 
         UI.filter2d_window->setTitle("Filter2D view");
     }
@@ -155,14 +157,14 @@ void set_lens_view(bool enabled, uint auxiliary_window_max_size)
         // main GL window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
 
-        const ::camera::FrameDescriptor& fd = api::get_fd();
+        const ::camera::FrameDescriptor& fd = API.input.get_fd();
         ushort lens_window_width = fd.width;
         ushort lens_window_height = fd.height;
         get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
         UI.lens_window.reset(new gui::RawWindow(pos,
                                                 QSize(lens_window_width, lens_window_height),
-                                                api::get_compute_pipe()->get_lens_queue().get(),
+                                                API.compute.get_compute_pipe()->get_lens_queue().get(),
                                                 0.f,
                                                 gui::KindOfView::Lens));
 
@@ -176,7 +178,7 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)
     {
-        const ::camera::FrameDescriptor& fd = api::get_fd();
+        const ::camera::FrameDescriptor& fd = API.input.get_fd();
         ushort raw_window_width = fd.width;
         ushort raw_window_height = fd.height;
         get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
@@ -184,8 +186,9 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
         // set positions of new windows according to the position of the main GL
         // window and Lens window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
-        UI.raw_window.reset(
-            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), api::get_input_queue().get()));
+        UI.raw_window.reset(new gui::RawWindow(pos,
+                                               QSize(raw_window_width, raw_window_height),
+                                               API.compute.get_compute_pipe()->get_raw_view_queue().get()));
 
         UI.raw_window->setTitle("Raw view");
     }
@@ -196,7 +199,7 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
 void set_chart_display(bool enabled)
 {
     if (enabled)
-        UI.plot_window_.reset(new gui::PlotWindow(*api::get_compute_pipe()->get_chart_display_queue().get(),
+        UI.plot_window_.reset(new gui::PlotWindow(*API.compute.get_compute_pipe()->get_chart_display_queue().get(),
                                                   UI.auto_scale_point_threshold_,
                                                   "Chart"));
     else
@@ -207,7 +210,9 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
 {
     if (enabled)
     {
-        const uint window_size = std::max(256u, std::min(max_window_size, api::get_time_transformation_size()));
+        auto& api = API;
+        const uint window_size =
+            std::max(256u, std::min(max_window_size, api.transform.get_time_transformation_size()));
 
         // set positions of new windows according to the position of the
         // main GL window
@@ -216,19 +221,19 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
 
         UI.sliceXZ.reset(new gui::SliceWindow(xzPos,
                                               QSize(UI.mainDisplay->width(), window_size),
-                                              api::get_compute_pipe()->get_stft_slice_queue(0).get(),
+                                              api.compute.get_compute_pipe()->get_stft_slice_queue(0).get(),
                                               gui::KindOfView::SliceXZ));
         UI.sliceXZ->setTitle("XZ view");
-        UI.sliceXZ->setAngle(api::get_rotation(WindowKind::XZview));
-        UI.sliceXZ->setFlip(api::get_horizontal_flip(WindowKind::XZview));
+        UI.sliceXZ->setAngle(api.window_pp.get_rotation(WindowKind::XZview));
+        UI.sliceXZ->setFlip(api.window_pp.get_horizontal_flip(WindowKind::XZview));
 
         UI.sliceYZ.reset(new gui::SliceWindow(yzPos,
                                               QSize(window_size, UI.mainDisplay->height()),
-                                              api::get_compute_pipe()->get_stft_slice_queue(1).get(),
+                                              api.compute.get_compute_pipe()->get_stft_slice_queue(1).get(),
                                               gui::KindOfView::SliceYZ));
         UI.sliceYZ->setTitle("YZ view");
-        UI.sliceYZ->setAngle(api::get_rotation(WindowKind::YZview));
-        UI.sliceYZ->setFlip(api::get_horizontal_flip(WindowKind::YZview));
+        UI.sliceYZ->setAngle(api.window_pp.get_rotation(WindowKind::YZview));
+        UI.sliceYZ->setFlip(api.window_pp.get_horizontal_flip(WindowKind::YZview));
 
         UI.mainDisplay->getOverlayManager().enable<gui::Cross>();
 
@@ -253,12 +258,12 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
 void rotate_texture()
 {
     // Rotate
-    double rot = api::get_rotation();
+    double rot = API.window_pp.get_rotation();
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
 
-    api::set_rotation(new_rot);
+    API.window_pp.set_rotation(new_rot);
 
-    WindowKind window = api::get_current_window_type();
+    WindowKind window = API.view.get_current_window_type();
     if (window == WindowKind::XYview)
         UI.mainDisplay->setAngle(new_rot);
     else if (UI.sliceXZ && window == WindowKind::XZview)
@@ -269,12 +274,12 @@ void rotate_texture()
 
 void flip_texture()
 {
-    bool flip = api::get_horizontal_flip();
-    api::set_horizontal_flip(!flip);
+    bool flip = API.window_pp.get_horizontal_flip();
+    API.window_pp.set_horizontal_flip(!flip);
 
     flip = !flip;
 
-    WindowKind window = api::get_current_window_type();
+    WindowKind window = API.view.get_current_window_type();
     if (window == WindowKind::XYview)
         UI.mainDisplay->setFlip(flip);
     else if (UI.sliceXZ && window == WindowKind::XZview)
@@ -331,6 +336,8 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
+    UI.record_output_directory_ = std::move(parentPath);
+    UI.output_filename_ = std::move(fileNameWithoutExt);
     UI.record_output_directory_ = std::move(parentPath);
     UI.output_filename_ = std::move(fileNameWithoutExt);
 

@@ -1,5 +1,6 @@
 #include "filter2d_api.hh"
 
+#include "API.hh"
 #include "input_filter.hh"
 #include "tools.hh"
 
@@ -8,25 +9,25 @@ namespace holovibes::api
 
 #pragma region Filter
 
-void set_filter2d_enabled(bool checked)
+void Filter2dApi::set_filter2d_enabled(bool checked) const
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(Filter2dEnabled, checked);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
-void set_filter2d_n1(int value)
+void Filter2dApi::set_filter2d_n1(int value) const
 {
     UPDATE_SETTING(Filter2dN1, value);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
-void set_filter2d_n2(int value)
+void Filter2dApi::set_filter2d_n2(int value) const
 {
     UPDATE_SETTING(Filter2dN2, value);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -35,7 +36,7 @@ void set_filter2d_n2(int value)
 
 inline static const std::filesystem::path dir(GET_EXE_DIR);
 
-void load_input_filter(const std::string& file)
+void Filter2dApi::load_input_filter(const std::string& file) const
 {
     auto& holo = Holovibes::instance();
     try
@@ -52,15 +53,15 @@ void load_input_filter(const std::string& file)
     }
 }
 
-void enable_filter(const std::string& filename)
+void Filter2dApi::enable_filter(const std::string& filename) const
 {
-    if (filename == api::get_filter_file_name())
+    if (filename == get_filter_file_name())
         return;
 
-    if (!get_compute_pipe_no_throw())
+    if (!api_->compute.get_compute_pipe_no_throw())
         return;
 
-    api::set_filter_file_name(filename);
+    set_filter_file_name(filename);
     UPDATE_SETTING(FilterEnabled, !filename.empty());
 
     // There is no file for filtering
@@ -69,7 +70,7 @@ void enable_filter(const std::string& filename)
     else
         load_input_filter(filename);
 
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
