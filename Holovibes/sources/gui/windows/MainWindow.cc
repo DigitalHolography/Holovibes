@@ -169,7 +169,7 @@ MainWindow::MainWindow(QWidget* parent)
     load_gui();
 
     if (api_.input.get_import_type() != ImportType::None)
-        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
+        ui_->ImageRenderingPanel->set_compute_mode(static_cast<int>(api_.compute.get_compute_mode()));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -204,8 +204,8 @@ MainWindow::~MainWindow()
     ui_->menuSelect_preset->clear();
 
     gui::close_windows();
-    api_.compute.close_critical_compute();
-    api_.compute.stop_all_worker_controller();
+    api_.compute.stop();
+    api_.compute.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
@@ -311,10 +311,10 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [&, this]
             {
-                // notify will be in close_critical_compute
-                api_.compute.handle_update_exception();
                 gui::close_windows();
-                api_.compute.close_critical_compute();
+                api_.transform.set_time_transformation_size(1);
+                api_.filter2d.enable_filter("");
+                api_.compute.stop();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
             };
@@ -325,7 +325,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             if (accu)
                 api_.window_pp.set_accumulation_level(1, WindowKind::XYview);
-            api_.compute.close_critical_compute();
+            api_.compute.stop();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
             notify();
@@ -592,7 +592,7 @@ void MainWindow::change_camera(CameraKind c)
     if (api_.input.set_camera_kind(c))
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
+        ui_->ImageRenderingPanel->set_compute_mode(static_cast<int>(api_.compute.get_compute_mode()));
         shift_screen();
     }
 
@@ -681,7 +681,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
     bool composite = img_type == ImgType::Composite || api_.compute.get_img_type() == ImgType::Composite;
 
-    if (api_.compute.set_view_mode(img_type) == ApiCode::OK)
+    if (api_.compute.set_img_type(img_type) == ApiCode::OK)
     {
         // Composite need a refresh of the window since the depth has changed.
         // A better way would be to just update the buffer and texParam of OpenGL

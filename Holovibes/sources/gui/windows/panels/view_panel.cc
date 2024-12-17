@@ -255,7 +255,7 @@ void ViewPanel::save_gui(json& j_us)
     j_us["windows"]["time transformation cuts window max size"] = time_transformation_cuts_window_max_size;
 }
 
-void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
+void ViewPanel::set_img_type(const QString& value) { parent_->set_view_image_type(value); }
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {

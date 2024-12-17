@@ -354,7 +354,10 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     main_loop(holovibes);
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
-    holovibes.stop_all_worker_controller();
+
+    API.compute.stop();
+    holovibes.stop_information_display();
+
     return 0;
 }
 } // namespace cli

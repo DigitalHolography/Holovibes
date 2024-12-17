@@ -12,9 +12,7 @@ namespace holovibes::api
 
 void InputApi::camera_none() const
 {
-    api_->compute.close_critical_compute();
-
-    Holovibes::instance().stop_frame_read();
+    api_->compute.stop();
 
     set_camera_kind_enum(CameraKind::NONE);
     api_->compute.set_is_computation_stopped(true);
@@ -79,8 +77,7 @@ bool InputApi::import_start() const
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
-        Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
+        api_->compute.stop();
         return false;
     }
 
@@ -97,12 +94,9 @@ void InputApi::import_stop() const
 
     LOG_FUNC();
 
-    api_->compute.close_critical_compute();
-
-    Holovibes::instance().stop_all_worker_controller();
-    Holovibes::instance().start_information_display();
-
+    api_->compute.stop();
     api_->compute.set_is_computation_stopped(true);
+
     set_import_type(ImportType::None);
 }
 
@@ -170,23 +164,17 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
     json j_us = json::parse(input_file);
 
     if (save)
+    {
         j_us["camera"]["type"] = c;
+        std::ofstream output_file(path);
+        output_file << j_us.dump(1);
+    }
 
     if (c == CameraKind::NONE)
-    {
-        if (save)
-        {
-            std::ofstream output_file(path);
-            output_file << j_us.dump(1);
-        }
-
         return true;
-    }
+
     try
     {
-        if (api_->compute.get_compute_mode() == Computation::Raw)
-            Holovibes::instance().stop_compute();
-
         set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
 
         try
@@ -212,12 +200,6 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         set_import_type(ImportType::Camera);
         api_->compute.set_is_computation_stopped(false);
 
-        if (save)
-        {
-            std::ofstream output_file(path);
-            output_file << j_us.dump(1);
-        }
-
         return true;
     }
     catch (const camera::CameraException& e)
@@ -227,12 +209,6 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
-    }
-
-    if (save)
-    {
-        std::ofstream output_file(path);
-        output_file << j_us.dump(1);
     }
 
     return false;

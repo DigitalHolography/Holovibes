@@ -308,13 +308,7 @@ class Holovibes
 
     void stop_compute();
 
-    // Always close the 3D cuts before calling this function
-    void stop_all_worker_controller();
-
     void init_pipe();
-
-    /*! \brief Reload the cuda streams when the device is reset */
-    void reload_streams();
 
     /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
      * used to know if queues have to keep contiguity or not. */

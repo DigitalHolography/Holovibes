@@ -332,17 +332,14 @@ void Holovibes::start_compute(const std::function<void()>& callback)
 
 void Holovibes::stop_compute()
 {
+    // Stop record
     frame_record_worker_controller_.stop();
     chart_record_worker_controller_.stop();
-    compute_worker_controller_.stop();
-}
 
-void Holovibes::stop_all_worker_controller()
-{
-    info_worker_controller_.stop();
-    stop_compute();
+    // Stop compute
+    compute_worker_controller_.stop();
+
+    // Stop frame read
     stop_frame_read();
 }
-
-void Holovibes::reload_streams() { cuda_streams_.reload(); }
 } // namespace holovibes

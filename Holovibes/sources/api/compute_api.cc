@@ -5,7 +5,7 @@
 namespace holovibes::api
 {
 
-void ComputeApi::close_critical_compute() const
+void ComputeApi::stop() const
 {
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.disable_convolution();
@@ -23,16 +23,6 @@ void ComputeApi::close_critical_compute() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
-}
-
-void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
-
-void ComputeApi::handle_update_exception() const
-{
-    api_->transform.set_p_index(0);
-    api_->transform.set_time_transformation_size(1);
-    api_->global_pp.disable_convolution();
-    api_->filter2d.enable_filter("");
 }
 
 #pragma region Pipe
@@ -92,17 +82,39 @@ void ComputeApi::create_pipe() const
 
 #pragma endregion
 
+#pragma region Buffer
+
+ApiCode set_output_buffer_size(size_t value) const
+{
+    if (value == get_output_buffer_size())
+        return ApiCode::NO_CHANGE;
+
+    bool rebuild = !get_is_computation_stopped();
+    if (rebuild)
+        stop();
+
+    UPDATE_SETTING(OutputBufferSize, value);
+
+    if (rebuild)
+    {
+        create_pipe();
+        pipe_refresh();
+    }
+
+    return ApiCode::OK;
+}
+
+#pragma endregion
+
 #pragma region Compute Mode
 
-void ComputeApi::set_computation_mode(Computation mode) const
+ApiCode ComputeApi::set_compute_mode(Computation mode) const
 {
-    if (api_->input.get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
-        return;
+    bool rebuild = !get_is_computation_stopped();
+    if (rebuild)
+        stop();
 
-    close_critical_compute();
-
-    set_compute_mode(mode);
-    create_pipe();
+    UPDATE_SETTING(ComputeMode, mode);
 
     if (mode == Computation::Hologram)
     {
@@ -113,33 +125,42 @@ void ComputeApi::set_computation_mode(Computation mode) const
         api_->record.set_record_mode_enum(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
-    pipe_refresh();
+    if (rebuild)
+    {
+        create_pipe();
+        pipe_refresh();
+    }
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Img Type
 
-ApiCode ComputeApi::set_view_mode(const ImgType type) const
+ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
     if (type == get_img_type())
         return ApiCode::NO_CHANGE;
 
-    if (api_->input.get_import_type() == ImportType::None)
-        return ApiCode::NOT_STARTED;
-
     if (get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_MODE;
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (get_is_computation_stopped())
+    {
+        UPDATE_SETTING(ImageType, type);
+        return ApiCode::NO_CHANGE;
+    }
 
     try
     {
         bool composite = type == ImgType::Composite || get_img_type() == ImgType::Composite;
 
-        set_img_type(type);
+        UPDATE_SETTING(ImageType, type);
 
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
-            set_computation_mode(Computation::Hologram);
+            set_compute_mode(Computation::Hologram);
         else
             pipe_refresh();
     }

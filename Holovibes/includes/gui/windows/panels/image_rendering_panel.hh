@@ -41,7 +41,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_computation_mode(int mode);
+    void set_compute_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();

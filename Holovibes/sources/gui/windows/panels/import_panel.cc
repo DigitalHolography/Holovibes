@@ -134,7 +134,7 @@ void ImportPanel::import_start()
 {
     gui::close_windows();
     if (api_.input.import_start())
-        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
+        parent_->ui_->ImageRenderingPanel->set_compute_mode(static_cast<int>(api_.compute.get_compute_mode()));
 }
 
 void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
