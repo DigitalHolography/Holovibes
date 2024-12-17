@@ -27,14 +27,6 @@ void ComputeApi::close_critical_compute() const
 
 void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
 
-void ComputeApi::handle_update_exception() const
-{
-    api_->transform.set_p_index(0);
-    api_->transform.set_time_transformation_size(1);
-    api_->global_pp.disable_convolution();
-    api_->filter2d.enable_filter("");
-}
-
 #pragma region Pipe
 
 void ComputeApi::disable_pipe_refresh() const
@@ -120,26 +112,29 @@ void ComputeApi::set_computation_mode(Computation mode) const
 
 #pragma region Img Type
 
-ApiCode ComputeApi::set_view_mode(const ImgType type) const
+ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
     if (type == get_img_type())
         return ApiCode::NO_CHANGE;
 
-    if (api_->input.get_import_type() == ImportType::None)
-        return ApiCode::NOT_STARTED;
-
     if (get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_MODE;
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (get_is_computation_stopped())
+    {
+        UPDATE_SETTING(ImageType, type);
+        return ApiCode::OK;
+    }
 
     try
     {
         bool composite = type == ImgType::Composite || get_img_type() == ImgType::Composite;
 
-        set_img_type(type);
+        UPDATE_SETTING(ImageType, type);
 
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
-            set_computation_mode(Computation::Hologram);
+            set_compute_mode(Computation::Hologram);
         else
             pipe_refresh();
     }

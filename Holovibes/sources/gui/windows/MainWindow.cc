@@ -312,7 +312,8 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api_.compute.handle_update_exception();
+                api_.transform.set_time_transformation_size(1);
+                api_.filter2d.enable_filter("");
                 gui::close_windows();
                 api_.compute.close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
@@ -670,27 +671,6 @@ void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
 void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
 
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
-
-#pragma endregion
-
-#pragma region Image Mode
-
-void MainWindow::set_view_image_type(const QString& value)
-{
-    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-
-    bool composite = img_type == ImgType::Composite || api_.compute.get_img_type() == ImgType::Composite;
-
-    if (api_.compute.set_view_mode(img_type) == ApiCode::OK)
-    {
-        // Composite need a refresh of the window since the depth has changed.
-        // A better way would be to just update the buffer and texParam of OpenGL
-        if (composite)
-            gui::refresh_window(window_max_size);
-
-        notify();
-    }
-}
 
 #pragma endregion
 

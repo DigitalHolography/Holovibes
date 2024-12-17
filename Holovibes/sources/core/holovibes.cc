@@ -202,6 +202,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         api.input.set_import_type(ImportType::Camera);
+        api.input.set_input_fd(camera_fd);
         init_input_queue(camera_fd, api.input.get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);

@@ -255,7 +255,22 @@ void ViewPanel::save_gui(json& j_us)
     j_us["windows"]["time transformation cuts window max size"] = time_transformation_cuts_window_max_size;
 }
 
-void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
+void ViewPanel::set_img_type(const QString& value)
+{
+    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
+
+    bool composite = img_type == ImgType::Composite || api_.compute.get_img_type() == ImgType::Composite;
+
+    if (api_.compute.set_img_type(img_type) == ApiCode::OK)
+    {
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
+        if (composite)
+            gui::refresh_window(parent_->window_max_size);
+
+        parent_->notify();
+    }
+}
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {

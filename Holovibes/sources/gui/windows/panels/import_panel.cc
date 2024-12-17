@@ -76,20 +76,25 @@ void ImportPanel::import_browse_file()
                                         "(*.cine)"));
 
     // Start importing the chosen
-    import_file(filename);
-}
-
-void ImportPanel::import_file(const QString& filename)
-{
-    // Get the widget (output bar) from the ui linked to the file explorer
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
 
     // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
+    // Import file will then be called since it will trigger the signal `textChanged` of the line edit
+}
+
+void ImportPanel::import_file(const QString& filename)
+{
+    // Get the widget (output bar) from the ui linked to the file explorer
+    LOG_ERROR("ImportPanel::import_file");
+    std::string path = filename.toStdString();
+
+    api_.input.set_input_file_path(path);
+
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
+    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(path);
 
     if (input_file_opt)
     {
@@ -139,10 +144,7 @@ void ImportPanel::import_start()
 
 void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
-void ImportPanel::update_import_file_path()
-{
-    api_.input.set_input_file_path(ui_->ImportPathLineEdit->text().toStdString());
-}
+void ImportPanel::update_import_file_path() { import_file(ui_->ImportPathLineEdit->text()); }
 
 void ImportPanel::update_load_file_in_gpu()
 {

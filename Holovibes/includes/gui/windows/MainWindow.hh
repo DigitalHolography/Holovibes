@@ -139,22 +139,6 @@ class MainWindow : public QMainWindow
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
 
-    /*
-     * Lots of these methods stick to the following scheme:
-     *
-     * * Get pipe
-     * * Set visibility to false
-     * * Check if value is correct/into slot specific bounds
-     * * Update a value in FrameDescriptor of the holovibes object
-     * * Request a pipe refresh
-     * * Set visibility to true
-     */
-    /*! \brief Modifies view image type
-     *
-     * \param value The new image type
-     */
-    void set_view_image_type(const QString& value);
-
     /*! \brief Changes the focused windows */
     void change_window(int index);
 

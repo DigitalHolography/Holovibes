@@ -144,6 +144,9 @@ class InformationApi : public IApi
     /*! \brief Displays information */
     void start_information_display() const;
 
+    /*! \brief Stop the displays of information */
+    void stop_information_display() const;
+
 #pragma endregion
 };
 

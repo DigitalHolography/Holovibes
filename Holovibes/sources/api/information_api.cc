@@ -9,6 +9,8 @@ namespace holovibes::api
 
 void InformationApi::start_information_display() const { Holovibes::instance().start_information_display(); }
 
+void InformationApi::stop_information_display() const { Holovibes::instance().stop_information_display(); }
+
 float InformationApi::get_boundary() const { return Holovibes::instance().get_boundary(); }
 
 const std::string InformationApi::get_documentation_url() const

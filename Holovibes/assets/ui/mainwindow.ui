@@ -4256,7 +4256,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>ViewModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_view_mode(QString)</slot>
+   <slot>set_img_type(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>386</x>
@@ -5899,7 +5899,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_log_enabled(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_registration(bool)</slot>
-  <slot>set_view_mode(QString)</slot>
+  <slot>set_img_type(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>

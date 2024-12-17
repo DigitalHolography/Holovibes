@@ -240,20 +240,20 @@ class InputApi : public IApi
 
 #pragma endregion
 
-  private:
     /*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
      * descriptor.
      *
      * \return camera::FrameDescriptor the frame descriptor of the file
      */
-    camera::FrameDescriptor get_input_fd() const { return GET_SETTING(ImportedFileFd); }
+    camera::FrameDescriptor get_input_fd() const { return GET_SETTING(InputFd); }
 
     /*! \brief Set the frame descriptor of the loaded file.
      *
      * \param[in] value the new frame descriptor
      */
-    void set_input_fd(camera::FrameDescriptor value) const { UPDATE_SETTING(ImportedFileFd, value); }
+    void set_input_fd(camera::FrameDescriptor value) const { UPDATE_SETTING(InputFd, value); }
 
+  private:
     /*! \brief Set the type of camera used or none if no camera is used.
      *
      * \param[in] value the new camera kind

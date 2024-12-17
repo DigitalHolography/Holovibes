@@ -38,7 +38,7 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
-    holovibes::settings::ImportedFileFd,                         \
+    holovibes::settings::InputFd,                                \
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
@@ -369,7 +369,7 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
-                                             settings::ImportedFileFd{camera::FrameDescriptor{}},
+                                             settings::InputFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
