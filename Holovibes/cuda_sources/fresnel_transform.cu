@@ -72,9 +72,9 @@ void fresnel_transform(cuComplex* input,
 
     // No sync needed between kernel call and cufft call
     cudaCheckError();
-    // FFT
 
-    cufftSafeCall(cufftXtExec(plan2D, input, output, CUFFT_FORWARD));
+    // FFT
+    cufftSafeCall(cufftXtExec(plan2D, output, output, CUFFT_FORWARD));
     // Same, no sync needed since everything is executed on the stream 0
 
     cudaCheckError();
