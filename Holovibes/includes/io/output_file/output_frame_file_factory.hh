@@ -1,6 +1,7 @@
-/*! \file
+/*! \file output_frame_file_factory.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the OutputFrameFileFactory class, used to create the right output class depending on the file
+ * extension.
  */
 #pragma once
 

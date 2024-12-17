@@ -1,3 +1,7 @@
+/*! \file fast_updates_holder.hh
+ *
+ * \brief Contains the definition of the FastUpdatesHolder class, used to store and access information at a high rate.
+ */
 #pragma once
 
 #include <unordered_map>

@@ -1,6 +1,7 @@
-/*! \file
+/*! \file BatchInputQueue.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the BatchInputQueue class. This data structure is used to store frames in a circular queue, splited
+ * into batches of size batch_size. The queue is thread-safe and is used as the input data structure for the pipe.
  */
 #pragma once
 

@@ -1,6 +1,6 @@
-/*! \file
+/*! \file cine_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Definition of the CineFile base class and structures related to cine files (inherited for reading cine files).
  */
 #pragma once
 

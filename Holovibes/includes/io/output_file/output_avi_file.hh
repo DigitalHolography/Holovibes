@@ -1,6 +1,6 @@
-/*! \file
+/*! \file output_avi_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Definition of the OutputAviFile class used to handle the writing of avi files
  */
 #pragma once
 
@@ -12,7 +12,7 @@ namespace holovibes::io_files
 {
 /*! \class OutputAviFile
  *
- * \brief #TODO Add a description for this class
+ * \brief Class used to handle the writing of avi files
  */
 class OutputAviFile : public OutputFrameFile, public AviFile
 {

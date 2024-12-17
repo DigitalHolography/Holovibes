@@ -13,7 +13,7 @@ namespace holovibes::api
 
 /*! \brief Return the composite kind
  *
- * \return Either RGB or HSV
+ * \return CompositeKind Either RGB or HSV
  */
 inline CompositeKind get_composite_kind() noexcept { return GET_SETTING(CompositeKind); }
 
@@ -252,7 +252,7 @@ void set_composite_p_min_s(uint value);
 
 /*! \brief Get the Saturation maximum frequency
  *
- * \return the Saturation maximum frequency
+ * \return uint the Saturation maximum frequency
  */
 inline uint get_composite_p_max_s() noexcept { return GET_SETTING(HSV).s.frame_index.max; }
 
@@ -269,7 +269,7 @@ void set_composite_p_max_s(uint value);
  * - \ref holovibes::api::get_composite_p_min_s "min frequency"
  * - \ref holovibes::api::get_composite_p_max_s "max frequency".
  *
- * \return true if the Saturation frequency range is activated
+ * \return bool true if the Saturation frequency range is activated
  */
 inline bool get_composite_p_activated_s() noexcept { return GET_SETTING(HSV).s.frame_index.activated; }
 
@@ -318,7 +318,7 @@ inline void set_slider_s_threshold_max(float value) { SET_SETTING(HSV, s.slider_
 
 /*! \brief Get the Value minimum frequency
  *
- * \return the Value minimum frequency
+ * \return uint the Value minimum frequency
  */
 inline uint get_composite_p_min_v() noexcept { return GET_SETTING(HSV).v.frame_index.min; }
 
@@ -330,7 +330,7 @@ void set_composite_p_min_v(uint value);
 
 /*! \brief Get the Value maximum frequency
  *
- * \return the Value maximum frequency
+ * \return uint the Value maximum frequency
  */
 inline uint get_composite_p_max_v() noexcept { return GET_SETTING(HSV).v.frame_index.max; }
 
@@ -347,7 +347,7 @@ void set_composite_p_max_v(uint value);
  * - \ref holovibes::api::get_composite_p_min_v "min frequency"
  * - \ref holovibes::api::get_composite_p_max_v "max frequency".
  *
- * \return true if the Saturation frequency range is activated
+ * \return bool true if the Saturation frequency range is activated
  */
 inline bool get_composite_p_activated_v() noexcept { return GET_SETTING(HSV).v.frame_index.activated; }
 
@@ -372,21 +372,21 @@ inline void set_composite_p_activated_v(bool value) { SET_SETTING(HSV, v.frame_i
  */
 inline float get_slider_v_threshold_min() noexcept { return GET_SETTING(HSV).v.slider_threshold.min; }
 
-/*! \brief Set the Value threshold maximum value
- *
- * \param[in] value the new Value threshold maximum value
- */
-inline void set_slider_v_threshold_min(float value) { SET_SETTING(HSV, v.slider_threshold.min, value); }
-
 /*! \brief Set the Value threshold minimum value
  *
  * \param[in] value the new Value threshold minimum value
  */
-inline float get_slider_v_threshold_max() noexcept { return GET_SETTING(HSV).v.slider_threshold.max; }
+inline void set_slider_v_threshold_min(float value) { SET_SETTING(HSV, v.slider_threshold.min, value); }
 
 /*! \brief Get the Value threshold maximum value
  *
  * \return float the Value threshold maximum value
+ */
+inline float get_slider_v_threshold_max() noexcept { return GET_SETTING(HSV).v.slider_threshold.max; }
+
+/*! \brief Set the Value threshold maximum value
+ *
+ * \param[in] value the new Value threshold maximum value
  */
 inline void set_slider_v_threshold_max(float value) { SET_SETTING(HSV, v.slider_threshold.max, value); }
 

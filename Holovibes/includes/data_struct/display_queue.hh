@@ -1,6 +1,6 @@
-/*! \file
+/*! \file display_queue.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the DisplayQueue interface. It's used by the UI to fetch the last image in the queue.
  */
 #pragma once
 
@@ -10,7 +10,7 @@ namespace holovibes
 {
 /*! \class DisplayQueue
  *
- * \brief #TODO Add a description for this class
+ * \brief An interface used by the UI to fetch the last image in the queue.
  */
 class DisplayQueue
 {
@@ -20,16 +20,23 @@ class DisplayQueue
     {
     }
 
-    /*! Return the last image in the Queue of nullptr if the Queue is empty
+    /*! \brief Returns the last image in the Queue of nullptr if the Queue is empty
      *
-     * \return The last image of size fd.frame_res or nullptr if no frame
+     * \return void* The last image of size fd.frame_res or nullptr if no frame
      */
     virtual void* get_last_image() const = 0;
 
+    /*! \brief Returns the frame descriptor of the queue
+     *
+     * \return camera::FrameDescriptor& The frame descriptor
+     */
     const camera::FrameDescriptor& get_fd() const { return fd_; }
 
   protected:
-    /*! \brief Sets the frame descriptor of the queue */
+    /*! \brief Sets the frame descriptor of the queue
+     *
+     * \param[in] fd The frame descriptor
+     */
     void set_fd(const camera::FrameDescriptor& fd) { fd_ = fd; }
 
   protected:

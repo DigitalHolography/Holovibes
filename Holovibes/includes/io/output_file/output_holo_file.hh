@@ -1,6 +1,7 @@
-/*! \file
+/*! \file output_holo_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the OutputHoloFile class, responsible for exporting data to a .holo file. The saved file can be
+ * reopend with the Holovibes application and additional computation can be performed on it.
  */
 #pragma once
 
@@ -12,7 +13,8 @@ namespace holovibes::io_files
 {
 /*! \class OutputHoloFile
  *
- * \brief #TODO Add a description for this class
+ * \brief Class responsible for exporting data to a .holo file. The saved file can be reopend with Holovibes since both
+ * images and computation settings are saved.
  */
 class OutputHoloFile : public OutputFrameFile, public HoloFile
 {

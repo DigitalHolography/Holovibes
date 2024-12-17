@@ -1,6 +1,7 @@
-/*! \file
+/*! \file holo_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Contains the definition of the Holofile base class (inherited for reading and writing holo files) and the
+ * HoloFileHeader struct
  *
  * Holovibes file format
  *
@@ -30,7 +31,6 @@
 #include "compute_settings_struct.hh"
 using json = ::nlohmann::json;
 
-/*! \brief #TODO Add a description for this namespace */
 namespace holovibes::io_files
 {
 /*! \class HoloFile

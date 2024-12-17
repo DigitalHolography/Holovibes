@@ -1,4 +1,4 @@
-/*! \file
+/*! \file GUI.hh
  *
  * \brief This file contains the GUI API functions for the Holovibes application. These functions manage UI window and
  * recurent functions. They can call the API

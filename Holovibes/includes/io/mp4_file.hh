@@ -1,6 +1,6 @@
-/*! \file
+/*! \file mp4_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This file contains the Mp4File base class (inherited for writing mp4 files).
  */
 #pragma once
 
@@ -8,7 +8,7 @@ namespace holovibes::io_files
 {
 /*! \class Mp4File
  *
- * \brief #TODO Add a description for this class
+ * \brief Base class of mp4 files.
  */
 class Mp4File
 {

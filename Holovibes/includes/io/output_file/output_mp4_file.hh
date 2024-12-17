@@ -1,6 +1,6 @@
-/*! \file
+/*! \file output_mp4_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This file contains the OutputMp4File class, responsible for exporting data to a .mp4 file.
  */
 #pragma once
 
@@ -12,7 +12,7 @@ namespace holovibes::io_files
 {
 /*! \class OutputMp4File
  *
- * \brief #TODO Add a description for this class
+ * \brief Class responsible for exporting data to a .mp4 file.
  */
 class OutputMp4File : public OutputFrameFile, public Mp4File
 {

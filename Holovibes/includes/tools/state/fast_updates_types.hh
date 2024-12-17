@@ -1,10 +1,9 @@
-#pragma once
-
-#include "enum_device.hh"
-
 /*!
  * \file fast_updates_types.hh
- * \brief Documentation on how to add entry types to the FastUpdatesHolder class
+ *
+ * \brief Defines the types used by the FastUpdatesHolder system
+ *
+ * Documentation on how to add entry types to the FastUpdatesHolder class
  *
  * First decide for an Enum name (named TKey in the following) and an Value type (named TValue in the following)
  *
@@ -18,6 +17,9 @@
  *     using value = TValue;
  * };
  */
+#pragma once
+
+#include "enum_device.hh"
 
 namespace holovibes
 {
