@@ -106,53 +106,73 @@ void InputApi::import_stop() const
     set_import_type(ImportType::None);
 }
 
-std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string& filename) const
+std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string& filename,
+                                                               const std::string& json_path) const
 {
-    if (!filename.empty())
+    if (filename.empty())
     {
-        io_files::InputFrameFile* input = nullptr;
+        LOG_ERROR("Empty filename");
+        return std::nullopt;
+    }
 
-        // Try to open the file
-        try
+    io_files::InputFrameFile* input = nullptr;
+
+    // Try to open the file
+    try
+    {
+        input = io_files::InputFrameFileFactory::open(filename);
+    }
+    catch (const io_files::FileException& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+        return std::nullopt;
+    }
+
+    // Set settings
+    set_input_fd(input->get_frame_descriptor());
+    set_input_file_path(filename);
+    set_input_file_start_index(0);
+    set_input_file_end_index(input->get_total_nb_frames());
+
+    if (!input->get_has_footer())
+    {
+        if (!json_path.empty())
         {
-            input = io_files::InputFrameFileFactory::open(filename);
+            LOG_INFO("No footer. Initialization with: {}", json_path);
+            API.settings.load_compute_settings(json_path);
         }
-        catch (const io_files::FileException& e)
-        {
-            LOG_ERROR("Catch {}", e.what());
-            return std::nullopt;
-        }
-
-        // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
-        // record
-        auto input_buffer_size = get_input_buffer_size();
-        auto record_buffer_size = api_->record.get_record_buffer_size();
-
-        // Import Compute Settings there before init_pipe to
-        // Allocate correctly buffer
-        try
-        {
-            input->import_compute_settings();
-            input->import_info();
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR("Catch {}", e.what());
-            LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
-            API.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
-        }
-
-        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
-        // buffers used when the file was recorded
-        set_input_buffer_size(input_buffer_size);
-        api_->record.set_record_buffer_size(record_buffer_size);
-
-        set_input_fd(input->get_frame_descriptor());
 
         return input;
     }
 
-    return std::nullopt;
+    // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+    // record
+    auto input_buffer_size = get_input_buffer_size();
+    auto record_buffer_size = api_->record.get_record_buffer_size();
+
+    // Try importing the compute settings from the file. If it fails, we will use the default values
+    try
+    {
+        input->import_compute_settings();
+        input->import_info();
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+
+        if (!json_path.empty())
+        {
+            LOG_INFO("Compute settings incorrect or file not found. Initialization with: {}", json_path);
+            API.settings.load_compute_settings(json_path);
+        }
+    }
+
+    // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
+    // buffers used when the file was recorded
+    set_input_buffer_size(input_buffer_size);
+    api_->record.set_record_buffer_size(record_buffer_size);
+
+    return input;
 }
 
 #pragma endregion

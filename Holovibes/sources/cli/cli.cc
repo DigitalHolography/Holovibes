@@ -128,15 +128,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     std::string input_path = opts.input_path.value();
     auto& api = API;
 
-    api.input.set_input_file_path(input_path);
-
-    holovibes::io_files::InputFrameFile* input_frame_file =
-        holovibes::io_files::InputFrameFileFactory::open(input_path);
-    if (!input_frame_file)
+    std::optional<holovibes::io_files::InputFrameFile*> input_frame_file_opt = api.input.import_file(input_path, "");
+    if (!input_frame_file_opt)
     {
         LOG_ERROR("Failed to open input file");
         return 33;
     }
+
+    holovibes::io_files::InputFrameFile* input_frame_file = input_frame_file_opt.value();
 
     // To load parameters, we now load before the footer and then the config file so that the config file overwrite the
     // footer
@@ -145,23 +144,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_ERROR("No compute settings file provided and no footer found in input file");
         return 35;
     }
-    if (input_frame_file->get_has_footer())
-    {
-        LOG_DEBUG("loading pixel size");
-        // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
-        // the footer and then import info
-        try
-        {
-            input_frame_file->import_compute_settings();
-            input_frame_file->import_info();
-        }
-        catch (std::exception& e)
-        {
-            LOG_ERROR("{}", e.what());
-            LOG_ERROR("Error while loading compute settings from footer, abort");
-            return 34;
-        }
-    }
+
     if (opts.compute_settings_path)
     {
         try

@@ -87,20 +87,15 @@ void ImportPanel::import_browse_file()
 
 void ImportPanel::import_file(const QString& filename)
 {
-    // Get the widget (output bar) from the ui linked to the file explorer
-    LOG_ERROR("ImportPanel::import_file");
-    std::string path = filename.toStdString();
-
-    api_.input.set_input_file_path(path);
+    if (filename.isEmpty())
+        return;
 
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(path);
+    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
 
     if (input_file_opt)
     {
         auto input_file = input_file_opt.value();
-
-        parent_->notify();
 
         // Gather data from the newly opened file
         int nb_frames = static_cast<int>(input_file->get_total_nb_frames());
@@ -108,15 +103,9 @@ void ImportPanel::import_file(const QString& filename)
         // Don't need the input file anymore
         delete input_file;
 
-        // Update the ui with the gathered data
         // The start index cannot exceed the end index
         ui_->ImportStartIndexSpinBox->setMaximum(nb_frames);
         ui_->ImportEndIndexSpinBox->setMaximum(nb_frames);
-
-        // Changing the settings is straight-up better than changing the UI
-        // This whole logic will need to go in the API at one point
-        api_.input.set_input_file_start_index(0);
-        api_.input.set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);

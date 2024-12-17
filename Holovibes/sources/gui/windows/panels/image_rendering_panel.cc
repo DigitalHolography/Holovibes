@@ -159,7 +159,7 @@ void ImageRenderingPanel::set_computation_mode(int mode)
     if (comp_mode == Computation::Hologram)
     {
         /* Filter2D */
-        camera::FrameDescriptor fd = api_.input.get_fd();
+        camera::FrameDescriptor fd = api_.input.get_input_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
 
@@ -188,7 +188,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = api_.input.get_fd();
+        const camera::FrameDescriptor& fd = api_.input.get_input_fd();
         const int size_max = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
         ui_->Filter2DN2SpinBox->setMaximum(size_max);
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
