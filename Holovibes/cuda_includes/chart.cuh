@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief  declaration function use for chart computation
  */
 #pragma once
 

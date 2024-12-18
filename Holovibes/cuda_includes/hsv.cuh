@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of hsv function
  */
 #pragma once
 
@@ -15,6 +15,18 @@ enum HSV
     V = 2
 };
 
+/*!
+ * \brief Create rgb color by using hsv computation and then converting to rgb
+ *
+ * \param d_input complex input buffer, on gpu side, size = width * height * time_transformation_size
+ * \param d_output float output buffer, on gpu side, size = width * height * 3
+ * \param width Width of the frame
+ * \param height Height of the frame
+ * \param stream Cuda stream used
+ * \param time_transformation_size Depth of the frame cube
+ * \param hsv_struct Struct containing all the UI parameters
+ * \param checked TODO
+ */
 void hsv(const cuComplex* d_input,
          float* d_output,
          const uint width,

@@ -400,32 +400,24 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
     apply_operations(tmp_hsv_arr, height, width, hsv_struct.v, HSV::V, stream);
 }
 
-/// @brief Create rgb color by using hsv computation and then converting to rgb
-/// @param gpu_input complex input buffer, on gpu side, size = width * height * time_transformation_size
-/// @param gpu_output float output buffer, on gpu side, size = width * height * 3
-/// @param width Width of the frame
-/// @param height Height of the frame
-/// @param stream Cuda stream used
-/// @param time_transformation_size Depth of the frame cube
-/// @param hsv_struct Struct containing all the UI parameters
-void hsv(const cuComplex* gpu_input,
-         float* gpu_output,
+void hsv(const cuComplex* d_input,
+         float* d_output,
          const uint width,
          const uint height,
          const cudaStream_t stream,
          const int time_transformation_size,
          const holovibes::CompositeHSV& hsv_struct,
-         bool z_fft_shift)
+         bool checked)
 {
     const uint frame_res = height * width;
 
     float* tmp_hsv_arr = nullptr;
     cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
-    compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
+    compute_and_fill_hsv(d_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size, checked);
 
     apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
 
-    normalized_convert_hsv_to_rgb(tmp_hsv_arr, gpu_output, frame_res, stream);
+    normalized_convert_hsv_to_rgb(tmp_hsv_arr, d_output, frame_res, stream);
 
     cudaXFree(tmp_hsv_arr);
 }
