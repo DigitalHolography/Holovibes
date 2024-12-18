@@ -169,7 +169,7 @@ MainWindow::MainWindow(QWidget* parent)
     load_gui();
 
     if (api_.input.get_import_type() != ImportType::None)
-        start();
+        gui::start(window_max_size);
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -587,13 +587,10 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
-    ui_->ImportPanel->import_stop();
+    gui::stop();
 
     if (api_.input.set_camera_kind(c))
-    {
-        start();
-        notify();
-    }
+        gui::start(window_max_size);
 }
 
 void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
@@ -673,24 +670,13 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 void MainWindow::change_window(int index)
 {
     api_.view.change_window(static_cast<WindowKind>(index));
-
     notify();
 }
 
 void MainWindow::start_import(QString filename)
 {
     ui_->ImportPanel->import_file(filename);
-    start();
-}
-
-void MainWindow::start()
-{
-    gui::close_windows();
-    if (api_.compute.start() == ApiCode::OK)
-    {
-        gui::create_window(api_.compute.get_compute_mode(), window_max_size);
-        shift_screen();
-    }
+    gui::start(window_max_size);
 }
 
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
@@ -753,16 +739,6 @@ void MainWindow::reset_settings()
 #pragma endregion
 
 #pragma region UI
-
-void MainWindow::shift_screen()
-{
-    return;
-    // we want to remain at the position indicated in the user_settings.json
-    QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int screen_height = rec.height();
-    int screen_width = rec.width();
-    move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
-}
 
 void MainWindow::open_light_ui()
 {

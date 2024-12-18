@@ -198,30 +198,56 @@ class Holovibes
     /*! \name Queue getters
      * \{
      */
-    /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_input_queue();
-
-    /*! \brief Used to display frames */
-    std::shared_ptr<Queue> get_gpu_output_queue();
-    /*! \} */
-
-    /*!
-     * \brief Used to record frames
+    /*! \brief Return the input queue (the one storing the input frames)
+     *
+     * \return std::shared_ptr<BatchInputQueue> The input queue
      */
-    std::atomic<std::shared_ptr<Queue>> get_record_queue();
+    inline std::shared_ptr<BatchInputQueue> get_input_queue() const { return input_queue_.load(); }
+
+    /*! \brief Return the record queue (the one storing the computed frames before saving)
+     *
+     * \return std::shared_ptr<Queue> The record queue
+     */
+    inline std::atomic<std::shared_ptr<Queue>> get_record_queue() const { return record_queue_.load(); }
+    /*! \} */
 
     /*! \name Getters/Setters
      * \{
      */
-    std::shared_ptr<Pipe> get_compute_pipe();
-    std::shared_ptr<Pipe> get_compute_pipe_no_throw();
+    /*! \brief Return the compute pipe and throw if no pipe.
+     * user.
+     *
+     * \return std::shared_ptr<Pipe> The compute pipe
+     * \throw std::runtime_error If the compute pipe is not initialized
+     */
+    inline std::shared_ptr<Pipe> get_compute_pipe()
+    {
+        auto loaded = compute_pipe_.load();
+        if (!loaded)
+            throw std::runtime_error("Pipe is not initialized");
 
-    const CudaStreams& get_cuda_streams() const;
+        return loaded;
+    }
 
-    /*! \return Corresponding Camera INI file path */
-    const char* get_camera_ini_name() const;
+    /*! \brief Return the compute pipe.
+     *
+     * \return std::shared_ptr<Pipe> The compute pipe
+     */
+    inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() const { return compute_pipe_.load(); }
 
-    /*! \brief Say if the worker recording raw/holo/cuts is running.
+    /*! \brief Return the cuda streams
+     *
+     * \return const CudaStreams& The cuda streams
+     */
+    inline const Holovibes::CudaStreams& get_cuda_streams() const { return cuda_streams_; }
+
+    /*! \brief Return the path of the camera INI file used.
+     *
+     * \return const char* the path of the camera INI file of the current camera.
+     */
+    inline const char* get_camera_ini_name() const { return active_camera_->get_ini_name(); }
+
+    /*! \brief Return whether the recording worker is running or not
      *
      * \return bool true if recording, else false
      */
@@ -281,14 +307,9 @@ class Holovibes
 
     void stop_information_display();
 
-    /*! \brief Start compute worker */
-    void start_compute_worker();
-
     void start_compute();
 
     void stop_compute();
-
-    void init_pipe();
 
     /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
      * used to know if queues have to keep contiguity or not. */
@@ -452,5 +473,3 @@ class Holovibes
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 };
 } // namespace holovibes
-
-#include "holovibes.hxx"

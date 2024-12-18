@@ -69,14 +69,8 @@ class MainWindow : public QMainWindow
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
 
-    /*! \brief Stops critical compute */
-    void close_critical_compute();
-
     /*! \brief Start the import process */
     void start_import(QString filename);
-
-    /*! \brief Start the computation process and open the window */
-    void start();
 
     void set_preset_file_on_gpu();
 
@@ -144,8 +138,6 @@ class MainWindow : public QMainWindow
 
     /*! \brief Changes the focused windows */
     void change_window(int index);
-
-    void shift_screen();
 
     /**
      * @brief Open light ui panel and hide this one

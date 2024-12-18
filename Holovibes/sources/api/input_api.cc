@@ -15,10 +15,7 @@ void InputApi::camera_none() const
 {
     api_->compute.close_critical_compute();
 
-    Holovibes::instance().stop_frame_read();
-
     set_camera_kind_enum(CameraKind::NONE);
-    api_->compute.set_is_computation_stopped(true);
     set_import_type(ImportType::None);
 }
 
@@ -55,17 +52,6 @@ void InputApi::set_input_file_end_index(size_t value) const
 #pragma endregion
 
 #pragma region File Import
-
-void InputApi::import_stop() const
-{
-    if (get_import_type() == ImportType::None)
-        return;
-
-    LOG_FUNC();
-
-    api_->compute.close_critical_compute();
-    api_->compute.set_is_computation_stopped(true);
-}
 
 std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string& filename,
                                                                const std::string& json_path) const
@@ -124,6 +110,13 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     {
         input->import_compute_settings();
         input->import_info();
+
+        // When reading moments, the batch size must be forced to 3. Because they are 3 moments per frame.
+        if (get_data_type() == RecordedDataType::MOMENTS)
+        {
+            api_->transform.set_batch_size(3);
+            api_->transform.set_time_stride(3);
+        }
     }
     catch (const std::exception& e)
     {

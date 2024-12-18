@@ -10,6 +10,24 @@
 namespace holovibes::gui
 {
 
+void start(ushort window_size)
+{
+    close_windows();
+    if (API.compute.start() == ApiCode::OK)
+    {
+        create_window(API.compute.get_compute_mode(), window_size);
+        NotifierManager::notify("notify", true);
+    }
+}
+
+/*! \brief Stop the computation and close all windows */
+void stop()
+{
+    close_windows();
+    API.compute.close_critical_compute();
+    NotifierManager::notify("notify", true);
+}
+
 void set_light_ui_mode(bool value)
 {
     auto path = holovibes::settings::user_settings_filepath;

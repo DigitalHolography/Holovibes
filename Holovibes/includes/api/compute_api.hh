@@ -18,23 +18,16 @@ class ComputeApi : public IApi
     {
     }
 
+#pragma region Compute
+
     /*! \brief Return whether the computation is stopped or not.
      *
      * \return bool True if the computation is stopped, false otherwise
      */
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
-    /*! \brief Sets whether the computation is stopped or not.
-     *
-     * \param[in] value True to stop the computation, false otherwise
-     */
-    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
-
-    /*! \brief Stops the pipe. */
+    /*! \brief Stops the pipe and the file/camera reading. */
     void close_critical_compute() const;
-
-    /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
-    void loaded_moments_data() const;
 
     /*! \brief Starts the computation. This function will:
      * - init the input_queue if not initialized
@@ -44,6 +37,8 @@ class ComputeApi : public IApi
      * - start the frame read worker
      */
     ApiCode start() const;
+
+#pragma endregion
 
 #pragma region Buffer
 
@@ -152,6 +147,13 @@ class ComputeApi : public IApi
     ApiCode set_computation_mode(Computation mode) const;
 
 #pragma endregion
+
+  private:
+    /*! \brief Sets whether the computation is stopped or not.
+     *
+     * \param[in] value True to stop the computation, false otherwise
+     */
+    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
 };
 
 } // namespace holovibes::api

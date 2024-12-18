@@ -5,6 +5,8 @@
 namespace holovibes::api
 {
 
+#pragma region Compute
+
 void ComputeApi::close_critical_compute() const
 {
     if (get_is_computation_stopped())
@@ -26,6 +28,8 @@ void ComputeApi::close_critical_compute() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
+    set_is_computation_stopped(true);
+
     Holovibes::instance().stop_frame_read();
 }
 
@@ -39,8 +43,7 @@ ApiCode ComputeApi::start() const
         close_critical_compute();
 
     // Create the pipe and start the pipe
-    Holovibes::instance().init_pipe();
-    Holovibes::instance().start_compute_worker();
+    Holovibes::instance().start_compute();
     set_is_computation_stopped(false);
 
     if (api_->global_pp.get_convolution_enabled())
@@ -58,6 +61,8 @@ ApiCode ComputeApi::start() const
 
     return ApiCode::OK;
 }
+
+#pragma endregion
 
 #pragma region Pipe
 
@@ -161,13 +166,6 @@ ApiCode ComputeApi::set_img_type(const ImgType type) const
     }
 
     return ApiCode::OK;
-}
-
-void ComputeApi::loaded_moments_data() const
-{
-    api_->transform.set_batch_size(3);  // Moments are read in batch of 3 (since there are three moments)
-    api_->transform.set_time_stride(3); // The user can change the time stride, but setting it to 3
-                                        // is a good basis to analyze moments
 }
 
 #pragma endregion

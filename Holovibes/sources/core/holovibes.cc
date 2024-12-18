@@ -177,7 +177,7 @@ void Holovibes::start_information_display()
 
 void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
-void Holovibes::init_pipe()
+void Holovibes::start_compute()
 {
     LOG_FUNC();
     init_input_queue(API.input.get_input_fd(), API.input.get_input_buffer_size());
@@ -190,38 +190,11 @@ void Holovibes::init_pipe()
                                                    get_cuda_streams().compute_stream,
                                                    realtime_settings_.settings_));
     }
-}
 
-void Holovibes::start_compute_worker()
-{
     compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
 
     compute_worker_controller_.start(compute_pipe_);
-}
-
-void Holovibes::start_compute()
-{
-    /**
-     * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
-     * Here is a suggestion :
-     * // CHECK(!!input_queue_.load()) << "Input queue not initialized";
-     */
-    CHECK(input_queue_.load() != nullptr, "Input queue not initialized");
-    try
-    {
-        init_pipe();
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-        return;
-    }
-
-    start_compute_worker();
-
-    while (!compute_pipe_.load())
-        continue;
 }
 
 void Holovibes::stop_compute()

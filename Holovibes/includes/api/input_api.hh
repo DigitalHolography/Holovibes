@@ -149,9 +149,6 @@ class InputApi : public IApi
 
 #pragma region File Import
 
-    /*! \brief Stops the importing of the file and all computation */
-    void import_stop() const;
-
     /*! \brief Load the file at the given filename. This function will set the file path, the start index to 0, the end
      * index to the number of frames in the file and the frame descriptor.
      *

@@ -210,7 +210,7 @@ void FrameRecordWorker::wait_for_frames()
 
 void FrameRecordWorker::reset_record_queue()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
+    auto pipe = API.compute.get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
     record_queue_.load()->reset();
 }

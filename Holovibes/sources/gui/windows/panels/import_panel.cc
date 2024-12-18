@@ -116,15 +116,10 @@ void ImportPanel::import_file(const QString& filename)
         set_start_stop_buttons(false);
 }
 
-void ImportPanel::import_stop()
-{
-    gui::close_windows();
-    api_.input.import_stop();
-    parent_->notify();
-}
+void ImportPanel::import_stop() { gui::stop(); }
 
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
-void ImportPanel::import_start() { parent_->start(); }
+void ImportPanel::import_start() { gui::start(parent_->window_max_size); }
 
 void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
