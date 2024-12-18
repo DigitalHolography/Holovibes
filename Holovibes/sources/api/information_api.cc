@@ -50,11 +50,7 @@ void get_information(Information* info)
 
     info->queues.clear();
     for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
-    {
-        info->queues[key] = {
-            key,
-        }
-    }
+        info->queues[key] = {std::get<0>(*value).load(), std::get<1>(*value).load(), std::get<2>(*value).load()};
 }
 
 #pragma endregion
