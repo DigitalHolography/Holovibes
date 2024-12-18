@@ -221,17 +221,6 @@ class Holovibes
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_name() const;
 
-    /*! \brief Get zb = N d^2 / lambda
-     *
-     * Is updated everytime the camera changes or lamdba changes
-     * N = frame height
-     * d = pixel size
-     * lambda = wavelength
-     *
-     * \return const float
-     */
-    const float get_boundary();
-
     /*! \brief Say if the worker recording raw/holo/cuts is running.
      *
      * \return bool true if recording, else false
@@ -293,19 +282,13 @@ class Holovibes
     void stop_information_display();
 
     /*! \brief Start compute worker */
-    void start_compute_worker(const std::function<void()>& callback = []() {});
+    void start_compute_worker();
 
-    void start_compute(const std::function<void()>& callback = []() {});
+    void start_compute();
 
     void stop_compute();
 
-    // Always close the 3D cuts before calling this function
-    void stop_all_worker_controller();
-
     void init_pipe();
-
-    /*! \brief Reload the cuda streams when the device is reset */
-    void reload_streams();
 
     /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
      * used to know if queues have to keep contiguity or not. */

@@ -205,7 +205,7 @@ MainWindow::~MainWindow()
 
     gui::close_windows();
     api_.compute.close_critical_compute();
-    api_.compute.stop_all_worker_controller();
+    api_.information.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
@@ -311,7 +311,6 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [&, this]
             {
-                // notify will be in close_critical_compute
                 api_.transform.set_time_transformation_size(1);
                 api_.filter2d.enable_filter("");
                 gui::close_windows();

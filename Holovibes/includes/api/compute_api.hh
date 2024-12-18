@@ -33,9 +33,6 @@ class ComputeApi : public IApi
     /*! \brief Stops the pipe. */
     void close_critical_compute() const;
 
-    /*! \brief Stops holovibes' controllers for computation*/
-    void stop_all_worker_controller() const;
-
     /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
     void loaded_moments_data() const;
 
@@ -104,14 +101,14 @@ class ComputeApi : public IApi
     };
 
     /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh() const;
+    ApiCode pipe_refresh() const;
 
     /*! \brief Enables the pipe refresh */
-    void enable_pipe_refresh() const;
+    ApiCode enable_pipe_refresh() const;
 
     /*! \brief Disables the pipe refresh. You must enable pipe refresh after otherwise computations will be weird. Use
      * with caution. */
-    void disable_pipe_refresh() const;
+    ApiCode disable_pipe_refresh() const;
 
 #pragma endregion
 

@@ -64,10 +64,6 @@ void InputApi::import_stop() const
     LOG_FUNC();
 
     api_->compute.close_critical_compute();
-
-    Holovibes::instance().stop_all_worker_controller();
-    Holovibes::instance().start_information_display();
-
     api_->compute.set_is_computation_stopped(true);
 }
 

@@ -423,8 +423,7 @@ void InformationWorker::write_information(std::ofstream& csvFile)
     csvFile << gpu_memory_controller_load_as_number() << ",";
 
     // Exemple d'écriture dans le fichier CSV pour la limite z
-    csvFile << Holovibes::instance().get_boundary();
-
+    csvFile << API.information.get_boundary();
     csvFile << "\n";
 }
 

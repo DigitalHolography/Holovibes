@@ -18,18 +18,6 @@ Holovibes& Holovibes::instance()
     return instance;
 }
 
-const float Holovibes::get_boundary()
-{
-    if (input_queue_.load())
-    {
-        FrameDescriptor fd = input_queue_.load()->get_fd();
-        const float d = API.input.get_pixel_size() * 0.000001f;
-        const float n = static_cast<float>(fd.height);
-        return (n * d * d) / API.transform.get_lambda();
-    }
-    return 0.f;
-}
-
 bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
 
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
@@ -61,6 +49,7 @@ void Holovibes::init_record_queue()
     {
         LOG_DEBUG("RecordMode = Hologram");
 
+        fd.depth = camera::PixelDepth::Bits16;
         if (api.compute.get_img_type() == ImgType::Composite)
             fd.depth = camera::PixelDepth::Bits48;
 
@@ -203,16 +192,15 @@ void Holovibes::init_pipe()
     }
 }
 
-void Holovibes::start_compute_worker(const std::function<void()>& callback)
+void Holovibes::start_compute_worker()
 {
-    compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
 
     compute_worker_controller_.start(compute_pipe_);
 }
 
-void Holovibes::start_compute(const std::function<void()>& callback)
+void Holovibes::start_compute()
 {
     /**
      * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
@@ -230,7 +218,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
         return;
     }
 
-    start_compute_worker(callback);
+    start_compute_worker();
 
     while (!compute_pipe_.load())
         continue;
@@ -243,12 +231,4 @@ void Holovibes::stop_compute()
     compute_worker_controller_.stop();
 }
 
-void Holovibes::stop_all_worker_controller()
-{
-    info_worker_controller_.stop();
-    stop_compute();
-    stop_frame_read();
-}
-
-void Holovibes::reload_streams() { cuda_streams_.reload(); }
 } // namespace holovibes

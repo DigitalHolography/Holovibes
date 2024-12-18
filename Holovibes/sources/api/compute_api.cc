@@ -26,9 +26,8 @@ void ComputeApi::close_critical_compute() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
+    Holovibes::instance().stop_frame_read();
 }
-
-void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
 
 ApiCode ComputeApi::start() const
 {
@@ -37,14 +36,19 @@ ApiCode ComputeApi::start() const
 
     // Stop any computation currently running and file reading
     if (!get_is_computation_stopped())
-    {
         close_critical_compute();
-        Holovibes::instance().stop_frame_read();
-    }
 
+    // Create the pipe and start the pipe
     Holovibes::instance().init_pipe();
     Holovibes::instance().start_compute_worker();
     set_is_computation_stopped(false);
+
+    if (api_->global_pp.get_convolution_enabled())
+    {
+        api_->global_pp.load_convolution_matrix(api_->global_pp.get_convolution_file_name());
+        get_compute_pipe()->request(ICS::Convolution);
+    }
+
     pipe_refresh();
 
     if (api_->input.get_import_type() == ImportType::Camera)
@@ -57,50 +61,35 @@ ApiCode ComputeApi::start() const
 
 #pragma region Pipe
 
-void ComputeApi::disable_pipe_refresh() const
+ApiCode ComputeApi::disable_pipe_refresh() const
 {
     if (get_is_computation_stopped())
-        return;
+        return ApiCode::NOT_STARTED;
 
-    try
-    {
-        get_compute_pipe()->clear_request(ICS::RefreshEnabled);
-    }
-    catch (const std::runtime_error&)
-    {
-        LOG_DEBUG("Pipe not initialized: {}", e.what());
-    }
+    get_compute_pipe()->clear_request(ICS::RefreshEnabled);
+
+    return ApiCode::OK;
 }
 
-void ComputeApi::enable_pipe_refresh() const
+ApiCode ComputeApi::enable_pipe_refresh() const
 {
     if (get_is_computation_stopped())
-        return;
+        return ApiCode::NOT_STARTED;
 
-    try
-    {
-        get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
-    }
-    catch (const std::runtime_error&)
-    {
-        LOG_DEBUG("Pipe not initialized: {}", e.what());
-    }
+    get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
+
+    return ApiCode::OK;
 }
 
-void ComputeApi::pipe_refresh() const
+ApiCode ComputeApi::pipe_refresh() const
 {
     if (get_is_computation_stopped())
-        return;
+        return ApiCode::NOT_STARTED;
 
-    try
-    {
-        LOG_TRACE("pipe_refresh");
-        get_compute_pipe()->request_refresh();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("{}", e.what());
-    }
+    LOG_TRACE("pipe_refresh");
+    get_compute_pipe()->request_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

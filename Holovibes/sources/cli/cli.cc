@@ -30,9 +30,7 @@ static void progress_bar(int current, int total, int length)
 
     text += '[';
     if (n == length)
-    {
         text.append(n, '=');
-    }
     else if (n > 0)
     {
         text.append(n - 1, '=');
@@ -47,41 +45,23 @@ static void progress_bar(int current, int total, int length)
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
-    LOG_INFO("Config:");
-
+    LOG_INFO("===== Config =====");
     LOG_INFO("Input file: {}", opts.input_path.value());
     LOG_INFO("Output file: {}", opts.output_path.value());
     LOG_INFO("FPS: {}", opts.fps.value_or(DEFAULT_CLI_FPS));
+
     LOG_INFO("Number of frames to record: ");
     if (opts.n_rec)
-    {
         LOG_INFO("{}", opts.n_rec.value());
-    }
     else
-    {
         LOG_INFO("full file");
-    }
+
     LOG_INFO("Raw recording: {}", opts.record_raw);
     LOG_INFO("Skip accumulation frames: {}", !opts.noskip_acc);
-    LOG_INFO("Number of frames to skip between each frame: ");
-    if (opts.frame_skip)
-    {
-        LOG_INFO("{}", opts.frame_skip.value());
-    }
-    else
-    {
-        LOG_INFO("0");
-    }
-    LOG_INFO("Number of Mp4 fps: ");
-    if (opts.mp4_fps)
-    {
-        LOG_INFO("{}", opts.mp4_fps.value());
-    }
-    else
-    {
-        LOG_INFO("24");
-    }
+    LOG_INFO("Number of frames to skip between each frame: {}", opts.frame_skip ? opts.frame_skip.value() : 0);
+    LOG_INFO("Number of Mp4 fps: {}", opts.mp4_fps ? opts.mp4_fps.value() : 24);
     LOG_INFO("Moments record: {}", opts.moments_record);
+    LOG_INFO("==== End Config ====");
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -165,53 +145,22 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_ERROR("Cannot record raw and moments at the same time");
         return 36;
     }
+
     if (opts.record_raw)
     {
-        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::RAW});
         api.compute.set_compute_mode(holovibes::Computation::Raw);
         api.record.set_record_mode_enum(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
-    {
-        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::MOMENTS});
         api.record.set_record_mode_enum(holovibes::RecordMode::MOMENTS);
-    }
     else
     {
-        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::HOLOGRAM});
         api.compute.set_compute_mode(holovibes::Computation::Hologram);
         api.record.set_record_mode_enum(holovibes::RecordMode::HOLOGRAM);
     }
 
-    const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
-
     if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
         return ret; // error 31, 32
-
-    holovibes.init_input_queue(fd, api.input.get_input_buffer_size());
-
-    try
-    {
-        holovibes.init_pipe();
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR("{}", e.what());
-        return 36;
-    }
-
-    auto pipe = holovibes.get_compute_pipe();
-    if (api.global_pp.get_convolution_enabled())
-    {
-        api.global_pp.load_convolution_matrix(api.global_pp.get_convolution_file_name());
-        pipe->request(ICS::Convolution);
-    }
-
-    // TODO : Add filter
-
-    pipe->request(ICS::UpdateBatchSize);
-    pipe->request(ICS::UpdateTimeStride);
-    pipe->request(ICS::UpdateTimeTransformationSize);
 
     delete input_frame_file;
 
@@ -298,24 +247,12 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
             output_fps = output_fps / (frame_skip + 1);
 
         holovibes.update_setting(holovibes::settings::FrameSkip{static_cast<uint>(output_fps * (frame_skip + 1)) /
-                                                                API.record.get_mp4_fps()});
+                                                                api.record.get_mp4_fps()});
     }
 
     holovibes.start_frame_record();
 
-    // The following while ensure the record has been requested by the thread previously launched.
-    while ((!holovibes.get_compute_pipe()->is_requested(ICS::FrameRecord)))
-        continue;
-
-    // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
-    // It has to be refresh in the main thread because the read of file is launched just after.
-    holovibes.get_compute_pipe()->refresh();
-
-    // Thread 2
-    holovibes.start_compute_worker();
-
-    // Thread 3
-    holovibes.start_file_frame_read();
+    api.compute.start();
 
     return 0;
 }
@@ -323,21 +260,30 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI");
+
     holovibes.is_cli = true;
     if (int ret = set_parameters(holovibes, opts))
         return ret;
+
     LOG_INFO("Parameters set");
+
     if (opts.verbose)
         print_verbose(opts);
 
     Chrono chrono;
     if (int ret = start_cli_workers(holovibes, opts))
         return ret;
+
     LOG_INFO("CLI workers started, main looping");
+
     main_loop(holovibes);
+
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
-    holovibes.stop_all_worker_controller();
+
+    API.compute.close_critical_compute();
+    API.information.stop_information_display();
+
     return 0;
 }
 } // namespace cli

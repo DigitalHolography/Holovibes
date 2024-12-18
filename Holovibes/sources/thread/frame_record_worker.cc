@@ -73,8 +73,9 @@ void FrameRecordWorker::run()
 
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request(ICS::FrameRecord);
+    auto pipe = Holovibes::instance().get_compute_pipe_no_throw();
+    if (pipe)
+        pipe->request(ICS::FrameRecord);
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
