@@ -87,7 +87,7 @@
      }
     },
     "image_rendering": {
-     "batch_size": 16,
+     "batch_size": 64,
      "convolution": {
       "divide": false,
       "enabled": false,
@@ -107,8 +107,8 @@
      "propagation_distance": 0.5,
      "space_transformation": "FRESNELTR",
      "time_transformation": "PCA",
-     "time_transformation_size": 16,
-     "time_transformation_stride": 32
+     "time_transformation_size": 32,
+     "time_transformation_stride": 64
     },
     "view": {
      "fft_shift": true,
