@@ -141,10 +141,7 @@ void ExportPanel::on_notify()
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
 
-    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
-                                                          {RecordedEyeType::NONE, "Unspecified"},
-                                                          {RecordedEyeType::RIGHT, "Right"}};
-    ui_->RecordedEyePushButton->setText(QString::fromStdString(eye_map[api_.record.get_recorded_eye()]));
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(api_.record.get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
 
@@ -339,6 +336,12 @@ void ExportPanel::update_recorded_eye()
 {
     api_.record.set_recorded_eye(api_.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
                                                                                          : RecordedEyeType::LEFT);
+    on_notify();
+}
+
+void ExportPanel::reset_recorded_eye()
+{
+    api_.record.set_recorded_eye(RecordedEyeType::NONE);
     on_notify();
 }
 

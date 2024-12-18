@@ -90,11 +90,17 @@ class ExportPanel : public Panel
     void update_record_file_extension(const QString& value);
 
     /**
-     * \brief Handles the update of the recorded eye button.
-     * Is called when the button is pressed.
+     * \brief Handles the update of the recorded eye button
+     * Changes the current recorded eye, cycling between left and right
      *
      */
     void update_recorded_eye();
+
+    /*!
+     * \brief Sets the recorded eye to None instead of left or right
+     *
+     */
+    void reset_recorded_eye();
 
   private:
     int record_frame_step_ = 512;

@@ -200,7 +200,12 @@ class LightUI : public QMainWindow
 
     /*! \brief the Apply setting button in the UI. Load the settings file of the current camera */
     void configure_camera();
-    /*! \} */
+
+    /*! \brief Changes the recorded eye according to the current one */
+    void update_recorded_eye();
+
+    /*! \brief Sets the recorded eye to None */
+    void reset_recorded_eye();
 
   protected:
     /**

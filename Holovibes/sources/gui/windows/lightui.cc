@@ -165,6 +165,8 @@ void LightUI::notify()
     ui_->ContrastMaxDoubleSpinBox->setValue(api.contrast.get_contrast_max());
 
     ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
+
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(API.record.get_recorded_eye_display_string()));
 }
 
 void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }
@@ -237,5 +239,18 @@ void LightUI::set_preset()
 }
 
 void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
+
+void LightUI::update_recorded_eye()
+{
+    API.record.set_recorded_eye(API.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
+                                                                                       : RecordedEyeType::LEFT);
+    notify();
+}
+
+void LightUI::reset_recorded_eye()
+{
+    API.record.set_recorded_eye(RecordedEyeType::NONE);
+    notify();
+}
 
 } // namespace holovibes::gui

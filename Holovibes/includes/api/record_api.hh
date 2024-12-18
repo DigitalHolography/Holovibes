@@ -187,6 +187,10 @@ class RecordApi : public IApi
      */
     void set_record_mode_enum(RecordMode value) const;
 
+#pragma endregion
+
+#pragma region Eye
+
     /*!
      * \brief Gets the available extension for the given record mode
      *
@@ -211,11 +215,20 @@ class RecordApi : public IApi
     void set_recorded_eye(RecordedEyeType value) const;
 
     /**
-     * \brief Gets a string representation of the current recorded eye.
+     * \brief Gets a string representation of the current recorded eye
+     * This string is destined to be used for file purposes.
      *
      * \return std::string The stringified recorded eye, either "L" or "R", or "" for no eye
      */
-    std::string get_recorded_eye_string() const;
+    std::string get_recorded_eye_file_string() const;
+
+    /**
+     * \brief Gets a string representation of the current recorded eye
+     * This string is more explicit and should be used for display purposes.
+     *
+     * \return std::string The stringified recorded eye, either "L" or "R", or "" for no eye
+     */
+    std::string get_recorded_eye_display_string() const;
 
 #pragma endregion
 
