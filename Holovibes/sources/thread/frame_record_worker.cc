@@ -212,13 +212,5 @@ void FrameRecordWorker::reset_record_queue()
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
     record_queue_.load()->reset();
-
-    /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(setting<settings::OutputBufferSize>(), stream_);
-
-    std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-    if (output_queue)
-        output_queue->resize(setting<settings::OutputBufferSize>(), stream_);*/
 }
 } // namespace holovibes::worker

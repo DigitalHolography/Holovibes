@@ -43,8 +43,6 @@ static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const
 {
-    auto& holo = Holovibes::instance();
-
     auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file;
     std::string path = path_file.string();
 
@@ -86,8 +84,8 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
     fclose(c_file);
 
     // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-    const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-    const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+    const uint output_width = api_->compute.get_gpu_output_queue()->get_fd().width;
+    const uint output_height = api_->compute.get_gpu_output_queue()->get_fd().height;
     const uint size = output_width * output_height;
 
     // The convo matrix is centered and padded with 0 since the kernel is

@@ -75,6 +75,9 @@ class MainWindow : public QMainWindow
     /*! \brief Start the import process */
     void start_import(QString filename);
 
+    /*! \brief Start the computation process and open the window */
+    void start();
+
     void set_preset_file_on_gpu();
 
     Ui::MainWindow* get_ui();

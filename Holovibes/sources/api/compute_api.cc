@@ -7,6 +7,9 @@ namespace holovibes::api
 
 void ComputeApi::close_critical_compute() const
 {
+    if (get_is_computation_stopped())
+        return;
+
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.disable_convolution();
 
@@ -27,10 +30,38 @@ void ComputeApi::close_critical_compute() const
 
 void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
 
+ApiCode ComputeApi::start() const
+{
+    if (api_->input.get_import_type() == ImportType::None)
+        return ApiCode::NO_IN_DATA;
+
+    // Stop any computation currently running and file reading
+    if (!get_is_computation_stopped())
+    {
+        close_critical_compute();
+        Holovibes::instance().stop_frame_read();
+    }
+
+    Holovibes::instance().init_pipe();
+    Holovibes::instance().start_compute_worker();
+    set_is_computation_stopped(false);
+    pipe_refresh();
+
+    if (api_->input.get_import_type() == ImportType::Camera)
+        Holovibes::instance().start_camera_frame_read();
+    else
+        Holovibes::instance().start_file_frame_read();
+
+    return ApiCode::OK;
+}
+
 #pragma region Pipe
 
 void ComputeApi::disable_pipe_refresh() const
 {
+    if (get_is_computation_stopped())
+        return;
+
     try
     {
         get_compute_pipe()->clear_request(ICS::RefreshEnabled);
@@ -43,6 +74,9 @@ void ComputeApi::disable_pipe_refresh() const
 
 void ComputeApi::enable_pipe_refresh() const
 {
+    if (get_is_computation_stopped())
+        return;
+
     try
     {
         get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
@@ -55,7 +89,7 @@ void ComputeApi::enable_pipe_refresh() const
 
 void ComputeApi::pipe_refresh() const
 {
-    if (api_->input.get_import_type() == ImportType::None)
+    if (get_is_computation_stopped())
         return;
 
     try
@@ -69,32 +103,22 @@ void ComputeApi::pipe_refresh() const
     }
 }
 
-void ComputeApi::create_pipe() const
-{
-    LOG_FUNC();
-    try
-    {
-        Holovibes::instance().start_compute();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("cannot create Pipe: {}", e.what());
-    }
-}
-
 #pragma endregion
 
 #pragma region Compute Mode
 
-void ComputeApi::set_computation_mode(Computation mode) const
+ApiCode ComputeApi::set_computation_mode(Computation mode) const
 {
-    if (api_->input.get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
-        return;
+    if (mode == get_compute_mode())
+        return ApiCode::NO_CHANGE;
 
-    close_critical_compute();
+    if (get_is_computation_stopped())
+    {
+        UPDATE_SETTING(ComputeMode, mode);
+        return ApiCode::OK;
+    }
 
     set_compute_mode(mode);
-    create_pipe();
 
     if (mode == Computation::Hologram)
     {
@@ -105,7 +129,11 @@ void ComputeApi::set_computation_mode(Computation mode) const
         api_->record.set_record_mode_enum(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
-    pipe_refresh();
+    get_compute_pipe()->request(ICS::OutputBuffer);
+    while (get_compute_pipe()->is_requested(ICS::OutputBuffer))
+        continue;
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

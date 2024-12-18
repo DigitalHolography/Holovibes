@@ -149,14 +149,6 @@ class InputApi : public IApi
 
 #pragma region File Import
 
-    /*! \brief Launchs the reading of the loaded file.
-     *
-     * Will stop any computation currently running (camera or file loading).
-     *
-     * \return bool false on failure
-     */
-    bool import_start() const;
-
     /*! \brief Stops the importing of the file and all computation */
     void import_stop() const;
 

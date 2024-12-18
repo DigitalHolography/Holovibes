@@ -154,7 +154,8 @@ void ImageRenderingPanel::set_computation_mode(int mode)
 
     gui::close_windows();
     api_.compute.set_computation_mode(comp_mode);
-    gui::create_window(comp_mode, parent_->window_max_size);
+    if (!api_.compute.get_is_computation_stopped())
+        gui::create_window(comp_mode, parent_->window_max_size);
 
     if (comp_mode == Computation::Hologram)
     {

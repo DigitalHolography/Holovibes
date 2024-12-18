@@ -68,8 +68,8 @@ class Pipe : public ICompute
      * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
-        : ICompute(input, output, record, stream, settings)
+    Pipe(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
+        : ICompute(input, record, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
         fn_compute_vect_ = std::make_shared<FunctionVector>();
@@ -102,7 +102,7 @@ class Pipe : public ICompute
                                                           image_acc_env_,
                                                           time_transformation_env_,
                                                           input.get_fd(),
-                                                          output.get_fd(),
+                                                          buffers_.gpu_output_queue->get_fd(),
                                                           stream_,
                                                           settings);
 

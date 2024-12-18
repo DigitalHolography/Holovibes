@@ -39,6 +39,15 @@ class ComputeApi : public IApi
     /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
     void loaded_moments_data() const;
 
+    /*! \brief Starts the computation. This function will:
+     * - init the input_queue if not initialized
+     * - init the GPU output_queue if not initialized
+     * - create a new pipe if not initialized
+     * - start the computation worker
+     * - start the frame read worker
+     */
+    ApiCode start() const;
+
 #pragma region Buffer
 
     /*! \brief Returns the capacity (number of frames) of the output buffer. The output buffer stores the final frames
@@ -59,7 +68,13 @@ class ComputeApi : public IApi
      *
      * \return std::shared_ptr<Queue> The gpu output queue
      */
-    inline std::shared_ptr<Queue> get_gpu_output_queue() const { return Holovibes::instance().get_gpu_output_queue(); };
+    inline std::shared_ptr<Queue> get_gpu_output_queue() const
+    {
+        if (Holovibes::instance().get_compute_pipe_no_throw())
+            return Holovibes::instance().get_compute_pipe()->get_output_queue();
+
+        return nullptr;
+    };
 
     /*! \brief Return the input queue.
      *
@@ -137,13 +152,9 @@ class ComputeApi : public IApi
      *
      * \param[in] mode The new computation mode
      */
-    void set_computation_mode(Computation mode) const;
+    ApiCode set_computation_mode(Computation mode) const;
 
 #pragma endregion
-
-  private:
-    /*! \brief Creates a new pipe and start computation */
-    void create_pipe() const;
 };
 
 } // namespace holovibes::api

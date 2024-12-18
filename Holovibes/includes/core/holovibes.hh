@@ -248,13 +248,6 @@ class Holovibes
     void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
 
     /*!
-     * \brief Initializes the input queue with the same fd, when it already exist
-     *
-     * \param input_queue_size size of the input queue
-     */
-    void init_input_queue(const unsigned int input_queue_size);
-
-    /*!
      * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
      *
      */
@@ -269,11 +262,9 @@ class Holovibes
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
      *
-     * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read();
 
     /*! \brief Handle frame reading interruption
      *
@@ -454,7 +445,6 @@ class Holovibes
 
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
-    std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
@@ -468,13 +458,15 @@ class Holovibes
      * \{
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
-    std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
 
     CudaStreams cuda_streams_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+  public:
+    std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 };
 } // namespace holovibes
 
