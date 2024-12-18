@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common_api.hh"
+#include "enum_recorded_eye_type.hh"
 
 namespace holovibes::api
 {
@@ -200,21 +201,21 @@ class RecordApi : public IApi
      * \return true The RIGHT eye
      * \return false The LEFT eye
      */
-    inline bool get_recorded_eye() const { return GET_SETTING(RecordedEye); }
-
-    /**
-     * \brief Gets a string representation of the current recorded eye.
-     *
-     * \return std::string The stringified recorded eye, either "left" or "right"
-     */
-    inline std::string get_recorded_eye_string() const { return GET_SETTING(RecordedEye) ? "right" : "left"; }
+    inline RecordedEyeType get_recorded_eye() const { return GET_SETTING(RecordedEye); }
 
     /**
      * \brief Sets the eye to be recorded; this only affects how the recording is called
      *
-     * \param is_right_eye Which eye to record: True = RIGHT eye, False = LEFT eye
+     * \param value[in] Which eye to record
      */
-    void set_recorded_eye(bool is_right_eye) const;
+    void set_recorded_eye(RecordedEyeType value) const;
+
+    /**
+     * \brief Gets a string representation of the current recorded eye.
+     *
+     * \return std::string The stringified recorded eye, either "L" or "R", or "" for no eye
+     */
+    std::string get_recorded_eye_string() const;
 
 #pragma endregion
 

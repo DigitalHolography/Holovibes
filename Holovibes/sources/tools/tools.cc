@@ -39,7 +39,7 @@ std::string get_record_filename(std::string file_path, std::string prepend)
     std::string extension = filePath.extension().string();
     std::string path = filePath.parent_path().string();
     std::string eye = API.record.get_recorded_eye_string();
-    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename + "_" + eye;
+    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename + eye;
     std::filesystem::path newFilePath = oldFilePath.string() + extension;
 
     for (int i = 1; std::filesystem::exists(newFilePath); ++i)

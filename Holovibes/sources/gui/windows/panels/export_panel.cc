@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "export_panel.hh"
+#include "enum_recorded_eye_type.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
 #include "tools.hh"
@@ -140,7 +141,11 @@ void ExportPanel::on_notify()
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
 
-    ui_->RecordedEyePushButton->setText(api_.record.get_recorded_eye() ? "Right" : "Left");
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
+                                                          {RecordedEyeType::NONE, "Unspecified"},
+                                                          {RecordedEyeType::RIGHT, "Right"}};
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(eye_map[api_.record.get_recorded_eye()]));
+    // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -235,6 +240,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->RecordedEyePushButton->setEnabled(true);
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
@@ -259,6 +265,7 @@ void ExportPanel::start_record()
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
+    ui_->RecordedEyePushButton->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
@@ -330,8 +337,8 @@ void ExportPanel::update_record_file_extension(const QString& value)
 
 void ExportPanel::update_recorded_eye()
 {
-    LOG_WARN("Update recorded eye");
-    api_.record.set_recorded_eye(!api_.record.get_recorded_eye());
+    api_.record.set_recorded_eye(api_.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
+                                                                                         : RecordedEyeType::LEFT);
     on_notify();
 }
 

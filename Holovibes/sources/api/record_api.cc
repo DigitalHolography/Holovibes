@@ -47,10 +47,18 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
     return extension_index_map.at(mode);
 }
 
-void RecordApi::set_recorded_eye(bool is_right_eye) const
+void RecordApi::set_recorded_eye(RecordedEyeType value) const
 {
     if (!is_recording())
-        UPDATE_SETTING(RecordedEye, is_right_eye);
+        UPDATE_SETTING(RecordedEye, value);
+}
+
+std::string RecordApi::get_recorded_eye_string() const
+{
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
+                                                          {RecordedEyeType::NONE, ""},
+                                                          {RecordedEyeType::RIGHT, "_R"}};
+    return eye_map[get_recorded_eye()];
 }
 
 #pragma endregion

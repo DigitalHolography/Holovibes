@@ -14,6 +14,7 @@
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
@@ -73,7 +74,7 @@ DECLARE_SETTING(RecordMode, holovibes::RecordMode);
  * \brief The setting that specifies the eye that is recorded.
  * True = right eye, False = left eye
  */
-DECLARE_SETTING(RecordedEye, bool);
+DECLARE_SETTING(RecordedEye, RecordedEyeType);
 
 /*!
  * \brief The setting that specifies the number of frames to skip before
