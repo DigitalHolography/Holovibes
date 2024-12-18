@@ -194,6 +194,28 @@ class RecordApi : public IApi
      */
     std::vector<OutputFormat> get_supported_formats(RecordMode mode) const;
 
+    /**
+     * \brief Get the eye that is recorded by the program
+     *
+     * \return true The RIGHT eye
+     * \return false The LEFT eye
+     */
+    inline bool get_recorded_eye() const { return GET_SETTING(RecordedEye); }
+
+    /**
+     * \brief Gets a string representation of the current recorded eye.
+     *
+     * \return std::string The stringified recorded eye, either "left" or "right"
+     */
+    inline std::string get_recorded_eye_string() const { return GET_SETTING(RecordedEye) ? "right" : "left"; }
+
+    /**
+     * \brief Sets the eye to be recorded; this only affects how the recording is called
+     *
+     * \param is_right_eye Which eye to record: True = RIGHT eye, False = LEFT eye
+     */
+    void set_recorded_eye(bool is_right_eye) const;
+
 #pragma endregion
 
 #pragma region Record

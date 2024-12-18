@@ -89,6 +89,13 @@ class ExportPanel : public Panel
      */
     void update_record_file_extension(const QString& value);
 
+    /**
+     * \brief Handles the update of the recorded eye button.
+     * Is called when the button is pressed.
+     *
+     */
+    void update_recorded_eye();
+
   private:
     int record_frame_step_ = 512;
     Subscriber<bool> start_record_subscriber_;

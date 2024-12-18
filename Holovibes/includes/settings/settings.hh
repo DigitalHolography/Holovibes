@@ -70,6 +70,12 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
 DECLARE_SETTING(RecordMode, holovibes::RecordMode);
 
 /*!
+ * \brief The setting that specifies the eye that is recorded.
+ * True = right eye, False = left eye
+ */
+DECLARE_SETTING(RecordedEye, bool);
+
+/*!
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */

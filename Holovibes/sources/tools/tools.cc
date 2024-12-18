@@ -5,6 +5,7 @@
 #include <sstream>
 #include <Windows.h>
 
+#include "API.hh"
 #include "chrono.hh"
 #include "logger.hh"
 #include "tools.hh"
@@ -37,7 +38,8 @@ std::string get_record_filename(std::string file_path, std::string prepend)
     std::string filename = filePath.filename().stem().string();
     std::string extension = filePath.extension().string();
     std::string path = filePath.parent_path().string();
-    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename;
+    std::string eye = API.record.get_recorded_eye_string();
+    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename + "_" + eye;
     std::filesystem::path newFilePath = oldFilePath.string() + extension;
 
     for (int i = 1; std::filesystem::exists(newFilePath); ++i)

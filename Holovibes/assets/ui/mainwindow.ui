@@ -472,6 +472,9 @@
              <property name="toolTip">
               <string>The boundary value</string>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="showGroupSeparator" stdset="0">
               <bool>false</bool>
              </property>
@@ -483,9 +486,6 @@
              </property>
              <property name="maximum">
               <double>1000000.000000000000000</double>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -2985,6 +2985,27 @@ The range of frequencies kept is [z, z + width]</string>
                    </property>
                    <property name="value">
                     <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="recordedEyeLayout">
+                 <item>
+                  <widget class="QLabel" name="RecordedEyeLabel">
+                   <property name="toolTip">
+                    <string>Which eye is being recorded.</string>
+                   </property>
+                   <property name="text">
+                    <string>Eye recorded</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="RecordedEyePushButton">
+                   <property name="text">
+                    <string>CurrentEye</string>
                    </property>
                   </widget>
                  </item>
@@ -5881,6 +5902,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <hint type="destinationlabel">
      <x>119</x>
      <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>504</y>
     </hint>
    </hints>
   </connection>

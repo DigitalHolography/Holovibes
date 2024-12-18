@@ -139,6 +139,8 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
+
+    ui_->RecordedEyePushButton->setText(api_.record.get_recorded_eye() ? "Right" : "Left");
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -325,4 +327,12 @@ void ExportPanel::update_record_file_extension(const QString& value)
     std::string ext = value.toStdString();
     api_.record.set_record_file_path(path + ext);
 }
+
+void ExportPanel::update_recorded_eye()
+{
+    LOG_WARN("Update recorded eye");
+    api_.record.set_recorded_eye(!api_.record.get_recorded_eye());
+    on_notify();
+}
+
 } // namespace holovibes::gui

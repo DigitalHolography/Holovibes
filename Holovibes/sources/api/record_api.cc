@@ -47,6 +47,12 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
     return extension_index_map.at(mode);
 }
 
+void RecordApi::set_recorded_eye(bool is_right_eye) const
+{
+    if (!is_recording())
+        UPDATE_SETTING(RecordedEye, is_right_eye);
+}
+
 #pragma endregion
 
 #pragma region Recording
