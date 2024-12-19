@@ -14,7 +14,7 @@ namespace holovibes::gui
 {
 /*! \class CrossOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief class that represents a cross overlay in the window.
  */
 class CrossOverlay : public Overlay
 {

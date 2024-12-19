@@ -12,7 +12,7 @@
 #undef min
 #include "icamera.hh"
 
-/*! \brief #TODO Add a description for this namespace */
+/*! \brief namespace of Camera class declaration */
 namespace camera
 {
 /*! \class CameraDLL

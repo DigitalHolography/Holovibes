@@ -15,7 +15,7 @@ namespace holovibes
 {
 /*! \class CudaLaunchException
  *
- * \brief #TODO Add a description for this class
+ * \brief Custom exception class for cuda launch errors.
  */
 class CudaLaunchException : public CustomException
 {

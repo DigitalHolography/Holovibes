@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of the ChartRecordWorker class.
  */
 #pragma once
 

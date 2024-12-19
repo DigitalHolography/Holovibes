@@ -10,7 +10,7 @@ namespace holovibes
 {
 /*! \struct UnwrappingResources_2d
  *
- * \brief #TODO Add a description for this struct
+ * \brief struct used for phase unwrapping 2d
  */
 struct UnwrappingResources_2d
 {

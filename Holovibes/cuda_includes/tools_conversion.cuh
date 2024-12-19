@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of some useful conversion function
  */
 #pragma once
 

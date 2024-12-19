@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class CompositeAreaOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief class that represents a composite area overlay in the window.
  */
 class CompositeAreaOverlay : public RectOverlay
 {

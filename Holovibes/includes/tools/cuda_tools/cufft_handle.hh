@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of the CufftHandle class
  */
 #pragma once
 

@@ -15,7 +15,7 @@ namespace holovibes
 {
 /*! \class AccumulationException
  *
- * \brief #TODO Add a description for this class
+ * \brief Custom exception class for accumulation errors.
  */
 class AccumulationException : public CustomException
 {

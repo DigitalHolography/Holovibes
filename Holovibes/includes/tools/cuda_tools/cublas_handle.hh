@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of the CublasHandle class
  */
 #pragma once
 
@@ -10,7 +10,7 @@ namespace holovibes::cuda_tools
 {
 /*! \class CublasHandle
  *
- * \brief #TODO Add a description for this class
+ * \brief Singleton class that manages the cublas handle
  */
 class CublasHandle
 {

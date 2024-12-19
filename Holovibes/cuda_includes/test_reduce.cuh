@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of test function
  *
  * WARNING This file should only be included in the test_reduce.cu file
  *

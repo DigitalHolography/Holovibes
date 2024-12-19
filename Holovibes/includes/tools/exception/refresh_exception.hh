@@ -14,7 +14,7 @@ namespace holovibes
 {
 /*! \class RefreshException
  *
- * \brief #TODO Add a description for this class
+ * \brief Custom exception class for refresh errors.
  */
 class RefreshException : public CustomException
 {
