@@ -71,8 +71,9 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
 DECLARE_SETTING(RecordMode, holovibes::RecordMode);
 
 /*!
- * \brief The setting that specifies the eye that is recorded.
- * True = right eye, False = left eye
+ * \brief Get the eye that is recorded by the program
+ * Can be LEFT, RIGHT or NONE if no eye is selected
+ * It only influences the name of the output files and is saved across .holo files
  */
 DECLARE_SETTING(RecordedEye, RecordedEyeType);
 

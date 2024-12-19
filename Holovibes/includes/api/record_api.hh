@@ -199,11 +199,10 @@ class RecordApi : public IApi
 
 #pragma region Eye
 
-    /**
+    /*!
      * \brief Get the eye that is recorded by the program
      *
-     * \return true The RIGHT eye
-     * \return false The LEFT eye
+     * \return RecordedEyeType Which eye is being recorded. Can be LEFT, RIGHT or NONE if no eye is selected
      */
     inline RecordedEyeType get_recorded_eye() const { return GET_SETTING(RecordedEye); }
 
