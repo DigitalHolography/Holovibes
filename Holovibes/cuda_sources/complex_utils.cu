@@ -25,7 +25,10 @@ __global__ void kernel_conjugate_complex(cuComplex* input_output, const uint siz
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < size)
+    {
         input_output[index].y = -input_output[index].y;
+        // input_output[index] = cuConjf(input_output[index]);
+    }
 }
 
 void complex_hadamard_product(

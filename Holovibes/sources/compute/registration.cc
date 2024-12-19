@@ -24,6 +24,9 @@ void Registration::insert_registration()
                     !image_acc_env_.gpu_accumulation_xy_queue.get()->is_full())
                     return;
 
+                // image_preprocess(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame,
+                // &current_image_mean_); return;
+
                 // Preprocessing the current image before the cross-correlation with the reference image.
                 image_preprocess(gpu_current_image_, buffers_.gpu_postprocess_frame, &current_image_mean_);
 
@@ -36,8 +39,16 @@ void Registration::insert_registration()
                        plan_2d_,
                        plan_2dinv_,
                        freq_size_,
+                       fd_.width,
+                       fd_.height,
                        stream_);
                 cudaXStreamSynchronize(stream_);
+
+                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                //             gpu_xcorr_output_,
+                //             fd_.width * fd_.height * sizeof(float),
+                //             cudaMemcpyDeviceToDevice);
+                // return;
 
                 // Getting the argmax of the xcorr2 output matrix.
                 int max_index;

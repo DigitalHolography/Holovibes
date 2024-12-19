@@ -87,7 +87,7 @@ class Registration
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_current_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_xcorr_output_.resize(buffers_.gpu_postprocess_frame_size);
-        freq_size_ = fd_.width * (fd_.height / 2 + 1);
+        freq_size_ = fd_.width * fd_.height; // 512 * 512; // fd_.width * (fd_.height / 2 + 1);
         err += !d_freq_1_.resize(freq_size_);
         err += !d_freq_2_.resize(freq_size_);
 

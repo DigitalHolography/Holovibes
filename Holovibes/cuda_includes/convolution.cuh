@@ -56,4 +56,6 @@ void xcorr2(float* output,
             cufftHandle plan_2d,
             cufftHandle plan_2dinv,
             const int freq_size,
+            int width,
+            int height,
             cudaStream_t stream);
