@@ -43,6 +43,7 @@
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
+    holovibes::settings::LoadFileInRAM,                          \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
@@ -373,6 +374,7 @@ class Holovibes
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
+                                             settings::LoadFileInRAM{false},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},

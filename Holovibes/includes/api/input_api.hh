@@ -110,6 +110,20 @@ class InputApi : public IApi
      */
     inline void set_load_file_in_gpu(bool value) const { UPDATE_SETTING(LoadFileInGPU, value); }
 
+    /*! \brief Return whether the full file will be loaded in the CPU memory (RAM) or not. It's used similarly to
+     * LoadFileInGPU but this allows for more GPU memory space available, as RAM is less used than GPU memory.
+     *
+     * \return bool true if the full file will be loaded in the RAM
+     */
+    inline bool get_load_file_in_RAM() const { return GET_SETTING(LoadFileInRAM); }
+
+    /*! \brief Set whether the full file will be loaded in the CPU memory (RAM) or not. It's used similarly to
+     * LoadFileInGPU but this allows for more GPU memory space available, as RAM is less used than GPU memory.
+     *
+     * \param[in] value true if the full file will be loaded in the RAM
+     */
+    inline void set_load_file_in_ram(bool value) const { UPDATE_SETTING(LoadFileInRAM, value); }
+
     /*! \brief Return the number of frames that will be read from the file per second.
      *
      * \return uint the input fps

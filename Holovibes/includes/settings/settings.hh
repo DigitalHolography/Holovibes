@@ -52,6 +52,11 @@ DECLARE_SETTING(CameraKind, holovibes::CameraKind);
  * before sending it to the compute pipeline input queue.
  */
 DECLARE_SETTING(LoadFileInGPU, bool);
+/*!
+ * \brief The setting that specifies if we load input file entirely in the CPU RAM
+ * before sending it to the compute pipeline input queue.
+ */
+DECLARE_SETTING(LoadFileInRAM, bool);
 
 /*!
  * \brief The setting that specifies the path of the file where to record

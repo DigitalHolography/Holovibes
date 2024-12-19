@@ -26,7 +26,7 @@ void FileFrameReadWorker::open_file()
 
 void FileFrameReadWorker::read_file()
 {
-    if (setting<settings::LoadFileInGPU>())
+    if (setting<settings::LoadFileInGPU>() || setting<settings::LoadFileInRAM>())
         read_file_in_gpu();
     else
         read_file_batch();
@@ -79,7 +79,7 @@ void FileFrameReadWorker::run()
 
 size_t FileFrameReadWorker::get_buffer_nb_frames()
 {
-    if (setting<settings::LoadFileInGPU>())
+    if (setting<settings::LoadFileInGPU>() || setting<settings::LoadFileInRAM>())
         return total_nb_frames_to_read_;
     return setting<settings::FileBufferSize>();
 }
@@ -92,6 +92,8 @@ bool FileFrameReadWorker::init_frame_buffers()
         std::string error_message = error_message_base;
         if (setting<settings::LoadFileInGPU>())
             error_message += " (consider disabling \"Load file in GPU\" option)";
+        else if (setting<settings::LoadFileInRAM>())
+            error_message += " (consider disabling \"Load file in RAM\" option)";
         LOG_ERROR("{}", error_message);
         if (cleanupCpu)
             cudaXFreeHost(cpu_frame_buffer_);
@@ -126,9 +128,13 @@ bool FileFrameReadWorker::init_frame_buffers()
 
 void FileFrameReadWorker::free_frame_buffers()
 {
+    LOG_WARN("Before free");
     cudaXFree(gpu_packed_buffer_);
-    cudaXFree(gpu_file_frame_buffer_);
-    cudaXFreeHost(cpu_frame_buffer_);
+    if (!setting<settings::LoadFileInRAM>()) // Already freed, must not free twice
+        cudaXFree(gpu_file_frame_buffer_);
+    if (!setting<settings::LoadFileInGPU>()) // Already freed, must not free twice
+        cudaXFreeHost(cpu_frame_buffer_);
+    LOG_WARN("After free");
 }
 
 void FileFrameReadWorker::insert_fast_update_map_entries()
@@ -157,6 +163,10 @@ void FileFrameReadWorker::read_file_in_gpu()
 {
     // Read and copy the entire file
     size_t frames_read = read_copy_file(total_nb_frames_to_read_);
+    if (setting<settings::LoadFileInGPU>())
+        cudaXFreeHost(cpu_frame_buffer_);
+    if ((setting<settings::LoadFileInRAM>()))
+        cudaXFree(gpu_file_frame_buffer_);
 
     while (!stop_requested_)
     {
@@ -207,6 +217,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
+                char* gpu_output = gpu_file_frame_buffer_ + i * frame_size_;
                 // Memcopy in the gpu buffer
                 cudaXMemcpyAsync(gpu_packed_buffer_,
                                  cpu_frame_buffer_ + i * packed_frame_size,
@@ -216,13 +227,13 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
                 // Convert 12bit frame to 16bit
                 if (flag_packed == 12)
-                    unpack_12_to_16bit((short*)(gpu_file_frame_buffer_ + i * frame_size_),
+                    unpack_12_to_16bit((short*)(gpu_output),
                                        frame_size_ / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
                                        stream_);
                 else if (flag_packed == 10)
-                    unpack_10_to_16bit((short*)(gpu_file_frame_buffer_ + i * frame_size_),
+                    unpack_10_to_16bit((short*)(gpu_output),
                                        frame_size_ / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
@@ -230,8 +241,17 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                 else
                     throw io_files::FileException("Image encoding format not supported: {} bits", flag_packed);
             }
+            if (setting<settings::LoadFileInRAM>())
+            {
+                // Copy back to host
+                cudaXMemcpyAsync(cpu_frame_buffer_,
+                                 gpu_file_frame_buffer_,
+                                 frames_total_size,
+                                 cudaMemcpyHostToDevice,
+                                 stream_);
+            }
         }
-        else
+        else if (!setting<settings::LoadFileInRAM>())
         {
             // Memcopy in the gpu buffer
             cudaXMemcpyAsync(gpu_file_frame_buffer_,
@@ -254,6 +274,9 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
+    LOG_WARN("Loading in ram ? {}", setting<settings::LoadFileInRAM>());
+    char* buffer = setting<settings::LoadFileInRAM>() ? cpu_frame_buffer_ : gpu_file_frame_buffer_;
+    auto enqueue_kind = setting<settings::LoadFileInRAM>() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToDevice;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         uint real_frames_enqueued = static_cast<uint>(
@@ -268,9 +291,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
-                                     cudaMemcpyDeviceToDevice,
-                                     real_frames_enqueued);
+        input_queue_.load()->enqueue(buffer + frames_enqueued * frame_size_, enqueue_kind, real_frames_enqueued);
 
         current_nb_frames_read_ += real_frames_enqueued;
         frames_enqueued += real_frames_enqueued;
@@ -286,7 +307,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file is in the buffer,
     // so we don't have to sync
-    if (setting<settings::LoadFileInGPU>())
+    if (setting<settings::LoadFileInGPU>() || setting<settings::LoadFileInRAM>())
         return;
 
     input_queue_.load()->sync_current_batch();

@@ -62,8 +62,17 @@ class ImportPanel : public Panel
 
     /**
      * @brief Handles the update of the load file in GPU in the UI.
+     *
+     * \param enabled Whether or not to enable loading the file in GPU
      */
-    void update_load_file_in_gpu();
+    void update_load_file_in_gpu(bool enabled);
+
+    /**
+     * @brief Handles the update of the load file in RAM in the UI.
+     *
+     * \param enabled Whether or not to enable loading the file in RAM
+     */
+    void update_load_file_in_ram(bool enabled);
 
     /**
      * @brief Handles the update of the input file start index in the UI.

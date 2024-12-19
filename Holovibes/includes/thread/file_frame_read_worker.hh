@@ -15,6 +15,7 @@
     holovibes::settings::InputFilePath,            \
     holovibes::settings::FileBufferSize,           \
     holovibes::settings::LoadFileInGPU,            \
+    holovibes::settings::LoadFileInRAM,            \
     holovibes::settings::InputFileStartIndex,      \
     holovibes::settings::InputFileEndIndex
 
@@ -153,6 +154,8 @@ class FileFrameReadWorker final : public FrameReadWorker
      * Then enqueue the frames one by one in the input_queue
      */
     void read_file_in_gpu();
+
+    void read_file_in_ram();
 
     /*! \brief Load the frames of the file by batch into the gpu
      *
