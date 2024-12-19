@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief declaration of the CusolverHandle class
  */
 #pragma once
 
@@ -10,7 +10,7 @@ namespace holovibes::cuda_tools
 {
 /*! \class CusolverHandle
  *
- * \brief #TODO Add a description for this class
+ * \brief Singleton class that manages the cusolver handle
  */
 class CusolverHandle
 {

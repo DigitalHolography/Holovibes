@@ -14,7 +14,7 @@ namespace holovibes
 {
 /*! \class EnqueueException
  *
- * \brief #TODO Add a description for this class
+ * \brief Custom exception class for enqueue errors.
  */
 class EnqueueException : public CustomException
 {

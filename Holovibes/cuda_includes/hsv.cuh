@@ -25,7 +25,7 @@ enum HSV
  * \param stream Cuda stream used
  * \param time_transformation_size Depth of the frame cube
  * \param hsv_struct Struct containing all the UI parameters
- * \param checked TODO
+ * \param checked Boolean to know if the user wants to use the checked version of the function
  */
 void hsv(const cuComplex* d_input,
          float* d_output,

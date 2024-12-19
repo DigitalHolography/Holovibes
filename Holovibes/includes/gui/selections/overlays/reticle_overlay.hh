@@ -11,7 +11,7 @@ namespace holovibes::gui
 {
 /*! \class ReticleOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief class that represents a reticle overlay in the window.
  */
 class ReticleOverlay : public RectOverlay
 {
