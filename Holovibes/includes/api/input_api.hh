@@ -111,7 +111,7 @@ class InputApi : public IApi
     inline void set_load_file_in_gpu(bool value) const { UPDATE_SETTING(LoadFileInGPU, value); }
 
     /*! \brief Return whether the full file will be loaded in the CPU memory (RAM) or not. It's used similarly to
-     * LoadFileInGPU but this allows for more GPU memory space available, as RAM is less used than GPU memory.
+     * LoadFileInGPU but this allows for more GPU memory space available, albeit for slightly longer operations.
      *
      * \return bool true if the full file will be loaded in the RAM
      */

@@ -27,7 +27,7 @@ void FileFrameReadWorker::open_file()
 void FileFrameReadWorker::read_file()
 {
     if (setting<settings::LoadFileInGPU>() || setting<settings::LoadFileInRAM>())
-        read_file_in_gpu();
+        read_file_in_memory();
     else
         read_file_batch();
 }
@@ -128,13 +128,11 @@ bool FileFrameReadWorker::init_frame_buffers()
 
 void FileFrameReadWorker::free_frame_buffers()
 {
-    LOG_WARN("Before free");
     cudaXFree(gpu_packed_buffer_);
     if (!setting<settings::LoadFileInRAM>()) // Already freed, must not free twice
         cudaXFree(gpu_file_frame_buffer_);
     if (!setting<settings::LoadFileInGPU>()) // Already freed, must not free twice
         cudaXFreeHost(cpu_frame_buffer_);
-    LOG_WARN("After free");
 }
 
 void FileFrameReadWorker::insert_fast_update_map_entries()
@@ -159,7 +157,7 @@ void FileFrameReadWorker::remove_fast_update_map_entries()
     FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 }
 
-void FileFrameReadWorker::read_file_in_gpu()
+void FileFrameReadWorker::read_file_in_memory()
 {
     // Read and copy the entire file
     size_t frames_read = read_copy_file(total_nb_frames_to_read_);
@@ -274,7 +272,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
-    LOG_WARN("Loading in ram ? {}", setting<settings::LoadFileInRAM>());
+    // Read in either cpu or gpu depending on the settings
     char* buffer = setting<settings::LoadFileInRAM>() ? cpu_frame_buffer_ : gpu_file_frame_buffer_;
     auto enqueue_kind = setting<settings::LoadFileInRAM>() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToDevice;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)

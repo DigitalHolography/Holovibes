@@ -153,7 +153,7 @@ class FileFrameReadWorker final : public FrameReadWorker
      * Read all the frames in cpu and copy them in gpu.
      * Then enqueue the frames one by one in the input_queue
      */
-    void read_file_in_gpu();
+    void read_file_in_memory();
 
     void read_file_in_ram();
 
