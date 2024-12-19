@@ -49,6 +49,32 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
 
 #pragma endregion
 
+#pragma region Eye
+
+void RecordApi::set_recorded_eye(RecordedEyeType value) const
+{
+    if (!is_recording())
+        UPDATE_SETTING(RecordedEye, value);
+}
+
+std::string RecordApi::get_recorded_eye_file_string() const
+{
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
+                                                          {RecordedEyeType::NONE, ""},
+                                                          {RecordedEyeType::RIGHT, "_R"}};
+    return eye_map[get_recorded_eye()];
+}
+
+std::string RecordApi::get_recorded_eye_display_string() const
+{
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
+                                                          {RecordedEyeType::NONE, "Unspecified"},
+                                                          {RecordedEyeType::RIGHT, "Right"}};
+    return eye_map[get_recorded_eye()];
+}
+
+#pragma endregion
+
 #pragma region Recording
 
 bool RecordApi::start_record_preconditions() const

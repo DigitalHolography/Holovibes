@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>139</height>
+    <height>215</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -82,128 +82,125 @@
       </item>
      </layout>
     </item>
-      <item>
-             <widget class="QGroupBox" name="ContrastCheckBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Contrast</string>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <property name="leftMargin">
-                <number>2</number>
-               </property>
-               <property name="topMargin">
-                <number>2</number>
-               </property>
-               <property name="rightMargin">
-                <number>2</number>
-               </property>
-               <property name="bottomMargin">
-                <number>2</number>
-               </property>
-               <property name="horizontalSpacing">
-                <number>0</number>
-               </property>
-               <property name="verticalSpacing">
-                <number>2</number>
-               </property>
-               <item row="2" column="1" rowspan="3">
-                <layout class="QHBoxLayout" name="horizontalLayout_8">
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="ContrastRangeLabel">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="statusTip">
-                    <string>The lower and upper limit of the contrast</string>
-                   </property>
-                   <property name="text">
-                    <string>Range</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimum">
-                    <double>-100.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimum">
-                    <double>-100.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
-                   <property name="text">
-                    <string>Auto</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
+    <item>
+     <widget class="QGroupBox" name="ContrastCheckBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Contrast</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <property name="horizontalSpacing">
+        <number>0</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>2</number>
+       </property>
+       <item row="2" column="1" rowspan="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="ContrastRangeLabel">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="statusTip">
+            <string>The lower and upper limit of the contrast</string>
+           </property>
+           <property name="text">
+            <string>Range</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimum">
+            <double>-100.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>100.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimum">
+            <double>-100.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>100.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
+           <property name="text">
+            <string>Auto</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item>
      <layout class="QHBoxLayout" name="outputFileSelectionLayout">
       <property name="spacing">
@@ -262,6 +259,40 @@
        <widget class="QLabel" name="fileExtensionLabel">
         <property name="text">
          <string>.holo</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="recordedEyeGridLayout">
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="RecordedEyeLabel">
+        <property name="toolTip">
+         <string>Which eye is being recorded.</string>
+        </property>
+        <property name="text">
+         <string>Eye recorded</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" colspan="3">
+       <widget class="QPushButton" name="RecordedEyePushButton">
+        <property name="toolTip">
+         <string>Switch between left and right eye</string>
+        </property>
+        <property name="text">
+         <string>Unspecified</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QPushButton" name="ResetRecordedEyePushButton">
+        <property name="toolTip">
+         <string>Cancel the eye choice and sets it back to unspecified</string>
+        </property>
+        <property name="text">
+         <string>X</string>
         </property>
        </widget>
       </item>
@@ -336,7 +367,6 @@
     </property>
     <addaction name="actionConfiguration_UI"/>
    </widget>
-
    <widget class="QMenu" name="menu_Camera">
     <property name="title">
      <string>&amp;Camera</string>
@@ -353,7 +383,6 @@
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
    </widget>
-
    <addaction name="menuOptions"/>
    <addaction name="menuView"/>
    <addaction name="menu_Camera"/>
@@ -382,7 +411,6 @@
     <string>Ctrl+P</string>
    </property>
   </action>
-
   <action name="actionNone">
    <property name="text">
     <string>None</string>
@@ -414,7 +442,6 @@
     <string>Alt+C</string>
    </property>
   </action>
-
  </widget>
  <customwidgets>
   <customwidget>
@@ -553,7 +580,6 @@
     </hint>
    </hints>
   </connection>
-
   <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
@@ -618,7 +644,6 @@
     </hint>
    </hints>
   </connection>
-
   <connection>
    <sender>actionNone</sender>
    <signal>triggered(bool)</signal>
@@ -699,7 +724,38 @@
     </hint>
    </hints>
   </connection>
-
+  <connection>
+   <sender>RecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>LightUI</receiver>
+   <slot>update_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResetRecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>LightUI</receiver>
+   <slot>reset_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>start_stop_recording(bool)</slot>
@@ -708,16 +764,16 @@
   <slot>open_configuration_ui()</slot>
   <slot>set_preset()</slot>
   <slot>z_value_changed(int)</slot>
-
   <slot>set_contrast_mode(bool)</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
-
   <slot>camera_none()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>configure_camera()</slot>
+  <slot>update_recorded_eye()</slot>
+  <slot>reset_recorded_eye()</slot>
  </slots>
 </ui>

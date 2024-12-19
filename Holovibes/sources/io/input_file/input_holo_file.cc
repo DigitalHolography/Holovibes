@@ -193,6 +193,8 @@ void InputHoloFile::import_compute_settings()
 
         auto info_json = meta_data_["info"];
         api.input.set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
+        if (info_json.contains("eye_type"))
+            api.record.set_recorded_eye(static_cast<RecordedEyeType>(info_json["eye_type"]));
     }
 
     // update GSH with the footer values
