@@ -45,6 +45,7 @@ void ImportPanel::load_gui(const json& j_us)
     update_fps(); // Required as it is called `OnEditedFinished` only.
 
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
+    ui_->LoadFileInRamCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from ram"));
 }
 
 void ImportPanel::save_gui(json& j_us)
@@ -53,6 +54,7 @@ void ImportPanel::save_gui(json& j_us)
 
     j_us["import"]["fps"] = ui_->ImportInputFpsSpinBox->value();
     j_us["import"]["from gpu"] = ui_->LoadFileInGpuCheckBox->isChecked();
+    j_us["import"]["from ram"] = ui_->LoadFileInRamCheckBox->isChecked();
 }
 
 std::string& ImportPanel::get_file_input_directory()
@@ -144,9 +146,18 @@ void ImportPanel::update_import_file_path()
     api_.input.set_input_file_path(ui_->ImportPathLineEdit->text().toStdString());
 }
 
-void ImportPanel::update_load_file_in_gpu()
+void ImportPanel::update_load_file_in_gpu(bool enabled)
 {
-    api_.input.set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());
+    api_.input.set_load_file_in_gpu(enabled);
+    if (enabled)
+        ui_->LoadFileInRamCheckBox->setChecked(false);
+}
+
+void ImportPanel::update_load_file_in_ram(bool enabled)
+{
+    api_.input.set_load_file_in_ram(enabled);
+    if (enabled)
+        ui_->LoadFileInGpuCheckBox->setChecked(false);
 }
 
 void ImportPanel::update_input_file_start_index()
