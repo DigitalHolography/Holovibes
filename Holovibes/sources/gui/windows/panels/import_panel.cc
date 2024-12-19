@@ -91,6 +91,7 @@ void ImportPanel::import_file(const QString& filename)
         return;
 
     // Start importing the chosen
+    gui::close_windows();
     std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
 
     if (input_file_opt)

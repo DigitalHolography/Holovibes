@@ -153,7 +153,7 @@ class GlobalPostProcessApi : public IApi
      *
      * \param[in] file The file containing the convolution matrix/kernel
      */
-    void enable_convolution(const std::string& file) const;
+    ApiCode enable_convolution(const std::string& file) const;
 
     /*! \brief Disables the convolution */
     void disable_convolution() const;

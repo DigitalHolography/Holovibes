@@ -154,24 +154,29 @@ void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) cons
 
 #pragma region Convolution
 
-void GlobalPostProcessApi::enable_convolution(const std::string& filename) const
+ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) const
 {
-    if (api_->input.get_import_type() == ImportType::None)
-        return;
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     set_convolution_file_name(filename);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     load_convolution_matrix(filename);
 
     if (filename.empty())
     {
         api_->compute.pipe_refresh();
-        return;
+        return ApiCode::OK;
     }
 
     try
     {
         auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::Convolution);
+        LOG_ERROR("Convolution requested: {}", get_convo_matrix().size());
         // Wait for the convolution to be enabled for notify
         while (pipe->is_requested(ICS::Convolution))
             continue;
@@ -180,7 +185,11 @@ void GlobalPostProcessApi::enable_convolution(const std::string& filename) const
     {
         disable_convolution();
         LOG_ERROR("Catch {}", e.what());
+
+        return ApiCode::FAILURE;
     }
+
+    return ApiCode::OK;
 }
 
 void GlobalPostProcessApi::disable_convolution() const

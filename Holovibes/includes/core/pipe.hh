@@ -122,9 +122,6 @@ class Pipe : public ICompute
         // Pre init
         if (setting<settings::FilterEnabled>())
             request(ICS::Filter);
-
-        if (setting<settings::ConvolutionEnabled>())
-            request(ICS::Convolution);
     }
 
     ~Pipe() override;

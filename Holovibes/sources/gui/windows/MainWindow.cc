@@ -150,8 +150,6 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api_.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
-        // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
     }
     catch (const std::exception&)
     {
@@ -396,14 +394,12 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = api_.input.get_import_type();
-    ui_->ImportPanel->import_stop();
+    gui::stop();
 
     try
     {
         api_.settings.load_compute_settings(filename);
-        // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
+        notify();
     }
     catch (const std::exception&)
     {
@@ -412,6 +408,7 @@ void MainWindow::reload_ini(const std::string& filename)
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
+    ImportType it = api_.input.get_import_type();
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)

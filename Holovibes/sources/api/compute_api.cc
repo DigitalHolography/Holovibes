@@ -35,6 +35,7 @@ void ComputeApi::close_critical_compute() const
 
 ApiCode ComputeApi::start() const
 {
+    LOG_ERROR("Start compute");
     if (api_->input.get_import_type() == ImportType::None)
         return ApiCode::NO_IN_DATA;
 
@@ -42,22 +43,27 @@ ApiCode ComputeApi::start() const
     if (!get_is_computation_stopped())
         close_critical_compute();
 
+    LOG_ERROR("Here");
+
     // Create the pipe and start the pipe
     Holovibes::instance().start_compute();
     set_is_computation_stopped(false);
 
-    if (api_->global_pp.get_convolution_enabled())
-    {
-        api_->global_pp.load_convolution_matrix(api_->global_pp.get_convolution_file_name());
-        get_compute_pipe()->request(ICS::Convolution);
-    }
+    LOG_ERROR("Start pipe");
 
-    pipe_refresh();
+    if (api_->global_pp.get_convolution_enabled())
+        api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
+    else
+        pipe_refresh();
+
+    LOG_ERROR("Start frame read");
 
     if (api_->input.get_import_type() == ImportType::Camera)
         Holovibes::instance().start_camera_frame_read();
     else
         Holovibes::instance().start_file_frame_read();
+
+    LOG_ERROR("End start");
 
     return ApiCode::OK;
 }

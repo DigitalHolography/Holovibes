@@ -251,6 +251,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     }
 
     holovibes.start_frame_record();
+    LOG_ERROR("Recording started");
 
     api.compute.start();
 

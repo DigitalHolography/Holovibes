@@ -307,8 +307,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
     std::string v = value.toStdString();
-    api_.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
-    parent_->notify();
+    if (api_.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
