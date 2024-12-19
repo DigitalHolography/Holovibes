@@ -169,7 +169,7 @@ void* ViewApi::get_raw_last_image() const
 void* ViewApi::get_hologram_last_image() const
 {
     if (api_->compute.get_gpu_output_queue())
-        return api_->compute.get_gpu_output_queue().get()->get_last_image();
+        return api_->compute.get_gpu_output_queue()->get_last_image();
 
     return nullptr;
 }

@@ -76,26 +76,27 @@ void ImportPanel::import_browse_file()
                                         "(*.cine)"));
 
     // Start importing the chosen
-    import_file(filename);
-}
-
-void ImportPanel::import_file(const QString& filename)
-{
-    // Get the widget (output bar) from the ui linked to the file explorer
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
 
     // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
+    // Import file will then be called since it will trigger the signal `textChanged` of the line edit
+}
+
+void ImportPanel::import_file(const QString& filename)
+{
+    if (filename.isEmpty())
+        return;
+
     // Start importing the chosen
+    gui::close_windows();
     std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
 
     if (input_file_opt)
     {
         auto input_file = input_file_opt.value();
-
-        parent_->notify();
 
         // Gather data from the newly opened file
         int nb_frames = static_cast<int>(input_file->get_total_nb_frames());
@@ -103,15 +104,9 @@ void ImportPanel::import_file(const QString& filename)
         // Don't need the input file anymore
         delete input_file;
 
-        // Update the ui with the gathered data
         // The start index cannot exceed the end index
         ui_->ImportStartIndexSpinBox->setMaximum(nb_frames);
         ui_->ImportEndIndexSpinBox->setMaximum(nb_frames);
-
-        // Changing the settings is straight-up better than changing the UI
-        // This whole logic will need to go in the API at one point
-        api_.input.set_input_file_start_index(0);
-        api_.input.set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);
@@ -122,27 +117,14 @@ void ImportPanel::import_file(const QString& filename)
         set_start_stop_buttons(false);
 }
 
-void ImportPanel::import_stop()
-{
-    gui::close_windows();
-    api_.input.import_stop();
-    parent_->notify();
-}
+void ImportPanel::import_stop() { gui::stop(); }
 
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
-void ImportPanel::import_start()
-{
-    gui::close_windows();
-    if (api_.input.import_start())
-        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
-}
+void ImportPanel::import_start() { gui::start(parent_->window_max_size); }
 
 void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
-void ImportPanel::update_import_file_path()
-{
-    api_.input.set_input_file_path(ui_->ImportPathLineEdit->text().toStdString());
-}
+void ImportPanel::update_import_file_path() { import_file(ui_->ImportPathLineEdit->text()); }
 
 void ImportPanel::update_load_file_in_gpu()
 {

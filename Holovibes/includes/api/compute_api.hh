@@ -18,29 +18,27 @@ class ComputeApi : public IApi
     {
     }
 
+#pragma region Compute
+
     /*! \brief Return whether the computation is stopped or not.
      *
      * \return bool True if the computation is stopped, false otherwise
      */
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
-    /*! \brief Sets whether the computation is stopped or not.
-     *
-     * \param[in] value True to stop the computation, false otherwise
-     */
-    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
-
-    /*! \brief Stops the pipe. */
+    /*! \brief Stops the pipe and the file/camera reading. */
     void close_critical_compute() const;
 
-    /*! \brief Reset some values after MainWindow receives an update exception */
-    void handle_update_exception() const;
+    /*! \brief Starts the computation. This function will:
+     * - init the input_queue if not initialized
+     * - init the GPU output_queue if not initialized
+     * - create a new pipe if not initialized
+     * - start the computation worker
+     * - start the frame read worker
+     */
+    ApiCode start() const;
 
-    /*! \brief Stops holovibes' controllers for computation*/
-    void stop_all_worker_controller() const;
-
-    /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
-    void loaded_moments_data() const;
+#pragma endregion
 
 #pragma region Buffer
 
@@ -62,7 +60,13 @@ class ComputeApi : public IApi
      *
      * \return std::shared_ptr<Queue> The gpu output queue
      */
-    inline std::shared_ptr<Queue> get_gpu_output_queue() const { return Holovibes::instance().get_gpu_output_queue(); };
+    inline std::shared_ptr<Queue> get_gpu_output_queue() const
+    {
+        if (Holovibes::instance().get_compute_pipe_no_throw())
+            return Holovibes::instance().get_compute_pipe()->get_output_queue();
+
+        return nullptr;
+    };
 
     /*! \brief Return the input queue.
      *
@@ -92,17 +96,14 @@ class ComputeApi : public IApi
     };
 
     /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh() const;
+    ApiCode pipe_refresh() const;
 
     /*! \brief Enables the pipe refresh */
-    void enable_pipe_refresh() const;
+    ApiCode enable_pipe_refresh() const;
 
     /*! \brief Disables the pipe refresh. You must enable pipe refresh after otherwise computations will be weird. Use
      * with caution. */
-    void disable_pipe_refresh() const;
-
-    /*! \brief Creates a new pipe and start computation */
-    void create_pipe() const;
+    ApiCode disable_pipe_refresh() const;
 
 #pragma endregion
 
@@ -114,20 +115,14 @@ class ComputeApi : public IApi
      */
     inline ImgType get_img_type() const { return GET_SETTING(ImageType); }
 
-    /*! \brief Sets the view mode (Magnitude, Argument, Phase Increase, Composite Image, etc.). It's not a realtime
-     * function
-     *
-     * \param[in] type The new view mode
-     */
-    inline void set_img_type(ImgType type) const { UPDATE_SETTING(ImageType, type); }
-
-    /*! \brief Changes the image type in realtime. Changes the setting and requests a pipe refresh. If the type is
-     * composite the pipe is rebuild
+    /*! \brief Changes the image type (Magnitude, Argument, Phase Increase, Composite Image, etc.). If computation has
+     * started requests a pipe refresh or a pipe rebuild in case of Composite.
      *
      * \param[in] type The new image type
+     *
      * \return ApiCode OK if the image type was changed, an error code otherwise
      */
-    ApiCode set_view_mode(const ImgType type) const;
+    ApiCode set_img_type(const ImgType type) const;
 
 #pragma endregion
 
@@ -149,9 +144,16 @@ class ComputeApi : public IApi
      *
      * \param[in] mode The new computation mode
      */
-    void set_computation_mode(Computation mode) const;
+    ApiCode set_computation_mode(Computation mode) const;
 
 #pragma endregion
+
+  private:
+    /*! \brief Sets whether the computation is stopped or not.
+     *
+     * \param[in] value True to stop the computation, false otherwise
+     */
+    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
 };
 
 } // namespace holovibes::api

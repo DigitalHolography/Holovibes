@@ -214,7 +214,7 @@ void TransformApi::set_x_accu_level(uint x_value) const
 
 void TransformApi::set_x_cuts(uint value) const
 {
-    if (value < api_->input.get_fd().width)
+    if (value < api_->input.get_input_fd().width)
     {
         SET_SETTING(X, start, value);
         api_->compute.pipe_refresh();
@@ -229,7 +229,7 @@ void TransformApi::set_y_accu_level(uint y_value) const
 
 void TransformApi::set_y_cuts(uint value) const
 {
-    if (value < api_->input.get_fd().height)
+    if (value < api_->input.get_input_fd().height)
     {
         SET_SETTING(Y, start, value);
         api_->compute.pipe_refresh();
@@ -241,10 +241,10 @@ void TransformApi::set_x_y(uint x, uint y) const
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
 
-    if (x < api_->input.get_fd().width)
+    if (x < api_->input.get_input_fd().width)
         SET_SETTING(X, start, x);
 
-    if (y < api_->input.get_fd().height)
+    if (y < api_->input.get_input_fd().height)
         SET_SETTING(Y, start, y);
 
     api_->compute.pipe_refresh();

@@ -28,7 +28,7 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    auto pipe = Holovibes::instance().get_compute_pipe();
+    auto pipe = API.compute.get_compute_pipe();
     pipe->request_record_chart(static_cast<unsigned int>(setting<settings::RecordFrameCount>().value()));
     while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;

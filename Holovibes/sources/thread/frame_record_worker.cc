@@ -73,8 +73,9 @@ void FrameRecordWorker::run()
 
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request(ICS::FrameRecord);
+    auto pipe = Holovibes::instance().get_compute_pipe_no_throw();
+    if (pipe)
+        pipe->request(ICS::FrameRecord);
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
@@ -209,16 +210,8 @@ void FrameRecordWorker::wait_for_frames()
 
 void FrameRecordWorker::reset_record_queue()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
+    auto pipe = API.compute.get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
     record_queue_.load()->reset();
-
-    /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(setting<settings::OutputBufferSize>(), stream_);
-
-    std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-    if (output_queue)
-        output_queue->resize(setting<settings::OutputBufferSize>(), stream_);*/
 }
 } // namespace holovibes::worker

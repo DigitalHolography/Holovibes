@@ -192,7 +192,7 @@ void ICompute::allocate_moments_buffers()
 
 void ICompute::init_cuts()
 {
-    camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+    camera::FrameDescriptor fd_xz = buffers_.gpu_output_queue->get_fd();
 
     fd_xz.depth = camera::PixelDepth::Bits16; // Size of ushort
     auto fd_yz = fd_xz;
@@ -224,6 +224,26 @@ void ICompute::dispose_cuts()
 
     time_transformation_env_.gpu_output_queue_xz.reset(nullptr);
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
+}
+
+void ICompute::init_output_queue()
+{
+    uint size = static_cast<uint>(setting<settings::OutputBufferSize>());
+
+    auto fd = input_queue_.get_fd();
+    if (setting<settings::ComputeMode>() == Computation::Hologram)
+    {
+        fd.depth = camera::PixelDepth::Bits16;
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            fd.depth = camera::PixelDepth::Bits48;
+    }
+
+    if (!buffers_.gpu_output_queue)
+        buffers_.gpu_output_queue = std::make_shared<Queue>(fd, size, QueueType::OUTPUT_QUEUE);
+    else
+        buffers_.gpu_output_queue->rebuild(fd, size, stream_, Device::GPU);
+
+    LOG_DEBUG("Output queue allocated");
 }
 
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
