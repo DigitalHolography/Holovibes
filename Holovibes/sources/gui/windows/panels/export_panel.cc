@@ -27,21 +27,10 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-/*
- * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
- * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
- */
-void actualise_record_output_file_ui(const std::filesystem::path file_path)
-{
-    NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
-}
-
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
     set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
-
-    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
 void ExportPanel::on_notify()
@@ -124,8 +113,6 @@ void ExportPanel::on_notify()
             .string();
     path_line_edit->insert(record_output_path.c_str());
     path_line_edit->setToolTip(record_output_path.c_str());
-
-    actualise_record_output_file_ui(record_output_path);
 
     // Number of frames
     if (api_.record.get_record_frame_count().has_value())

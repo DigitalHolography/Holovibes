@@ -48,6 +48,8 @@ class LightUI : public QMainWindow
      */
     void showEvent(QShowEvent* event) override;
 
+    inline void on_notify(bool _) { notify(); }
+
     /*!
      * \brief Update UI elements with the right value stored in the app
      */
@@ -215,15 +217,14 @@ class LightUI : public QMainWindow
     void closeEvent(QCloseEvent* event) override;
 
   private:
-    Ui::LightUI* ui_;                                           ///< Pointer to the UI instance.
-    MainWindow* main_window_;                                   ///< Pointer to the MainWindow instance.
-    bool visible_;                                              ///< Boolean to track the visibility state of the UI.
-    Subscriber<RecordMode> record_start_subscriber_;            ///< Subscriber for record start events.
-    Subscriber<RecordMode> record_end_subscriber_;              ///< Subscriber for record end events.
-    Subscriber<bool> record_finished_subscriber_;               ///< Subscriber for record finished events.
+    Ui::LightUI* ui_;                                ///< Pointer to the UI instance.
+    MainWindow* main_window_;                        ///< Pointer to the MainWindow instance.
+    bool visible_;                                   ///< Boolean to track the visibility state of the UI.
+    Subscriber<bool> notify_subscriber_;             ///< Subscriber that runs the notify function and updates the UI.
+    Subscriber<RecordMode> record_start_subscriber_; ///< Subscriber for record start events.
+    Subscriber<RecordMode> record_end_subscriber_;   ///< Subscriber for record end events.
+    Subscriber<bool> record_finished_subscriber_;    ///< Subscriber for record finished events.
     Subscriber<RecordProgressData> record_progress_subscriber_; ///< Subscriber for record progress events.
-    Subscriber<const std::filesystem::path>
-        record_output_file_subscriber_; ///< Subscriber for record output file path events.
     Subscriber<RecordBarColorData>
         record_progress_bar_color_subscriber_; ///< Subscriber for record progress bar color events.
 };

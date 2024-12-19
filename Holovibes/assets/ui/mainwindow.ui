@@ -2982,7 +2982,7 @@ The range of frequencies kept is [z, z + width]</string>
                  <item row="0" column="6">
                   <widget class="QPushButton" name="ResetRecordedEyePushButton">
                    <property name="text">
-                    <string>Ø</string>
+                    <string>X</string>
                    </property>
                    <property name="toolTip">
                     <string>Cancel the eye choice and sets it back to unspecified</string>

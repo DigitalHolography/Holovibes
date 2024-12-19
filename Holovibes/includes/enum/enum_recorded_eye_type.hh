@@ -13,6 +13,7 @@ namespace holovibes
 /*! \enum RecordMode
  *
  * \brief Enum that allows the user to specify what eye is being recorded
+ * This has no influence on computations, this only modifies a recording file's name
  *
  */
 enum class RecordedEyeType

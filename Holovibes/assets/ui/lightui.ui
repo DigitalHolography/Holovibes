@@ -292,7 +292,7 @@
          <string>Cancel the eye choice and sets it back to unspecified</string>
         </property>
         <property name="text">
-         <string>Ø</string>
+         <string>X</string>
         </property>
        </widget>
       </item>

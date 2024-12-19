@@ -187,10 +187,6 @@ class RecordApi : public IApi
      */
     void set_record_mode_enum(RecordMode value) const;
 
-#pragma endregion
-
-#pragma region Eye
-
     /*!
      * \brief Gets the available extension for the given record mode
      *
@@ -198,6 +194,10 @@ class RecordApi : public IApi
      * \return std::vector<OutputFormat> The available file extensions as an enum.
      */
     std::vector<OutputFormat> get_supported_formats(RecordMode mode) const;
+
+#pragma endregion
+
+#pragma region Eye
 
     /**
      * \brief Get the eye that is recorded by the program
