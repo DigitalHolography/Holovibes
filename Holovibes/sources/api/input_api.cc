@@ -67,8 +67,8 @@ bool InputApi::import_start() const
     camera_none();
     api_->compute.set_is_computation_stopped(false);
 
-    // if the file is to be imported in GPU, we should load the buffer preset for such case
-    if (get_load_file_in_gpu())
+    // if the file is to be imported in GPU (or CPU RAM), we should load the buffer preset for such case
+    if (get_file_load_kind() != FileLoadKind::REGULAR)
         NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     try

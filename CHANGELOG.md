@@ -2,7 +2,8 @@
 
 ### 14.X.X
 
-- Added a 'Load file in RAM' checkbox in the Import panel
+- Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
+- Added an option 'Load file in CPU RAM' in that drop-down
 
 ### 14.2.0
 

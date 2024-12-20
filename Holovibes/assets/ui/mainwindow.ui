@@ -2650,35 +2650,22 @@ The range of frequencies kept is [z, z + width]</string>
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
-              <property name="toolTip">
-               <string>Allows much higher FPS. Requires high GPU DRAM.</string>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="locale">
-               <locale language="French" country="France"/>
-              </property>
-              <property name="text">
-               <string>Load File In GPU</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="LoadFileInRamCheckBox">
-              <property name="toolTip">
-               <string>Allows much higher FPS. Requires high RAM.</string>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="locale">
-               <locale language="French" country="France"/>
-              </property>
-              <property name="text">
-               <string>Load File In RAM</string>
-              </property>
+             <widget class="QComboBox" name="FileLoadKindComboBox">
+              <item>
+               <property name="text">
+                <string>Regular access</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in GPU VRAM</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in CPU RAM</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item>
@@ -5786,22 +5773,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>LoadFileInGpuCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_load_file_in_gpu(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
@@ -5898,18 +5869,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>LoadFileInRamCheckBox</sender>
-   <signal>toggled(bool)</signal>
+   <sender>FileLoadKindComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>ImportPanel</receiver>
-   <slot>update_load_file_in_ram(bool)</slot>
+   <slot>update_file_load_kind(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>859</x>
-     <y>191</y>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>859</x>
-     <y>136</y>
+     <y>149</y>
     </hint>
    </hints>
   </connection>

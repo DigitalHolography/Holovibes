@@ -96,33 +96,21 @@ class InputApi : public IApi
      */
     inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
 
-    /*! \brief Return whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Get how the file is currently being read
      *
-     * \return bool true if the full file will be loaded in the GPU memory
+     * \return FileLoadKind The current way that files are read
+     *
+     * \see FileLoadKind More explanations here
      */
-    inline bool get_load_file_in_gpu() const { return GET_SETTING(LoadFileInGPU); }
+    inline FileLoadKind get_file_load_kind() const { return GET_SETTING(FileLoadKind); }
 
-    /*! \brief Set whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Set how the files should be read
      *
-     * \param[in] value true if the full file will be loaded in the GPU memory
-     */
-    inline void set_load_file_in_gpu(bool value) const { UPDATE_SETTING(LoadFileInGPU, value); }
-
-    /*! \brief Return whether the full file will be loaded in the CPU memory (RAM) or not. It's used similarly to
-     * LoadFileInGPU but this allows for more GPU memory space available, albeit for slightly longer operations.
+     * \param[in] value The new way that files should be read
      *
-     * \return bool true if the full file will be loaded in the RAM
+     * \see FileLoadKind More explanations here
      */
-    inline bool get_load_file_in_RAM() const { return GET_SETTING(LoadFileInRAM); }
-
-    /*! \brief Set whether the full file will be loaded in the CPU memory (RAM) or not. It's used similarly to
-     * LoadFileInGPU but this allows for more GPU memory space available, as RAM is less used than GPU memory.
-     *
-     * \param[in] value true if the full file will be loaded in the RAM
-     */
-    inline void set_load_file_in_ram(bool value) const { UPDATE_SETTING(LoadFileInRAM, value); }
+    inline void set_file_load_kind(FileLoadKind value) const { UPDATE_SETTING(FileLoadKind, value); }
 
     /*! \brief Return the number of frames that will be read from the file per second.
      *

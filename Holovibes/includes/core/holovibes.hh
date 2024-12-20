@@ -42,14 +42,13 @@
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
-    holovibes::settings::LoadFileInGPU,                          \
-    holovibes::settings::LoadFileInRAM,                          \
+    holovibes::settings::FileLoadKind,                           \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
-    holovibes::settings::RecordFrameOffset,                        \
+    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
@@ -373,8 +372,7 @@ class Holovibes
                                              settings::ImportedFileFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
-                                             settings::LoadFileInGPU{false},
-                                             settings::LoadFileInRAM{false},
+                                             settings::FileLoadKind{FileLoadKind::REGULAR},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},

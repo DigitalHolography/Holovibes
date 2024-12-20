@@ -61,18 +61,11 @@ class ImportPanel : public Panel
     void update_import_file_path();
 
     /*!
-     * \brief Handles the update of the load file in GPU in the UI.
+     * \brief Handles the update of the load file kind in the UI.
      *
-     * \param enabled[in] Whether or not to enable loading the file in GPU
+     * \param kind[in] The index of the new way to read from files
      */
-    void update_load_file_in_gpu(bool enabled);
-
-    /*!
-     * \brief Handles the update of the load file in RAM in the UI.
-     *
-     * \param enabled[in] Whether or not to enable loading the file in RAM
-     */
-    void update_load_file_in_ram(bool enabled);
+    void update_file_load_kind(int kind);
 
     /*!
      * \brief Handles the update of the input file start index in the UI.
