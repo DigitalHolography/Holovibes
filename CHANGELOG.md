@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.X.X
+
+- Added UI buttons that specify which eye is recorded, which is reflected in the file name
+
 ### 14.2.0
 
 - The UI can record again
