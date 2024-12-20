@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.X.X
+
+- Added a 'Load file in RAM' checkbox in the Import panel
+
 ### 14.2.0
 
 - The UI can record again
