@@ -283,6 +283,66 @@ void horizontalFlip(T* d_matrix, int width, int height)
     cudaDeviceSynchronize();
 }
 
+__global__ void rot180Kernel(cufftComplex* input, cufftComplex* output, int rows, int cols)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < cols && y < rows)
+    {
+        output[(rows - 1 - y) * cols + (cols - 1 - x)] = input[y * cols + x];
+    }
+}
+
+// void xcorr2(float* output,
+//             float* input1,
+//             float* input2,
+//             cufftComplex* d_freq_1,
+//             cufftComplex* d_freq_2,
+//             cufftHandle plan_2d,
+//             cufftHandle plan_2dinv,
+//             const int freq_size,
+//             int width,
+//             int height,
+//             cudaStream_t stream)
+// {
+//     cufftComplex* out_rot;
+//     cudaXMalloc(&out_rot, width * height * sizeof(float));
+
+//     dim3 blockSize(16, 16);
+//     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
+
+//     cufftExecR2C(plan_2d, input1, d_freq_1);
+//     cufftExecR2C(plan_2d, input2, d_freq_2);
+
+//     conjugate_complex(d_freq_1, width * height, stream);
+//     // rot180Kernel<<<gridSize, blockSize, 0, stream>>>(d_freq_1, out_rot, width, height);
+//     cudaXStreamSynchronize(stream);
+//     // horizontalFlip<float>(input2, width, height);
+//     // verticalFlip<float>(input2, width, height);
+//     // complex_hadamard_product(d_freq_1, d_freq_1, d_freq_2, width * height, stream);
+
+//     cufftExecC2R(plan_2dinv, d_freq_1, output);
+//     // flip(d_freq_1, width, height, stream);
+
+//     // cufftExecC2R(plan_2dinv, d_freq_1, output);
+//     // cufftExecC2R(plan_2dinv, d_freq_2, output);
+//     cudaFree(out_rot);
+// }
+
+__global__ void rotate180(cufftComplex* input, cufftComplex* output, int width, int height)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height)
+    {
+        int idx_in = y * width + x;
+        int idx_out = (height - y - 1) * width + (width - x - 1);
+        output[idx_out] = input[idx_in];
+    }
+}
+
 void xcorr2(float* output,
             float* input1,
             float* input2,
@@ -295,23 +355,28 @@ void xcorr2(float* output,
             int height,
             cudaStream_t stream)
 {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
+
+    cufftComplex* d_temp;
+    cudaMalloc((void**)&d_temp, width * height * sizeof(cufftComplex));
+
+    dim3 blockDim(16, 16);
+    dim3 gridDim((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
+
+    cudaXStreamSynchronize(stream);
 
     cufftExecR2C(plan_2d, input1, d_freq_1);
     cufftExecR2C(plan_2d, input2, d_freq_2);
 
-    conjugate_complex(d_freq_2, width * height, stream);
-    cudaStreamSynchronize(stream);
+    conjugate_complex(d_freq_1, width * height, stream);
+    cudaXStreamSynchronize(stream);
 
-    horizontalFlip<float>(input2, width, height);
-    verticalFlip<float>(input2, width, height);
-    complex_hadamard_product(d_freq_1, d_freq_1, d_freq_2, width * height, stream);
+    rotate180<<<gridDim, blockDim, 0, stream>>>(d_freq_1, d_temp, width, height);
+    cudaXStreamSynchronize(stream);
 
-    // cufftExecC2R(plan_2dinv, d_freq_1, output);
-    // flip(d_freq_1, width, height, stream);
+    cudaMemcpyAsync(d_freq_1, d_temp, width * height * sizeof(cufftComplex), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
 
-    // cufftExecC2R(plan_2dinv, d_freq_1, output);
-    // cufftExecC2R(plan_2dinv, d_freq_2, output);
-    // cudaFree(outi);
+    cufftExecC2R(plan_2dinv, d_freq_1, output);
+
+    cudaFree(d_temp);
 }

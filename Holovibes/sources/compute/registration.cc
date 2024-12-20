@@ -44,11 +44,11 @@ void Registration::insert_registration()
                        stream_);
                 cudaXStreamSynchronize(stream_);
 
-                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                //             gpu_xcorr_output_,
-                //             fd_.width * fd_.height * sizeof(float),
-                //             cudaMemcpyDeviceToDevice);
-                // return;
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            gpu_xcorr_output_,
+                            fd_.width * fd_.height * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
+                return;
 
                 // Getting the argmax of the xcorr2 output matrix.
                 int max_index;
