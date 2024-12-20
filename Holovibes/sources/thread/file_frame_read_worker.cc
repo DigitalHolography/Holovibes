@@ -273,7 +273,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
     // Read in either cpu or gpu depending on the settings
-    char* buffer = setting<settings::LoadFileInRAM>() ? cpu_frame_buffer_ : gpu_file_frame_buffer_;
+    char* frame_buffer = setting<settings::LoadFileInRAM>() ? cpu_frame_buffer_ : gpu_file_frame_buffer_;
     auto enqueue_kind = setting<settings::LoadFileInRAM>() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToDevice;
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
@@ -289,7 +289,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-        input_queue_.load()->enqueue(buffer + frames_enqueued * frame_size_, enqueue_kind, real_frames_enqueued);
+        input_queue_.load()->enqueue(frame_buffer + frames_enqueued * frame_size_, enqueue_kind, real_frames_enqueued);
 
         current_nb_frames_read_ += real_frames_enqueued;
         frames_enqueued += real_frames_enqueued;

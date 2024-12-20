@@ -55,32 +55,32 @@ class ImportPanel : public Panel
      */
     void update_fps();
 
-    /**
-     * @brief Handles the update of the import file path in the UI.
+    /*!
+     * \brief Handles the update of the import file path in the UI.
      */
     void update_import_file_path();
 
-    /**
-     * @brief Handles the update of the load file in GPU in the UI.
+    /*!
+     * \brief Handles the update of the load file in GPU in the UI.
      *
-     * \param enabled Whether or not to enable loading the file in GPU
+     * \param enabled[in] Whether or not to enable loading the file in GPU
      */
     void update_load_file_in_gpu(bool enabled);
 
-    /**
-     * @brief Handles the update of the load file in RAM in the UI.
+    /*!
+     * \brief Handles the update of the load file in RAM in the UI.
      *
-     * \param enabled Whether or not to enable loading the file in RAM
+     * \param enabled[in] Whether or not to enable loading the file in RAM
      */
     void update_load_file_in_ram(bool enabled);
 
-    /**
-     * @brief Handles the update of the input file start index in the UI.
+    /*!
+     * \brief Handles the update of the input file start index in the UI.
      */
     void update_input_file_start_index();
 
-    /**
-     * @brief Handles the update of the input file end index in the UI.
+    /*!
+     * \brief Handles the update of the input file end index in the UI.
      */
     void update_input_file_end_index();
 };
