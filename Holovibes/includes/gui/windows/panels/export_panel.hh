@@ -1,4 +1,4 @@
-/*! \file
+/*! \file export_panel.hh
  *
  * \brief File containing methods, attributes and slots related to the Export panel
  */
@@ -40,13 +40,13 @@ class ExportPanel : public Panel
 
     /*! \brief Enables or Disables number of frame restriction for recording
      *
-     * \param value true: enable, false: disable
+     * \param[in] value true: enable, false: disable
      */
     void set_nb_frames_mode(bool value);
 
     /*! \brief Modifies the record mode
      *
-     * \param index The new record mode's index in the UI. As it is the same as the enum, it is directly casted.
+     * \param[in] index The new record mode's index in the UI. As it is the same as the enum, it is directly casted.
      */
     void set_record_mode(int index);
 
@@ -55,7 +55,7 @@ class ExportPanel : public Panel
 
     /*! \brief Resets ui on record finished
      *
-     * \param record_mode The current record mode
+     * \param[in] record_mode The current record mode
      */
     void record_finished(RecordMode record_mode);
 
@@ -75,30 +75,28 @@ class ExportPanel : public Panel
     void stop_chart_display();
 
     /*!
-     * @brief Handles the update of the record frame count enabled setting checkbox.
+     * \brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
 
     /*!
-     * @brief Handles the update of the record file path setting line edit.
+     * \brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
 
     /*!
-     * @brief Handles the update of the record file extension setting combo box.
+     * \brief Handles the update of the record file extension setting combo box.
      */
     void update_record_file_extension(const QString& value);
 
     /*!
      * \brief Handles the update of the recorded eye button
      * Changes the current recorded eye, cycling between left and right
-     *
      */
     void update_recorded_eye();
 
     /*!
      * \brief Sets the recorded eye to None instead of left or right
-     *
      */
     void reset_recorded_eye();
 
