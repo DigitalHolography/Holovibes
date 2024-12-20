@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of shift corners compute function
+ * \brief Declaration of shift corners compute functions
  */
 #pragma once
 

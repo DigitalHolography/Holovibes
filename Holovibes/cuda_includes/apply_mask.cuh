@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of all apply mask function
+ * \brief Declaration of all apply mask functions
  */
 #pragma once
 
@@ -13,44 +13,44 @@ using ushort = unsigned short;
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param in_out The buffer of images to modify
- * \param mask The mask to apply to 'in_out'
- * \param size The number of pixels in one frame of 'in_out'
- * \param batch_size The number of frames of 'in_out'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in out] in_out The buffer of images to modify
+ * \param[in] mask The mask to apply to 'in_out'
+ * \param[in] size The number of pixels in one frame of 'in_out'
+ * \param[in] batch_size The number of frames of 'in_out'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(
     cuComplex* in_out, const cuComplex* mask, const size_t size, const uint batch_size, const cudaStream_t stream);
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param in_out The buffer of images to modify
- * \param mask The mask to apply to 'in_out'
- * \param size The number of pixels in one frame of 'in_out'
- * \param batch_size The number of frames of 'in_out'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in out] in_out The buffer of images to modify
+ * \param[in] mask The mask to apply to 'in_out'
+ * \param[in] size The number of pixels in one frame of 'in_out'
+ * \param[in] batch_size The number of frames of 'in_out'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(
     cuComplex* in_out, const float* mask, const size_t size, const uint batch_size, const cudaStream_t stream);
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param in_out The buffer of images to modify
- * \param mask The mask to apply to 'in_out'
- * \param size The number of pixels in one frame of 'in_out'
- * \param batch_size The number of frames of 'in_out'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in out] in_out The buffer of images to modify
+ * \param[in] mask The mask to apply to 'in_out'
+ * \param[in] size The number of pixels in one frame of 'in_out'
+ * \param[in] batch_size The number of frames of 'in_out'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(float* in_out, const float* mask, const size_t size, const uint batch_size, const cudaStream_t stream);
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param input The buffer of images to modify
- * \param mask The mask to apply to 'input' stored in 'output'
- * \param output The output buffer of the mask application
- * \param size The number of pixels in one frame of 'input'
- * \param batch_size The number of frames of 'input'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in] input The buffer of images to modify
+ * \param[in] mask The mask to apply to 'input' stored in 'output'
+ * \param[out] output The output buffer of the mask application
+ * \param[in] size The number of pixels in one frame of 'input'
+ * \param[in] batch_size The number of frames of 'input'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(const cuComplex* input,
                 const cuComplex* mask,
@@ -61,12 +61,12 @@ void apply_mask(const cuComplex* input,
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param input The buffer of images to modify
- * \param mask The mask to apply to 'input' stored in 'output'
- * \param output The output buffer of the mask application
- * \param size The number of pixels in one frame of 'input'
- * \param batch_size The number of frames of 'input'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in] input The buffer of images to modify
+ * \param[in] mask The mask to apply to 'input' stored in 'output'
+ * \param[out] output The output buffer of the mask application
+ * \param[in] size The number of pixels in one frame of 'input'
+ * \param[in] batch_size The number of frames of 'input'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(const cuComplex* input,
                 const float* mask,
@@ -77,12 +77,12 @@ void apply_mask(const cuComplex* input,
 
 /*! \brief This function applies a mask to a number of frames
  *
- * \param input The buffer of images to modify
- * \param mask The mask to apply to 'input' stored in 'output'
- * \param output The output buffer of the mask application
- * \param size The number of pixels in one frame of 'input'
- * \param batch_size The number of frames of 'input'
- * \param stream The CUDA stream on which to launch the operation.
+ * \param[in] input The buffer of images to modify
+ * \param[in] mask The mask to apply to 'input' stored in 'output'
+ * \param[out] output The output buffer of the mask application
+ * \param[in] size The number of pixels in one frame of 'input'
+ * \param[in] batch_size The number of frames of 'input'
+ * \param[in] stream The CUDA stream on which to launch the operation.
  */
 void apply_mask(const float* input,
                 const float* mask,
@@ -120,7 +120,7 @@ void rescale_in_mask(
  *  Overload of `rescale_in_mask`, calling it with `input_output` for both input and output.
  *  Calls a CUDA Kernel.
  *
- *  \param[out] input_output The image on which the mask is applied and the pixels are rescaled. Operations done in
+ *  \param[in out] input_output The image on which the mask is applied and the pixels are rescaled. Operations done in
  *  place.
  *  \param[in] mask The pixels are rescaled only inside this mask.
  *  \param[in] mean The mean substracted to the pixels.

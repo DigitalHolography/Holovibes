@@ -34,7 +34,7 @@ enum class KindOfView
 
 /*! \class BasicOpenGLWindow
  *
- * \brief class that represents a basic OpenGL window.
+ * \brief Class that represents a basic OpenGL window.
  */
 class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {

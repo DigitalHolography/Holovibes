@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of angular spectrum compute function
+ * \brief Declaration of angular spectrum compute functions
  */
 #pragma once
 

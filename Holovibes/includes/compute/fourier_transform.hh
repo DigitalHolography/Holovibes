@@ -64,7 +64,7 @@ namespace holovibes::compute
 {
 /*! \class FourierTransform
  *
- * \brief class of Fresnel Transform
+ * \brief Class of Fourier Transform
  */
 class FourierTransform
 {

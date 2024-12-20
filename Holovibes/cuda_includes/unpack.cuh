@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful unpack function
+ * \brief Functions that convert irregular-encoded data to 16bits
 
  */
 #pragma once

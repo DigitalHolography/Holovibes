@@ -1,13 +1,13 @@
 /*! \file
  *
- * \brief declaration of the Worker class
+ * \brief Declaration of the Worker class
  */
 #pragma once
 
 /*!
  * \namespace holovibes::worker
  *
- * \brief Namespace containing the Worker class
+ * \brief Namespace containing the Worker classes
  */
 namespace holovibes::worker
 {

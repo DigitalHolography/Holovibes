@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the CusolverHandle class
+ * \brief Declaration of the CusolverHandle class
  */
 #pragma once
 

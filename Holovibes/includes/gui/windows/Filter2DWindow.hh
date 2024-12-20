@@ -12,7 +12,7 @@ class MainWindow;
 
 /*! \class Filter2DWindow
  *
- * \brief class that represents a Filter2D window in the GUI.
+ * \brief Class that represents a Filter2D window in the GUI.
  */
 class Filter2DWindow : public BasicOpenGLWindow
 {

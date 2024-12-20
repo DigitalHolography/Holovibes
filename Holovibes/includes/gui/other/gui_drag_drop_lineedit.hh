@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the Drag_drop_lineedit class
+ * \brief Declaration of the Drag_drop_lineedit class
  */
 #pragma once
 
@@ -13,7 +13,7 @@ namespace holovibes::gui
 {
 /*! \class Drag_drop_lineedit
  *
- * \brief class that inherits from QLineEdit and allows drag and drop of files
+ * \brief Class that inherits from QLineEdit and allows drag and drop of files
  */
 class Drag_drop_lineedit : public QLineEdit
 {

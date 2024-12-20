@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of frame reshape function
+ * \brief Declaration of frame reshape functions
  */
 #pragma once
 

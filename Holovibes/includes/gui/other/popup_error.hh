@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the popup_error functions
+ * \brief Declaration of the popup_error functions
  */
 #pragma once
 

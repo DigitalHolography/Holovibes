@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the ChartPoint struct
+ * \brief Declaration of the ChartPoint struct
  */
 #pragma once
 
@@ -8,7 +8,7 @@ namespace holovibes
 {
 /*! \class ChartPoint
  *
- * \brief struct that holds the data for a single point on a chart
+ * \brief Struct that holds the data for a single point on a chart
  */
 struct ChartPoint
 {

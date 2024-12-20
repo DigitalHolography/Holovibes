@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of start cli function
+ * \brief Declaration of start cli function
  */
 #pragma once
 
@@ -11,5 +11,11 @@ namespace cli
 {
 #define DEFAULT_CLI_FPS INT_MAX
 
+/*! \brief Start the command-line interface.
+ *
+ * \param[in] holovibes The holovibes object.
+ * \param[in] opts The options descriptor.
+ * \return The exit code.
+ */
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts);
 } // namespace cli

@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class SquareOverlay
  *
- * \brief class that represents a square overlay in the window.
+ * \brief Class that represents a square overlay in the window.
  */
 class SquareOverlay : public FilledRectOverlay
 {

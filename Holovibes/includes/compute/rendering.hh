@@ -62,7 +62,7 @@ using uint = unsigned int;
 
 /*! \class Rendering
  *
- * \brief class of the rendering features
+ * \brief Class of the rendering features
  */
 class Rendering
 {

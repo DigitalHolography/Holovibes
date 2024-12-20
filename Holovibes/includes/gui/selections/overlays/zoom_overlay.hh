@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class ZoomOverlay
  *
- * \brief class that represents a zoom overlay in the window.
+ * \brief Class that represents a zoom overlay in the window.
  */
 class ZoomOverlay : public SquareOverlay
 {

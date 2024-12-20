@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief  common include and declaration usefull for cuda
+ * \brief Common include and declaration useful for cuda
  */
 #pragma once
 

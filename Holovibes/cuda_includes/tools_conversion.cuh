@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful conversion function
+ * \brief Declaration of some useful conversion functions
  */
 #pragma once
 

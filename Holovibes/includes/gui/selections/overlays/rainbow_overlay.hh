@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the RainbowOverlay class.
+ * \brief Declaration of the RainbowOverlay class.
  */
 #pragma once
 
@@ -11,7 +11,7 @@ namespace holovibes::gui
 {
 /*! \class RainbowOverlay
  *
- * \brief class that represents a rainbow overlay in the window.
+ * \brief Class that represents a rainbow overlay in the window.
  */
 class RainbowOverlay : public Overlay
 {

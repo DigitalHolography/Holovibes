@@ -13,7 +13,7 @@ class SliceWindow;
 
 /*! \class RawWindow
  *
- * \brief class that represents a raw window in the GUI.
+ * \brief Class that represents a raw window in the GUI.
  */
 class RawWindow : public BasicOpenGLWindow
 {

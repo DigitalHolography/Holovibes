@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the InformationWorker class.
+ * \brief Declaration of the InformationWorker class.
  */
 #pragma once
 

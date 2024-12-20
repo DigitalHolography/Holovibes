@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the FrameReadWorker class.
+ * \brief Declaration of the FrameReadWorker class.
  */
 #pragma once
 

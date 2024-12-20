@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful hsv function
+ * \brief Seclaration of some useful hsv functions
  */
 #pragma once
 

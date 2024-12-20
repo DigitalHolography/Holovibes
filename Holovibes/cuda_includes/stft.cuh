@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of stft compute function
+ * \brief Declaration of stft compute functions
  */
 #pragma once
 

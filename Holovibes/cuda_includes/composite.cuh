@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of postcolor normalize compute function
+ * \brief Declaration of postcolor normalize compute functions
  */
 #pragma once
 

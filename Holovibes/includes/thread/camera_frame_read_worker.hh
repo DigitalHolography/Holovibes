@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the CameraFrameReadWorker class.
+ * \brief Declaration of the CameraFrameReadWorker class.
  */
 #pragma once
 

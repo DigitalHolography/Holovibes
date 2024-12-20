@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of apply contrast correction function
+ * \brief Declaration of apply contrast correction function
  */
 #pragma once
 

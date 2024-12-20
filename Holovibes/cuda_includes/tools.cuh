@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful function
+ * \brief Helper function usable as tools anywhere in the code
  */
 #pragma once
 

@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of convolution compute function
+ * \brief Declaration of convolution compute function
  */
 #pragma once
 

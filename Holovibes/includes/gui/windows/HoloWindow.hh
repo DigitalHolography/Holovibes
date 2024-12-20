@@ -14,7 +14,7 @@ class MainWindow;
 
 /*! \class HoloWindow
  *
- * \brief class that represents a hologram window in the GUI.
+ * \brief Class that represents a hologram window in the GUI.
  */
 class HoloWindow : public RawWindow
 {

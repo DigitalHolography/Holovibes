@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful unwrap function
+ * \brief Declaration of some useful unwrap functions
  */
 #pragma once
 

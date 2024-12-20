@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the Pipe class
+ * \brief Declaration of the Pipe class
  *
  * The Pipe is a sequential computing model, storing procedures
  * in a single container.

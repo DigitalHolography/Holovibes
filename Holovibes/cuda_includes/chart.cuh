@@ -1,17 +1,22 @@
 /*! \file
  *
- * \brief  declaration function use for chart computation
+ * \brief Declaration functions use for chart computation
  */
 #pragma once
 
 #include "common.cuh"
 #include "chart_point.hh"
 
-/*! \brief  Make the sum of input and selected zone
+/*!
+ * \brief Make the sum of input and selected zone
  *
- * \param height The height of the input image.
- * \param width The width of the input image.
- * \param zone Coordinates of the zone to use.
+ * \param[in] input The input image
+ * \param[in] height The height of the input image
+ * \param[in] width The width of the input image
+ * \param[out] output The output image
+ * \param[in] zone The zone to apply the mask to
+ * \param[in] mask The mask to apply
+ * \param[in] stream The CUDA stream to use
  */
 void apply_zone_sum(const float* input,
                     const uint height,
@@ -22,9 +27,13 @@ void apply_zone_sum(const float* input,
 
 /*! \brief  Make the std sum ( sum of (x_i - x_avg) ** 2 for i in [1, N] ) of input and selected zone
  *
- * \param height The height of the input image.
- * \param width The width of the input image.
- * \param zone Coordinates of the zone to use.
+ * \param[in] input The input image
+ * \param[in] height The height of the input image
+ * \param[in] width The width of the input image
+ * \param[out] output The output image
+ * \param[in] zone The zone to apply the mask to
+ * \param[in] avg_signal The average signal
+ * \param[in] stream The CUDA stream to use
  */
 void apply_zone_std_sum(const float* input,
                         const uint height,
@@ -36,10 +45,13 @@ void apply_zone_std_sum(const float* input,
 
 /*! \brief  Make the chart plot on the 2 selected zones
  *
- * \param width The width of the input image.
- * \param height The height of the input image.
- * \param signal_zone Coordinates of the signal zone to use.
- * \param noise_zone Coordinates of the noise zone to use.
+ * \param[in] input The input image
+ * \param[in] width The width of the input image
+ * \param[in] height The height of the input image
+ * \param[in] signal_zone The zone to apply the mask to
+ * \param[in] noise_zone The zone to apply the mask to
+ * \param[in] stream The CUDA stream to use
+ *
  * \return ChartPoint containing all computations for one point of chart
  */
 holovibes::ChartPoint make_chart_plot(float* input,

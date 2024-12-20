@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class SliceCrossOverlay
  *
- * \brief class that represents a slice cross overlay in the window.
+ * \brief Class that represents a slice cross overlay in the window.
  */
 class SliceCrossOverlay : public FilledRectOverlay
 {

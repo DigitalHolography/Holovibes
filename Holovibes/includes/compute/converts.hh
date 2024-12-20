@@ -52,7 +52,7 @@ namespace holovibes::compute
 {
 /*! \class Converts
  *
- * \brief class of the conversions between buffers.
+ * \brief Class of the conversions between buffers.
  */
 class Converts
 {

@@ -55,7 +55,7 @@ using Color = std::array<float, 3>;
 
 /*! \class Overlay
  *
- * \brief class that represents an overlay in the window.
+ * \brief Class that represents an overlay in the window.
  */
 class Overlay : protected QOpenGLFunctions
 {

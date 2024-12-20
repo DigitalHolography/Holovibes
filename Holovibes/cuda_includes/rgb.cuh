@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of rgb function
+ * \brief Declaration of rgb function
  */
 #pragma once
 

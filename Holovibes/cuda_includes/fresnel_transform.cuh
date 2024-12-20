@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of fresnel transform function
+ * \brief Declaration of fresnel transform functions
  */
 #pragma once
 

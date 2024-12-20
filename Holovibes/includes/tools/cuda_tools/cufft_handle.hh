@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of the CufftHandle class
+ * \brief Declaration of the CufftHandle class
  */
 #pragma once
 

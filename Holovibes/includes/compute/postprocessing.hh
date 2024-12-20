@@ -44,7 +44,7 @@ namespace holovibes::compute
 {
 /*! \class Postprocessing
  *
- * \brief class of postprocessing features on complex buffers.
+ * \brief Class of postprocessing features on complex buffers.
  */
 class Postprocessing
 {

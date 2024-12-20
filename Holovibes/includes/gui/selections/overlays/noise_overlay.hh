@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class NoiseOverlay
  *
- * \brief class that represents a noise overlay in the window.
+ * \brief Class that represents a noise overlay in the window.
  */
 class NoiseOverlay : public FilledRectOverlay
 {

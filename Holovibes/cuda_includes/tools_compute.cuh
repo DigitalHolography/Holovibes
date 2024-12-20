@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of some useful computation function
+ * \brief Declaration of some useful computation functions
  */
 #pragma once
 

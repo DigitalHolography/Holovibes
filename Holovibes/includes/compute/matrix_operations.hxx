@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief declaration of matrix operation function
+ * \brief Declaration of templated matrix operation functions
  */
 #pragma once
 
