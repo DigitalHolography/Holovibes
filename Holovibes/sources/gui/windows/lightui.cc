@@ -100,12 +100,17 @@ void LightUI::start_stop_recording(bool start)
 void LightUI::on_record_start(RecordMode record)
 {
     ui_->startButton->setText("Stop recording");
+    ui_->RecordedEyePushButton->setEnabled(false);
+    ui_->ResetRecordedEyePushButton->setEnabled(false);
     LOG_INFO("Recording started");
 }
 
 void LightUI::on_record_stop(RecordMode record)
 {
     reset_start_button();
+
+    ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->ResetRecordedEyePushButton->setEnabled(true);
 
     reset_record_progress_bar();
 
@@ -164,7 +169,7 @@ void LightUI::notify()
 
     ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
 
-    ui_->RecordedEyePushButton->setText(QString::fromStdString(API.record.get_recorded_eye_display_string()));
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
 }
 
 void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }

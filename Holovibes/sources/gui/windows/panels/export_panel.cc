@@ -128,7 +128,7 @@ void ExportPanel::on_notify()
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
 
-    ui_->RecordedEyePushButton->setText(QString::fromStdString(api_.record.get_recorded_eye_display_string()));
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
 
@@ -309,7 +309,7 @@ void ExportPanel::update_record_file_path()
                                      ui_->RecordExtComboBox->currentText().toStdString());
 }
 
-/**
+/*!
  * @brief called when change output file extension
  */
 void ExportPanel::update_record_file_extension(const QString& value)

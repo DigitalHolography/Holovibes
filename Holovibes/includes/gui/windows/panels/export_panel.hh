@@ -74,22 +74,22 @@ class ExportPanel : public Panel
     /*! \brief Closes Chart window */
     void stop_chart_display();
 
-    /**
+    /*!
      * @brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
 
-    /**
+    /*!
      * @brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
 
-    /**
+    /*!
      * @brief Handles the update of the record file extension setting combo box.
      */
     void update_record_file_extension(const QString& value);
 
-    /**
+    /*!
      * \brief Handles the update of the recorded eye button
      * Changes the current recorded eye, cycling between left and right
      *

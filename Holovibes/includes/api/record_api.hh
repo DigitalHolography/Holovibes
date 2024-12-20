@@ -206,28 +206,12 @@ class RecordApi : public IApi
      */
     inline RecordedEyeType get_recorded_eye() const { return GET_SETTING(RecordedEye); }
 
-    /**
+    /*!
      * \brief Sets the eye to be recorded; this only affects how the recording is called
      *
-     * \param value[in] Which eye to record
+     * \param[in] value Which eye to record
      */
     void set_recorded_eye(RecordedEyeType value) const;
-
-    /**
-     * \brief Gets a string representation of the current recorded eye
-     * This string is destined to be used for file purposes.
-     *
-     * \return std::string The stringified recorded eye, either "L" or "R", or "" for no eye
-     */
-    std::string get_recorded_eye_file_string() const;
-
-    /**
-     * \brief Gets a string representation of the current recorded eye
-     * This string is more explicit and should be used for display purposes.
-     *
-     * \return std::string The stringified recorded eye, either "L" or "R", or "" for no eye
-     */
-    std::string get_recorded_eye_display_string() const;
 
 #pragma endregion
 

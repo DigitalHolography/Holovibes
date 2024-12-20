@@ -57,22 +57,6 @@ void RecordApi::set_recorded_eye(RecordedEyeType value) const
         UPDATE_SETTING(RecordedEye, value);
 }
 
-std::string RecordApi::get_recorded_eye_file_string() const
-{
-    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
-                                                          {RecordedEyeType::NONE, ""},
-                                                          {RecordedEyeType::RIGHT, "_R"}};
-    return eye_map[get_recorded_eye()];
-}
-
-std::string RecordApi::get_recorded_eye_display_string() const
-{
-    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
-                                                          {RecordedEyeType::NONE, "Unspecified"},
-                                                          {RecordedEyeType::RIGHT, "Right"}};
-    return eye_map[get_recorded_eye()];
-}
-
 #pragma endregion
 
 #pragma region Recording

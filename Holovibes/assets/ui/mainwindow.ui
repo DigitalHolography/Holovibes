@@ -2985,7 +2985,7 @@ The range of frequencies kept is [z, z + width]</string>
                     <string>X</string>
                    </property>
                    <property name="toolTip">
-                    <string>Cancel the eye choice and sets it back to unspecified</string>
+                    <string>Cancel the eye choice and set it back to unspecified</string>
                    </property>
                   </widget>
                  </item>
