@@ -1,4 +1,4 @@
-/*! \file
+/*! \file export_panel.cc
  *
  */
 
@@ -310,7 +310,7 @@ void ExportPanel::update_record_file_path()
 }
 
 /*!
- * @brief called when change output file extension
+ * \brief called when change output file extension
  */
 void ExportPanel::update_record_file_extension(const QString& value)
 {
