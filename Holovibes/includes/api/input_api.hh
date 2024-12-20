@@ -96,19 +96,21 @@ class InputApi : public IApi
      */
     inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
 
-    /*! \brief Return whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Get how the file is currently being read
      *
-     * \return bool true if the full file will be loaded in the GPU memory
+     * \return FileLoadKind The current way that files are read
+     *
+     * \see FileLoadKind More explanations here
      */
-    inline bool get_load_file_in_gpu() const { return GET_SETTING(LoadFileInGPU); }
+    inline FileLoadKind get_file_load_kind() const { return GET_SETTING(FileLoadKind); }
 
-    /*! \brief Set whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Set how the files should be read
      *
-     * \param[in] value true if the full file will be loaded in the GPU memory
+     * \param[in] value The new way that files should be read
+     *
+     * \see FileLoadKind More explanations here
      */
-    inline void set_load_file_in_gpu(bool value) const { UPDATE_SETTING(LoadFileInGPU, value); }
+    inline void set_file_load_kind(FileLoadKind value) const { UPDATE_SETTING(FileLoadKind, value); }
 
     /*! \brief Return the number of frames that will be read from the file per second.
      *

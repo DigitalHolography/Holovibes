@@ -8,6 +8,7 @@
 
 #include <string>
 #include <optional>
+#include "enum_file_load_kind.hh"
 #include "enum/enum_record_mode.hh"
 #include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
@@ -48,10 +49,9 @@ DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);
 
 /*!
- * \brief The setting that specifies if we load input file entirely in GPU
- * before sending it to the compute pipeline input queue.
+ * \brief The setting that specifies how to read frames from a file.
  */
-DECLARE_SETTING(LoadFileInGPU, bool);
+DECLARE_SETTING(FileLoadKind, holovibes::FileLoadKind);
 
 /*!
  * \brief The setting that specifies the path of the file where to record
@@ -114,7 +114,7 @@ DECLARE_SETTING(FilterFileName, std::string);
 /*! \name FileReadCache */
 /*!
  * \brief The size of the buffer in CPU memory used to read a file
- * when `LoadFileInGPU` is set to false.
+ * when `FileLoadKind` is not set to GPU.
  */
 DECLARE_SETTING(FileBufferSize, size_t);
 
