@@ -297,6 +297,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         *current_fps_ += real_frames_enqueued;
 
+
         if (stop_requested_)
             break;
     }
