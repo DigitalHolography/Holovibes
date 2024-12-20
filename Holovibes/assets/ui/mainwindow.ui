@@ -2961,6 +2961,40 @@ The range of frequencies kept is [z, z + width]</string>
                 </layout>
                </item>
                <item>
+                <layout class="QGridLayout" name="recordedEyeGridLayout">
+                 <item row="0" column="0" colspan="3">
+                  <widget class="QLabel" name="RecordedEyeLabel">
+                   <property name="toolTip">
+                    <string>Which eye is being recorded.</string>
+                   </property>
+                   <property name="text">
+                    <string>Eye recorded</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3" colspan="3">
+                  <widget class="QPushButton" name="RecordedEyePushButton">
+                   <property name="text">
+                    <string>Unspecified</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Switch between left and right eye</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="6">
+                  <widget class="QPushButton" name="ResetRecordedEyePushButton">
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Cancel the eye choice and set it back to unspecified</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="numberOfFramesLayout">
                  <item>
                   <widget class="QCheckBox" name="NumberOfFramesCheckBox">
@@ -5865,6 +5899,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>119</x>
      <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>504</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResetRecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>reset_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>

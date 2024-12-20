@@ -24,6 +24,7 @@
 
 // Enum
 #include "enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum_record_mode.hh"
 #include "enum_import_type.hh"
 #include "enum_device.hh"
@@ -48,6 +49,7 @@
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
+    holovibes::settings::RecordedEye,                            \
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
@@ -378,6 +380,7 @@ class Holovibes
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
+                                             settings::RecordedEye{RecordedEyeType::NONE},
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},

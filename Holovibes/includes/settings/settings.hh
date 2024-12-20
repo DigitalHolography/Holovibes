@@ -15,6 +15,7 @@
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
@@ -68,6 +69,13 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
  * \brief The setting that specifies the mode of the record.
  */
 DECLARE_SETTING(RecordMode, holovibes::RecordMode);
+
+/*!
+ * \brief Get the eye that is recorded by the program
+ * Can be LEFT, RIGHT or NONE if no eye is selected
+ * It only influences the name of the output files and is saved across .holo files
+ */
+DECLARE_SETTING(RecordedEye, RecordedEyeType);
 
 /*!
  * \brief The setting that specifies the number of frames to skip before
