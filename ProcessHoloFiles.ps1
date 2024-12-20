@@ -113,6 +113,20 @@ if (-not $holoFiles) {
 
 Write-Host "Found $($holoFiles.Count) .holo files in the selected folder." -ForegroundColor Cyan
 
+# Find the holovibes .exe
+$exePath1 = "Holovibes.exe"
+$exePath2 = "build/bin/Holovibes.exe"
+$exePath = ""
+
+# Check if Holovibes.exe exists
+if (Test-Path $exePath1) {
+    $exePath = $exePath1
+} else {
+    $exePath = $exePath2
+}
+
+Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
+
 # Function to execute Holovibes
 function Execute-Holovibes {
     param (
@@ -134,7 +148,7 @@ function Execute-Holovibes {
     if ($configFile) { $args += " -c `"$configFile`"" }
 
     Write-Host "Executing Holovibes with arguments: $args" -ForegroundColor Yellow
-    Start-Process -FilePath "Holovibes.exe" -ArgumentList $args -NoNewWindow -Wait
+    Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
 }
 
 # Process files
