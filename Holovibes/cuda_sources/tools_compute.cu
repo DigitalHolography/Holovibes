@@ -35,28 +35,6 @@ kernel_divide_frames_float(float* output, const float* numerator, const float* d
     }
 }
 
-__global__ void kernel_tensor_multiply_vector(float* output,
-                                              const float* tensor,
-                                              const float* vector,
-                                              const size_t frame_res,
-                                              const ushort f_start,
-                                              const ushort f_end)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index >= frame_res)
-        return;
-
-    float val = 0.0f;
-    for (uint i = f_start; i <= f_end; i++)
-    {
-        const float* current_frame = tensor + i * frame_res;
-        val += current_frame[index] * vector[i];
-    }
-
-    output[index] = val;
-}
-
 void gpu_normalize(float* const input,
                    double* const result_reduce,
                    const size_t frame_res,
@@ -83,6 +61,28 @@ void gpu_normalize(float* const input,
     map_generic(input, input, frame_res, map_function, stream);
 }
 
+__global__ void kernel_tensor_multiply_vector(float* output,
+                                              const float* tensor,
+                                              const float* vector,
+                                              const size_t frame_res,
+                                              const ushort f_start,
+                                              const ushort f_end)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    float val = 0.0f;
+    for (uint i = f_start; i < f_end; i++)
+    {
+        const float* current_frame = tensor + i * frame_res;
+        val += current_frame[index] * vector[i];
+    }
+
+    output[index] = val;
+}
+
 void tensor_multiply_vector(float* output,
                             const float* tensor,
                             const float* vector,
@@ -93,6 +93,7 @@ void tensor_multiply_vector(float* output,
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
+
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
 }

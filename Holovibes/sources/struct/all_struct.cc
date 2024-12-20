@@ -215,7 +215,8 @@ void Views::Load()
     UPDATE_SETTING(FftShiftEnabled, this->fft_shift);
     UPDATE_SETTING(X, this->x);
     UPDATE_SETTING(Y, this->y);
-    UPDATE_SETTING(P, this->z);
+    // Quick dirty fix for preventing z = 0 on older holo version. Should be replaced by a proper JSON converter
+    UPDATE_SETTING(P, (this->z.start == 0 ? ViewP{0, 1} : this->z));
     UPDATE_SETTING(Q, this->z2);
     this->window.Load();
     UPDATE_SETTING(RenormEnabled, this->renorm);
