@@ -93,7 +93,6 @@ void FrameRecordWorker::run()
         else
             record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);
 
-
         static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                            {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
                                                            {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
