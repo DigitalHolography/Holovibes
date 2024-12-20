@@ -1,6 +1,7 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Functions that convert irregular-encoded data to 16bits
+
  */
 #pragma once
 

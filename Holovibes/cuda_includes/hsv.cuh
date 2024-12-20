@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of hsv function
  */
 #pragma once
 
@@ -15,6 +15,18 @@ enum HSV
     V = 2
 };
 
+/*!
+ * \brief Create rgb color by using hsv computation and then converting to rgb
+ *
+ * \param[in] d_input complex input buffer, on gpu side, size = width * height * time_transformation_size
+ * \param[out] d_output float output buffer, on gpu side, size = width * height * 3
+ * \param[in] width Width of the frame
+ * \param[in] height Height of the frame
+ * \param[in] stream Cuda stream used
+ * \param[in] time_transformation_size Depth of the frame cube
+ * \param[in] hsv_struct Struct containing all the UI parameters
+ * \param[in] checked Boolean to know if the user wants to use the checked version of the function
+ */
 void hsv(const cuComplex* d_input,
          float* d_output,
          const uint width,
@@ -23,15 +35,3 @@ void hsv(const cuComplex* d_input,
          const int time_transformation_size,
          const holovibes::CompositeHSV& hsv_struct,
          bool checked);
-
-/*
-void hsv_cuts(const float* gpu_in_cut_xz,
-              const float* gpu_in_cut_yz,
-              float* gpu_out_cut_xz,
-              float* gpu_out_cut_yz,
-              uint width,
-              uint height,
-              int time_transformation_size,
-              const holovibes::CompositeHSV& hsv_struct,
-              const cudaStream_t stream);
-*/
