@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.X.X
+
+- Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
+- Added an option 'Load file in CPU RAM' in that drop-down
+
 ### 14.2.0
 
 - The UI can record again
