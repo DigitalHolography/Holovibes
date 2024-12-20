@@ -176,9 +176,10 @@ class MainWindow : public QMainWindow
     void set_preset(std::filesystem::path file);
 
   signals:
-    /*! \brief TODO: comment
+    /*!
+     * \brief Signal to execute a function in the main thread
      *
-     * \param f
+     * \param f The function to execute
      */
     void synchronize_thread_signal(std::function<void()> f);
 

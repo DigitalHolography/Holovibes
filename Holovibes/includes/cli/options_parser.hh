@@ -15,7 +15,7 @@ namespace holovibes
 {
 /*! \struct OptionsDescriptor
  *
- * \brief #TODO Add a description for this stuct
+ * \brief Struct used for option description
  */
 struct OptionsDescriptor
 {
