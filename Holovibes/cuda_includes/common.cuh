@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Common include and declaration useful for cuda
  */
 #pragma once
 

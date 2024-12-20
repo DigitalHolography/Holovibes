@@ -12,7 +12,7 @@ class MainWindow;
 
 /*! \class SliceWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a slice window in the GUI.
  */
 class SliceWindow : public BasicOpenGLWindow
 {

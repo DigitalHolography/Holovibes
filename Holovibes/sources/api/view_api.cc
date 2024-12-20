@@ -1,35 +1,31 @@
 #include "view_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
 #pragma region 3D Cuts View
 
-/*! \brief Sets whether the 3D cuts view are enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
-
-bool set_3d_cuts_view(bool enabled)
+bool ViewApi::set_3d_cuts_view(bool enabled) const
 {
     // No 3d cuts in moments mode
-    if (api::get_import_type() == ImportType::None || get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->input.get_import_type() == ImportType::None || api_->input.get_data_type() == RecordedDataType::MOMENTS)
         return false;
 
     if (enabled)
     {
         try
         {
-            get_compute_pipe()->request(ICS::TimeTransformationCuts);
-            while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
+            api_->compute.get_compute_pipe()->request(ICS::TimeTransformationCuts);
+            while (api_->compute.get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
                 continue;
 
-            set_enabled(WindowKind::YZview, true);
-            set_enabled(WindowKind::XZview, true);
+            api_->window_pp.set_enabled(true, WindowKind::YZview);
+            api_->window_pp.set_enabled(true, WindowKind::XZview);
             set_cuts_view_enabled(true);
 
-            pipe_refresh();
+            api_->compute.pipe_refresh();
 
             return true;
         }
@@ -40,16 +36,17 @@ bool set_3d_cuts_view(bool enabled)
     }
     else
     {
-        set_enabled(WindowKind::YZview, false);
-        set_enabled(WindowKind::XZview, false);
+        api_->window_pp.set_enabled(false, WindowKind::YZview);
+        api_->window_pp.set_enabled(false, WindowKind::XZview);
         set_cuts_view_enabled(false);
 
-        get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
-        while (get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
+        api_->compute.get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
+        while (api_->compute.get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
             continue;
 
-        if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
-            set_record_mode_enum(RecordMode::HOLOGRAM);
+        if (api_->record.get_record_mode() == RecordMode::CUTS_XZ ||
+            api_->record.get_record_mode() == RecordMode::CUTS_YZ)
+            api_->record.set_record_mode_enum(RecordMode::HOLOGRAM);
 
         return true;
     }
@@ -61,20 +58,20 @@ bool set_3d_cuts_view(bool enabled)
 
 #pragma region Filter2D View
 
-void set_filter2d_view(bool enabled)
+void ViewApi::set_filter2d_view(bool enabled) const
 {
-    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
         return;
 
-    auto pipe = get_compute_pipe();
+    auto pipe = api_->compute.get_compute_pipe();
     if (enabled)
     {
         pipe->request(ICS::Filter2DView);
         while (pipe->is_requested(ICS::Filter2DView))
             continue;
 
-        set_log_enabled(WindowKind::Filter2D, true);
-        pipe_refresh();
+        api_->contrast.set_log_enabled(true, WindowKind::Filter2D);
+        api_->compute.pipe_refresh();
     }
     else
     {
@@ -88,14 +85,14 @@ void set_filter2d_view(bool enabled)
 
 #pragma region Chart View
 
-void set_chart_display(bool enabled)
+void ViewApi::set_chart_display(bool enabled) const
 {
     if (get_chart_display_enabled() == enabled)
         return;
 
     try
     {
-        auto pipe = get_compute_pipe();
+        auto pipe = api_->compute.get_compute_pipe();
         auto request = enabled ? ICS::ChartDisplay : ICS::DisableChartDisplay;
 
         pipe->request(request);
@@ -112,23 +109,17 @@ void set_chart_display(bool enabled)
 
 #pragma region Lens View
 
-/*! \brief Sets whether the lens view is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
-
-void set_lens_view(bool enabled)
+void ViewApi::set_lens_view(bool enabled) const
 {
-    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
-        get_data_type() == RecordedDataType::MOMENTS && enabled)
+    if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
+        api_->input.get_data_type() == RecordedDataType::MOMENTS && enabled)
         return;
 
     set_lens_view_enabled(enabled);
 
     if (!enabled)
     {
-        auto pipe = get_compute_pipe();
+        auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::DisableLensView);
         while (pipe->is_requested(ICS::DisableLensView))
             continue;
@@ -139,25 +130,19 @@ void set_lens_view(bool enabled)
 
 #pragma region Raw View
 
-/*! \brief Sets whether the raw view is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
-
-void set_raw_view(bool enabled)
+void ViewApi::set_raw_view(bool enabled) const
 {
-    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
-        get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
+        api_->input.get_data_type() == RecordedDataType::MOMENTS)
         return;
 
-    if (enabled && get_batch_size() > get_output_buffer_size())
+    if (enabled && api_->transform.get_batch_size() > api_->compute.get_output_buffer_size())
     {
         LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
         return;
     }
 
-    auto pipe = get_compute_pipe();
+    auto pipe = api_->compute.get_compute_pipe();
     set_raw_view_enabled(enabled);
 
     auto request = enabled ? ICS::RawView : ICS::DisableRawView;
@@ -166,25 +151,25 @@ void set_raw_view(bool enabled)
     while (pipe->is_requested(request))
         continue;
 
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region Last Image
 
-void* get_raw_last_image()
+void* ViewApi::get_raw_last_image() const
 {
-    if (get_input_queue())
-        return get_input_queue().get()->get_last_image();
+    if (api_->compute.get_input_queue())
+        return api_->compute.get_input_queue().get()->get_last_image();
 
     return nullptr;
 }
 
-void* get_hologram_last_image()
+void* ViewApi::get_hologram_last_image() const
 {
-    if (get_gpu_output_queue())
-        return get_gpu_output_queue().get()->get_last_image();
+    if (api_->compute.get_gpu_output_queue())
+        return api_->compute.get_gpu_output_queue().get()->get_last_image();
 
     return nullptr;
 }

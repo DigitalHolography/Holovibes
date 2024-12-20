@@ -30,6 +30,11 @@
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
+namespace holovibes::api
+{
+class Api;
+}
+
 namespace holovibes::gui
 {
 /*! \class MainWindow
@@ -171,9 +176,10 @@ class MainWindow : public QMainWindow
     void set_preset(std::filesystem::path file);
 
   signals:
-    /*! \brief TODO: comment
+    /*!
+     * \brief Signal to execute a function in the main thread
      *
-     * \param f
+     * \param f The function to execute
      */
     void synchronize_thread_signal(std::function<void()> f);
 
@@ -205,6 +211,7 @@ class MainWindow : public QMainWindow
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
     std::shared_ptr<LightUI> light_ui_;
+    api::Api& api_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;

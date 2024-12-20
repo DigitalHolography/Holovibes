@@ -1,11 +1,12 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the InformationWorker class.
  */
 #pragma once
 
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
+#include "fast_updates_types.hh"
 #include "enum/enum_device.hh"
 #include "worker.hh"
 #include "logger.hh"

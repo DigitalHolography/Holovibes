@@ -177,7 +177,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / API.view.get_display_rate());
 }
 
 /* This part of code makes a resizing of the window displaying image to
@@ -193,9 +193,9 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((api::get_compute_mode() == Computation::Hologram &&
-         api::get_space_transformation() == SpaceTransformation::NONE) ||
-        api::get_compute_mode() == Computation::Raw)
+    if ((API.compute.get_compute_mode() == Computation::Hologram &&
+         API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
+        API.compute.get_compute_mode() == Computation::Raw)
     {
         if (w != old_width)
         {
@@ -277,7 +277,7 @@ void RawWindow::paintGL()
 
     // Put the frame inside the cuda ressrouce
 
-    if (api::get_img_type() == ImgType::Composite)
+    if (API.compute.get_img_type() == ImgType::Composite)
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     else
     {
@@ -417,7 +417,7 @@ void RawWindow::closeEvent(QCloseEvent* event)
     // If raw view closed, deactivate it and update the ui
     if (kView == KindOfView::Raw)
     {
-        api::set_raw_view(false);
+        API.view.set_raw_view(false);
         gui::set_raw_view(false, 0);
         NotifierManager::notify("notify", true);
     }
@@ -425,7 +425,7 @@ void RawWindow::closeEvent(QCloseEvent* event)
     // If lens view closed, deactivate it and update the ui
     else if (kView == KindOfView::Lens)
     {
-        api::set_lens_view(false);
+        API.view.set_lens_view(false);
         gui::set_lens_view(false, 0);
         NotifierManager::notify("notify", true);
     }

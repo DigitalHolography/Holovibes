@@ -7,62 +7,7 @@
 
 #pragma once
 
-#include <optional>
-
-#include "logger.hh"
-#include "holovibes.hh"
-#include "holovibes_config.hh"
-#include "compute_settings_struct.hh"
-#include "enum_api_code.hh"
-
-#include <nlohmann/json_fwd.hpp>
-using json = ::nlohmann::json;
-
-/*! \brief Return the value of setting T in the holovibes global setting
- * Usage:
- * ```cpp
- * auto value = GET_SETTING(T);
- * ```
- *
- * \param[in] setting The setting to get
- * \return The value of the setting T
- */
-#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
-
-/*! \brief Set the value of setting T in the holovibes global setting to value
- * Usage:
- * ```cpp
- * UPDATE_SETTING(T, value);
- * ```
- *
- * \param[in] setting The setting to update
- * \param[in] value The new value of the setting
- */
-#define UPDATE_SETTING(setting, value)                                                                                 \
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
-
-/*! \brief Update the value.path of setting T in the holovibes global setting to value
- * Usage:
- * ```cpp
- * SET_SETTING(T, path, value);
- *
- * // Is equivalent to
- * auto t = GET_SETTING(T);
- * t.path = value;
- * UPDATE_SETTING(T, t);
- * ```
- *
- * \param[in] setting The setting to update
- * \param[in] path The path of the setting to update (e.g. value, min, max, etc.)
- * \param[in] value The new value of the setting
- */
-#define SET_SETTING(type, path, value)                                                                                 \
-    {                                                                                                                  \
-        auto setting_##type = GET_SETTING(type);                                                                       \
-        setting_##type.path = value;                                                                                   \
-        UPDATE_SETTING(type, setting_##type);                                                                          \
-    }
-
+#include "common_api.hh"
 #include "composite_api.hh"
 #include "record_api.hh"
 #include "input_api.hh"
@@ -76,3 +21,57 @@ using json = ::nlohmann::json;
 #include "information_api.hh"
 
 #include "compute_settings.hh"
+
+namespace holovibes::api
+{
+
+#define API holovibes::api::Api::instance()
+
+class Api
+{
+
+  private:
+    // Private ctor
+    Api()
+        : composite(this)
+        , compute(this)
+        , contrast(this)
+        , filter2d(this)
+        , global_pp(this)
+        , information(this)
+        , input(this)
+        , record(this)
+        , transform(this)
+        , view(this)
+        , window_pp(this)
+        , settings()
+    {
+    }
+
+    Api(const Api&) = delete;
+    Api& operator=(const Api&) = delete;
+
+  public:
+    // Singleton
+    static Api& instance()
+    {
+        static Api instance;
+        return instance;
+    }
+
+  public:
+    const CompositeApi composite;
+    const ComputeApi compute;
+    const ContrastApi contrast;
+    const Filter2dApi filter2d;
+    const GlobalPostProcessApi global_pp;
+    const InformationApi information;
+    const InputApi input;
+    const RecordApi record;
+    const TransformApi transform;
+    const ViewApi view;
+    const WindowPostProcessApi window_pp;
+    const ComputeSettingsApi settings;
+};
+
+} // namespace holovibes::api
