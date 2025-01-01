@@ -5,7 +5,6 @@
 #pragma once
 
 #include "point.hh"
-#include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
 #include "all_struct.hh"

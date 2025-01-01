@@ -29,11 +29,8 @@ class ConversionData
     /*! \name Conversion between unit types
      * \{
      */
-    float window_size_to_opengl(int val, Axis axis) const;
     float fd_to_opengl(int val, Axis axis) const;
-    int opengl_to_window_size(float val, Axis axis) const;
     int opengl_to_fd(float val, Axis axis) const;
-    double fd_to_real(int val, Axis axis) const;
     /*! \} */
 
     void transform_from_fd(float& x, float& y) const;
@@ -42,7 +39,6 @@ class ConversionData
     const gui::BasicOpenGLWindow* get_opengl() const noexcept { return window_; }
 
   private:
-    int get_window_size(Axis axis) const;
     int get_fd_size(Axis axis) const;
 
     const gui::BasicOpenGLWindow* window_;

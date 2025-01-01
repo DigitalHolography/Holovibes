@@ -118,7 +118,7 @@ class Overlay : protected QOpenGLFunctions
     void endDraw();
 
     /*! \brief Converts QPoint to a point in the window */
-    units::PointWindow getMousePos(const QPoint& pos);
+    units::PointFd getMousePos(const QPoint& pos);
 
     /*! \brief Zone selected by the users in pixel coordinates (window width, window height) */
     units::RectFd zone_;

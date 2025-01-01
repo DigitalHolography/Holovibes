@@ -5,7 +5,6 @@
 #pragma once
 
 #include "conversion_data.hh"
-#include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
 #include "logger.hh"
@@ -96,9 +95,6 @@ using PointOpengl = Point<OpenglPosition>;
 
 /*! \brief A point in the frame desc coordinate system [0;fd.width] */
 using PointFd = Point<FDPixel>;
-
-/*! \brief A point in the window coordinate system [0;window size] */
-using PointWindow = Point<WindowPixel>;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& o, const Point<T>& p)

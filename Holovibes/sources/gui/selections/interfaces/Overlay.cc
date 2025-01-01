@@ -57,7 +57,7 @@ void Overlay::press(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
     {
-        auto pos = getMousePos(e->pos());
+        units::PointFd pos = getMousePos(e->pos());
         zone_.setSrc(pos);
         zone_.setDst(zone_.src());
     }
@@ -111,11 +111,15 @@ void Overlay::endDraw()
     Vao_.release();
 }
 
-units::PointWindow Overlay::getMousePos(const QPoint& pos)
+units::PointFd Overlay::getMousePos(const QPoint& pos)
 {
-    auto x = pos.x();
-    auto y = pos.y();
-    units::PointWindow res(units::ConversionData(parent_), x, y);
+    float x = pos.x();
+    float y = pos.y();
+
+    x = (x / parent_->width()) * parent_->getFd().width;
+    y = (y / parent_->height()) * parent_->getFd().height;
+
+    units::PointFd res(units::ConversionData(parent_), x, y);
     return res;
 }
 
