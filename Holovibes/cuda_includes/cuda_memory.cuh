@@ -20,6 +20,9 @@
 #include "common.cuh"
 #include "logger.hh"
 
+template <typename T>
+cudaError_t cudaXRMallocManaged(T** ptr, size_t size);
+
 /*! \brief Wrapper around cudaMallocManaged to handle errors.
  *
  *  This function uses the error handling from common.cuh (cudaSafeCall).

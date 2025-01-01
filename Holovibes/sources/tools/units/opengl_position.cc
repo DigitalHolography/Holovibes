@@ -14,10 +14,4 @@ OpenglPosition::operator FDPixel() const
     FDPixel res(conversion_data_, axis_, conversion_data_.opengl_to_fd(val_, axis_));
     return res;
 }
-
-OpenglPosition::operator WindowPixel() const
-{
-    WindowPixel res(conversion_data_, axis_, conversion_data_.opengl_to_window_size(val_, axis_));
-    return res;
-}
 } // namespace holovibes::units

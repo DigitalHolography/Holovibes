@@ -8,7 +8,7 @@
 #include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
-#include "real_position.hh"
+#include "logger.hh"
 
 #include <type_traits>
 
@@ -62,14 +62,6 @@ class Point
         return res;
     }
 
-    /*! \brief Casting to RealPosition only when we are not already in RealPosition */
-
-    template <typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
-    operator Point<RealPosition>() const
-    {
-        Point<RealPosition> res(x_, y_);
-        return res;
-    }
     /*! \name Operator overloads
      * \{
      */
@@ -107,8 +99,6 @@ using PointFd = Point<FDPixel>;
 
 /*! \brief A point in the window coordinate system [0;window size] */
 using PointWindow = Point<WindowPixel>;
-
-using PointReal = Point<RealPosition>;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& o, const Point<T>& p)

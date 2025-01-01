@@ -8,9 +8,7 @@
 
 namespace holovibes::units
 {
-class WindowPixel;
 class OpenglPosition;
-class RealPosition;
 
 /*! \class FDPixel
  *
@@ -22,7 +20,5 @@ class FDPixel : public Unit<int>
     FDPixel(ConversionData data, Axis axis, int val = 0);
 
     operator OpenglPosition() const;
-    operator WindowPixel() const;
-    operator RealPosition() const;
 };
 } // namespace holovibes::units

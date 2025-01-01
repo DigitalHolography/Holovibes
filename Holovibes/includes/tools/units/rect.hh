@@ -210,9 +210,6 @@ using RectOpengl = Rect<OpenglPosition>;
 /*! \brief Rectangle in the frame desc coordinates */
 using RectFd = Rect<FDPixel>;
 
-/*! \brief Rectangle in the window coordinates */
-using RectWindow = Rect<WindowPixel>;
-
 template <typename T>
 std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
 {

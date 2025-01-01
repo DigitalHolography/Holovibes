@@ -6,6 +6,7 @@
 #include "SliceWindow.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
@@ -24,10 +25,10 @@ void HoloWindow::initShaders()
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.holo.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.holo.glsl").string()));
     Program->addShaderFromSourceFile(
         QOpenGLShader::Fragment,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
 
     overlay_manager_.create_default();

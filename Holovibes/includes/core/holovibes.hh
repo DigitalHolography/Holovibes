@@ -30,7 +30,6 @@
 #include "enum_device.hh"
 #include "enum_recorded_data_type.hh"
 
-#include <spdlog/spdlog.h>
 #include <string>
 
 #pragma region Settings configuration

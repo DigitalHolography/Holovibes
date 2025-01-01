@@ -4,6 +4,7 @@
 #include "HoloWindow.hh"
 #include "logger.hh"
 #include "tools.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
@@ -72,10 +73,10 @@ void Overlay::initProgram()
     Program_ = std::make_unique<QOpenGLShaderProgram>();
     Program_->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.overlay.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.overlay.glsl").string()));
     Program_->addShaderFromSourceFile(
         QOpenGLShader::Fragment,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.color.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.color.glsl").string()));
     Vao_.create();
     // if (!Program_->bind())
     //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());

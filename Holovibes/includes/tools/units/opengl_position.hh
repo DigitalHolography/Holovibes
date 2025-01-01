@@ -9,7 +9,6 @@
 namespace holovibes::units
 {
 class FDPixel;
-class WindowPixel;
 
 /*! \class OpenglPosition
  *
@@ -21,6 +20,5 @@ class OpenglPosition : public Unit<float>
     OpenglPosition(ConversionData data, Axis axis, float val = 0);
 
     operator FDPixel() const;
-    operator WindowPixel() const;
 };
 } // namespace holovibes::units

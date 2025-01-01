@@ -185,7 +185,7 @@ TEST(ChartTest, DifferentValuesImage)
     cudaXMallocManaged(&input, total_image_size * sizeof(float));
     for (int i = 0; i < total_image_size; ++i)
     {
-        input[i] = i;
+        input[i] = (float)i;
         expected_value += i;
     }
 

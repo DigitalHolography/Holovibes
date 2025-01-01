@@ -1,6 +1,7 @@
 #include "record_api.hh"
 
 #include "API.hh"
+#include "notifier.hh"
 
 namespace holovibes::api
 {

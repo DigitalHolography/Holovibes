@@ -4,6 +4,7 @@
 #include "camera_exception.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
+#include "notifier.hh"
 
 namespace holovibes::api
 {

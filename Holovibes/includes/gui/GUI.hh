@@ -123,6 +123,12 @@ std::string get_recorded_eye_display_string();
  */
 const std::string browse_record_output_file(std::string& std_filepath);
 
+/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
+QString create_absolute_qt_path(const std::string& relative_path);
+
+/*! \brief Returns the absolute path to the user Documents folder */
+std::filesystem::path get_user_documents_path();
+
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();
