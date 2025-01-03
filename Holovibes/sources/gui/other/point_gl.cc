@@ -14,7 +14,7 @@ PointGL::PointGL(const BasicOpenGLWindow& window, units::PointFd point)
     float fd_height = window.getFd().height;
 
     x_ = 2.f * (x / fd_width) - 1.f;
-    y_ = - (2.f * (y / fd_height) - 1.f);
+    y_ = -(2.f * (y / fd_height) - 1.f);
 
     // By matrix multiplication
     glm::vec3 input{x_, y_, 1.0f};

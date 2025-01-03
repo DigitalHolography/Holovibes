@@ -48,7 +48,8 @@ void InputCineFile::import_compute_settings() {}
 
 void InputCineFile::import_info() const
 {
-    API.input.set_pixel_size(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
+    float px = static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter);
+    API.input.set_pixel_size(1e6f / px);
 }
 
 void InputCineFile::set_pos_to_frame(size_t frame_id)
@@ -73,7 +74,7 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag
 {
     size_t frames_read = 0;
 
-    *flag_packed = (packed_frame_size_ / (float)(fd_.width * fd_.height)) * 8;
+    *flag_packed = static_cast<int>((packed_frame_size_ / (float)(fd_.width * fd_.height)) * 8);
 
     for (size_t i = 0; i < frames_to_read; i++)
     {

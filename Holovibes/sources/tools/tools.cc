@@ -59,7 +59,7 @@ std::string engineering_notation(double value, int nb_significant_figures)
         value = -value;
     }
 
-    int expof10 = log10(value);
+    int expof10 = static_cast<int>(log10(value));
     if (expof10 > 0)
         expof10 = (expof10 / 3) * 3;
     else

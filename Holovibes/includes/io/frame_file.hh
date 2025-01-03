@@ -4,6 +4,9 @@
  */
 #pragma once
 
+#include <cstdio>
+#include <string>
+
 #include "frame_desc.hh"
 
 namespace holovibes::io_files

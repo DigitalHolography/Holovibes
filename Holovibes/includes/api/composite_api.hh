@@ -69,7 +69,7 @@ class CompositeApi : public IApi
      *
      * \param[in] value the new weight of the Green channel
      */
-    inline void set_weight_r(double value) const { SET_SETTING(RGB, weight.r, value); }
+    inline void set_weight_r(float value) const { SET_SETTING(RGB, weight.r, value); }
 
     /*! \brief Returns the contribution of the Green channel to generate the final composite image.
      *
@@ -81,7 +81,7 @@ class CompositeApi : public IApi
      *
      * \param[in] value the new weight of the Green channel
      */
-    inline void set_weight_g(double value) const { SET_SETTING(RGB, weight.g, value); }
+    inline void set_weight_g(float value) const { SET_SETTING(RGB, weight.g, value); }
 
     /*! \brief Returns the contribution of the Blue channel to generate the final composite image.
      *
@@ -93,7 +93,7 @@ class CompositeApi : public IApi
      *
      * \param[in] value the new weight of the Blue channel
      */
-    inline void set_weight_b(double value) const { SET_SETTING(RGB, weight.b, value); }
+    inline void set_weight_b(float value) const { SET_SETTING(RGB, weight.b, value); }
 
     /*! \brief Sets the contribution of the RGB channels to generate the final composite image.
      *
@@ -101,7 +101,7 @@ class CompositeApi : public IApi
      * \param[in] g the new weight of the Green channel
      * \param[in] b the new weight of the Blue channel
      */
-    void set_weight_rgb(double r, double g, double b) const;
+    void set_weight_rgb(float r, float g, float b) const;
 
 #pragma endregion
 

@@ -5,6 +5,8 @@
 #include <string>
 
 #include <windows.h>
+#undef max
+#undef min
 
 #include "API.hh"
 #include "logger.hh"

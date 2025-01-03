@@ -1,9 +1,10 @@
 #include "chart.cuh"
 #include "cuda_memory.cuh"
 #include "gtest/gtest.h"
+#include "point.hh"
+#include "rect.hh"
 
-using holovibes::units::FDPixel;
-using holovibes::units::Point;
+using holovibes::units::PointFd;
 using holovibes::units::RectFd;
 
 static void chart_test(const ushort image_width,
@@ -28,13 +29,10 @@ static void chart_test(const ushort image_width,
     *output = 0;
 
     RectFd zone;
-    Point<FDPixel> dst;
-    dst.x().set(zone_width);
-    dst.y().set(zone_height);
+    PointFd dst(zone_width, zone_height);
     zone.setBottomRight(dst);
-    Point<FDPixel> src;
-    src.x().set(x_zone_offset);
-    src.y().set(y_zone_offset);
+    
+    PointFd src(x_zone_offset, y_zone_offset);
     zone.setTopLeft(src);
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
@@ -149,14 +147,12 @@ TEST(ChartTest, SmallDifferentValuesImage)
     *output = 0;
 
     RectFd zone;
-    Point<FDPixel> dst;
-    dst.x().set(33);
-    dst.y().set(33);
+    PointFd dst(33, 33);
     zone.setBottomRight(dst);
-    Point<FDPixel> src;
-    src.x().set(x_zone_offset);
-    src.y().set(y_zone_offset);
+
+    PointFd src(x_zone_offset, y_zone_offset);
     zone.setTopLeft(src);
+
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 
@@ -194,14 +190,12 @@ TEST(ChartTest, DifferentValuesImage)
     *output = 0;
 
     RectFd zone;
-    Point<FDPixel> dst;
-    dst.x().set(zone_width);
-    dst.y().set(zone_height);
+    PointFd dst(zone_width,zone_height);
     zone.setBottomRight(dst);
-    Point<FDPixel> src;
-    src.x().set(x_zone_offset);
-    src.y().set(y_zone_offset);
+
+    PointFd src(x_zone_offset, y_zone_offset);
     zone.setTopLeft(src);
+    
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 

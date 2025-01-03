@@ -18,12 +18,22 @@ set(INTERNAL_INCLUDES_TEST
 	"${HOLO_DIR}/includes/thread/"
 	"${HOLO_DIR}/includes/tools/"
 	"${HOLO_DIR}/includes/tools/cuda_tools/"
-	"${HOLO_DIR}/includes/tools/units/"
-	"${HOLO_DIR}/includes/tools/check/"
 	"${HOLO_DIR}/includes/tools/exception/"
 	"${HOLO_DIR}/includes/tools/logger/"
 	"${HOLO_DIR}/includes/tools/state/"
+	"${HOLO_DIR}/includes/tools/units/"
     "${CAMERA_DIR}/include/"
+)
+
+set(UNIT_TEST_SOURCES
+	test_example.cc
+	test_batch_input_queue.cc
+	test_chart.cc
+	test_fast_updates_holder.cc
+	test_map.cc
+	test_queue.cc
+	test_reduce.cc
+	test_subsample_frame.cc
 )
 
 set(EXTERNAL_INCLUDES_TEST
@@ -31,8 +41,8 @@ set(EXTERNAL_INCLUDES_TEST
     ${CUDA_EXTERNAL_INCLUDES}
 )
 
-file(GLOB_RECURSE SOURCES_TEST sources/*.cc)
-file(GLOB_RECURSE HEADERS_TEST includes/*.hh)
+file(GLOB_RECURSE SOURCES_TEST "${HOLO_DIR}/sources/*.cc")
+file(GLOB_RECURSE HEADERS_TEST "${HOLO_DIR}/includes/*.hh")
 
 # Exclude gui and entry point
 list(FILTER SOURCES_TEST EXCLUDE REGEX "/gui/")
@@ -44,8 +54,7 @@ add_executable(test
     ${HEADERS_TEST}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
-	test_example.cc
-	test_chart.cc
+	${UNIT_TEST_SOURCES}
 )
 
 target_include_directories(test PRIVATE

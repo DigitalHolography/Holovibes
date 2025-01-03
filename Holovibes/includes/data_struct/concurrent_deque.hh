@@ -4,9 +4,13 @@
  */
 #pragma once
 
+#include <algorithm>
 #include <deque>
 #include <mutex>
 #include <tuple>
+
+#undef max
+#undef min
 
 namespace holovibes
 {

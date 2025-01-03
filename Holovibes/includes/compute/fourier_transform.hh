@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include <algorithm>
 #include <cufft.h>
 
 #include "frame_desc.hh"
@@ -16,6 +17,9 @@
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
+
+#undef max
+#undef min
 
 #pragma region Settings configuration
 // clang-format off

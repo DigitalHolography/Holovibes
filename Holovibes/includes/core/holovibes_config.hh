@@ -6,6 +6,9 @@
 
 #include "camera_config.hh"
 #include <Windows.h>
+#undef max
+#undef min
+
 #include <filesystem>
 
 namespace holovibes::settings

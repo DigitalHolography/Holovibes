@@ -19,6 +19,9 @@
  */
 #pragma once
 
+#include <atomic>
+
+#include "aliases.hh"
 #include "enum_device.hh"
 
 namespace holovibes

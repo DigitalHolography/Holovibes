@@ -150,19 +150,19 @@ void InformationWorker::compute_fps(const long long waited_time)
 
     if ((it = fps_map.find(IntType::INPUT_FPS)) != fps_map.end())
     {
-        input_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        input_fps_ = static_cast<size_t>(std::round(it->second->load() * (1000.f / waited_time)));
         it->second->store(0);
     }
 
     if ((it = fps_map.find(IntType::OUTPUT_FPS)) != fps_map.end())
     {
-        output_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        output_fps_ = static_cast<size_t>(std::round(it->second->load() * (1000.f / waited_time)));
         it->second->store(0); // TODO Remove
     }
 
     if ((it = fps_map.find(IntType::SAVING_FPS)) != fps_map.end())
     {
-        saving_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        saving_fps_ = static_cast<size_t>(std::round(it->second->load() * (1000.f / waited_time)));
         it->second->store(0); // TODO Remove
     }
 }
@@ -176,8 +176,8 @@ void InformationWorker::compute_throughput(size_t output_frame_res, size_t input
 
 static std::string format_throughput(size_t throughput, const std::string& unit)
 {
-    float throughput_ = throughput / (throughput > 1e9 ? 1e9 : 1e6);
-    std::string unit_ = (throughput > 1e9 ? " G" : " M") + unit;
+    float throughput_ = throughput / (throughput > 1e9f ? 1e9f : 1e6f);
+    std::string unit_ = (throughput > 1e9f ? " G" : " M") + unit;
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
 
@@ -238,7 +238,7 @@ std::string gpu_load()
     }
 
     // Print GPU load
-    auto load = gpuLoad.gpu;
+    float load = static_cast<float>(gpuLoad.gpu);
     ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
@@ -267,7 +267,7 @@ std::string gpu_memory_controller_load()
     }
 
     // Print GPU memory load
-    auto load = gpuLoad.memory;
+    float load = static_cast<float>(gpuLoad.memory);
     ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
@@ -290,8 +290,11 @@ std::string gpu_memory()
     size_t free, total;
     cudaMemGetInfo(&free, &total);
 
-    ss << "<td style=\"color:" << get_load_color(total - free, total) << ";\">" << engineering_notation(free, 3)
-       << "B free/" << engineering_notation(total, 3) << "B</td>";
+    float free_f = static_cast<float>(free);
+    float total_f = static_cast<float>(total);
+
+    ss << "<td style=\"color:" << get_load_color(total_f - free_f, total_f) << ";\">" << engineering_notation(free_f, 3)
+       << "B free/" << engineering_notation(total_f, 3) << "B</td>";
 
     return ss.str();
 }
@@ -321,8 +324,8 @@ void InformationWorker::display_gui_information()
         {
             if (key == QueueType::UNDEFINED)
                 continue;
-            auto currentLoad = std::get<0>(*value).load();
-            auto maxLoad = std::get<1>(*value).load();
+            float currentLoad = static_cast<float>(std::get<0>(*value).load());
+            float maxLoad = static_cast<float>(std::get<1>(*value).load());
 
             to_display << "<tr style=\"color:";
             if (key == QueueType::OUTPUT_QUEUE)

@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region RGB
 
-void CompositeApi::set_weight_rgb(double r, double g, double b) const
+void CompositeApi::set_weight_rgb(float r, float g, float b) const
 {
     holovibes::CompositeRGB rgb = GET_SETTING(RGB);
     rgb.weight.r = r;
