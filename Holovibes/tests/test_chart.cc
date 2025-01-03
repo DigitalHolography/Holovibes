@@ -31,7 +31,7 @@ static void chart_test(const ushort image_width,
     RectFd zone;
     PointFd dst(zone_width, zone_height);
     zone.setBottomRight(dst);
-    
+
     PointFd src(x_zone_offset, y_zone_offset);
     zone.setTopLeft(src);
     zone.setWidth(zone_width);
@@ -190,12 +190,12 @@ TEST(ChartTest, DifferentValuesImage)
     *output = 0;
 
     RectFd zone;
-    PointFd dst(zone_width,zone_height);
+    PointFd dst(zone_width, zone_height);
     zone.setBottomRight(dst);
 
     PointFd src(x_zone_offset, y_zone_offset);
     zone.setTopLeft(src);
-    
+
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 
