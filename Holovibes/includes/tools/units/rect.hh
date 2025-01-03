@@ -229,6 +229,7 @@ SERIALIZE_JSON_ENUM(Axis, {
 // Temporary situation needed to not touch all template classes in the units tools
 inline void to_json(json& j, const units::RectFd& rect)
 {
+    LOG_ERROR("To json");    
     j = json{
         {"src", {
             {"x", {
@@ -259,6 +260,7 @@ inline void to_json(json& j, const units::RectFd& rect)
 
 inline void from_json(const json& j, units::RectFd& rect)
 {
+    LOG_ERROR("From json");
     rect = units::RectFd(
         units::PointFd(
             units::FDPixel(

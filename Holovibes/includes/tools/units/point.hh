@@ -80,8 +80,6 @@ class Point
         return res;
     }
 
-    double distance() const { return sqrt(pow(x_, 2) + pow(y_, 2)); }
-
     bool operator==(const Point<T>& other) const { return x_ == other.x_ && y_ == other.y_; }
     /*! \} */
 

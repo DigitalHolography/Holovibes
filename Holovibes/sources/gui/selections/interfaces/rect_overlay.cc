@@ -1,6 +1,8 @@
 #include "rect_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
+#include "rect_gl.hh"
+
 namespace holovibes::gui
 {
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
@@ -82,7 +84,7 @@ void RectOverlay::draw()
 void RectOverlay::setBuffer()
 {
     // Normalizing the zone to (-1; 1)
-    units::RectOpengl zone_gl = zone_;
+    RectGL zone_gl(*parent_, zone_);
 
     // The translation is the center of the rectangle
     translation_.x = (zone_gl.x() + zone_gl.right()) / 2;

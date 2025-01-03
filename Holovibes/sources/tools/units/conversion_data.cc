@@ -2,6 +2,7 @@
 #include "units\conversion_data.hh"
 #include "units\unit.hh"
 #include "BasicOpenGLWindow.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -42,6 +43,8 @@ void ConversionData::transform_from_fd(float& x, float& y) const
     auto output = matrix * input;
     x = output[0];
     y = output[1];
+    LOG_ERROR("From FD");
+    LOG_ERROR("From FD 1");
 }
 
 void ConversionData::transform_to_fd(float& x, float& y) const
@@ -51,6 +54,8 @@ void ConversionData::transform_to_fd(float& x, float& y) const
     auto output = matrix * input;
     x = output[0];
     y = output[1];
+    LOG_ERROR("To FD");
+    LOG_ERROR("To FD 1");
 }
 
 int ConversionData::get_fd_size(Axis axis) const
