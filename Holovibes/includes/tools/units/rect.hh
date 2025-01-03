@@ -69,61 +69,37 @@ class RectFd
 
     int& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    void setX(int newx)
-    {
-        x() = newx;
-    }
+    void setX(int newx) { x() = newx; }
 
     int y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
     int& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-    void setY(int newy)
-    {
-        y() = newy;
-    }
+    void setY(int newy) { y() = newy; }
 
     int width() const { return size().x(); }
 
-    int unsigned_width() const
-    {
-        return std::abs(width());
-    }
+    int unsigned_width() const { return std::abs(width()); }
 
-    void setWidth(int w)
-    {
-        right() = x() + w;
-    }
+    void setWidth(int w) { right() = x() + w; }
 
     int height() const { return size().y(); }
 
-    int unsigned_height() const
-    {
-        return std::abs(height());
-    }
+    int unsigned_height() const { return std::abs(height()); }
 
-    void setHeight(int h)
-    {
-        bottom() = y() + h;
-    }
+    void setHeight(int h) { bottom() = y() + h; }
 
     int& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
     int bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-    void setBottom(int y)
-    {
-        bottom() = y;
-    }
+    void setBottom(int y) { bottom() = y; }
 
     int& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
     int right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-    void setRight(int x)
-    {
-        right() = x;
-    }
+    void setRight(int x) { right() = x; }
 
     void setTopLeft(PointFd p)
     {
@@ -166,10 +142,7 @@ class RectFd
         return res;
     }
 
-    inline bool operator==(const units::RectFd& other) const
-    {
-        return src_ == other.src_ && dst_ == other.dst_;
-    }
+    inline bool operator==(const units::RectFd& other) const { return src_ == other.src_ && dst_ == other.dst_; }
 
     SERIALIZE_JSON_STRUCT(RectFd, src_, dst_);
 

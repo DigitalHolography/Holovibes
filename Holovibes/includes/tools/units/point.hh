@@ -66,8 +66,5 @@ class PointFd
     int y_;
 };
 
-inline std::ostream& operator<<(std::ostream& o, const PointFd& p)
-{
-    return o << '(' << p.x() << ", " << p.y() << ')';
-}
+inline std::ostream& operator<<(std::ostream& o, const PointFd& p) { return o << '(' << p.x() << ", " << p.y() << ')'; }
 } // namespace holovibes::units

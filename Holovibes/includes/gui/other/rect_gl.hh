@@ -77,61 +77,37 @@ class RectGL
 
     float& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    void setX(float newx)
-    {
-        x() = newx;
-    }
+    void setX(float newx) { x() = newx; }
 
     float y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
     float& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-    void setY(float newy)
-    {
-        y() = newy;
-    }
+    void setY(float newy) { y() = newy; }
 
     float width() const { return size().x(); }
 
-    float unsigned_width() const
-    {
-        return std::abs(width());
-    }
+    float unsigned_width() const { return std::abs(width()); }
 
-    void setWidth(float w)
-    {
-        right() = x() + w;
-    }
+    void setWidth(float w) { right() = x() + w; }
 
     float height() const { return size().y(); }
 
-    float unsigned_height() const
-    {
-        return std::abs(height());
-    }
+    float unsigned_height() const { return std::abs(height()); }
 
-    void setHeight(float h)
-    {
-        bottom() = y() + h;
-    }
+    void setHeight(float h) { bottom() = y() + h; }
 
     float& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
     float bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-    void setBottom(float y)
-    {
-        bottom() = y;
-    }
+    void setBottom(float y) { bottom() = y; }
 
     float& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
     float right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-    void setRight(float x)
-    {
-        right() = x;
-    }
+    void setRight(float x) { right() = x; }
 
     void setTopLeft(PointGL p)
     {

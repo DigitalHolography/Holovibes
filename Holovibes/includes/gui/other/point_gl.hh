@@ -75,13 +75,10 @@ class PointGL
 
     bool operator==(const PointGL& other) const { return x_ == other.x_ && y_ == other.y_; }
 
-private:
-  float x_;
-  float y_;
+  private:
+    float x_;
+    float y_;
 };
 
-inline std::ostream& operator<<(std::ostream& o, const PointGL& p)
-{
-    return o << '(' << p.x() << ", " << p.y() << ')';
-}
+inline std::ostream& operator<<(std::ostream& o, const PointGL& p) { return o << '(' << p.x() << ", " << p.y() << ')'; }
 } // namespace holovibes::gui
