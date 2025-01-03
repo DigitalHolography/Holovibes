@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Implementation of a Rectangle
+ * \brief Implementation of a Rectangle in OpenGL coordinate space [-1,1]
  */
 #pragma once
 
@@ -14,12 +14,11 @@ namespace holovibes::gui
 {
 /*! \class Rect
  *
- * \brief A rectangle in some specific unit
+ * \brief A rectangle in OpenGL coordinate space [-1,1].
  *
  * It can be manipulated in two ways:
- * through top / bottom / left / right, making sure left < right and so on
- * or as source / destination, two corner points that can be swapped (used in
- * overlays)
+ * - top / bottom / left / right, making sure left < right and so on.
+ * - x / y / width / height, with width > 0 and height > 0
  */
 class RectGL
 {
@@ -29,8 +28,8 @@ class RectGL
 
     /*! \brief Constructs a rectangle from two points
      *
-     * \param top_left Top left point
-     * \param size bottom_right Bottom right point
+     * \param[in] src Top left point
+     * \param[in] dst Bottom right point
      */
     RectGL(PointGL src, PointGL dst)
         : src_(src)
@@ -38,7 +37,12 @@ class RectGL
     {
     }
 
-    /*! \brief Constructs a rectangle from its position and size */
+    /*! \brief Constructs a rectangle from a rectangle in the frame descriptor space
+     * and project it onto the given window (keep scaling and traslation)
+     *
+     * \param[in] window The window where the rectangle will be projected
+     * \param[in] rect The rectangle in the frame descriptor coordinate space [0, max(fd.height, fd.width)]
+     */
     RectGL(const BasicOpenGLWindow& window, units::RectFd rect)
     {
         setSrc(PointGL(window, rect.src()));

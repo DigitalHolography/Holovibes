@@ -1,7 +1,8 @@
-#include "API.hh"
 #include "rainbow_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+
 #include "API.hh"
+#include "BasicOpenGLWindow.hh"
+#include "point_gl.hh"
 
 namespace holovibes::gui
 {
@@ -105,7 +106,6 @@ void RainbowOverlay::setBuffer()
     parent_->makeCurrent();
     Program_->bind();
 
-    units::ConversionData convert(parent_);
     auto fd = parent_->getFd();
 
     int red;
@@ -130,29 +130,29 @@ void RainbowOverlay::setBuffer()
 
     if (parent_->getKindOfView() == KindOfView::SliceXZ)
     {
-        red1 = units::PointFd(convert, 0, red);
-        red2 = units::PointFd(convert, fd.width, red);
-        green1 = units::PointFd(convert, 0, green);
-        green2 = units::PointFd(convert, fd.width, green);
-        blue1 = units::PointFd(convert, 0, blue);
-        blue2 = units::PointFd(convert, fd.width, blue);
+        red1 = units::PointFd(0, red);
+        red2 = units::PointFd(fd.width, red);
+        green1 = units::PointFd(0, green);
+        green2 = units::PointFd(fd.width, green);
+        blue1 = units::PointFd(0, blue);
+        blue2 = units::PointFd(fd.width, blue);
     }
     else
     {
-        red1 = units::PointFd(convert, red, 0);
-        red2 = units::PointFd(convert, red, fd.height);
-        green1 = units::PointFd(convert, green, 0);
-        green2 = units::PointFd(convert, green, fd.height);
-        blue1 = units::PointFd(convert, blue, 0);
-        blue2 = units::PointFd(convert, blue, fd.height);
+        red1 = units::PointFd(red, 0);
+        red2 = units::PointFd(red, fd.height);
+        green1 = units::PointFd(green, 0);
+        green2 = units::PointFd(green, fd.height);
+        blue1 = units::PointFd(blue, 0);
+        blue2 = units::PointFd(blue, fd.height);
     }
 
-    units::PointOpengl red1_gl = red1;
-    units::PointOpengl red2_gl = red2;
-    units::PointOpengl green1_gl = green1;
-    units::PointOpengl green2_gl = green2;
-    units::PointOpengl blue1_gl = blue1;
-    units::PointOpengl blue2_gl = blue2;
+    PointGL red1_gl(*parent_, red1);
+    PointGL red2_gl(*parent_, red2);
+    PointGL green1_gl(*parent_, green1);
+    PointGL green2_gl(*parent_, green2);
+    PointGL blue1_gl(*parent_, blue1);
+    PointGL blue2_gl(*parent_, blue2);
 
     const float subVertices[] = {red1_gl.x(),
                                  red1_gl.y(),

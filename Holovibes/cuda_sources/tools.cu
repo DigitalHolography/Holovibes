@@ -1,13 +1,15 @@
 #include "tools.cuh"
-#include "tools_compute.cuh"
-#include "tools_unwrap.cuh"
-#include "cuda_tools/unique_ptr.hh"
-#include "cuda_tools/cufft_handle.hh"
-#include "logger.hh"
-#include "cuda_memory.cuh"
-#include "common.cuh"
 
 #include <cassert>
+
+#include "common.cuh"
+#include "cuda_tools/unique_ptr.hh"
+#include "cuda_tools/cufft_handle.hh"
+#include "cuda_memory.cuh"
+#include "frame_desc.hh"
+#include "logger.hh"
+#include "tools_compute.cuh"
+#include "tools_unwrap.cuh"
 
 using camera::FrameDescriptor;
 using namespace holovibes;

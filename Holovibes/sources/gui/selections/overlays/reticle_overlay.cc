@@ -18,9 +18,8 @@ void ReticleOverlay::setBuffer()
     const float w_2 = API.input.get_fd().width / 2;
     const float h_2 = API.input.get_fd().height / 2;
 
-    units::ConversionData convert(parent_);
-    auto top_left = units::PointFd(convert, w_2 - w_2 * scale, h_2 - h_2 * scale);
-    auto bottom_right = units::PointFd(convert, w_2 + w_2 * scale, h_2 + h_2 * scale);
+    auto top_left = units::PointFd(w_2 - w_2 * scale, h_2 - h_2 * scale);
+    auto bottom_right = units::PointFd(w_2 + w_2 * scale, h_2 + h_2 * scale);
 
     zone_ = units::RectFd(top_left, bottom_right);
     API.contrast.set_reticle_zone(zone_);

@@ -12,8 +12,7 @@ void SquareOverlay::make_square()
 {
     // Set the bottomRight corner to have a square selection.
     const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
-    zone_.setDst(units::PointFd(units::ConversionData(parent_),
-                                zone_.src().x() + ((zone_.src().x() < zone_.dst().x()) ? min : -min),
+    zone_.setDst(units::PointFd(zone_.src().x() + ((zone_.src().x() < zone_.dst().x()) ? min : -min),
                                 zone_.src().y() + ((zone_.src().y() < zone_.dst().y()) ? min : -min)));
 }
 
@@ -24,14 +23,14 @@ void SquareOverlay::checkCorners()
 
     // Resizing the square selection to the window
     if (zone_.dst().x() < 0)
-        zone_.dstRef().x().set(0);
+        zone_.dstRef().x() = 0;
     else if (zone_.dst().x() > frameSide)
-        zone_.dstRef().x().set(frameSide);
+        zone_.dstRef().x() = frameSide;
 
     if (zone_.dst().y() < 0)
-        zone_.dstRef().y().set(0);
+        zone_.dstRef().y() = 0;
     else if (zone_.dst().y() > frameSide)
-        zone_.dstRef().y().set(frameSide);
+        zone_.dstRef().y() = frameSide;
 
     // Making it a square again
     make_square();

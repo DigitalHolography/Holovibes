@@ -13,24 +13,35 @@ namespace holovibes::gui
 {
 /*! \class PointGL
  *
- * \brief A single 2D point in the opengl coordinate system [-1, 1].
+ * \brief A single 2D point in the OpenGL coordinate system [-1, 1].
  */
 class PointGL
 {
   public:
+    /*! \brief Defaults ctor sets to 0 */
     PointGL()
         : x_(0)
         , y_(0)
     {
     }
 
+    /*! \brief Constructs a point from two float
+     *
+     * \param[in] x The x coordinate in range [-1, 1]
+     * \param[in] y The y coordinate in range [-1, 1]
+     */
     PointGL(float x, float y)
         : x_(x)
         , y_(y)
     {
     }
 
-    /*! \brief Constructs a point from the needed conversion data and two primary types */
+    /*! \brief Constructs a point from a point in the frame descriptor space
+     * and project it onto the given window (keep scaling and traslation)
+     *
+     * \param[in] window The window where the point will be projected
+     * \param[in] point The point in the frame descriptor coordinate space [0, max(fd.height, fd.width)]
+     */
     PointGL(const BasicOpenGLWindow& window, units::PointFd point);
 
     float& x() { return x_; }

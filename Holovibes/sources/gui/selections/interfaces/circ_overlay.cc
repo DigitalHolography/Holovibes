@@ -1,8 +1,10 @@
 #include "circ_overlay.hh"
-#include "BasicOpenGLWindow.hh"
-#include "API.hh"
 
 #include <cmath>
+
+#include "API.hh"
+#include "BasicOpenGLWindow.hh"
+#include "rect_gl.hh"
 
 namespace holovibes::gui
 {
@@ -90,7 +92,7 @@ void CircOverlay::draw()
 void CircOverlay::setBuffer()
 {
     // Normalizing the zone to (-1; 1)
-    units::RectOpengl zone_gl = zone_;
+    RectGL zone_gl(*parent_, zone_);
 
     // The translation is the center of the rectangle
     translation_.x = (zone_gl.x() + zone_gl.right()) / 2;
@@ -105,13 +107,13 @@ void CircOverlay::checkBounds()
     auto parent_fd = parent_->getFd();
 
     if (zone_.src().x() < 0)
-        zone_.srcRef().x().set(0);
+        zone_.srcRef().x() = 0;
     if (zone_.src().x() > parent_fd.width)
-        zone_.srcRef().x().set(parent_fd.width);
+        zone_.srcRef().x() = parent_fd.width;
 
     if (zone_.src().y() < 0)
-        zone_.srcRef().y().set(0);
+        zone_.srcRef().y() = 0;
     if (zone_.src().y() > parent_fd.height)
-        zone_.srcRef().y().set(parent_fd.height);
+        zone_.srcRef().y() = parent_fd.height;
 }
 } // namespace holovibes::gui

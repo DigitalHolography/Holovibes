@@ -1,11 +1,11 @@
+#include "cross_overlay.hh"
+
 #include <sstream>
 
 #include "API.hh"
-#include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
-
 #include "holovibes.hh"
-#include "API.hh"
+#include "rect_gl.hh"
 
 namespace holovibes::gui
 {
@@ -133,7 +133,7 @@ void CrossOverlay::draw()
 void CrossOverlay::onSetCurrent()
 {
     mouse_position_ =
-        units::PointFd(units::ConversionData(parent_), API.transform.get_x_cuts(), API.transform.get_y_cuts());
+        units::PointFd(API.transform.get_x_cuts(), API.transform.get_y_cuts());
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -178,26 +178,25 @@ void CrossOverlay::computeZone()
     int y_max = y_start;
     (x_width < 0 ? x_min : x_max) += x_width;
     (y_width < 0 ? y_min : y_max) += y_width;
-    units::ConversionData convert(parent_);
 
-    units::PointFd min(convert, x_min, y_min);
-    units::PointFd max(convert, x_max, y_max);
+    units::PointFd min(x_min, y_min);
+    units::PointFd max(x_max, y_max);
 
     // Setting the zone_
     if (x_width == 0)
     {
-        min.x().set(x_start);
-        max.x().set(x_start);
+        min.x() = x_start;
+        max.x() = x_start;
     }
     if (y_width == 0)
     {
-        min.y().set(y_start);
-        max.y().set(y_start);
+        min.y() = y_start;
+        max.y() = y_start;
     }
     max.x() += 1;
     max.y() += 1;
-    zone_ = units::RectFd(convert, min.x(), 0, max.x(), parent_->getFd().height);
-    horizontal_zone_ = units::RectFd(convert, 0, min.y(), parent_->getFd().width, max.y());
+    zone_ = units::RectFd(min.x(), 0, max.x(), parent_->getFd().height);
+    horizontal_zone_ = units::RectFd(0, min.y(), parent_->getFd().width, max.y());
 }
 
 void CrossOverlay::setBuffer()
@@ -207,8 +206,8 @@ void CrossOverlay::setBuffer()
     parent_->makeCurrent();
     Program_->bind();
 
-    const units::RectOpengl zone_gl = zone_;
-    const units::RectOpengl h_zone_gl = horizontal_zone_;
+    const RectGL zone_gl(*parent_, zone_);
+    const RectGL h_zone_gl(*parent_, horizontal_zone_);
 
     const float subVertices[] = {zone_gl.x(),
                                  zone_gl.y(),

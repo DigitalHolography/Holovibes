@@ -1,5 +1,7 @@
 #include "masks.cuh"
 
+#include "frame_desc.hh"
+
 using camera::FrameDescriptor;
 
 __global__ void kernel_quadratic_lens(

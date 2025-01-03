@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : QOpenGLFunctions()
-    , zone_(units::ConversionData(parent))
+    , zone_()
     , kOverlay_(overlay)
     , verticesIndex_(0)
     , colorIndex_(0)
@@ -119,7 +119,7 @@ units::PointFd Overlay::getMousePos(const QPoint& pos)
     x = (x / parent_->width()) * parent_->getFd().width;
     y = (y / parent_->height()) * parent_->getFd().height;
 
-    units::PointFd res(units::ConversionData(parent_), x, y);
+    units::PointFd res(x, y);
     return res;
 }
 
