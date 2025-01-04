@@ -251,7 +251,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     }
 
     holovibes.start_frame_record();
-    LOG_ERROR("Recording started");
 
     api.compute.start();
 
@@ -282,7 +281,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
-    API.compute.close_critical_compute();
+    API.compute.stop();
     API.information.stop_information_display();
 
     return 0;

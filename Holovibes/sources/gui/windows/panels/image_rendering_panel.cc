@@ -145,7 +145,7 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_computation_mode(int mode)
+void ImageRenderingPanel::set_compute_mode(int mode)
 {
     if (api_.input.get_import_type() == ImportType::None)
         return;
@@ -153,7 +153,7 @@ void ImageRenderingPanel::set_computation_mode(int mode)
     Computation comp_mode = static_cast<Computation>(mode);
 
     gui::close_windows();
-    api_.compute.set_computation_mode(comp_mode);
+    api_.compute.set_compute_mode(comp_mode);
     if (!api_.compute.get_is_computation_stopped())
         gui::create_window(comp_mode, parent_->window_max_size);
 

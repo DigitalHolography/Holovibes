@@ -7,7 +7,7 @@ namespace holovibes::api
 
 #pragma region Compute
 
-void ComputeApi::close_critical_compute() const
+void ComputeApi::stop() const
 {
     if (get_is_computation_stopped())
         return;
@@ -40,7 +40,7 @@ ApiCode ComputeApi::start() const
 
     // Stop any computation currently running and file reading
     if (!get_is_computation_stopped())
-        close_critical_compute();
+        stop();
 
     // Create the pipe and start the pipe
     Holovibes::instance().start_compute();
@@ -98,18 +98,15 @@ ApiCode ComputeApi::pipe_refresh() const
 
 #pragma region Compute Mode
 
-ApiCode ComputeApi::set_computation_mode(Computation mode) const
+ApiCode ComputeApi::set_compute_mode(Computation mode) const
 {
     if (mode == get_compute_mode())
         return ApiCode::NO_CHANGE;
 
-    if (get_is_computation_stopped())
-    {
-        UPDATE_SETTING(ComputeMode, mode);
-        return ApiCode::OK;
-    }
+    UPDATE_SETTING(ComputeMode, mode);
 
-    set_compute_mode(mode);
+    if (get_is_computation_stopped())
+        return ApiCode::OK;
 
     if (mode == Computation::Hologram)
     {
@@ -153,7 +150,10 @@ ApiCode ComputeApi::set_img_type(const ImgType type) const
 
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
-            set_compute_mode(Computation::Hologram);
+        {
+            stop();
+            start();
+        }
         else
             pipe_refresh();
     }

@@ -13,7 +13,7 @@ namespace holovibes::api
 
 void InputApi::camera_none() const
 {
-    api_->compute.close_critical_compute();
+    api_->compute.stop();
 
     set_camera_kind_enum(CameraKind::NONE);
     set_import_type(ImportType::None);

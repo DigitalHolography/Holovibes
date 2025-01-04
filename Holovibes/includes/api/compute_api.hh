@@ -27,7 +27,7 @@ class ComputeApi : public IApi
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
     /*! \brief Stops the pipe and the file/camera reading. */
-    void close_critical_compute() const;
+    void stop() const;
 
     /*! \brief Starts the computation. This function will:
      * - init the input_queue if not initialized
@@ -134,17 +134,12 @@ class ComputeApi : public IApi
      */
     inline Computation get_compute_mode() const { return GET_SETTING(ComputeMode); }
 
-    /*! \brief Sets the computation mode (Raw or Holographic). It's not in realtime.
+    /*! \brief Sets the computation mode to Raw or Holographic. If computation has started
+     *  the pipe is refreshed and the gpu output queue is rebuild.
      *
-     * \param[in] mode The new computation mode
+     * \param[in] mode The new computation mode.
      */
-    inline void set_compute_mode(Computation mode) const { UPDATE_SETTING(ComputeMode, mode); }
-
-    /*! \brief Sets the computation mode to Raw or Holographic in realtime.
-     *
-     * \param[in] mode The new computation mode
-     */
-    ApiCode set_computation_mode(Computation mode) const;
+    ApiCode set_compute_mode(Computation mode) const;
 
 #pragma endregion
 

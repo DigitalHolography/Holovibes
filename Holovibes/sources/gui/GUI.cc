@@ -24,7 +24,7 @@ void start(ushort window_size)
 void stop()
 {
     close_windows();
-    API.compute.close_critical_compute();
+    API.compute.stop();
     NotifierManager::notify("notify", true);
 }
 

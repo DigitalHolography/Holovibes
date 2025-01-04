@@ -83,12 +83,6 @@ class InputApi : public IApi
      */
     inline std::string get_input_file_path() const { return GET_SETTING(InputFilePath); }
 
-    /*! \brief Set the absolute path of the file that will be loaded.
-     *
-     * \param[in] value the new absolute file path
-     */
-    inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
-
     /*! \brief Get how the file is currently being read. Either REGULAR (read by batch from the storage device),
      *  CPU (whole file in RAM) or GPU (whole file in VRAM, no copy but high GPU usage).
      *

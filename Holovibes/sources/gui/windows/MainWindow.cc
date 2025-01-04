@@ -202,7 +202,7 @@ MainWindow::~MainWindow()
     ui_->menuSelect_preset->clear();
 
     gui::close_windows();
-    api_.compute.close_critical_compute();
+    api_.compute.stop();
     api_.information.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
@@ -312,7 +312,7 @@ void MainWindow::notify_error(const std::exception& e)
                 api_.transform.set_time_transformation_size(1);
                 api_.filter2d.enable_filter("");
                 gui::close_windows();
-                api_.compute.close_critical_compute();
+                api_.compute.stop();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
             };
@@ -323,7 +323,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             if (accu)
                 api_.window_pp.set_accumulation_level(1, WindowKind::XYview);
-            api_.compute.close_critical_compute();
+            api_.compute.stop();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
             notify();
