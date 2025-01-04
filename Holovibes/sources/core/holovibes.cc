@@ -181,12 +181,10 @@ void Holovibes::start_compute()
 {
     LOG_FUNC();
     init_input_queue(API.input.get_input_fd(), API.input.get_input_buffer_size());
-    LOG_ERROR("Input queue init");
 
     if (!compute_pipe_.load())
     {
         init_record_queue();
-        LOG_ERROR("Record queue init");
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(record_queue_.load()),
                                                    get_cuda_streams().compute_stream,
@@ -195,7 +193,6 @@ void Holovibes::start_compute()
 
     compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-
     compute_worker_controller_.start(compute_pipe_);
 }
 

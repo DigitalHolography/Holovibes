@@ -43,6 +43,15 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
+bool has_input_queue_overwritten()
+{
+    auto input_queue = API.compute.get_input_queue();
+    if (!input_queue)
+        return false;
+
+    return input_queue->has_overwritten();
+}
+
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -107,14 +116,12 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        auto input_queue = API.compute.get_input_queue();
-
-        if (input_queue->has_overwritten())
-            input_queue->reset_override();
+        if (has_input_queue_overwritten())
+            API.compute.get_input_queue()->reset_override();
 
         while (!stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record))
         {
-            if (record_queue_.load()->has_overwritten() || input_queue->has_overwritten())
+            if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
@@ -127,7 +134,7 @@ void FrameRecordWorker::run()
                             "The record queue has been saturated ; the record will stop once all contiguous frames "
                             "are written");
 
-                    if (input_queue->has_overwritten())
+                    if (has_input_queue_overwritten())
                         LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
                                  "are written");
                 }
