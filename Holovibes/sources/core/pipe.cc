@@ -295,13 +295,6 @@ void Pipe::refresh()
         // Spatial transform
         fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
 
-        fn_compute_vect_->push_back(
-            [&]()
-            {
-                LOG_ERROR("Here 1");
-                LOG_ERROR("Here 2");
-            });
-
         // Move frames from gpu_space_transformation_buffer to
         // gpu_time_transformation_queue (with respect to
         // time_stride)

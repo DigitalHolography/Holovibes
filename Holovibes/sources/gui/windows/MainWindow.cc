@@ -584,6 +584,10 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
+    // When changing to camera, disable input file button and clear choosen file
+    ui_->ImportPanel->set_start_stop_buttons(false);
+    ui_->ImportPathLineEdit->clear();
+
     gui::stop();
 
     if (api_.input.set_camera_kind(c))

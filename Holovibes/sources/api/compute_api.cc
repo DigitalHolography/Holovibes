@@ -133,10 +133,7 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
 ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
     if (type == get_img_type())
-    {
-        LOG_ERROR("Here s1");
         return ApiCode::NO_CHANGE;
-    }
 
     if (get_compute_mode() == Computation::Raw)
         return ApiCode::WRONG_COMP_MODE;

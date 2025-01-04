@@ -17,6 +17,10 @@ void InputApi::camera_none() const
 
     set_camera_kind_enum(CameraKind::NONE);
     set_import_type(ImportType::None);
+
+    // Close camera and free ressources
+    if (Holovibes::instance().active_camera_)
+        Holovibes::instance().active_camera_->shutdown_camera();
     Holovibes::instance().active_camera_.reset();
 }
 

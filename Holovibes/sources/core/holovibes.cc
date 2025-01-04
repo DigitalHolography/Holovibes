@@ -127,7 +127,6 @@ void Holovibes::stop_frame_read()
     while (camera_read_worker_controller_.is_running() || file_read_worker_controller_.is_running())
         continue;
 
-    active_camera_.reset();
     input_queue_.store(nullptr);
 }
 
