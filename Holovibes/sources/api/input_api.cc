@@ -17,6 +17,7 @@ void InputApi::camera_none() const
 
     set_camera_kind_enum(CameraKind::NONE);
     set_import_type(ImportType::None);
+    Holovibes::instance().active_camera_.reset();
 }
 
 #pragma endregion

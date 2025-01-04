@@ -7,10 +7,10 @@ namespace holovibes::api
 
 #pragma region Compute
 
-void ComputeApi::stop() const
+ApiCode ComputeApi::stop() const
 {
     if (get_is_computation_stopped())
-        return;
+        return ApiCode::NOT_STARTED;
 
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.disable_convolution();
@@ -31,6 +31,8 @@ void ComputeApi::stop() const
     set_is_computation_stopped(true);
 
     Holovibes::instance().stop_frame_read();
+
+    return ApiCode::OK;
 }
 
 ApiCode ComputeApi::start() const
@@ -131,7 +133,10 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
 ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
     if (type == get_img_type())
+    {
+        LOG_ERROR("Here s1");
         return ApiCode::NO_CHANGE;
+    }
 
     if (get_compute_mode() == Computation::Raw)
         return ApiCode::WRONG_COMP_MODE;
@@ -150,10 +155,7 @@ ApiCode ComputeApi::set_img_type(const ImgType type) const
 
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
-        {
-            stop();
             start();
-        }
         else
             pipe_refresh();
     }

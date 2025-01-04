@@ -166,9 +166,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     load_gui();
 
-    if (api_.input.get_import_type() != ImportType::None)
-        gui::start(window_max_size);
-
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -195,6 +192,9 @@ MainWindow::MainWindow(QWidget* parent)
     enable_notify();
 
     notify();
+
+    if (api_.input.get_import_type() != ImportType::None)
+        gui::start(window_max_size);
 }
 
 MainWindow::~MainWindow()

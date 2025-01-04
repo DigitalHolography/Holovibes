@@ -9,7 +9,7 @@ namespace holovibes::api
 
 void GlobalPostProcessApi::update_registration_zone(float value) const
 {
-    if (!is_between(value, 0.f, 1.f) || api_->input.get_import_type() == ImportType::None)
+    if (!is_between(value, 0.f, 1.f) || api_->compute.get_is_computation_stopped())
         return;
 
     set_registration_zone(value);
@@ -142,7 +142,7 @@ void GlobalPostProcessApi::load_convolution_matrix(std::string filename) const
 
 void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
 {
-    if (api_->input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+    if (api_->compute.get_is_computation_stopped() || get_divide_convolution_enabled() == value ||
         !get_convolution_enabled())
         return;
 

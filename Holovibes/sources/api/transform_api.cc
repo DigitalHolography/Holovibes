@@ -38,7 +38,7 @@ void TransformApi::update_batch_size(uint batch_size) const
     if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
         batch_size = 1;
 
-    if (api_->input.get_import_type() == ImportType::None || get_batch_size() == batch_size)
+    if (api_->compute.get_is_computation_stopped() || get_batch_size() == batch_size)
         return;
 
     if (set_batch_size(batch_size))
@@ -65,7 +65,7 @@ void TransformApi::set_time_stride(uint value) const
 
 void TransformApi::update_time_stride(const uint time_stride) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
         return;
 
     if (time_stride == get_time_stride())
@@ -116,7 +116,7 @@ void TransformApi::set_z_distance(float value) const
 
 void TransformApi::update_time_transformation_size(uint time_transformation_size) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
         return;
 
     if (time_transformation_size == get_time_transformation_size())
@@ -238,7 +238,7 @@ void TransformApi::set_y_cuts(uint value) const
 
 void TransformApi::set_x_y(uint x, uint y) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
         return;
 
     if (x < api_->input.get_input_fd().width)

@@ -147,13 +147,12 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_compute_mode(int mode)
 {
-    if (api_.input.get_import_type() == ImportType::None)
-        return;
-
     Computation comp_mode = static_cast<Computation>(mode);
 
     gui::close_windows();
-    api_.compute.set_compute_mode(comp_mode);
+    if (api_.compute.set_compute_mode(comp_mode) != ApiCode::OK)
+        return;
+
     if (!api_.compute.get_is_computation_stopped())
         gui::create_window(comp_mode, parent_->window_max_size);
 
@@ -293,7 +292,7 @@ void ImageRenderingPanel::decrement_z() { set_z_distance(api_.transform.get_z_di
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (api_.input.get_import_type() == ImportType::None)
+    if (api_.compute.get_is_computation_stopped())
         return;
 
     if (value)

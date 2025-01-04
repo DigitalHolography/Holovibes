@@ -27,7 +27,7 @@ class ComputeApi : public IApi
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
     /*! \brief Stops the pipe and the file/camera reading. */
-    void stop() const;
+    ApiCode stop() const;
 
     /*! \brief Starts the computation. This function will:
      * - init the input_queue if not initialized
