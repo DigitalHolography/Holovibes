@@ -23,12 +23,11 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , ui_(new Ui::LightUI)
     , main_window_(main_window)
     , visible_(false)
+    , notify_subscriber_("notify", std::bind(&LightUI::on_notify, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
     , record_progress_subscriber_("record_progress",
                                   std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
-    , record_output_file_subscriber_("record_output_file",
-                                     std::bind(&LightUI::actualise_record_output_file_ui, this, std::placeholders::_1))
     , record_progress_bar_color_subscriber_(
           "record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
     , record_finished_subscriber_("record_finished",
@@ -53,13 +52,6 @@ void LightUI::showEvent(QShowEvent* event)
     QMainWindow::showEvent(event);
     visible_ = true;
     notify();
-}
-
-void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_path)
-{
-    ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path.parent_path().string()));
-    // remove the extension from the filename
-    ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
 
 void LightUI::z_value_changed(int z_distance)
@@ -108,12 +100,17 @@ void LightUI::start_stop_recording(bool start)
 void LightUI::on_record_start(RecordMode record)
 {
     ui_->startButton->setText("Stop recording");
+    ui_->RecordedEyePushButton->setEnabled(false);
+    ui_->ResetRecordedEyePushButton->setEnabled(false);
     LOG_INFO("Recording started");
 }
 
 void LightUI::on_record_stop(RecordMode record)
 {
     reset_start_button();
+
+    ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->ResetRecordedEyePushButton->setEnabled(true);
 
     reset_record_progress_bar();
 
@@ -154,6 +151,12 @@ void LightUI::notify()
     ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 
+    // Filename
+    std::filesystem::path file_path{API.record.get_record_file_path()};
+    ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path.parent_path().string()));
+    // remove the extension from the filename
+    ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
+
     // Contrast
     bool pipe_loaded = api.compute.get_compute_pipe_no_throw() != nullptr;
     ui_->ContrastCheckBox->setChecked(pipe_loaded && api.contrast.get_contrast_enabled());
@@ -165,6 +168,8 @@ void LightUI::notify()
     ui_->ContrastMaxDoubleSpinBox->setValue(api.contrast.get_contrast_max());
 
     ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
+
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
 }
 
 void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }
@@ -237,5 +242,18 @@ void LightUI::set_preset()
 }
 
 void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
+
+void LightUI::update_recorded_eye()
+{
+    API.record.set_recorded_eye(API.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
+                                                                                       : RecordedEyeType::LEFT);
+    notify();
+}
+
+void LightUI::reset_recorded_eye()
+{
+    API.record.set_recorded_eye(RecordedEyeType::NONE);
+    notify();
+}
 
 } // namespace holovibes::gui

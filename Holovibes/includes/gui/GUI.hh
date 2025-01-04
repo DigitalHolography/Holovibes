@@ -116,6 +116,15 @@ void set_reticle_overlay_visible(bool value);
 void open_advanced_settings(
     QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
 
+/*!
+ * \brief Gets a string representation of the current recorded eye
+ * This string is more explicit and should be used for display purposes.
+ *
+ * \return std::string The stringified recorded eye,
+ * either "Left" or "Right", or "Unspecified" for no eye
+ */
+std::string get_recorded_eye_display_string();
+
 /*! \brief Gets the destination of the output file
  *
  * \param[in] std_filepath the output filepath.

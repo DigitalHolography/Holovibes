@@ -192,7 +192,8 @@ struct ChartEnv
 
 /*! \struct ImageAccEnv
  *
- * \brief #TODO Add a description for this struct
+ * \brief Struct containing variables related to the accumulation of the
+ * computed frames.
  */
 struct ImageAccEnv
 {

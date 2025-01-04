@@ -92,11 +92,16 @@ void FrameRecordWorker::run()
 
     try
     {
+        static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
+                                                              {RecordedEyeType::NONE, ""},
+                                                              {RecordedEyeType::RIGHT, "_R"}};
+        std::string eye_string = eye_map[API.record.get_recorded_eye()];
+
         std::string record_file_path;
         if (Holovibes::instance().is_cli)
-            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), "R");
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string, "R");
         else
-            record_file_path = get_record_filename(setting<settings::RecordFilePath>());
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);
 
         static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                            {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},

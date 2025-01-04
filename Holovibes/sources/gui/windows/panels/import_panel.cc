@@ -33,6 +33,8 @@ void ImportPanel::on_notify()
     const bool no_comp = api_.compute.get_is_computation_stopped();
     ui_->InputBrowseToolButton->setEnabled(no_comp);
     ui_->FileReaderProgressBar->setVisible(!no_comp && api_.input.get_import_type() == ImportType::File);
+
+    ui_->FileLoadKindComboBox->setCurrentIndex(static_cast<int>(api_.input.get_file_load_kind()));
 }
 
 void ImportPanel::load_gui(const json& j_us)
@@ -44,7 +46,7 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 10000, "import", "fps"));
     update_fps(); // Required as it is called `OnEditedFinished` only.
 
-    ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
+    ui_->FileLoadKindComboBox->setCurrentIndex(json_get_or_default(j_us, 0, "import", "load file kind"));
 }
 
 void ImportPanel::save_gui(json& j_us)
@@ -52,7 +54,7 @@ void ImportPanel::save_gui(json& j_us)
     j_us["panels"]["import export hidden"] = ui_->ImportExportFrame->isHidden();
 
     j_us["import"]["fps"] = ui_->ImportInputFpsSpinBox->value();
-    j_us["import"]["from gpu"] = ui_->LoadFileInGpuCheckBox->isChecked();
+    j_us["import"]["load file kind"] = ui_->FileLoadKindComboBox->currentIndex();
 }
 
 std::string& ImportPanel::get_file_input_directory()
@@ -126,10 +128,7 @@ void ImportPanel::update_fps() { api_.input.set_input_fps(ui_->ImportInputFpsSpi
 
 void ImportPanel::update_import_file_path() { import_file(ui_->ImportPathLineEdit->text()); }
 
-void ImportPanel::update_load_file_in_gpu()
-{
-    api_.input.set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());
-}
+void ImportPanel::update_file_load_kind(int kind) { api_.input.set_file_load_kind(static_cast<FileLoadKind>(kind)); }
 
 void ImportPanel::update_input_file_start_index()
 {

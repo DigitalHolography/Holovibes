@@ -83,19 +83,29 @@ class InputApi : public IApi
      */
     inline std::string get_input_file_path() const { return GET_SETTING(InputFilePath); }
 
-    /*! \brief Return whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Set the absolute path of the file that will be loaded.
      *
-     * \return bool true if the full file will be loaded in the GPU memory
+     * \param[in] value the new absolute file path
      */
-    inline bool get_load_file_in_gpu() const { return GET_SETTING(LoadFileInGPU); }
+    inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
 
-    /*! \brief Set whether the full file will be loaded in the GPU memory or not. It's used to reduce memory transfer
-     * between RAM and VRAM but it will increase GPU load.
+    /*! \brief Get how the file is currently being read. Either REGULAR (read by batch from the storage device),
+     *  CPU (whole file in RAM) or GPU (whole file in VRAM, no copy but high GPU usage).
      *
-     * \param[in] value true if the full file will be loaded in the GPU memory
+     * \return FileLoadKind The current way that files are read
+     *
+     * \see FileLoadKind More explanations here
      */
-    inline void set_load_file_in_gpu(bool value) const { UPDATE_SETTING(LoadFileInGPU, value); }
+    inline FileLoadKind get_file_load_kind() const { return GET_SETTING(FileLoadKind); }
+
+    /*! \brief Set how the files should be read. Either REGULAR (read by batch from the storage device),
+     *  CPU (whole file in RAM) or GPU (whole file in VRAM, no copy but high GPU usage).
+     *
+     * \param[in] value The new way that files should be read
+     *
+     * \see FileLoadKind More explanations here
+     */
+    inline void set_file_load_kind(FileLoadKind value) const { UPDATE_SETTING(FileLoadKind, value); }
 
     /*! \brief Return the number of frames that will be read from the file per second.
      *

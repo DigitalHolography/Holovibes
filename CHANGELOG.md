@@ -1,5 +1,17 @@
 ## Changelog
 
+### 14.3.0
+
+- Updated all preset:
+  - batchsize from 32 to 64
+  - time_transformation_size from 16 to 32
+  - time_transformation_stride 32 to 64
+  - z width from 8 to 16
+- Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
+- Added an option 'Load file in CPU RAM' in that drop-down
+- Added UI buttons that specify which eye is recorded, which is reflected in the file name
+
+
 ### 14.2.0
 
 - The UI can record again

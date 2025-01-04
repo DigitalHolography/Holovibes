@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Worker used to perform all computations
  */
 #pragma once
 

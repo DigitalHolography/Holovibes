@@ -94,7 +94,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
             API.settings.load_compute_settings(json_path);
         }
 
-        if (get_load_file_in_gpu())
+        if (get_file_load_kind() != FileLoadKind::REGULAR)
             NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
         return input;
@@ -134,7 +134,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     set_input_buffer_size(input_buffer_size);
     api_->record.set_record_buffer_size(record_buffer_size);
 
-    if (get_load_file_in_gpu())
+    if (get_file_load_kind() != FileLoadKind::REGULAR)
         NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     return input;
