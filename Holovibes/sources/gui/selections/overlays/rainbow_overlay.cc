@@ -180,7 +180,7 @@ void RainbowOverlay::move(QMouseEvent* e)
     if (e->buttons() != Qt::LeftButton)
         return;
 
-    zone_.setDst(getMousePos(e->pos()));
+    zone_.set_dst(getMousePos(e->pos()));
     if (parent_->getKindOfView() == KindOfView::SliceYZ)
     {
         if (API.composite.get_composite_kind() == CompositeKind::RGB)

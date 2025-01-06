@@ -25,7 +25,7 @@ static void progress_bar(int current, int total, int length)
     text.reserve(length + 2);
 
     float ratio = (current * 1.0f) / total;
-    int n = length * static_cast<int>(ratio);
+    int n = static_cast<int>(length * ratio);
 
     text += '[';
     if (n == length)

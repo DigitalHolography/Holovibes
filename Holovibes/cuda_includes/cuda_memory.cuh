@@ -20,6 +20,11 @@
 #include "common.cuh"
 #include "logger.hh"
 
+/*! \brief Wrapper around cudaMallocManaged for fast debugging.
+ *
+ *  \param[in] ptr The device pointer to allocate.
+ *  \param[in] size Size in byte to allocate.
+ */
 template <typename T>
 cudaError_t cudaXRMallocManaged(T** ptr, size_t size);
 

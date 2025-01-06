@@ -5,6 +5,8 @@
 #pragma once
 
 #include "camera_config.hh"
+
+// Avoid conflict with std::max and std::min (min and max are defined in windows.h)
 #include <Windows.h>
 #undef max
 #undef min

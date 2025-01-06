@@ -45,20 +45,20 @@ class RectGL
      */
     RectGL(const BasicOpenGLWindow& window, units::RectFd rect)
     {
-        setSrc(PointGL(window, rect.src()));
-        setDst(PointGL(window, rect.dst()));
+        set_src(PointGL(window, rect.src()));
+        set_dst(PointGL(window, rect.dst()));
     }
 
     /*! \name Getters and setters
      * \{
      */
-    PointGL topLeft() const { return PointGL(x(), y()); }
+    PointGL top_left() const { return PointGL(x(), y()); }
 
-    PointGL bottomRight() const { return PointGL(right(), bottom()); }
+    PointGL bottom_right() const { return PointGL(right(), bottom()); }
 
-    PointGL topRight() const { return PointGL(right(), y()); }
+    PointGL top_right() const { return PointGL(right(), y()); }
 
-    PointGL bottomLeft() const { return PointGL(x(), bottom()); }
+    PointGL bottom_left() const { return PointGL(x(), bottom()); }
 
     PointGL size() const
     {
@@ -77,61 +77,61 @@ class RectGL
 
     float& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    void setX(float newx) { x() = newx; }
+    void set_x(float newx) { x() = newx; }
 
     float y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
     float& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-    void setY(float newy) { y() = newy; }
+    void set_y(float newy) { y() = newy; }
 
     float width() const { return size().x(); }
 
     float unsigned_width() const { return std::abs(width()); }
 
-    void setWidth(float w) { right() = x() + w; }
+    void set_width(float w) { right() = x() + w; }
 
     float height() const { return size().y(); }
 
     float unsigned_height() const { return std::abs(height()); }
 
-    void setHeight(float h) { bottom() = y() + h; }
+    void set_height(float h) { bottom() = y() + h; }
 
     float& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
     float bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-    void setBottom(float y) { bottom() = y; }
+    void set_bottom(float y) { bottom() = y; }
 
     float& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
     float right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-    void setRight(float x) { right() = x; }
+    void set_right(float x) { right() = x; }
 
-    void setTopLeft(PointGL p)
+    void set_top_left(PointGL p)
     {
-        setX(p.x());
-        setY(p.y());
+        set_x(p.x());
+        set_y(p.y());
     }
 
-    void setBottomRight(PointGL p)
+    void set_bottom_right(PointGL p)
     {
-        setRight(p.x());
-        setBottom(p.y());
+        set_right(p.x());
+        set_bottom(p.y());
     }
 
-    void setSrc(PointGL p) { src_ = p; }
+    void set_src(PointGL p) { src_ = p; }
 
-    void setDst(PointGL p) { dst_ = p; }
+    void set_dst(PointGL p) { dst_ = p; }
 
     PointGL src() const { return src_; }
 
     PointGL dst() const { return dst_; }
 
-    PointGL& srcRef() { return src_; }
+    PointGL& src_ref() { return src_; }
 
-    PointGL& dstRef() { return dst_; }
+    PointGL& dst_ref() { return dst_; }
     /*! \} */
 
     /*! \brief area, abs(width * height) */

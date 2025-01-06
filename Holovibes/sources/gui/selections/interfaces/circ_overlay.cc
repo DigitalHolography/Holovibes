@@ -107,13 +107,13 @@ void CircOverlay::checkBounds()
     auto parent_fd = parent_->getFd();
 
     if (zone_.src().x() < 0)
-        zone_.srcRef().x() = 0;
+        zone_.src_ref().x() = 0;
     if (zone_.src().x() > parent_fd.width)
-        zone_.srcRef().x() = parent_fd.width;
+        zone_.src_ref().x() = parent_fd.width;
 
     if (zone_.src().y() < 0)
-        zone_.srcRef().y() = 0;
+        zone_.src_ref().y() = 0;
     if (zone_.src().y() > parent_fd.height)
-        zone_.srcRef().y() = parent_fd.height;
+        zone_.src_ref().y() = parent_fd.height;
 }
 } // namespace holovibes::gui

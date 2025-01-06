@@ -30,12 +30,12 @@ static void chart_test(const ushort image_width,
 
     RectFd zone;
     PointFd dst(zone_width, zone_height);
-    zone.setBottomRight(dst);
+    zone.set_bottom_right(dst);
 
     PointFd src(x_zone_offset, y_zone_offset);
-    zone.setTopLeft(src);
-    zone.setWidth(zone_width);
-    zone.setHeight(zone_height);
+    zone.set_top_left(src);
+    zone.set_width(zone_width);
+    zone.set_height(zone_height);
 
     apply_zone_sum(input, image_height, image_width, output, zone, 0);
     cudaXStreamSynchronize(0);
@@ -148,13 +148,13 @@ TEST(ChartTest, SmallDifferentValuesImage)
 
     RectFd zone;
     PointFd dst(33, 33);
-    zone.setBottomRight(dst);
+    zone.set_bottom_right(dst);
 
     PointFd src(x_zone_offset, y_zone_offset);
-    zone.setTopLeft(src);
+    zone.set_top_left(src);
 
-    zone.setWidth(zone_width);
-    zone.setHeight(zone_height);
+    zone.set_width(zone_width);
+    zone.set_height(zone_height);
 
     apply_zone_sum(input, image_height, image_width, output, zone, 0);
     cudaXStreamSynchronize(0);
@@ -191,13 +191,13 @@ TEST(ChartTest, DifferentValuesImage)
 
     RectFd zone;
     PointFd dst(zone_width, zone_height);
-    zone.setBottomRight(dst);
+    zone.set_bottom_right(dst);
 
     PointFd src(x_zone_offset, y_zone_offset);
-    zone.setTopLeft(src);
+    zone.set_top_left(src);
 
-    zone.setWidth(zone_width);
-    zone.setHeight(zone_height);
+    zone.set_width(zone_width);
+    zone.set_height(zone_height);
 
     apply_zone_sum(input, image_height, image_width, output, zone, 0);
     cudaXStreamSynchronize(0);

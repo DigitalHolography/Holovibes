@@ -58,8 +58,8 @@ void Overlay::press(QMouseEvent* e)
     if (e->button() == Qt::LeftButton)
     {
         units::PointFd pos = getMousePos(e->pos());
-        zone_.setSrc(pos);
-        zone_.setDst(zone_.src());
+        zone_.set_src(pos);
+        zone_.set_dst(zone_.src());
     }
 }
 

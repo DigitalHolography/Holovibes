@@ -18,6 +18,7 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
+// Avoid conflict with std::max and std::min (min and max are defined in windows.h)
 #undef max
 #undef min
 

@@ -100,7 +100,7 @@ void RectOverlay::move(QMouseEvent* e)
     if (e->buttons() == Qt::LeftButton)
     {
         auto pos = getMousePos(e->pos());
-        zone_.setDst(pos);
+        zone_.set_dst(pos);
         checkCorners();
         setBuffer();
         display_ = true;
@@ -112,13 +112,13 @@ void RectOverlay::checkCorners()
     auto parent_fd = parent_->getFd();
 
     if (zone_.dst().x() < 0)
-        zone_.dstRef().x() = 0;
+        zone_.dst_ref().x() = 0;
     else if (zone_.dst().x() > parent_fd.width)
-        zone_.dstRef().x() = parent_fd.width;
+        zone_.dst_ref().x() = parent_fd.width;
 
     if (zone_.dst().y() < 0)
-        zone_.dstRef().y() = 0;
+        zone_.dst_ref().y() = 0;
     else if (zone_.dst().y() > parent_fd.height)
-        zone_.dstRef().y() = parent_fd.height;
+        zone_.dst_ref().y() = parent_fd.height;
 }
 } // namespace holovibes::gui

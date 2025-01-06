@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+// Avoid conflict with std::max and std::min (min and max are defined in windows.h)
 #include <windows.h>
 #undef max
 #undef min

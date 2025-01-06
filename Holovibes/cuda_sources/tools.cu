@@ -27,7 +27,7 @@ __global__ void kernel_complex_to_modulus(float* output, const cuComplex* input,
 void frame_memcpy(
     float* output, const float* input, const units::RectFd& zone, const uint input_width, const cudaStream_t stream)
 {
-    const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
+    const float* zone_ptr = input + (zone.top_left().y() * input_width + zone.top_left().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,
                                    zone.width() * sizeof(float),
                                    zone_ptr,

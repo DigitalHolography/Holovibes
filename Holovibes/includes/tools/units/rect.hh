@@ -44,13 +44,13 @@ class RectFd
     /*! \name Getters and setters
      * \{
      */
-    PointFd topLeft() const { return PointFd(x(), y()); }
+    PointFd top_left() const { return PointFd(x(), y()); }
 
-    PointFd bottomRight() const { return PointFd(right(), bottom()); }
+    PointFd bottom_right() const { return PointFd(right(), bottom()); }
 
-    PointFd topRight() const { return PointFd(right(), y()); }
+    PointFd top_right() const { return PointFd(right(), y()); }
 
-    PointFd bottomLeft() const { return PointFd(x(), bottom()); }
+    PointFd bottom_left() const { return PointFd(x(), bottom()); }
 
     PointFd size() const
     {
@@ -69,61 +69,61 @@ class RectFd
 
     int& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    void setX(int newx) { x() = newx; }
+    void set_x(int newx) { x() = newx; }
 
     int y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
     int& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-    void setY(int newy) { y() = newy; }
+    void set_y(int newy) { y() = newy; }
 
     int width() const { return size().x(); }
 
     int unsigned_width() const { return std::abs(width()); }
 
-    void setWidth(int w) { right() = x() + w; }
+    void set_width(int w) { right() = x() + w; }
 
     int height() const { return size().y(); }
 
     int unsigned_height() const { return std::abs(height()); }
 
-    void setHeight(int h) { bottom() = y() + h; }
+    void set_height(int h) { bottom() = y() + h; }
 
     int& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
     int bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-    void setBottom(int y) { bottom() = y; }
+    void set_bottom(int y) { bottom() = y; }
 
     int& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
     int right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-    void setRight(int x) { right() = x; }
+    void set_right(int x) { right() = x; }
 
-    void setTopLeft(PointFd p)
+    void set_top_left(PointFd p)
     {
-        setX(p.x());
-        setY(p.y());
+        set_x(p.x());
+        set_y(p.y());
     }
 
-    void setBottomRight(PointFd p)
+    void set_bottom_right(PointFd p)
     {
-        setRight(p.x());
-        setBottom(p.y());
+        set_right(p.x());
+        set_bottom(p.y());
     }
 
-    void setSrc(PointFd p) { src_ = p; }
+    void set_src(PointFd p) { src_ = p; }
 
-    void setDst(PointFd p) { dst_ = p; }
+    void set_dst(PointFd p) { dst_ = p; }
 
     PointFd src() const { return src_; }
 
     PointFd dst() const { return dst_; }
 
-    PointFd& srcRef() { return src_; }
+    PointFd& src_ref() { return src_; }
 
-    PointFd& dstRef() { return dst_; }
+    PointFd& dst_ref() { return dst_; }
     /*! \} */
 
     /*! \brief area, abs(width * height) */
