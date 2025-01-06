@@ -136,7 +136,7 @@ class InformationApi : public IApi
      * d = pixel size
      * lambda = wavelength
      *
-     * \return const float
+     * \return const float The boundary
      */
     float get_boundary() const;
 

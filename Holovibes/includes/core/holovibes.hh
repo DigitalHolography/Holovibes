@@ -278,8 +278,6 @@ class Holovibes
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
-     *
-     * \param callback
      */
     void start_camera_frame_read();
 

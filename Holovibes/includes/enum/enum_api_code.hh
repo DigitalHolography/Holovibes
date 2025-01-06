@@ -17,7 +17,7 @@ enum class ApiCode
     NO_IN_DATA,      /*!< Can't start because their is no source (file/camera) */
     NOT_STARTED,     /*!< The operation could not be performed because the computation has not started */
     WRONG_COMP_MODE, /*!< The operation could not be performed on this computation mode */
-    WRONG_IMG_TYPE,  /*!< The operation could not be performed on this computation mode */
+    WRONG_IMG_TYPE,  /*!< The operation could not be performed with this image type */
     FAILURE          /*!< An error occurred */
 };
 } // namespace holovibes

@@ -41,8 +41,7 @@ ApiCode ComputeApi::start() const
         return ApiCode::NO_IN_DATA;
 
     // Stop any computation currently running and file reading
-    if (!get_is_computation_stopped())
-        stop();
+    stop();
 
     // Create the pipe and start the pipe
     Holovibes::instance().start_compute();
@@ -107,9 +106,6 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
 
     UPDATE_SETTING(ComputeMode, mode);
 
-    if (get_is_computation_stopped())
-        return ApiCode::OK;
-
     if (mode == Computation::Hologram)
     {
         api_->view.change_window(WindowKind::XYview);
@@ -118,6 +114,9 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
     else
         api_->record.set_record_mode_enum(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
+
+    if (get_is_computation_stopped())
+        return ApiCode::OK;
 
     get_compute_pipe()->request(ICS::OutputBuffer);
     while (get_compute_pipe()->is_requested(ICS::OutputBuffer))

@@ -26,7 +26,10 @@ class ComputeApi : public IApi
      */
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
-    /*! \brief Stops the pipe and the file/camera reading. */
+    /*! \brief Stops the pipe and the file/camera reading.
+     *
+     * \return ApiCode OK if the computation was stopped or NOT_STARTED if nothing needed to be stopped.
+     */
     ApiCode stop() const;
 
     /*! \brief Starts the computation. This function will:
@@ -35,6 +38,8 @@ class ComputeApi : public IApi
      * - create a new pipe if not initialized
      * - start the computation worker
      * - start the frame read worker
+     *
+     * \return ApiCode OK if the computation was started or NO_IN_DATA if there is no source (file/camera).
      */
     ApiCode start() const;
 
@@ -95,14 +100,23 @@ class ComputeApi : public IApi
         return Holovibes::instance().get_compute_pipe_no_throw();
     };
 
-    /*! \brief Triggers the pipe to make it refresh */
+    /*! \brief Triggers the pipe to make it refresh.
+     *
+     * \return ApiCode OK if the pipe was refreshed or NOT_STARTED if no computation.
+     */
     ApiCode pipe_refresh() const;
 
-    /*! \brief Enables the pipe refresh */
+    /*! \brief Enables the pipe refresh.
+     *
+     * \return ApiCode OK if the pipe refresh was enabled or NOT_STARTED if no computation.
+     */
     ApiCode enable_pipe_refresh() const;
 
     /*! \brief Disables the pipe refresh. You must enable pipe refresh after otherwise computations will be weird. Use
-     * with caution. */
+     * with caution.
+     *
+     * \return ApiCode OK if the pipe refresh was disabled or NOT_STARTED if no computation.
+     */
     ApiCode disable_pipe_refresh() const;
 
 #pragma endregion
@@ -120,7 +134,8 @@ class ComputeApi : public IApi
      *
      * \param[in] type The new image type
      *
-     * \return ApiCode OK if the image type was changed, an error code otherwise
+     * \return ApiCode OK if the image type was changed, NO_CHANGE if the image type was the same, WRONG_COMP_MODE if we
+     * are in Raw mode or FAILURE on error.
      */
     ApiCode set_img_type(const ImgType type) const;
 
@@ -138,6 +153,8 @@ class ComputeApi : public IApi
      *  the pipe is refreshed and the gpu output queue is rebuild.
      *
      * \param[in] mode The new computation mode.
+     *
+     * \return ApiCode OK if the computation mode was changed or NO_CHANGE if the computation mode was the same.
      */
     ApiCode set_compute_mode(Computation mode) const;
 

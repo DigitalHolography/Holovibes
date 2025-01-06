@@ -103,7 +103,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     return 0;
 }
 
-static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+static int set_parameters(const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
     auto& api = API;
@@ -167,7 +167,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     return 0;
 }
 
-static void main_loop(holovibes::Holovibes& holovibes)
+static void main_loop()
 {
     // Recording progress (used by the progress bar)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
@@ -262,7 +262,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     LOG_INFO("Starting CLI");
 
     holovibes.is_cli = true;
-    if (int ret = set_parameters(holovibes, opts))
+    if (int ret = set_parameters(opts))
         return ret;
 
     LOG_INFO("Parameters set");
@@ -276,7 +276,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     LOG_INFO("CLI workers started, main looping");
 
-    main_loop(holovibes);
+    main_loop();
 
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
