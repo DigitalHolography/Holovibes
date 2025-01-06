@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Helper function usable as tools anywhere in the code
  */
 #pragma once
 

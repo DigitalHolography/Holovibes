@@ -19,11 +19,12 @@
 #include "common.cuh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include "logger.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum_record_mode.hh"
 #include "enum_import_type.hh"
 #include "enum_device.hh"
@@ -42,13 +43,14 @@
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
-    holovibes::settings::LoadFileInGPU,                          \
+    holovibes::settings::FileLoadKind,                           \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
-    holovibes::settings::RecordFrameSkip,                        \
+    holovibes::settings::RecordedEye,                            \
+    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
@@ -104,7 +106,6 @@
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
-    holovibes::settings::ZoomedZone,                             \
     holovibes::settings::ReticleZone,                            \
     holovibes::settings::FilterEnabled,                          \
     holovibes::settings::InputFilter,                            \
@@ -383,19 +384,20 @@ class Holovibes
                                              settings::ImportedFileFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
-                                             settings::LoadFileInGPU{false},
+                                             settings::FileLoadKind{FileLoadKind::REGULAR},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
-                                             settings::RecordFrameSkip{0},
+                                             settings::RecordedEye{RecordedEyeType::NONE},
+                                             settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
-                                             settings::P{ViewPQ{}},
-                                             settings::Q{ViewPQ{}},
+                                             settings::P{ViewP{0, 1}},
+                                             settings::Q{ViewQ{}},
                                              settings::XY{ViewXYZ{}},
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
@@ -446,7 +448,6 @@ class Holovibes
                                              settings::SignalZone{units::RectFd{}},
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
-                                             settings::ZoomedZone{units::RectFd{}},
                                              settings::ReticleZone{units::RectFd{}},
                                              settings::FilterEnabled{false},
                                              settings::InputFilter{{}},

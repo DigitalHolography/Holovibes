@@ -43,15 +43,6 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
-std::string prepend_string_to_filepath(std::string file_path, std::string str)
-{
-    std::filesystem::path filePath(file_path);
-    std::string filename = filePath.filename().string();
-    std::string path = filePath.parent_path().string();
-    std::filesystem::path newFilePath = path + "/" + str + "_" + filename;
-    return newFilePath.string();
-}
-
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -62,7 +53,7 @@ void FrameRecordWorker::run()
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
-    size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
+    size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
 
     nb_frames_recorded = 0;
 
@@ -91,17 +82,21 @@ void FrameRecordWorker::run()
 
     try
     {
+        static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
+                                                              {RecordedEyeType::NONE, ""},
+                                                              {RecordedEyeType::RIGHT, "_R"}};
+        std::string eye_string = eye_map[API.record.get_recorded_eye()];
+
         std::string record_file_path;
         if (Holovibes::instance().is_cli)
-            record_file_path = prepend_string_to_filepath(setting<settings::RecordFilePath>(), "R");
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string, "R");
         else
-            record_file_path =
-                prepend_string_to_filepath(setting<settings::RecordFilePath>(), Chrono::get_current_date());
+            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);
 
         static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                            {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
                                                            {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
-        RecordedDataType data_type = m[api::get_record_mode()];
+        RecordedDataType data_type = m[API.record.get_record_mode()];
 
         output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
@@ -116,7 +111,7 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        auto input_queue = api::get_input_queue();
+        auto input_queue = API.compute.get_input_queue();
 
         if (input_queue->has_overwritten())
             input_queue->reset_override();
@@ -161,25 +156,11 @@ void FrameRecordWorker::run()
 
             record_queue_.load()->dequeue(frame_buffer,
                                           stream_,
-                                          api::get_record_queue_location() == holovibes::Device::GPU
+                                          API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
-            // FIXME: to check if it's still relevant
-            // if (api::get_record_queue_location()) {
-            //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
-            //     output_frame_file->write_frame(frame_buffer, output_frame_size);
-            // }
-            // else
-            // {
-            //     {
-            //         MutexGuard mGuard(record_queue_.load()->get_guard());
-            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()),
-            //         record_queue_.load()->get_size() * output_frame_size);
-            //     }
-            //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
-            // }
             (*processed_fps)++;
             nb_frames_recorded++;
 
@@ -188,9 +169,6 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        // api::set_record_frame_skip(nb_frames_to_skip);
-
-        // api::set_record_frame_skip(nb_frames_to_skip);
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 

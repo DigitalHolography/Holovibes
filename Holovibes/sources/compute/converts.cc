@@ -80,11 +80,11 @@ void Converts::insert_compute_p_accu()
         [=]()
         {
             auto p = setting<settings::P>();
-            pmin_ = p.start;
+            pmin_ = p.start - 1;
             if (p.width != 0)
                 pmax_ = std::max(
                     0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
+                    std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()) - 1));
             else
                 pmax_ = p.start;
         });
@@ -118,7 +118,7 @@ void Converts::insert_to_modulus_moments(float* output, const ushort f_start, co
             complex_to_modulus_moments(output,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        fd_.get_frame_res(),
-                                       f_start - 1,
+                                       f_start,
                                        f_end,
                                        stream_);
         });
@@ -176,9 +176,9 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                                         stream_);
 
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                        (static_cast<double>(averages[1]) / max) * factor,
-                                        (static_cast<double>(averages[2]) / max) * factor);
+                    API.composite.set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                                 (static_cast<double>(averages[1]) / max) * factor,
+                                                 (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
             else

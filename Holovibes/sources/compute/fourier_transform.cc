@@ -239,6 +239,47 @@ void FourierTransform::insert_stft()
         });
 }
 
+template <typename T>
+void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <typename T>
+void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    T* result = new T[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
+}
+
 void FourierTransform::insert_moments()
 {
     LOG_FUNC();
@@ -362,7 +403,7 @@ void FourierTransform::insert_pca()
         });
 }
 
-void FourierTransform::insert_ssa_stft(ViewPQ view_q)
+void FourierTransform::insert_ssa_stft(ViewQ view_q)
 {
     LOG_FUNC();
 
@@ -396,7 +437,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            ViewPQ q_struct = view_q;
+            ViewQ q_struct = view_q;
             int q = q_struct.width != 0 ? q_struct.start : 0;
             int q_acc = q_struct.width != 0 ? q_struct.width : time_transformation_size;
             int q_index = q * time_transformation_size;
@@ -476,7 +517,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posx = x.start;
                         mouse_posy = y.start;
                     }
-                    // -----------------------------------------------------
+
                     time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
                                                    time_transformation_env_.gpu_p_acc_buffer,

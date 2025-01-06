@@ -14,7 +14,7 @@ namespace camera
 {
 /*! \class CameraIds
  *
- * \brief #TODO Add a description for this class
+ * \brief Class for the camera IDS CMOSIS CMV 4000
  */
 class CameraIds : public Camera
 {

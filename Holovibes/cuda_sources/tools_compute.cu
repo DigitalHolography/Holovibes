@@ -93,6 +93,7 @@ void tensor_multiply_vector(float* output,
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
+
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
 }

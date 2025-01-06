@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of templated matrix operation functions
  */
 #pragma once
 

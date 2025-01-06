@@ -8,13 +8,13 @@
 #include "barycentre.cuh"
 #include "vascular_pulse.cuh"
 #include "tools_analysis.cuh"
-#include "API.hh"
 #include "otsu.cuh"
 #include "cublas_handle.hh"
 #include "bw_area.cuh"
 #include "circular_video_buffer.hh"
 #include "segment_vessels.cuh"
 #include "tools_analysis_debug.hh"
+#include "API.hh"
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
@@ -114,7 +114,7 @@ void Analysis::init()
     otsu_env_.otsu_histo_buffer_.resize(OTSU_BINS);
 
     // Step 4: Allocate buffers for vesselness mask processing
-    vesselness_mask_env_.time_window_ = api::get_time_window(); // Temporal window for processing
+    vesselness_mask_env_.time_window_ = API.analysis.get_time_window(); // Temporal window for processing
     vesselness_mask_env_.m0_ff_video_centered_.safe_resize(buffers_.gpu_postprocess_frame_size *
                                                            vesselness_mask_env_.time_window_);
     vesselness_mask_env_.vascular_image_.safe_resize(frame_res);
@@ -142,9 +142,9 @@ void Analysis::init()
 
     // Step 5: Initialize circular video buffers
     vesselness_mask_env_.m0_ff_video_cb_ =
-        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+        std::make_unique<CircularVideoBuffer>(frame_res, API.analysis.get_time_window(), stream_);
     vesselness_mask_env_.f_avg_video_cb_ =
-        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+        std::make_unique<CircularVideoBuffer>(frame_res, API.analysis.get_time_window(), stream_);
 
     // Step 6: Allocate buffers for vesselness filter processing
     vesselness_filter_struct_.I.safe_resize(frame_res);

@@ -12,7 +12,7 @@ class MainWindow;
 
 /*! \class Filter2DWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a Filter2D window in the GUI.
  */
 class Filter2DWindow : public BasicOpenGLWindow
 {
@@ -30,5 +30,6 @@ class Filter2DWindow : public BasicOpenGLWindow
     void paintGL() override;
 
     void focusInEvent(QFocusEvent*) override;
+    void closeEvent(QCloseEvent*) override;
 };
 } // namespace holovibes::gui

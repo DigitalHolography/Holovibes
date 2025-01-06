@@ -7,7 +7,7 @@
 #include "icamera.hh"
 #include "frame_desc.hh"
 #include "camera_config.hh"
-#include "holovibes_config.hh"
+#include "core/holovibes_config.hh"
 
 #include <spdlog/spdlog.h>
 #include "camera_logger.hh"
@@ -129,8 +129,7 @@ class Camera : public ICamera
 
     std::string name_;
 
-    // #TODO Find the unit of measurement
-    /*! \brief Exposure time in ?s */
+    /*! \brief Exposure time in microseconds */
     float exposure_time_;
     float pixel_size_;
 

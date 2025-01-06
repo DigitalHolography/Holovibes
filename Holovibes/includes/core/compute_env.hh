@@ -2,8 +2,8 @@
 
 #include "queue.hh"
 #include "unique_ptr.hh"
-#include "cufft_handle.hh"
 #include "chart_point.hh"
+#include "cufft_handle.hh"
 #include "concurrent_deque.hh"
 #include "circular_video_buffer.hh"
 
@@ -12,6 +12,7 @@
 
 namespace holovibes
 {
+
 /*! \struct CoreBuffersEnv
  *
  * \brief Struct containing main buffers used by the pipe.
@@ -190,7 +191,8 @@ struct ChartEnv
 
 /*! \struct ImageAccEnv
  *
- * \brief #TODO Add a description for this struct
+ * \brief Struct containing variables related to the accumulation of the
+ * computed frames.
  */
 struct ImageAccEnv
 {

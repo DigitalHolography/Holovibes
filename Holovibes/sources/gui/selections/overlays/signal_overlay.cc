@@ -13,6 +13,6 @@ SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
 void SignalOverlay::release(ushort frameSide)
 {
     if (parent_->getKindOfView() == KindOfView::Hologram)
-        api::set_signal_zone(zone_);
+        API.record.set_signal_zone(zone_);
 }
 } // namespace holovibes::gui

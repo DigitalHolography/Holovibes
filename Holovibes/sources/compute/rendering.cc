@@ -307,6 +307,7 @@ void Rendering::autocontrast_caller(
 
     const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
                                             setting<settings::ContrastUpperThreshold>()};
+    auto& api = API;
     switch (view)
     {
     case WindowKind::XYview:
@@ -320,10 +321,11 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   api::get_reticle_zone(),
+                                   API.contrast.get_reticle_zone(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-        api::update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+
+        API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -333,10 +335,10 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   api::get_reticle_zone(),
+                                   API.contrast.get_reticle_zone(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-        api::update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+        API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
         break;
     }
 }

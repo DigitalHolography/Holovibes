@@ -64,8 +64,8 @@ void Rendering::Convolution::Update()
 
 void Rendering::Filter::Update()
 {
-    this->enabled = api::get_filter_enabled();
-    this->type = api::get_filter_file_name();
+    this->enabled = API.filter2d.get_filter_enabled();
+    this->type = API.filter2d.get_filter_file_name();
 }
 
 void Rendering::Filter2D::Update()
@@ -215,7 +215,8 @@ void Views::Load()
     UPDATE_SETTING(FftShiftEnabled, this->fft_shift);
     UPDATE_SETTING(X, this->x);
     UPDATE_SETTING(Y, this->y);
-    UPDATE_SETTING(P, this->z);
+    // Quick dirty fix for preventing z = 0 on older holo version. Should be replaced by a proper JSON converter
+    UPDATE_SETTING(P, (this->z.start == 0 ? ViewP{0, 1} : this->z));
     UPDATE_SETTING(Q, this->z2);
     this->window.Load();
     UPDATE_SETTING(RenormEnabled, this->renorm);
@@ -247,7 +248,7 @@ void Rendering::Load()
 {
     UPDATE_SETTING(TimeStride, this->time_transformation_stride);
     UPDATE_SETTING(ComputeMode, this->image_mode);
-    api::set_batch_size(this->batch_size);
+    API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);
     UPDATE_SETTING(TimeTransformation, this->time_transformation);

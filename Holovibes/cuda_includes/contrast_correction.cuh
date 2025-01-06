@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of apply contrast correction function
  */
 #pragma once
 

@@ -9,12 +9,18 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <nlohmann/json.hpp>
+
 using json = ::nlohmann::json;
 
 namespace Ui
 {
 class MainWindow;
 } // namespace Ui
+
+namespace holovibes::api
+{
+class Api;
+}
 
 namespace holovibes::gui
 {
@@ -70,6 +76,7 @@ class Panel : public QGroupBox
   protected:
     MainWindow* parent_;
     Ui::MainWindow* ui_;
+    api::Api& api_;
 
   private:
     /*! \brief Recursively search the parent tree to find the MainWindow */

@@ -1397,7 +1397,7 @@ The range of frequencies kept is [z, z + width]</string>
               <bool>false</bool>
              </property>
              <property name="toolTip">
-              <string>The radius of the circle to compute the Registration.</string>
+              <string>The radius of the circle to compute the Registration</string>
              </property>
              <property name="minimum">
               <double>0.100000000000000</double>
@@ -3068,19 +3068,22 @@ The range of frequencies kept is [z, z + width]</string>
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
-              <property name="toolTip">
-               <string>Allows much higher FPS. Requires high GPU DRAM.</string>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="locale">
-               <locale language="French" country="France"/>
-              </property>
-              <property name="text">
-               <string>Load File In GPU</string>
-              </property>
+             <widget class="QComboBox" name="FileLoadKindComboBox">
+              <item>
+               <property name="text">
+                <string>Regular access</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in GPU VRAM</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in CPU RAM</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item>
@@ -3376,6 +3379,40 @@ The range of frequencies kept is [z, z + width]</string>
                 </layout>
                </item>
                <item>
+                <layout class="QGridLayout" name="recordedEyeGridLayout">
+                 <item row="0" column="0" colspan="3">
+                  <widget class="QLabel" name="RecordedEyeLabel">
+                   <property name="toolTip">
+                    <string>Which eye is being recorded.</string>
+                   </property>
+                   <property name="text">
+                    <string>Eye recorded</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3" colspan="3">
+                  <widget class="QPushButton" name="RecordedEyePushButton">
+                   <property name="text">
+                    <string>Unspecified</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Switch between left and right eye</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="6">
+                  <widget class="QPushButton" name="ResetRecordedEyePushButton">
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Cancel the eye choice and set it back to unspecified</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="numberOfFramesLayout">
                  <item>
                   <widget class="QCheckBox" name="NumberOfFramesCheckBox">
@@ -3530,12 +3567,9 @@ The range of frequencies kept is [z, z + width]</string>
            </property>
            <property name="html">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-hr { height: 1px; border-width: 0; }
-li.unchecked::marker { content: &quot;\2610&quot;; }
-li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
@@ -3597,7 +3631,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <x>0</x>
      <y>0</y>
      <width>1283</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -4457,7 +4491,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>LogScaleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_log_scale(bool)</slot>
+   <slot>set_log_enabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>380</x>
@@ -4505,7 +4539,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>rotateTexture()</slot>
+   <slot>rotate_texture()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>338</x>
@@ -4537,7 +4571,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>FlipPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>flipTexture()</slot>
+   <slot>flip_texture()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>270</x>
@@ -6198,22 +6232,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>LoadFileInGpuCheckBox</sender>
-   <signal>stateChanged()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_load_file_in_gpu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImportStartIndexSpinBox</sender>
    <signal>valueChanged()</signal>
    <receiver>ImportPanel</receiver>
@@ -6370,6 +6388,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <hint type="destinationlabel">
      <x>0</x>
      <y>186</y>
+    </hint>
+  </hints>
+  </connection>
+  <connection>
+   <sender>RecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -6547,6 +6581,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <x>869</x>
      <y>405</y>
     </hint>
+  </hints>
+  </connection>
+  <connection>
+   <sender>ResetRecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>reset_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>501</y>
+    </hint>
    </hints>
   </connection>
   <connection>
@@ -6563,6 +6613,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <x>869</x>
      <y>405</y>
     </hint>
+  </hints>
+  </connection>
+  <connection>
+   <sender>FileLoadKindComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_file_load_kind(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>859</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>149</y>
+    </hint>
    </hints>
   </connection>
  </connections>
@@ -6577,7 +6643,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
   <slot>set_contrast_invert(bool)</slot>
-  <slot>set_log_scale(bool)</slot>
+  <slot>set_log_enabled(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_artery_mask(bool)</slot>
   <slot>set_registration(bool)</slot>
@@ -6637,8 +6703,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>browse_export_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_stride()</slot>
-  <slot>rotateTexture()</slot>
-  <slot>flipTexture()</slot>
+  <slot>rotate_texture()</slot>
+  <slot>flip_texture()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>set_time_transformation_size()</slot>

@@ -60,10 +60,8 @@ void ICompute::fft_freqs()
         for (uint i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
             f1[i] = (i - (float)time_transformation_size) * d;
     }
-
     for (uint i = 0; i < time_transformation_size; i++)
         f1[i] /= 1000.0f;
-
     cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f2 (f2 = f1^2)
@@ -82,7 +80,7 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
-        if (api::get_data_type() != RecordedDataType::MOMENTS)
+        if (API.input.get_data_type() != RecordedDataType::MOMENTS)
         {
             // Updates the buffers for the moments, which depends on time_transformation_size
             moments_env_.f0_buffer.resize(size);

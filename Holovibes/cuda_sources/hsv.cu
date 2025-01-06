@@ -400,232 +400,24 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
     apply_operations(tmp_hsv_arr, height, width, hsv_struct.v, HSV::V, stream);
 }
 
-/// @brief Create rgb color by using hsv computation and then converting to rgb
-/// @param gpu_input complex input buffer, on gpu side, size = width * height * time_transformation_size
-/// @param gpu_output float output buffer, on gpu side, size = width * height * 3
-/// @param width Width of the frame
-/// @param height Height of the frame
-/// @param stream Cuda stream used
-/// @param time_transformation_size Depth of the frame cube
-/// @param hsv_struct Struct containing all the UI parameters
-void hsv(const cuComplex* gpu_input,
-         float* gpu_output,
+void hsv(const cuComplex* d_input,
+         float* d_output,
          const uint width,
          const uint height,
          const cudaStream_t stream,
          const int time_transformation_size,
          const holovibes::CompositeHSV& hsv_struct,
-         bool z_fft_shift)
+         bool checked)
 {
     const uint frame_res = height * width;
 
     float* tmp_hsv_arr = nullptr;
     cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
-    compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
+    compute_and_fill_hsv(d_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size, checked);
 
     apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
 
-    normalized_convert_hsv_to_rgb(tmp_hsv_arr, gpu_output, frame_res, stream);
+    normalized_convert_hsv_to_rgb(tmp_hsv_arr, d_output, frame_res, stream);
 
     cudaXFree(tmp_hsv_arr);
 }
-
-// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly
-// gradient overlay
-/*
-__global__ void kernel_fill_hsv_xz_cut(const float* gpu_in_cut,
-                                       float* gpu_hsv_cut,
-                                       size_t width,
-                                       uint depth,
-                                       size_t frame_res,
-                                       const holovibes::CompositeHSV& hsv_struct)
-{
-    size_t id = blockIdx.x * blockDim.x + threadIdx.x;
-    if (id < width)
-    {
-        uint min_h_index = hsv_struct.h.frame_index.min;
-        uint max_h_index = hsv_struct.h.frame_index.max;
-        auto min = hsv_struct.h.slider_threshold.min;
-        auto max = hsv_struct.h.slider_threshold.max;
-
-        float num = 0.0f;
-        float denom = 0.0f;
-        for (size_t z = 0; z <= depth; ++z)
-        {
-            size_t index = width * z + id;
-            float input_elm = gpu_in_cut[index];
-
-            // For hsv cut colorization
-            if (z >= min_h_index && z <= max_h_index)
-            {
-                float raw_hue = (float)(z - min_h_index) / (float)(max_h_index - min_h_index);
-
-                if (raw_hue < min || raw_hue > max)
-                {
-                    // If the hue is outside the threshold, set the hue to red
-                    gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-                }
-                else
-                {
-                    // Else, normalize the hue
-                    auto scale = 1.0f / (max - min);
-                    gpu_hsv_cut[HSV::H * frame_res + index] = (raw_hue - min) * scale;
-                }
-
-                // Not too saturated to see the average
-                gpu_hsv_cut[HSV::S * frame_res + index] = 0.5f;
-            }
-            else
-            {
-                // Greyscale
-                gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-                gpu_hsv_cut[HSV::S * frame_res + index] = 0.0f;
-            }
-            // Normalize the value to [0,1]
-            gpu_hsv_cut[HSV::V * frame_res + index] = input_elm / max_ushort_value;
-
-            // For average computation
-            num += input_elm * z;
-            denom += input_elm;
-        }
-
-        // Set the average index to a saturated red
-        float avg = (denom == 0.0f ? 0.0f : num / denom);
-        size_t avg_index = std::round(avg);
-        size_t index = width * avg_index + id;
-        gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-        gpu_hsv_cut[HSV::S * frame_res + index] = 1.0f;
-        gpu_hsv_cut[HSV::V * frame_res + index] = 1.0f;
-    }
-}
-
-void fill_hsv_xz_cut(const float* gpu_in_cut,
-                     float* gpu_hsv_cut,
-                     uint width,
-                     uint depth,
-                     const holovibes::CompositeHSV& hsv_struct,
-                     const cudaStream_t stream)
-{
-    size_t frame_res = width * depth;
-
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(width, threads);
-    kernel_fill_hsv_xz_cut<<<blocks, threads, 0, stream>>>(gpu_in_cut,
-                                                           gpu_hsv_cut,
-                                                           width,
-                                                           depth,
-                                                           frame_res,
-                                                           hsv_struct);
-    cudaCheckError();
-}
-
-__global__ void kernel_fill_hsv_gradient(float* gpu_hsv_cut, size_t width, uint height)
-{
-    size_t id = blockIdx.x * blockDim.x + threadIdx.x;
-    if (id < width * height)
-    {
-        size_t x = id % width;
-        size_t y = id / width;
-        float x_ratio = (float)x / (float)width;
-        float y_ratio = (float)y / (float)height;
-        gpu_hsv_cut[HSV::H * width * height + id] = y_ratio;
-        gpu_hsv_cut[HSV::S * width * height + id] = 1.0f;
-        gpu_hsv_cut[HSV::V * width * height + id] = x_ratio;
-    }
-}
-
-void fill_hsv_gradient(float* gpu_hsv_cut, uint width, uint height, const cudaStream_t stream)
-{
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(width, threads);
-    kernel_fill_hsv_gradient<<<blocks, threads, 0, stream>>>(gpu_hsv_cut, width, height);
-    cudaCheckError();
-}
-
-void fill_hsv_yz_cut(
-    const float* gpu_in_cut, float* gpu_hsv_cut, uint height, uint depth, const holovibes::CompositeHSV& hsv_struct)
-{
-    size_t frame_res = height * depth;
-    for (size_t i = 0; i < height; i++)
-    {
-        uint min_h_index = hsv_struct.h.frame_index.min;
-        uint max_h_index = hsv_struct.h.frame_index.max;
-
-        float num = 0.0f;
-        float denom = 0.0f;
-        for (size_t z = 0; z <= depth; ++z)
-        {
-            size_t index = depth * i + z;
-            float input_elm = gpu_in_cut[index];
-
-            // For hsv cut colorization
-            if (z >= min_h_index && z <= max_h_index)
-            {
-                float raw_hue = (float)(z - min_h_index) / (float)(max_h_index - min_h_index);
-                auto min = hsv_struct.h.slider_threshold.min;
-                auto max = hsv_struct.h.slider_threshold.max;
-
-                if (raw_hue < min || raw_hue > max)
-                {
-                    // If the hue is outside the threshold, set the hue to red
-                    gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-                }
-                else
-                {
-                    // Else, normalize the hue
-                    auto scale = 1.0f / (max - min);
-                    gpu_hsv_cut[HSV::H * frame_res + index] = (raw_hue - min) * scale;
-                }
-
-                // Not too saturated to see the average
-                gpu_hsv_cut[HSV::S * frame_res + index] = 0.5f;
-            }
-            else
-            {
-                // Greyscale
-                gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-                gpu_hsv_cut[HSV::S * frame_res + index] = 0.0f;
-            }
-            // Value doesn't change
-            gpu_hsv_cut[HSV::V * frame_res + index] = input_elm / max_ushort_value;
-
-            // For average computation
-            num += input_elm * z;
-            denom += input_elm;
-        }
-
-        // Set the average index to a saturated red
-        float avg = (denom == 0.0f ? 0.0f : num / denom);
-        size_t avg_index = std::round(avg);
-        size_t index = depth * i + avg_index;
-        gpu_hsv_cut[HSV::H * frame_res + index] = 0.0f;
-        gpu_hsv_cut[HSV::S * frame_res + index] = 1.0f;
-        gpu_hsv_cut[HSV::V * frame_res + index] = 1.0f;
-    }
-}
-
-void hsv_cuts(const float* gpu_in_cut_xz,
-              const float* gpu_in_cut_yz,
-              float* gpu_out_cut_xz,
-              float* gpu_out_cut_yz,
-              uint width,
-              uint height,
-              int time_transformation_size,
-              const holovibes::CompositeHSV& hsv_struct,
-              const cudaStream_t stream)
-{
-    float* tmp_xz_hsv_arr = nullptr;
-    // float* tmp_yz_hsv_arr = nullptr;
-    cudaSafeCall(cudaMalloc(&tmp_xz_hsv_arr, width * time_transformation_size * 3 * sizeof(float)));
-    // cudaSafeCall(cudaMalloc(&tmp_yz_hsv_arr, height * time_transformation_size * 3 * sizeof(float)));
-    //fill_hsv_xz_cut(gpu_in_cut_xz, tmp_xz_hsv_arr, width, time_transformation_size, hsv_struct, stream);
-    fill_hsv_gradient(tmp_xz_hsv_arr, width, time_transformation_size, stream);
-    // fill_hsv_yz_cut(gpu_in_cut_yz, tmp_yz_hsv_arr, height, time_transformation_size, hsv_struct, stream);
-
-    normalized_convert_hsv_to_rgb(tmp_xz_hsv_arr, gpu_out_cut_xz, width * time_transformation_size, stream);
-    // normalized_convert_hsv_to_rgb(tmp_yz_hsv_arr, gpu_out_cut_yz, height * time_transformation_size, stream);
-
-    cudaXFree(tmp_xz_hsv_arr);
-    // cudaXFree(tmp_yz_hsv_arr);
-}
-*/
