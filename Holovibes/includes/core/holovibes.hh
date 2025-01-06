@@ -273,8 +273,7 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *

@@ -101,7 +101,7 @@ class CineFile
     CineFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~CineFile(){};
+    virtual ~CineFile() {};
 
     /*! \brief Default copy constructor */
     CineFile(const CineFile&) = default;
