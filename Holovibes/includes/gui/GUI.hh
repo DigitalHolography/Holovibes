@@ -102,7 +102,7 @@ void set_reticle_overlay_visible(bool value);
 
 /*! \brief Opens additional settings window
  *
- * \param[in] parent The parent window.
+ * \param[in] parent The window.
  * \param[in] callback The function to be called on closing.
  */
 void open_advanced_setting(
