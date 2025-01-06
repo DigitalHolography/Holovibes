@@ -1,7 +1,7 @@
 /*! \file GUI.hh
  *
- * \brief This file contains the GUI API functions for the Holovibes application. These functions manage UI window and
- * recurent functions. They can call the API
+ * \brief This file contains the GUI API functions for the Holovibes application.
+ * These functions manage UI window and recurent functions. They can call the API
  */
 #pragma once
 
@@ -102,7 +102,8 @@ void set_reticle_overlay_visible(bool value);
 /*! \brief Opens additional settings window
  *
  * \param[in] parent then window that will embed the specific panel
- * \param[in] callback the function to call when the advanced settings are closed on clicking on the save button
+ * \param[in] callback the function to call when the advanced settings
+ * are closed on clicking on the save button
  */
 void open_advanced_settings(
     QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
