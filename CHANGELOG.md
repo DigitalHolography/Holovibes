@@ -1,5 +1,15 @@
 ## Changelog
 
+### X.X.X
+
+- Rename UI elements:
+  - "Registration" to "Image Registration"
+  - "View" (next to Filter2D) to "Filter2D View"
+  - "Regular Access" to "Sequential File Read" for the drop down menu of file mode loading
+  - "Nb. img" to "Time Window"
+  - "Renormalize" to "Renormalize Image Levels"
+  - "Contrast" to "Brightness and Contrast"
+
 ### 14.3.0
 
 - Updated all preset:

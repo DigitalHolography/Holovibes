@@ -91,7 +91,7 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>Contrast</string>
+       <string>Brightness and Contrast</string>
       </property>
       <property name="checkable">
        <bool>true</bool>
