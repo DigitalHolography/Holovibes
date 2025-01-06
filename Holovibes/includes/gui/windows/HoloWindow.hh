@@ -4,7 +4,8 @@
  */
 #pragma once
 
-#include "icompute.hh"
+#include "display_queue.hh"
+
 #include "RawWindow.hh"
 
 namespace holovibes::gui
@@ -13,7 +14,7 @@ class MainWindow;
 
 /*! \class HoloWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a hologram window in the GUI.
  */
 class HoloWindow : public RawWindow
 {

@@ -1,5 +1,26 @@
 ## Changelog
 
+### 14.3.0
+
+- Updated all preset:
+  - batchsize from 32 to 64
+  - time_transformation_size from 16 to 32
+  - time_transformation_stride 32 to 64
+  - z width from 8 to 16
+- Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
+- Added an option 'Load file in CPU RAM' in that drop-down
+- Added UI buttons that specify which eye is recorded, which is reflected in the file name
+
+
+### 14.2.0
+
+- The UI can record again
+- When closing a view, calculations of this view are stopped
+- Record in ps1 do not overwrite a file with the same name
+- When getting frames from the camera or the file memory transfer are now batched
+- Input fps are calculated correctly
+- Some UI related crash are now fixed (start = end index, 3d cuts, ...)
+
 ### 14.1.0
 
 - Restucuration of the API

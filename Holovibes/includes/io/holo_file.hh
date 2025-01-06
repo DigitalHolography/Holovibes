@@ -29,6 +29,7 @@
 
 #include <nlohmann/json.hpp>
 #include "compute_settings_struct.hh"
+
 using json = ::nlohmann::json;
 
 namespace holovibes::io_files

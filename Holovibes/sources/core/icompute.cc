@@ -76,7 +76,7 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
-        if (api::get_data_type() != RecordedDataType::MOMENTS)
+        if (API.input.get_data_type() != RecordedDataType::MOMENTS)
         {
             // Updates the buffers for the moments, which depends on time_transformation_size
             moments_env_.f0_buffer.resize(size);

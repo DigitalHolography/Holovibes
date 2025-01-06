@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "lightui.hh"
 #include "notifier.hh"
 #include "panel.hh"
 

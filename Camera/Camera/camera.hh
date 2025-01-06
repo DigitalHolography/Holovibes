@@ -129,8 +129,7 @@ class Camera : public ICamera
 
     std::string name_;
 
-    // #TODO Find the unit of measurement
-    /*! \brief Exposure time in ?s */
+    /*! \brief Exposure time in microseconds */
     float exposure_time_;
     float pixel_size_;
 

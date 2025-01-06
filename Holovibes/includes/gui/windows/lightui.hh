@@ -48,6 +48,8 @@ class LightUI : public QMainWindow
      */
     void showEvent(QShowEvent* event) override;
 
+    inline void on_notify(bool _) { notify(); }
+
     /*!
      * \brief Update UI elements with the right value stored in the app
      */
@@ -137,9 +139,9 @@ class LightUI : public QMainWindow
      */
     void start_stop_recording(bool start);
 
-    /**
-     * @brief Slot for handling changes in Z value from the ui.
-     * @param z_distance The new Z distance value.
+    /*!
+     * \brief Slot for handling changes in Z value from the ui.
+     * \param[in] z_distance The new Z distance value.
      */
     void z_value_changed(int z_distance);
 
@@ -149,7 +151,7 @@ class LightUI : public QMainWindow
     /*!
      * \brief Enable or disable contrast
      *
-     * \param enabled
+     * \param[in] enabled
      */
     void set_contrast_mode(bool enabled);
 
@@ -200,27 +202,31 @@ class LightUI : public QMainWindow
 
     /*! \brief the Apply setting button in the UI. Load the settings file of the current camera */
     void configure_camera();
-    /*! \} */
+
+    /*! \brief Changes the recorded eye according to the current one */
+    void update_recorded_eye();
+
+    /*! \brief Sets the recorded eye to None */
+    void reset_recorded_eye();
 
   protected:
     /**
-     * @brief Overridden closeEvent handler.
-     * @param event The QCloseEvent instance.
+     * \brief Overridden closeEvent handler.
+     * \param[in] event The QCloseEvent instance.
      */
     void closeEvent(QCloseEvent* event) override;
 
   private:
-    Ui::LightUI* ui_;                                           ///< Pointer to the UI instance.
-    MainWindow* main_window_;                                   ///< Pointer to the MainWindow instance.
-    bool visible_;                                              ///< Boolean to track the visibility state of the UI.
-    Subscriber<RecordMode> record_start_subscriber_;            ///< Subscriber for record start events.
-    Subscriber<RecordMode> record_end_subscriber_;              ///< Subscriber for record end events.
-    Subscriber<bool> record_finished_subscriber_;               ///< Subscriber for record finished events.
-    Subscriber<RecordProgressData> record_progress_subscriber_; ///< Subscriber for record progress events.
-    Subscriber<const std::filesystem::path>
-        record_output_file_subscriber_; ///< Subscriber for record output file path events.
+    Ui::LightUI* ui_;                                // Pointer to the UI instance.
+    MainWindow* main_window_;                        // Pointer to the MainWindow instance.
+    bool visible_;                                   // Boolean to track the visibility state of the UI.
+    Subscriber<bool> notify_subscriber_;             // Subscriber that runs the notify function and updates the UI.
+    Subscriber<RecordMode> record_start_subscriber_; // Subscriber for record start events.
+    Subscriber<RecordMode> record_end_subscriber_;   // Subscriber for record end events.
+    Subscriber<bool> record_finished_subscriber_;    // Subscriber for record finished events.
+    Subscriber<RecordProgressData> record_progress_subscriber_; // Subscriber for record progress events.
     Subscriber<RecordBarColorData>
-        record_progress_bar_color_subscriber_; ///< Subscriber for record progress bar color events.
+        record_progress_bar_color_subscriber_; // Subscriber for record progress bar color events.
 };
 
 } // namespace holovibes::gui

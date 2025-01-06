@@ -14,7 +14,7 @@ namespace holovibes::gui
 {
 /*! \class OverlayManager
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that manages the overlays of a window
  */
 class OverlayManager
 {

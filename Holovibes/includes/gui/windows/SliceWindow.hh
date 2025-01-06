@@ -12,7 +12,7 @@ class MainWindow;
 
 /*! \class SliceWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a slice window in the GUI.
  */
 class SliceWindow : public BasicOpenGLWindow
 {
@@ -33,5 +33,6 @@ class SliceWindow : public BasicOpenGLWindow
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void focusInEvent(QFocusEvent*) override;
+    void closeEvent(QCloseEvent*) override;
 };
 } // namespace holovibes::gui

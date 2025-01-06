@@ -44,7 +44,7 @@ namespace holovibes::compute
 {
 /*! \class Postprocessing
  *
- * \brief #TODO Add a description for this class
+ * \brief Class of postprocessing features on complex buffers.
  */
 class Postprocessing
 {

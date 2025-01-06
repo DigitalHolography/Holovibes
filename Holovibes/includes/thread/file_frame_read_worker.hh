@@ -8,12 +8,13 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::InputFPS                  \
+    holovibes::settings::InputFPS,                 \
+    holovibes::settings::BatchSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::InputFilePath,            \
     holovibes::settings::FileBufferSize,           \
-    holovibes::settings::LoadFileInGPU,            \
+    holovibes::settings::FileLoadKind,             \
     holovibes::settings::InputFileStartIndex,      \
     holovibes::settings::InputFileEndIndex
 
@@ -146,12 +147,12 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     void remove_fast_update_map_entries();
 
-    /*! \brief Load all the frames of the file in the gpu
+    /*! \brief Load all the frames of the file in the memory, either GPU or RAM
      *
-     * Read all the frames in cpu and copy them in gpu.
+     * Read all the frames in cpu, and copy them in the GPU if the option to is enabled.
      * Then enqueue the frames one by one in the input_queue
      */
-    void read_file_in_gpu();
+    void read_file_in_memory();
 
     /*! \brief Load the frames of the file by batch into the gpu
      *

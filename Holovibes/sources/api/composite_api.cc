@@ -1,90 +1,92 @@
 #include "composite_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
 #pragma region RGB
 
-void set_weight_rgb(double r, double g, double b)
+void CompositeApi::set_weight_rgb(double r, double g, double b) const
 {
     holovibes::CompositeRGB rgb = GET_SETTING(RGB);
     rgb.weight.r = r;
     rgb.weight.g = g;
     rgb.weight.b = b;
     UPDATE_SETTING(RGB, rgb);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
-void set_rgb_p(int min, int max)
+void CompositeApi::set_rgb_p(int min, int max) const
 {
     holovibes::CompositeRGB rgb = GET_SETTING(RGB);
     rgb.frame_index.min = min;
     rgb.frame_index.max = max;
     UPDATE_SETTING(RGB, rgb);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
-void set_composite_auto_weights(bool value)
+void CompositeApi::set_composite_auto_weights(bool value) const
 {
     UPDATE_SETTING(CompositeAutoWeights, value);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region HSV Hue
 
-void set_composite_p_min_h(uint value)
+void CompositeApi::set_composite_p_min_h(uint value) const
 {
     SET_SETTING(HSV, h.frame_index.min, value);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
-void set_composite_p_max_h(uint value)
+void CompositeApi::set_composite_p_max_h(uint value) const
 {
     SET_SETTING(HSV, h.frame_index.max, value);
-    pipe_refresh();
+    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region HSV Saturation
 
-void set_composite_p_min_s(uint value)
+void CompositeApi::set_composite_p_min_s(uint value) const
 {
     SET_SETTING(HSV, s.frame_index.min, value);
     if (get_composite_p_activated_s())
-        pipe_refresh();
+        api_->compute.pipe_refresh();
 }
 
-void set_composite_p_max_s(uint value)
+void CompositeApi::set_composite_p_max_s(uint value) const
 {
     SET_SETTING(HSV, s.frame_index.max, value);
     if (get_composite_p_activated_s())
-        pipe_refresh();
+        api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region HSV Value
 
-void set_composite_p_min_v(uint value)
+void CompositeApi::set_composite_p_min_v(uint value) const
 {
     SET_SETTING(HSV, v.frame_index.min, value);
     if (get_composite_p_activated_v())
-        pipe_refresh();
+        api_->compute.pipe_refresh();
 }
 
-void set_composite_p_max_v(uint value)
+void CompositeApi::set_composite_p_max_v(uint value) const
 {
     SET_SETTING(HSV, v.frame_index.max, value);
     if (get_composite_p_activated_v())
-        pipe_refresh();
+        api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
-void set_composite_p_h(int min, int max)
+void CompositeApi::set_composite_p_h(int min, int max) const
 {
     holovibes::CompositeHSV hsv = GET_SETTING(HSV);
     hsv.h.frame_index.min = min;

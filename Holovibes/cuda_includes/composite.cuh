@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of postcolor normalize compute functions
  */
 #pragma once
 

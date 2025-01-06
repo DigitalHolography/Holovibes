@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the ChartRecordWorker class.
  */
 #pragma once
 
@@ -18,11 +18,6 @@
 #define REALTIME_SETTINGS holovibes::settings::P, holovibes::settings::ZDistance
 
 #define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
-
-namespace holovibes
-{
-std::string get_record_filename(std::string filename);
-} // namespace holovibes
 
 namespace holovibes::worker
 {

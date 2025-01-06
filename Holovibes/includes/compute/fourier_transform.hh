@@ -64,7 +64,7 @@ namespace holovibes::compute
 {
 /*! \class FourierTransform
  *
- * \brief #TODO Add a description for this class
+ * \brief Class of Fourier Transform
  */
 class FourierTransform
 {

@@ -110,15 +110,15 @@ void RainbowOverlay::setBuffer()
 
     int red;
     int blue;
-    if (api::get_composite_kind() == CompositeKind::RGB)
+    if (API.composite.get_composite_kind() == CompositeKind::RGB)
     {
-        red = api::get_composite_p_red();
-        blue = api::get_composite_p_blue();
+        red = API.composite.get_composite_p_red();
+        blue = API.composite.get_composite_p_blue();
     }
     else
     {
-        red = api::get_composite_p_min_h();
-        blue = api::get_composite_p_max_h();
+        red = API.composite.get_composite_p_min_h();
+        blue = API.composite.get_composite_p_max_h();
     }
     int green = (red + blue) / 2;
     units::PointFd red1;
@@ -183,23 +183,23 @@ void RainbowOverlay::move(QMouseEvent* e)
     zone_.setDst(getMousePos(e->pos()));
     if (parent_->getKindOfView() == KindOfView::SliceYZ)
     {
-        if (api::get_composite_kind() == CompositeKind::RGB)
-            api::set_rgb_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
+        if (API.composite.get_composite_kind() == CompositeKind::RGB)
+            API.composite.set_rgb_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
         else
-            api::set_composite_p_h(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
+            API.composite.set_composite_p_h(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
     }
     else
     {
-        if (api::get_composite_kind() == CompositeKind::RGB)
-            api::set_rgb_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
+        if (API.composite.get_composite_kind() == CompositeKind::RGB)
+            API.composite.set_rgb_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
         else
-            api::set_composite_p_h(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
+            API.composite.set_composite_p_h(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
     }
 }
 
 unsigned int RainbowOverlay::check_interval(int x)
 {
-    const int max = api::get_time_transformation_size() - 1;
+    const int max = API.transform.get_time_transformation_size() - 1;
 
     return static_cast<unsigned int>(std::min(max, std::max(x, 0)));
 }

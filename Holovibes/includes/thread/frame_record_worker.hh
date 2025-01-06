@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the FrameRecordWorker class.
  */
 #pragma once
 
@@ -37,8 +37,6 @@ namespace holovibes
 class Queue;
 class ICompute;
 class Holovibes;
-
-std::string get_record_filename(std::string filename);
 } // namespace holovibes
 
 namespace holovibes::worker
@@ -63,10 +61,6 @@ class FrameRecordWorker final : public Worker
         , onrestart_settings_(settings)
         , record_queue_(record_queue)
     {
-        // Holovibes::instance().get_cuda_streams().recorder_stream
-        std::string file_path = setting<settings::RecordFilePath>();
-        file_path = get_record_filename(file_path);
-        onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
     }
 
     void run() override;
