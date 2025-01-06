@@ -24,7 +24,7 @@ class FrameReadWorker : public Worker
      */
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& input_queue);
 
-    virtual ~FrameReadWorker() {};
+    virtual ~FrameReadWorker(){};
 
   protected:
     /*! \brief The queue in which the frames are stored */

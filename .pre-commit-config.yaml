@@ -1,10 +1,11 @@
 repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.6
+    rev: v14.0.0
     hooks:
       - id: clang-format
         files: \.(cc|hh|cu|cuh|hxx|cuhxx)$
         args:
           - -style=file
-          - -i
+          - -assume-filename=.clang-format
+          - -output-replacements-xml
         additional_dependencies: []

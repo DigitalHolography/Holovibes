@@ -83,8 +83,9 @@ void map_vector(T* const output, const T* const input, const size_t size, const 
 
     // Instead of one thread per pixel, in vectorize map each thread works on 4 pixels.
     // The 4 pixels are grouped in the vectorized type (T)
-    const auto vectorized_lambda = [func] __device__(const T in) -> T
-    { return T{func(in.x), func(in.y), func(in.z), func(in.w)}; };
+    const auto vectorized_lambda = [func] __device__(const T in) -> T {
+        return T{func(in.x), func(in.y), func(in.z), func(in.w)};
+    };
 
     // Call generic map with the new vectorized lambda and an updated size.
     map_generic_caller(output, input, size / 4, vectorized_lambda, stream);
