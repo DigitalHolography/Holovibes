@@ -1,6 +1,6 @@
 project (CameraHamamatsu CXX)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_hamamatsu.cc
     ../Camera/camera_logger.cc
 )

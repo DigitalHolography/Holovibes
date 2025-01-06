@@ -1,6 +1,6 @@
 project (CameraAdimec CXX)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_adimec.cc
     ../Camera/camera_logger.cc
 )

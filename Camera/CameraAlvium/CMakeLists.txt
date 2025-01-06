@@ -1,6 +1,6 @@
 project (CameraAlvium CXX)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_alvium.cc
     ../Camera/camera_logger.cc
 )

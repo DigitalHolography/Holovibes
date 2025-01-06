@@ -1,6 +1,6 @@
 project (AmetekS991EuresysCoaxlinkQsfp+ CXX CUDA)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_phantom_s991.cc
     camera_phantom_s991_export.cc
     ../../Camera/camera_logger.cc

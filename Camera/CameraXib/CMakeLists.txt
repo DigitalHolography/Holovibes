@@ -1,6 +1,6 @@
 project (CameraXib CXX)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_xib.cc
     ../Camera/camera_logger.cc
 )

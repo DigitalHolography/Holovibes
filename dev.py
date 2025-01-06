@@ -44,7 +44,9 @@ def goal(func, name: str = None):
 @goal
 def install(args: GoalArgs) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
-    build_mode = "Debug" if build_mode in ["d", "D", "Debug", "debug"] else "RelWithDebInfo"
+    build_mode = (
+        "Debug" if build_mode in ["d", "D", "Debug", "debug"] else "RelWithDebInfo"
+    )
     build_dir = build_utils.get_build_dir(args.build_dir)
 
     # if build dir exist, remove it
@@ -57,10 +59,15 @@ def install(args: GoalArgs) -> int:
         return 1
 
     cmd = [
-        "conan", "install", ".",
-        "--build", "missing",
-        "--settings", "compiler.cppstd=20",
-        "--settings", f"&:build_type={build_mode}",
+        "conan",
+        "install",
+        ".",
+        "--build",
+        "missing",
+        "--settings",
+        "compiler.cppstd=20",
+        "--settings",
+        f"&:build_type={build_mode}",
     ]
 
     cmd.extend(args.goal_args)
@@ -91,9 +98,22 @@ def conan_build_goal(args: GoalArgs, option: str) -> int:
             return 1
 
     build = "--build" if option == "--build" else ""
-    preset = "conan-debug" if args.build_mode in ["d", "D", "Debug", "debug"] else "conan-relwithdebinfo"
+    preset = (
+        "conan-debug"
+        if args.build_mode in ["d", "D", "Debug", "debug"]
+        else "conan-relwithdebinfo"
+    )
     cmd = [
-        os.path.join(DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir, "generators", "conanbuild.bat"), "&&", "cmake", build, "--preset", preset
+        os.path.join(
+            DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir,
+            "generators",
+            "conanbuild.bat",
+        ),
+        "&&",
+        "cmake",
+        build,
+        "--preset",
+        preset,
     ] + args.goal_args
 
     if args.verbose:
@@ -130,18 +150,12 @@ def doc(args: GoalArgs) -> int:
 
     build_dir = build_utils.get_build_dir(args.build_dir)
 
-    cmd = ["cmake",
-           "--build",
-           build_dir,
-           "-t",
-           "doc"
-           ]
+    cmd = ["cmake", "--build", build_dir, "-t", "doc"]
 
     try:
         returnValue = subprocess.call(cmd)
         if not returnValue:
-            webbrowser.open(
-                "file://" + os.path.realpath("docs/html/index.html"))
+            webbrowser.open("file://" + os.path.realpath("docs/html/index.html"))
         return returnValue
     except:
         print("Failed to build the documentation")
@@ -183,9 +197,15 @@ def pytest(args: GoalArgs) -> int:
         last_output_image = os.path.join(path, OUTPUT_FAILED_IMAGE)
         last_ref_image = os.path.join(path, REF_FAILED_IMAGE)
         last_diff_image = os.path.join(path, DIFF_FAILED_IMAGE)
-        last_error= os.path.join(path, OUTPUT_ERROR_FILENAME)
+        last_error = os.path.join(path, OUTPUT_ERROR_FILENAME)
 
-        for file in (last_output_holo, last_output_image, last_ref_image, last_diff_image, last_error):
+        for file in (
+            last_output_holo,
+            last_output_image,
+            last_ref_image,
+            last_diff_image,
+            last_error,
+        ):
             if os.path.isfile(file):
                 os.remove(file)
     try:
@@ -225,9 +245,13 @@ def ctest(args: GoalArgs) -> int:
 
 
 def find_files(base, pattern):
-    '''Return list of files matching pattern in base folder.'''
-    return [n for n in fnmatch.filter(os.listdir(base), pattern) if
-        os.path.isfile(os.path.join(base, n))]
+    """Return list of files matching pattern in base folder."""
+    return [
+        n
+        for n in fnmatch.filter(os.listdir(base), pattern)
+        if os.path.isfile(os.path.join(base, n))
+    ]
+
 
 @goal
 def build_ref(args: GoalArgs) -> int:
@@ -249,8 +273,7 @@ def build_ref(args: GoalArgs) -> int:
         if not os.path.isfile(input):
             input = get_input_file(path)
             if input is None:
-                print(
-                    f"Did not find the {INPUT_FILENAME} file in folder {path}")
+                print(f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
         if not os.path.isfile(config):
             config = None
@@ -276,7 +299,10 @@ def clean(args: GoalArgs) -> int:
 
     # Remove build directory
     if os.path.isdir(os.path.join(DEFAULT_BUILD_FOLDER, DEFAULT_BUILD_BASE)):
-        if subprocess.call(f"rm -rf {os.path.join(DEFAULT_BUILD_FOLDER, DEFAULT_BUILD_BASE)}", shell=True):
+        if subprocess.call(
+            f"rm -rf {os.path.join(DEFAULT_BUILD_FOLDER, DEFAULT_BUILD_BASE)}",
+            shell=True,
+        ):
             return 1
 
     # Remove last_generated_output.holo from tests/data
@@ -400,8 +426,7 @@ def parse_args():
         default=None,
     )
 
-    parser.add_argument("-v", action="store_true",
-                        help="Activate verbose mode")
+    parser.add_argument("-v", action="store_true", help="Activate verbose mode")
 
     args, leftovers = parser.parse_known_args()
 
@@ -428,9 +453,6 @@ if __name__ == "__main__":
     args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        run_goal(
-            goal, GoalArgs(args.b, None, None, None,
-                           args.i, args.v, goal_args)
-        )
+        run_goal(goal, GoalArgs(args.b, None, None, None, args.i, args.v, goal_args))
 
     exit(0)

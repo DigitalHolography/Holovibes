@@ -1,6 +1,9 @@
 project (BitflowCyton CXX CUDA)
 
-add_library("${PROJECT_NAME}" SHARED
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FS")
+
+
+add_library("${PROJECT_NAME}" STATIC
     bitflow_cyton.cc
     ../Camera/camera_logger.cc
 )
@@ -13,7 +16,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
 )
 
-target_link_libraries("${PROJECT_NAME}"
+target_link_libraries("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Lib64/BFD.lib"
     "${BITFLOW_SDK}/Lib64/BFDiskIO.lib"
     "${BITFLOW_SDK}/Lib64/BFEr.lib"

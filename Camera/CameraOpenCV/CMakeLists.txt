@@ -1,6 +1,6 @@
 project (CameraOpenCV CXX)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_opencv.cc
     internal_conversion.cc
     ../Camera/camera_logger.cc

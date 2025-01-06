@@ -1,6 +1,6 @@
 project (CameraPhantomAutoDetection CXX CUDA)
 
-add_library("${PROJECT_NAME}" SHARED
+add_library("${PROJECT_NAME}" STATIC
     camera_phantom_detection.cc
     ../Camera/camera_logger.cc
     camera_phantom_interface.cc
