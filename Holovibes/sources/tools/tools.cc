@@ -5,6 +5,7 @@
 #include <sstream>
 #include <Windows.h>
 
+#include "API.hh"
 #include "chrono.hh"
 #include "logger.hh"
 #include "tools.hh"
@@ -31,13 +32,13 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
     }
 }
 
-std::string get_record_filename(std::string file_path, std::string prepend)
+std::string get_record_filename(std::string file_path, std::string append, std::string prepend)
 {
     std::filesystem::path filePath(file_path);
     std::string filename = filePath.filename().stem().string();
     std::string extension = filePath.extension().string();
     std::string path = filePath.parent_path().string();
-    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename;
+    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename + append;
     std::filesystem::path newFilePath = oldFilePath.string() + extension;
 
     for (int i = 1; std::filesystem::exists(newFilePath); ++i)

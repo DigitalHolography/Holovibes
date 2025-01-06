@@ -72,7 +72,8 @@ void get_good_size(ushort& width, ushort& height, ushort window_size);
  *
  * \return The new file path
  */
-std::string get_record_filename(std::string file_path, std::string prepend = Chrono::get_current_date());
+std::string
+get_record_filename(std::string file_path, std::string append = "", std::string prepend = Chrono::get_current_date());
 
 /*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
 QString create_absolute_qt_path(const std::string& relative_path);

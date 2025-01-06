@@ -49,6 +49,16 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
 
 #pragma endregion
 
+#pragma region Eye
+
+void RecordApi::set_recorded_eye(RecordedEyeType value) const
+{
+    if (!is_recording())
+        UPDATE_SETTING(RecordedEye, value);
+}
+
+#pragma endregion
+
 #pragma region Recording
 
 bool RecordApi::start_record_preconditions() const

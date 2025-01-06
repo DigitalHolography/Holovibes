@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common_api.hh"
+#include "enum_recorded_eye_type.hh"
 
 namespace holovibes::api
 {
@@ -193,6 +194,24 @@ class RecordApi : public IApi
      * \return std::vector<OutputFormat> The available file extensions as an enum.
      */
     std::vector<OutputFormat> get_supported_formats(RecordMode mode) const;
+
+#pragma endregion
+
+#pragma region Eye
+
+    /*!
+     * \brief Get the eye that is recorded by the program
+     *
+     * \return RecordedEyeType Which eye is being recorded. Can be LEFT, RIGHT or NONE if no eye is selected
+     */
+    inline RecordedEyeType get_recorded_eye() const { return GET_SETTING(RecordedEye); }
+
+    /*!
+     * \brief Sets the eye to be recorded; this only affects how the recording is called
+     *
+     * \param[in] value Which eye to record
+     */
+    void set_recorded_eye(RecordedEyeType value) const;
 
 #pragma endregion
 

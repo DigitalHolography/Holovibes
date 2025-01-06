@@ -24,6 +24,7 @@
 
 // Enum
 #include "enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum_record_mode.hh"
 #include "enum_import_type.hh"
 #include "enum_device.hh"
@@ -42,13 +43,14 @@
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
-    holovibes::settings::LoadFileInGPU,                          \
+    holovibes::settings::FileLoadKind,                           \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
-    holovibes::settings::RecordFrameOffset,                        \
+    holovibes::settings::RecordedEye,                            \
+    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
@@ -372,12 +374,13 @@ class Holovibes
                                              settings::ImportedFileFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
-                                             settings::LoadFileInGPU{false},
+                                             settings::FileLoadKind{FileLoadKind::REGULAR},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
+                                             settings::RecordedEye{RecordedEyeType::NONE},
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},

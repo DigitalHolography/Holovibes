@@ -8,12 +8,14 @@
 
 #include <string>
 #include <optional>
+#include "enum_file_load_kind.hh"
 #include "enum/enum_record_mode.hh"
 #include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
@@ -48,10 +50,9 @@ DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);
 
 /*!
- * \brief The setting that specifies if we load input file entirely in GPU
- * before sending it to the compute pipeline input queue.
+ * \brief The setting that specifies how to read frames from a file.
  */
-DECLARE_SETTING(LoadFileInGPU, bool);
+DECLARE_SETTING(FileLoadKind, holovibes::FileLoadKind);
 
 /*!
  * \brief The setting that specifies the path of the file where to record
@@ -68,6 +69,13 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
  * \brief The setting that specifies the mode of the record.
  */
 DECLARE_SETTING(RecordMode, holovibes::RecordMode);
+
+/*!
+ * \brief Get the eye that is recorded by the program
+ * Can be LEFT, RIGHT or NONE if no eye is selected
+ * It only influences the name of the output files and is saved across .holo files
+ */
+DECLARE_SETTING(RecordedEye, RecordedEyeType);
 
 /*!
  * \brief The setting that specifies the number of frames to skip before
@@ -114,7 +122,7 @@ DECLARE_SETTING(FilterFileName, std::string);
 /*! \name FileReadCache */
 /*!
  * \brief The size of the buffer in CPU memory used to read a file
- * when `LoadFileInGPU` is set to false.
+ * when `FileLoadKind` is not set to GPU.
  */
 DECLARE_SETTING(FileBufferSize, size_t);
 

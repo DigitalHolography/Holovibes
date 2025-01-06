@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 /*! \class SignalOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a signal overlay in the window.
  */
 class SignalOverlay : public FilledRectOverlay
 {

@@ -325,6 +325,14 @@ std::string getNameFromFilename(const std::string& filename)
         return filename; // Returning the original filename if no match is found
 }
 
+std::string get_recorded_eye_display_string()
+{
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
+                                                          {RecordedEyeType::NONE, "Unspecified"},
+                                                          {RecordedEyeType::RIGHT, "Right"}};
+    return eye_map[API.record.get_recorded_eye()];
+}
+
 const std::string browse_record_output_file(std::string& std_filepath)
 {
     // Let std::filesystem handle path normalization and system compatibility
@@ -336,8 +344,6 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
-    UI.record_output_directory_ = std::move(parentPath);
-    UI.output_filename_ = std::move(fileNameWithoutExt);
     UI.record_output_directory_ = std::move(parentPath);
     UI.output_filename_ = std::move(fileNameWithoutExt);
 

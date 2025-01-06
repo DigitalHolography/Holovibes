@@ -1,10 +1,11 @@
-/*! \file
+/*! \file export_panel.cc
  *
  */
 
 #include <filesystem>
 
 #include "export_panel.hh"
+#include "enum_recorded_eye_type.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
 #include "tools.hh"
@@ -26,21 +27,10 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-/*
- * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
- * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
- */
-void actualise_record_output_file_ui(const std::filesystem::path file_path)
-{
-    NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
-}
-
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
     set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
-
-    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
 void ExportPanel::on_notify()
@@ -124,8 +114,6 @@ void ExportPanel::on_notify()
     path_line_edit->insert(record_output_path.c_str());
     path_line_edit->setToolTip(record_output_path.c_str());
 
-    actualise_record_output_file_ui(record_output_path);
-
     // Number of frames
     if (api_.record.get_record_frame_count().has_value())
     {
@@ -139,6 +127,9 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
+
+    ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
+    // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -233,6 +224,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->RecordedEyePushButton->setEnabled(true);
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
@@ -257,6 +249,7 @@ void ExportPanel::start_record()
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
+    ui_->RecordedEyePushButton->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
@@ -316,8 +309,8 @@ void ExportPanel::update_record_file_path()
                                      ui_->RecordExtComboBox->currentText().toStdString());
 }
 
-/**
- * @brief called when change output file extension
+/*!
+ * \brief called when change output file extension
  */
 void ExportPanel::update_record_file_extension(const QString& value)
 {
@@ -325,4 +318,18 @@ void ExportPanel::update_record_file_extension(const QString& value)
     std::string ext = value.toStdString();
     api_.record.set_record_file_path(path + ext);
 }
+
+void ExportPanel::update_recorded_eye()
+{
+    api_.record.set_recorded_eye(api_.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
+                                                                                         : RecordedEyeType::LEFT);
+    on_notify();
+}
+
+void ExportPanel::reset_recorded_eye()
+{
+    api_.record.set_recorded_eye(RecordedEyeType::NONE);
+    on_notify();
+}
+
 } // namespace holovibes::gui
