@@ -1,8 +1,5 @@
 
-#include "cuda_memory.cuh"
-#include "matrix_operations.hh"
-#include <thrust/device_ptr.h>
-#include <thrust/extrema.h>
+#include "tools_analysis.cuh"
 
 int find_max_thrust(float* input, const size_t size)
 {
@@ -402,68 +399,6 @@ void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream)
     cudaXFree(d_sum);
 }
 
-__global__ void kernel_count_non_zero(const float* const input, int* const count, int rows, int cols)
-{
-    // Shared memory for partial counts
-    __shared__ int partial_sum[256];
-    int thread_id = threadIdx.x;
-    int index = blockIdx.x * blockDim.x + thread_id;
-    partial_sum[thread_id] = 0;
-
-    // Check bounds and compute non-zero counts
-    if (index < rows * cols && input[index] != 0)
-        partial_sum[thread_id] = 1;
-    __syncthreads();
-
-    // Reduce within the block
-    for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
-    {
-        if (thread_id < stride)
-            partial_sum[thread_id] += partial_sum[thread_id + stride];
-        __syncthreads();
-    }
-
-    // Add partial result to global count
-    if (thread_id == 0)
-        atomicAdd(count, partial_sum[0]);
-}
-
-int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream)
-{
-    int* device_count;
-    float* device_input;
-    int size = rows * cols;
-    int result;
-
-    // Allocate memory on device
-    cudaXMalloc((void**)&device_input, size * sizeof(float));
-    cudaXMalloc((void**)&device_count, sizeof(int));
-
-    // Copy input matrix to device
-    cudaXMemcpyAsync(device_input, input, size * sizeof(float), cudaMemcpyHostToDevice, stream);
-
-    // Initialize count to 0
-    cudaXMemsetAsync(device_count, 0, sizeof(int), stream);
-
-    // Configure kernel
-    dim3 threads_per_block(256);
-    dim3 blocks_per_grid((size + 255) / 256);
-
-    // Launch kernel
-    kernel_count_non_zero<<<blocks_per_grid, threads_per_block, 0, stream>>>(device_input, device_count, rows, cols);
-    cudaCheckError();
-
-    // Copy result back to host
-    cudaXMemcpyAsync(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(device_input);
-    cudaXFree(device_count);
-
-    return result;
-}
-
 __global__ void
 kernel_divide_frames_float_inplace(float* const input_output, const float* const denominator, const uint size)
 {
@@ -529,3 +464,72 @@ void im2uint8(float* image, size_t size, float minVal, float maxVal)
         image[i] = uint8Value;
     }
 }
+
+// The templated functions are only compilable via nvcc. Neccesary for compilation.
+template <typename T>
+__global__ void kernel_count_non_zero(const T* const input, int* const count, int rows, int cols)
+{
+    // Shared memory for partial counts
+    __shared__ int partial_sum[256];
+    int thread_id = threadIdx.x;
+    int index = blockIdx.x * blockDim.x + thread_id;
+    partial_sum[thread_id] = 0;
+
+    // Check bounds and compute non-zero counts
+    if (index < rows * cols && input[index] != 0 && input[index] == input[index])
+        partial_sum[thread_id] = 1;
+    __syncthreads();
+
+    // Reduce within the block
+    for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
+    {
+        if (thread_id < stride)
+            partial_sum[thread_id] += partial_sum[thread_id + stride];
+        __syncthreads();
+    }
+
+    // Add partial result to global count
+    if (thread_id == 0)
+        atomicAdd(count, partial_sum[0]);
+}
+
+template <typename T>
+int count_non_zero(const T* const input, const int rows, const int cols, cudaStream_t stream)
+{
+    int* device_count;
+    T* device_input;
+    int size = rows * cols;
+    int result;
+
+    // Allocate memory on device
+    cudaXMalloc((void**)&device_input, size * sizeof(T));
+    cudaXMalloc((void**)&device_count, sizeof(T));
+
+    // Copy input matrix to device
+    cudaXMemcpyAsync(device_input, input, size * sizeof(T), cudaMemcpyHostToDevice, stream);
+
+    // Initialize count to 0
+    cudaXMemsetAsync(device_count, 0, sizeof(int), stream);
+
+    // Configure kernel
+    dim3 threads_per_block(256);
+    dim3 blocks_per_grid((size + 255) / 256);
+
+    // Launch kernel
+    kernel_count_non_zero<T><<<blocks_per_grid, threads_per_block, 0, stream>>>(device_input, device_count, rows, cols);
+    cudaCheckError();
+
+    // Copy result back to host
+    cudaXMemcpyAsync(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
+
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
+    cudaXFree(device_input);
+    cudaXFree(device_count);
+
+    return result;
+}
+
+// Template specialization necessary for compilation.
+template int count_non_zero<float>(const float* const, const int, const int, cudaStream_t);
+template int count_non_zero<unsigned int>(const unsigned int* const, const int, const int, cudaStream_t);

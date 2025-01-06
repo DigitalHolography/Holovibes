@@ -18,6 +18,10 @@
 #include "tools_compute.cuh"
 #include "map.cuh"
 
+#include <iostream>
+#include <chrono>
+
+#define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
 
 namespace holovibes::analysis
@@ -27,33 +31,11 @@ namespace holovibes::analysis
 
 float* Analysis::get_mask_result() { return mask_result_buffer_.get(); }
 
-size_t Analysis::get_mask_nnz() { return count_non_zero(mask_result_buffer_, fd_.width, fd_.height, stream_); }
+size_t Analysis::get_mask_nnz() { return count_non_zero(mask_result_buffer_.get(), fd_.width, fd_.height, stream_); }
 
 #pragma endregion
 
 #pragma region Compute
-
-// To be deleted
-void Analysis::insert_bin_moments()
-{
-    cudaXMemcpyAsync(moments_env_.moment0_buffer,
-                     m0_bin_video_ + i_ * 512 * 512,
-                     sizeof(float) * 512 * 512,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    cudaXMemcpyAsync(moments_env_.moment1_buffer,
-                     m1_bin_video_ + i_ * 512 * 512,
-                     sizeof(float) * 512 * 512,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    i_ = (i_ + 1) % 506;
-
-    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                     moments_env_.moment0_buffer,
-                     sizeof(float) * fd_.width * fd_.height,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-}
 
 void Analysis::compute_pretreatment()
 {
@@ -218,7 +200,7 @@ void Analysis::compute_correlation()
 
     // To get the new vascular_pulse, we need to do that : vascularPulse = vascularPulse ./ nnz(maskVesselnessClean), so
     // we compute nnz
-    int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
+    int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_.get(), fd_.height, fd_.width, stream_);
     // then this function will directly returns us the R_vascular_pulse, which is
     // vascularPulse_centered = vascularPulse - mean(vascularPulse, 3);
     // R_VascularPulse = mean(M0_ff_video_centered .* vascularPulse_centered, 3) ./ (std((M0_ff_video_centered), [], 3)
@@ -248,17 +230,27 @@ void Analysis::compute_segment_vessels()
                    fd_.height,
                    stream_);
 
-    float thresholds[3] = {0.207108953480839f, 0.334478400506137f, 0.458741275652768f}; // this is hardcoded, need to
-                                                                                        // call arthur function
+    int before_threshold_size = remove_zeros(vesselness_mask_env_.before_threshold, fd_.height * fd_.width);
+    float* histo_buffer_d;
+    cudaXMalloc(&histo_buffer_d, sizeof(float) * OTSU_BINS);
+    float* d_bin_centers;
+    cudaMalloc(&d_bin_centers, OTSU_BINS * sizeof(float));
 
-    // we now get are image only with the 5 values using the threshold :
-    // quantizedVesselCorrelation = imquantize(R_VascularPulse - ~maskVesselnessClean * 2, firstThresholds);
+    otsu_multi_thresholding(vesselness_mask_env_.before_threshold,
+                            histo_buffer_d,
+                            d_bin_centers,
+                            vesselness_filter_struct_.thresholds + 1,
+                            4,
+                            before_threshold_size,
+                            stream_);
+    cudaXFree(histo_buffer_d);
+
     segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                     vesselness_filter_struct_.thresholds,
                     vesselness_mask_env_.R_vascular_pulse_,
                     vesselness_mask_env_.mask_vesselness_clean_,
                     buffers_.gpu_postprocess_frame_size,
-                    thresholds,
+                    nullptr,
                     stream_);
 }
 
