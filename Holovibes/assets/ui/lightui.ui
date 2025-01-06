@@ -272,27 +272,17 @@
          <string>Which eye is being recorded.</string>
         </property>
         <property name="text">
-         <string>Eye recorded</string>
+         <string>Tag</string>
         </property>
        </widget>
       </item>
       <item row="0" column="3" colspan="3">
        <widget class="QPushButton" name="RecordedEyePushButton">
         <property name="toolTip">
-         <string>Switch between left and right eye</string>
+         <string>Switch between left eye, right eye or none</string>
         </property>
         <property name="text">
-         <string>Unspecified</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QPushButton" name="ResetRecordedEyePushButton">
-        <property name="toolTip">
-         <string>Cancel the eye choice and sets it back to unspecified</string>
-        </property>
-        <property name="text">
-         <string>X</string>
+         <string>None</string>
         </property>
        </widget>
       </item>
@@ -740,22 +730,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>ResetRecordedEyePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LightUI</receiver>
-   <slot>reset_recorded_eye()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>351</x>
-     <y>150</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>107</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>start_stop_recording(bool)</slot>
@@ -774,6 +748,5 @@
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>configure_camera()</slot>
   <slot>update_recorded_eye()</slot>
-  <slot>reset_recorded_eye()</slot>
  </slots>
 </ui>

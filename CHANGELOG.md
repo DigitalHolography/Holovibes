@@ -9,6 +9,9 @@
   - "Nb. img" to "Time Window"
   - "Renormalize" to "Renormalize Image Levels"
   - "Contrast" to "Brightness and Contrast"
+- Change eye recorded:
+  - Rename "Eye recorded" to "Tag"
+  - There is a single button that switch between left, right or none
 
 ### 14.3.0
 

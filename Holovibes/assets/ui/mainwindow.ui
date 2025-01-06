@@ -2992,27 +2992,17 @@ The range of frequencies kept is [z, z + width]</string>
                     <string>Which eye is being recorded.</string>
                    </property>
                    <property name="text">
-                    <string>Eye recorded</string>
+                    <string>Tag</string>
                    </property>
                   </widget>
                  </item>
                  <item row="0" column="3" colspan="3">
                   <widget class="QPushButton" name="RecordedEyePushButton">
                    <property name="text">
-                    <string>Unspecified</string>
+                    <string>None</string>
                    </property>
                    <property name="toolTip">
-                    <string>Switch between left and right eye</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="6">
-                  <widget class="QPushButton" name="ResetRecordedEyePushButton">
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                   <property name="toolTip">
-                    <string>Cancel the eye choice and set it back to unspecified</string>
+                    <string>Switch between left eye, right eye or none</string>
                    </property>
                   </widget>
                  </item>
@@ -5939,22 +5929,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>859</x>
      <y>504</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ResetRecordedEyePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>reset_recorded_eye()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>935</x>
-     <y>344</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>859</x>
-     <y>501</y>
     </hint>
    </hints>
   </connection>
