@@ -6,6 +6,7 @@
 #pragma once
 
 #include <memory>
+#include <QMainWindow>
 
 #include "RawWindow.hh"
 #include "SliceWindow.hh"
@@ -105,8 +106,8 @@ void set_reticle_overlay_visible(bool value);
  * \param[in] callback the function to call when the advanced settings
  * are closed on clicking on the save button
  */
-void open_advanced_settings(
-    QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
+void open_advanced_setting(
+    QMainWindow parent, std::function<void()> callback = []() {});
 
 /*!
  * \brief Gets a string representation of the current recorded eye
