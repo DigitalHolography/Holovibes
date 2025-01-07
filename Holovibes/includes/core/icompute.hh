@@ -1,4 +1,4 @@
-/*! \file
+/*! \file icompute.hh
  *
  * \brief Stores functions helping the editing of the images.
  */
@@ -13,12 +13,10 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
-#include "chart_point.hh"
 #include "compute_env.hh"
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
@@ -30,6 +28,7 @@
 
 // clang-format off
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::InputFPS,                               \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
@@ -42,10 +41,12 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -63,7 +64,6 @@
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
-    holovibes::settings::UnwrapHistorySize,                      \
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
@@ -74,7 +74,8 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode
+    holovibes::settings::RecordMode,                             \
+    holovibes::settings::CameraFps
 
 
 #define ONRESTART_SETTINGS                                       \
@@ -85,8 +86,7 @@
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
     holovibes::settings::RecordQueueLocation,                    \
-    holovibes::settings::RawViewQueueLocation,                   \
-    holovibes::settings::InputQueueLocation
+    holovibes::settings::DataType
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -136,6 +136,7 @@ class ICompute
         plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
+        allocate_moments_buffers();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -144,22 +145,18 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        if (setting<settings::ImageType>() == ImgType::Composite)
-        {
-            // Grey to RGB
+        if (setting<settings::ImageType>() == ImgType::Composite) // Grey to RGB
             zone_size *= 3;
-            buffers_.gpu_postprocess_frame_size *= 3;
-        }
 
         buffers_.gpu_postprocess_frame_size = zone_size;
 
         // Allocate the buffers
         int err = !buffers_.gpu_output_frame.resize(zone_size);
-        err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_postprocess_frame.resize(zone_size);
+        err += !time_transformation_env_.gpu_p_frame.resize(zone_size);
+        err += !buffers_.gpu_complex_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_float_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
 
@@ -183,14 +180,7 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
-
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
+        UpdateTimeTransformationAlgorithm,
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -206,14 +196,13 @@ class ICompute
         DeleteTimeTransformationCuts,
         UpdateBatchSize,
         UpdateTimeStride,
+        UpdateRegistrationZone,
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
-        DisableFilter,
 
         // Add other setting here
 
@@ -251,8 +240,6 @@ class ICompute
 
     void request_refresh();
 
-    void request_autocontrast(WindowKind kind);
-
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
 
@@ -278,12 +265,48 @@ class ICompute
   protected:
     virtual void refresh() = 0;
 
-    bool update_time_transformation_size(const unsigned short time_transformation_size);
+    /*!
+     * \brief Returns the Discrete Fourier Transform sample frequencies.
+     * The returned float array contains the frequency bin centers in cycles times unit of the sample spacing (with zero
+     * at the start).
+     * For instance, if the sample spacing is in seconds, then the frequency unit is cycles/second.
+     * In our case, we reason in terms of sampling rate (fps), which is the inverse of the sample spacing ; this doesn't
+     * affect the frequency unit.
+     *
+     * For a given sampling rate (input_fps) Fs, and a window length n (time_transformation_size), the sample
+     * frequencies correspond to :
+     *
+     * f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+     * f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+     *
+     * The functions compute f0, f1 and f2, corresponding to f at order 0 (an array of size time_transformation_size)
+     * filled with 1, f at order 1, and f at order 2 (f^2)
+     *
+     * The function modifies the buffers f0_buffer, f1_buffer and f2_buffer in ICompute
+     */
+    void fft_freqs();
+
+    /*!
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the
+     * moments.
+     *
+     * \param  time_transformation_size  The new time transformation size.
+     * \return                           Whether there is an error or not.
+     */
+    virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
      */
     void update_spatial_transformation_parameters();
+
+    /**
+     * \brief Resizes the moments buffers (in moments_env_) when a moments file is read.
+     *
+     * Each buffer (moments0_buffer, ...) stores one single moment frame.
+     *
+     */
+    void allocate_moments_buffers();
 
     void init_cuts();
 
@@ -299,6 +322,27 @@ class ICompute
 
     virtual ~ICompute() {}
     /*! \} */
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
+            return realtime_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
+            return onrestart_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
+    }
+
+    /*! \brief Performs tasks specific to the current time transformation setting.
+     *  \param size The size for time transformation.
+     */
+    void perform_time_transformation_setting_specific_tasks(const unsigned short size);
 
   protected:
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
@@ -329,6 +373,9 @@ class ICompute
 
     /*! \brief STFT environment. */
     TimeTransformationEnv time_transformation_env_;
+
+    /*! \brief Moments environment. */
+    MomentsEnv moments_env_;
 
     /*! \brief Chart environment. */
     ChartEnv chart_env_;
@@ -369,28 +416,7 @@ class ICompute
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
     /*! \} */
 
-    /**
-     * @brief Helper function to get a settings value.
-     */
-    template <typename T>
-    auto setting()
-    {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            return realtime_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
-            return onrestart_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
-            return pipe_refresh_settings_.get<T>().value;
-    }
-
   private:
-    /*! \brief Performs tasks specific to the current time transformation setting.
-     *  \param size The size for time transformation.
-     */
-    void perform_time_transformation_setting_specific_tasks(const unsigned short size);
-
     /*! \brief Updates the STFT configuration based on the time transformation size.
      *  \param size The size for time transformation.
      */

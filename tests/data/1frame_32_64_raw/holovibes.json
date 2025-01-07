@@ -187,6 +187,10 @@
         "z2": {
             "start": 0,
             "width": 0
+        },
+        "registration": {
+            "registration_enabled": false,
+            "registration_zone": 0.7
         }
     }
 }

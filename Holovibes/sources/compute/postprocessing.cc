@@ -66,7 +66,7 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
 
     const size_t frame_res = fd_.get_frame_res();
 
-    from_interweaved_components_to_distinct_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
+    from_interweaved_components_to_distinct_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
 
     convolution_kernel(hsv_arr_.get(),
                        gpu_convolution_buffer,
@@ -75,7 +75,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
     convolution_kernel(hsv_arr_.get() + frame_res,
@@ -85,7 +84,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
     convolution_kernel(hsv_arr_.get() + (frame_res * 2),
@@ -95,10 +93,9 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_,
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
-    from_distinct_components_to_interweaved_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
+    from_distinct_components_to_interweaved_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
 }
 
 void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer)
@@ -110,7 +107,7 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
 
     if (setting<settings::ImageType>() != ImgType::Composite)
     {
-        fn_compute_vect_.conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 convolution_kernel(gpu_postprocess_frame,
@@ -120,13 +117,12 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
                                    setting<settings::DivideConvolutionEnabled>(),
-                                   true,
                                    stream_);
             });
     }
     else
     {
-        fn_compute_vect_.conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 convolution_composite(gpu_postprocess_frame,
@@ -143,7 +139,7 @@ void Postprocessing::insert_renormalize(float* gpu_postprocess_frame)
     if (!setting<settings::RenormEnabled>())
         return;
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             uint frame_res = static_cast<uint>(fd_.get_frame_res());

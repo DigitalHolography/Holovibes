@@ -18,6 +18,7 @@ except:
 holo_header_version = 3
 holo_header_size = 64
 holo_header_padding_size = 35
+footer_exclude_path = [] #["root['compute_settings']['image_rendering']['space_transformation']", "root['compute_settings']['view']['registration']"]
 
 struct_format = (
     '='
@@ -150,7 +151,7 @@ class HoloFile:
         ddiff = DeepDiff(ref.footer, chal.footer,
                             ignore_order=True,
                             significant_digits=5,
-                            exclude_paths=["root['info']['input_fps']", "root['info']['holovibes_version']"])
+                            exclude_paths=["root['info']['input_fps']", "root['info']['holovibes_version']"] + footer_exclude_path)
 
         if 'values_changed' in ddiff:
             contrast_max_path = "root['compute_settings']['view']['window']['xy']['contrast']['max']"

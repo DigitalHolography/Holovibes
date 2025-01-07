@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the FrameRecordWorker class.
  */
 #pragma once
 
@@ -19,7 +19,7 @@
   holovibes::settings::RecordFilePath,   \
   holovibes::settings::RecordFrameCount, \
   holovibes::settings::RecordMode,       \
-  holovibes::settings::RecordFrameSkip,  \
+  holovibes::settings::RecordFrameOffset,  \
   holovibes::settings::OutputBufferSize, \
   holovibes::settings::FrameSkip,        \
   holovibes::settings::Mp4Fps
@@ -37,11 +37,6 @@ namespace holovibes
 class Queue;
 class ICompute;
 class Holovibes;
-} // namespace holovibes
-
-namespace holovibes
-{
-std::string get_record_filename(std::string filename);
 } // namespace holovibes
 
 namespace holovibes::worker
@@ -66,10 +61,6 @@ class FrameRecordWorker final : public Worker
         , onrestart_settings_(settings)
         , record_queue_(record_queue)
     {
-        // Holovibes::instance().get_cuda_streams().recorder_stream
-        std::string file_path = setting<settings::RecordFilePath>();
-        file_path = get_record_filename(file_path);
-        onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
     }
 
     void run() override;
@@ -85,10 +76,8 @@ class FrameRecordWorker final : public Worker
     {
         LOG_TRACE("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             onrestart_settings_.update_setting(setting);
-        }
     }
 
   private:
@@ -98,10 +87,8 @@ class FrameRecordWorker final : public Worker
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Init the record queue

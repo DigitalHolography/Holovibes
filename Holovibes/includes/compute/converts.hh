@@ -33,8 +33,7 @@
     holovibes::settings::CompositeAutoWeights,     \
     holovibes::settings::HSV,                      \
     holovibes::settings::ZFFTShift,                \
-    holovibes::settings::CompositeZone,            \
-    holovibes::settings::UnwrapHistorySize
+    holovibes::settings::CompositeZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -53,14 +52,14 @@ namespace holovibes::compute
 {
 /*! \class Converts
  *
- * \brief #TODO Add a description for this class
+ * \brief Class of the conversions between buffers.
  */
 class Converts
 {
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Converts(FunctionVector& fn_compute_vect,
+    Converts(std::shared_ptr<FunctionVector> fn_compute_vect,
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan_unwrap_2d,
@@ -87,6 +86,20 @@ class Converts
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
+
+    /**
+     * \brief Insert a dequeue from input_queue to output.
+     *
+     * Note: the data manipulated should be of depth 4 (floats)
+     * on both sides.
+     *
+     * \param input_queue[in out] The input queue to dequeue from
+     * \param output[out] The buffer where to store the data.
+     */
+    void insert_float_dequeue(BatchInputQueue& input_queue, void* output);
+
+    /*! \brief Insert the conversion Complex => Modulus on a batch of time transformation size frames. */
+    void insert_to_modulus_moments(float* output, const ushort f_start, const ushort f_end);
 
     template <typename T>
     inline void update_setting(T setting)
@@ -144,7 +157,7 @@ class Converts
     unsigned short pmax_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;

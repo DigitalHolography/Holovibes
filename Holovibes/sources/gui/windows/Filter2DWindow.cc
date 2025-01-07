@@ -4,12 +4,12 @@
 #endif
 #include <cuda_gl_interop.h>
 
-#include "API.hh"
 #include "texture_update.cuh"
 #include "Filter2DWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
@@ -43,7 +43,6 @@ void Filter2DWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
-    // overlay_manager_.create_default();
 }
 
 void Filter2DWindow::initializeGL()
@@ -152,17 +151,21 @@ void Filter2DWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / API.view.get_display_rate());
 }
 
 void Filter2DWindow::paintGL()
 {
+    void* last = output_->get_last_image();
+    if (!last)
+        return;
+
     makeCurrent();
     glClear(GL_COLOR_BUFFER_BIT);
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface, output_->get_last_image(), output_->get_fd(), cuStream);
+    textureUpdate(cuSurface, last, output_->get_fd(), cuStream);
 
     glBindTexture(GL_TEXTURE_2D, Tex);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -184,6 +187,14 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_window(static_cast<int>(WindowKind::Filter2D));
+    API.view.change_window(WindowKind::Filter2D);
+    NotifierManager::notify("notify", true);
+}
+
+void Filter2DWindow::closeEvent(QCloseEvent* e)
+{
+    API.view.set_filter2d_view(false);
+    gui::set_filter2d_view(false, 0);
+    NotifierManager::notify("notify", true);
 }
 } // namespace holovibes::gui

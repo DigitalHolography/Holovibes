@@ -1,7 +1,17 @@
-# Holovibes
+<p align="center">
+  <img src="https://github.com/DigitalHolography/Holovibes/blob/master/Holovibes/assets/icons/Holovibes.ico"/>
+</p>
+
+## Introduction
 
 Holovibes is designed for real-time computation of holograms from high-bitrate interferograms.
 It is developed using `C++/CUDA`.
+
+## Table of contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Documentation](#documentation)
 
 ## Features
 
@@ -27,14 +37,17 @@ It is developed using `C++/CUDA`.
 - Batch output as raw images, controlling instruments with GPIB interface.
 - Real time chart plot.
 
-## Requirements
+## Installation
+
+Download the Windows installer from the [latest release](https://github.com/DigitalHolography/Holovibes/releases) and follow the installer instructions.
+
+### Requirements
 
 - Microsoft Windows 7 x64 (or later).
 - NVIDIA graphic card supporting CUDA 12.0 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
 ## Documentation
 
-- [GitHub](https://github.com/DigitalHolography/Holovibes)
+- [GitHub Wiki](https://github.com/DigitalHolography/Holovibes/wiki)
 - [Website](https://holovibes.com/)
 - [How it works](https://docs.google.com/document/d/1H8BcAD9Gsdpc1Rs8rBjZxRaCEdW1teBxsvuC9opWElw/edit?usp=sharing)
-- [Tutorial](TUTORIAL.md)

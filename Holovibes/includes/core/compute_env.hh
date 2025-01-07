@@ -2,12 +2,15 @@
 
 #include "queue.hh"
 #include "unique_ptr.hh"
-#include "cufft_handle.hh"
 #include "chart_point.hh"
+#include "cufft_handle.hh"
 #include "concurrent_deque.hh"
+
+#include <cufft.h>
 
 namespace holovibes
 {
+
 /*! \struct CoreBuffersEnv
  *
  * \brief Struct containing main buffers used by the pipe.
@@ -61,6 +64,48 @@ struct CoreBuffersEnv
 
     /*! \brief InputFilter mask */
     cuda_tools::CudaUniquePtr<float> gpu_input_filter_mask = nullptr;
+};
+
+/*! \struct MomentsEnv
+ *
+ *  \brief Struct containing buffers used for the computation of the moments
+ *
+ */
+struct MomentsEnv
+{
+    /*! \brief Contains the moments, computed from the frequencies resulting from the stft and the initial batch of
+     * frames.
+     *
+     * The moment of order 0 is equal to the batch of frames multiplied by the vector f of frequencies at
+     * Contains time_transformation_size frames.
+     */
+    cuda_tools::CudaUniquePtr<float> moment0_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment1_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment2_buffer = nullptr;
+
+    /*! \brief Temporary buffer that contains a batch of time transformation size frames
+     *  It will contains the complex modulus of result of the time transformation
+     */
+    cuda_tools::CudaUniquePtr<float> stft_res_buffer = nullptr;
+
+    /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
+     * Used to compute the moment of order 0*/
+    cuda_tools::CudaUniquePtr<float> f0_buffer = nullptr;
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 1.
+     * Used to compute the moment of order 1*/
+    cuda_tools::CudaUniquePtr<float> f1_buffer = nullptr;
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
+     * Used to compute the moment of order 2*/
+    cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
+
+    /*! \brief Is used when reading a moments file; it is where the moments will be
+     * dequeued 3 at a time, and then split to their respective buffer.
+     * This is needed due to the batch behaviour of the input queue.*/
+    cuda_tools::CudaUniquePtr<float> moment_tmp_buffer = nullptr;
+
+    /*! \brief Starts and end frequencies of calculus */
+    unsigned short f_start;
+    unsigned short f_end;
 };
 
 /*! \struct BatchEnv
@@ -144,7 +189,8 @@ struct ChartEnv
 
 /*! \struct ImageAccEnv
  *
- * \brief #TODO Add a description for this struct
+ * \brief Struct containing variables related to the accumulation of the
+ * computed frames.
  */
 struct ImageAccEnv
 {
@@ -166,4 +212,5 @@ struct ImageAccEnv
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
+
 } // namespace holovibes

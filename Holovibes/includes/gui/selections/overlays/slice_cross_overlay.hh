@@ -4,22 +4,18 @@
  */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "filled_rect_overlay.hh"
 
 namespace holovibes::gui
 {
 /*! \class SliceCrossOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a slice cross overlay in the window.
  */
-class SliceCrossOverlay : public RectOverlay
+class SliceCrossOverlay : public FilledRectOverlay
 {
   public:
     SliceCrossOverlay(BasicOpenGLWindow* parent);
-    virtual ~SliceCrossOverlay();
-
-    void init() override;
-    void draw() override;
 
     void keyPress(QKeyEvent* e) override;
     void move(QMouseEvent* e) override;
@@ -28,12 +24,6 @@ class SliceCrossOverlay : public RectOverlay
     void setBuffer() override;
 
   private:
-    /*! \brief Transparency of the borders */
-    float line_alpha_;
-
-    /*! \brief Vertices order for lines */
-    GLuint elemLineIndex_;
-
     /*! \brief Locking line overlay */
     bool locked_;
 

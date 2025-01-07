@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Implementation of FFT1, FFT2 and STFT algorithms.
+ * \brief Implementation of Fresnel Transform, Angular Spectrum and STFT algorithms.
  */
 #pragma once
 
@@ -12,7 +12,6 @@
 #include "cuda_tools\array.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
@@ -22,6 +21,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
+    holovibes::settings::RecordMode,               \
     holovibes::settings::ImageType,                \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
@@ -57,24 +57,26 @@ class Queue;
 struct BatchEnv;
 struct TimeTransformationEnv;
 struct CoreBuffersEnv;
+struct MomentsEnv;
 } // namespace holovibes
 
 namespace holovibes::compute
 {
 /*! \class FourierTransform
  *
- * \brief #TODO Add a description for this class
+ * \brief Class of Fourier Transform
  */
 class FourierTransform
 {
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FourierTransform(FunctionVector& fn_compute_vect,
+    FourierTransform(std::shared_ptr<FunctionVector> fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
+                     MomentsEnv& moments_env,
                      const cudaStream_t& stream,
                      InitSettings settings)
         : gpu_lens_(nullptr)
@@ -85,6 +87,7 @@ class FourierTransform
         , fd_(fd)
         , spatial_transformation_plan_(spatial_transformation_plan)
         , time_transformation_env_(time_transformation_env)
+        , moments_env_(moments_env)
         , stream_(stream)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
@@ -93,7 +96,7 @@ class FourierTransform
     }
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
-    void insert_fft(float* gpu_filter2d_mask, const uint width, const uint height);
+    void insert_fft(const uint width, const uint height);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
     void insert_store_p_frame();
@@ -103,6 +106,25 @@ class FourierTransform
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform();
+
+    /*!
+     * \brief Enqueue the computations of the moments, after the stft
+     *
+     */
+    void insert_moments();
+
+    /**
+     * \brief Splits 3 contiguous moments from a temporary buffer to their respective individual buffers.
+     * Is used only when reading a moments file.
+     */
+    void insert_moments_split();
+
+    /**
+     * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
+     * if the corresponding image type is selected.
+     *
+     */
+    void insert_moments_to_output();
 
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
@@ -130,11 +152,11 @@ class FourierTransform
     /*! \brief Enqueue the call to filter2d cuda function. */
     void insert_filter2d();
 
-    /*! \brief Compute lens and enqueue the call to fft1 cuda function. */
-    void insert_fft1();
+    /*! \brief Compute lens and enqueue the call to the fresnel_transform cuda function. */
+    void insert_fresnel_transform();
 
-    /*! \brief Compute lens and enqueue the call to fft2 cuda function. */
-    void insert_fft2(bool filter2d_enabled);
+    /*! \brief Compute lens and enqueue the call to the angular_spectrum cuda function. */
+    void insert_angular_spectrum(bool filter2d_enabled);
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *
@@ -174,7 +196,7 @@ class FourierTransform
     units::RectFd filter2d_zone_;
     units::RectFd filter2d_subzone_;
 
-    /*! \brief Lens used for fresnel transform (During FFT1 and FFT2) */
+    /*! \brief Lens used for fresnel transform (During Fresnel Transform itself and Angular Spectrum) */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_lens_;
     /*! \brief Size of a size of the lens (lens is always a square) */
     uint lens_side_size_ = {0};
@@ -187,7 +209,7 @@ class FourierTransform
     cuda_tools::CudaUniquePtr<cuComplex> cusolver_work_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */
@@ -196,6 +218,8 @@ class FourierTransform
     cuda_tools::CufftHandle& spatial_transformation_plan_;
     /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
+    /*! \brief Moments environment. */
+    MomentsEnv& moments_env_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

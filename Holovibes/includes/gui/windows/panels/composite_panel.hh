@@ -91,5 +91,8 @@ class CompositePanel : public Panel
 
     /*! \brief Make the ui composite overlay visible */
     void set_composite_area();
+
+  protected:
+    void showEvent(QShowEvent* event) override;
 };
 } // namespace holovibes::gui

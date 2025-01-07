@@ -97,7 +97,11 @@
             "width": 0,
             "start": 0
         },
-        "image_type": "MODULUS"
+        "image_type": "MODULUS",
+        "registration": {
+            "registration_enabled": false,
+            "registration_zone": 0.7
+        }
     },
     "color_composite_image": {
         "hsv": {
@@ -179,7 +183,7 @@
         "lambda": 8.519999710188131e-07,
         "batch_size": 1,
         "image_mode": "HOLOGRAM",
-        "space_transformation": "FFT1",
+        "space_transformation": "FRESNELTR",
         "time_transformation": "NONE",
         "time_transformation_size": 32,
         "time_transformation_stride": 1,

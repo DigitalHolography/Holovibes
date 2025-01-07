@@ -1,16 +1,10 @@
 repos:
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.3.5
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v14.0.0
     hooks:
       - id: clang-format
-        args: [-i]
-        files: \.(cc|hh|hxx|cu|cuh|cuhxx)$
-        exclude: ^(libs/|build/|docs/|bin/|tests/)
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-    - id: check-yaml
-    - id: trailing-whitespace
-      exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
-    - id: end-of-file-fixer
-      exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
+        files: \.(cc|hh|cu|cuh|hxx|cuhxx)$
+        args:
+          - -style=file
+          - -i
+        additional_dependencies: []

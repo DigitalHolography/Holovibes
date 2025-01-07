@@ -1,8 +1,6 @@
 #include <cassert>
 
 #include "icompute.hh"
-#include "fft1.cuh"
-#include "fft2.cuh"
 #include "stft.cuh"
 #include "tools.cuh"
 #include "contrast_correction.cuh"
@@ -25,13 +23,69 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
+void ICompute::fft_freqs()
+{
+    uint time_transformation_size = setting<settings::TimeTransformationSize>();
+    float d = setting<settings::CameraFps>() / time_transformation_size;
+
+    // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
+    std::unique_ptr<float[]> f0(new float[time_transformation_size]);
+    std::unique_ptr<float[]> f1(new float[time_transformation_size]);
+    std::unique_ptr<float[]> f2(new float[time_transformation_size]);
+
+    // initialize f0 (f0 = [1, ..., 1])
+    for (uint i = 0; i < time_transformation_size; i++)
+        f0[i] = 1.f;
+
+    cudaXMemcpy(moments_env_.f0_buffer, f0.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
+
+    // initialize f1
+    // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    if (time_transformation_size % 2 == 0)
+    {
+        for (uint i = 0; i <= time_transformation_size / 2; i++)
+            f1[i] = i * d;
+
+        for (uint i = time_transformation_size / 2; i < time_transformation_size - 1; i++)
+            f1[i] = -((float)time_transformation_size - i) * d;
+    }
+    // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+    else
+    {
+        for (uint i = 0; i < (time_transformation_size + 1) / 2; i++)
+            f1[i] = i * d;
+
+        for (uint i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
+            f1[i] = (i - (float)time_transformation_size) * d;
+    }
+    cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
+
+    // initialize f2 (f2 = f1^2)
+    for (uint i = 0; i < time_transformation_size; i++)
+        f2[i] = f1[i] * f1[i];
+
+    cudaXMemcpy(moments_env_.f2_buffer, f2.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
+}
+
 bool ICompute::update_time_transformation_size(const unsigned short size)
 {
     try
     {
-        // Updates the size of the GPU P acc buffer.
         auto frame_res = input_queue_.get_fd().get_frame_res();
+
+        // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
+
+        if (API.input.get_data_type() != RecordedDataType::MOMENTS)
+        {
+            // Updates the buffers for the moments, which depends on time_transformation_size
+            moments_env_.f0_buffer.resize(size);
+            moments_env_.f1_buffer.resize(size);
+            moments_env_.f2_buffer.resize(size);
+
+            moments_env_.stft_res_buffer.resize(frame_res * size);
+            fft_freqs();
+        }
 
         perform_time_transformation_setting_specific_tasks(size);
 
@@ -73,6 +127,7 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
     {
     case TimeTransformation::STFT:
         update_stft(size);
+        update_pca(0); // Clear the PCA buffer when switching to STFT
         break;
     case TimeTransformation::SSA_STFT:
         update_stft(size);
@@ -80,8 +135,11 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         break;
     case TimeTransformation::PCA:
         update_pca(size);
+        time_transformation_env_.stft_plan.reset(); // Clear memory used by the FFT plan
         break;
     case TimeTransformation::NONE:
+        update_pca(0);
+        time_transformation_env_.stft_plan.reset();
         break;
     default:
         LOG_ERROR("Unhandled Time transformation settings");
@@ -113,6 +171,23 @@ void ICompute::update_spatial_transformation_parameters()
         CUDA_C_32F,                     // Output type
         setting<settings::BatchSize>(), // Batch size
         CUDA_C_32F);                    // Computation type
+}
+
+void ICompute::allocate_moments_buffers()
+{
+    auto frame_res = input_queue_.get_fd().get_frame_res();
+
+    size_t size = frame_res; // Batch size should always be be 3 here.
+    // If it isn't, it is a bug.
+
+    moments_env_.moment0_buffer.resize(size);
+    moments_env_.moment1_buffer.resize(size);
+    moments_env_.moment2_buffer.resize(size);
+
+    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
+        moments_env_.moment_tmp_buffer.resize(size * 3);
+    else
+        moments_env_.moment_tmp_buffer.reset(); // Freeing buffer if not needed
 }
 
 void ICompute::init_cuts()
@@ -149,21 +224,6 @@ void ICompute::dispose_cuts()
 
     time_transformation_env_.gpu_output_queue_xz.reset(nullptr);
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
-}
-
-void ICompute::request_autocontrast(WindowKind kind)
-{
-    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
-        set_requested(ICS::Autocontrast, true);
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceXZ, true);
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceYZ, true);
-    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
-             setting<settings::Filter2dEnabled>())
-        set_requested(ICS::AutocontrastFilter2D, true);
 }
 
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)

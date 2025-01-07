@@ -71,7 +71,7 @@ void apply_percentile_and_threshold(float* gpu_arr,
 }
 
 __global__ void kernel_rotate_hsv_to_contiguous_z(
-    const cuComplex* gpu_input, float* rotated_hsv_arr, const uint frame_res, const uint width, const uint range)
+    float* output, const cuComplex* input, const uint frame_res, const uint width, const uint range)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -81,75 +81,71 @@ __global__ void kernel_rotate_hsv_to_contiguous_z(
     size_t x = frame_pos % width;
     const size_t rotated_id = (y * range * width) + (x * range) + depth;
 
-    float val = fabsf(gpu_input[id].x);
-    rotated_hsv_arr[rotated_id] = val;
+    float val = fabsf(input[id].x);
+    output[rotated_id] = val;
 }
 
-void rotate_hsv_to_contiguous_z(const cuComplex* gpu_input,
-                                float* rotated_hsv_arr,
+void rotate_hsv_to_contiguous_z(float* output,
+                                const cuComplex* input,
                                 const uint frame_res,
                                 const uint width,
                                 const uint range,
                                 const cudaStream_t stream)
 {
     const uint total_size = frame_res * range;
-    cudaSafeCall(cudaMalloc(&rotated_hsv_arr, total_size * sizeof(float)));
+    cudaSafeCall(cudaMalloc(&output, total_size * sizeof(float)));
 
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(total_size, threads);
 
-    kernel_rotate_hsv_to_contiguous_z<<<blocks, threads, 0, stream>>>(gpu_input,
-                                                                      rotated_hsv_arr,
-                                                                      frame_res,
-                                                                      width,
-                                                                      range);
+    kernel_rotate_hsv_to_contiguous_z<<<blocks, threads, 0, stream>>>(output, input, frame_res, width, range);
     cudaCheckError();
 }
 
 __global__ void
-kernel_from_distinct_components_to_interweaved_components(const float* src, float* dst, size_t frame_res)
+kernel_from_distinct_components_to_interweaved_components(float* output, const float* input, size_t frame_res)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
     {
-        dst[id * 3] = src[id];
-        dst[id * 3 + 1] = src[id + frame_res];
-        dst[id * 3 + 2] = src[id + frame_res * 2];
+        output[id * 3] = input[id];
+        output[id * 3 + 1] = input[id + frame_res];
+        output[id * 3 + 2] = input[id + frame_res * 2];
     }
 }
 
-void from_distinct_components_to_interweaved_components(const float* src,
-                                                        float* dst,
+void from_distinct_components_to_interweaved_components(float* output,
+                                                        const float* input,
                                                         size_t frame_res,
                                                         const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    kernel_from_distinct_components_to_interweaved_components<<<blocks, threads, 0, stream>>>(src, dst, frame_res);
+    kernel_from_distinct_components_to_interweaved_components<<<blocks, threads, 0, stream>>>(output, input, frame_res);
     cudaCheckError();
 }
 
 __global__ void
-kernel_from_interweaved_components_to_distinct_components(const float* src, float* dst, size_t frame_res)
+kernel_from_interweaved_components_to_distinct_components(float* output, const float* input, size_t frame_res)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
     {
-        dst[id] = src[id * 3];
-        dst[id + frame_res] = src[id * 3 + 1];
-        dst[id + frame_res * 2] = src[id * 3 + 2];
+        output[id] = input[id * 3];
+        output[id + frame_res] = input[id * 3 + 1];
+        output[id + frame_res * 2] = input[id * 3 + 2];
     }
 }
 
-void from_interweaved_components_to_distinct_components(const float* src,
-                                                        float* dst,
+void from_interweaved_components_to_distinct_components(float* output,
+                                                        const float* input,
                                                         size_t frame_res,
                                                         const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    kernel_from_interweaved_components_to_distinct_components<<<blocks, threads, 0, stream>>>(src, dst, frame_res);
+    kernel_from_interweaved_components_to_distinct_components<<<blocks, threads, 0, stream>>>(output, input, frame_res);
     cudaCheckError();
 }

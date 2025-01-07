@@ -1,18 +1,17 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the RainbowOverlay class.
  */
 #pragma once
 
 #include "Overlay.hh"
 #include "unit.hh"
-#include "API.hh"
 
 namespace holovibes::gui
 {
 /*! \class RainbowOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a rainbow overlay in the window.
  */
 class RainbowOverlay : public Overlay
 {

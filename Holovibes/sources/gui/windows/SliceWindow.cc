@@ -10,6 +10,7 @@
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
@@ -40,8 +41,8 @@ void SliceWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
-    if (api::get_img_type() == ImgType::Composite)
-        overlay_manager_.create_overlay<Rainbow>();
+    if (API.compute.get_img_type() == ImgType::Composite)
+        overlay_manager_.enable<Rainbow>();
     else
         overlay_manager_.create_default();
 }
@@ -152,17 +153,21 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / API.view.get_display_rate());
 }
 
 void SliceWindow::paintGL()
 {
+    void* last = output_->get_last_image();
+    if (!last)
+        return;
+
     makeCurrent();
     glClear(GL_COLOR_BUFFER_BIT);
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface, output_->get_last_image(), output_->get_fd(), cuStream);
+    textureUpdate(cuSurface, last, output_->get_fd(), cuStream);
 
     glBindTexture(GL_TEXTURE_2D, Tex);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -191,14 +196,30 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
     {
         resetTransform();
-        if (holovibes::api::get_main_display())
-            holovibes::api::get_main_display()->resetTransform();
+        if (gui::get_main_display())
+            gui::get_main_display()->resetTransform();
     }
 }
 
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+    API.view.change_window(kView == KindOfView::SliceXZ ? WindowKind::XZview : WindowKind::YZview);
+    NotifierManager::notify("notify", true);
+}
+
+void SliceWindow::closeEvent(QCloseEvent* e)
+{
+    if (kView == KindOfView::SliceXZ)
+        API.window_pp.set_enabled(false, WindowKind::XZview);
+    else if (kView == KindOfView::SliceYZ)
+        API.window_pp.set_enabled(false, WindowKind::YZview);
+
+    if (!API.window_pp.get_enabled(WindowKind::XZview) && !API.window_pp.get_enabled(WindowKind::YZview))
+    {
+        API.view.set_3d_cuts_view(false);
+        gui::set_3d_cuts_view(false, 0);
+        NotifierManager::notify("notify", true);
+    }
 }
 } // namespace holovibes::gui

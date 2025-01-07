@@ -4,17 +4,17 @@
  */
 #pragma once
 
-#include "icompute.hh"
+#include "display_queue.hh"
+
 #include "RawWindow.hh"
 
 namespace holovibes::gui
 {
 class MainWindow;
-using SharedPipe = std::shared_ptr<ICompute>;
 
 /*! \class HoloWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a hologram window in the GUI.
  */
 class HoloWindow : public RawWindow
 {
@@ -22,7 +22,6 @@ class HoloWindow : public RawWindow
     HoloWindow(QPoint p,
                QSize s,
                DisplayQueue* q,
-               SharedPipe ic,
                std::unique_ptr<SliceWindow>& xz,
                std::unique_ptr<SliceWindow>& yz,
                float ratio);
@@ -30,14 +29,10 @@ class HoloWindow : public RawWindow
 
     void update_slice_transforms();
 
-    SharedPipe getPipe();
-
     void resetTransform() override;
     void setTransform() override;
 
   protected:
-    SharedPipe Ic;
-
     void initShaders() override;
 
     void focusInEvent(QFocusEvent* e) override;

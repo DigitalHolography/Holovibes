@@ -27,16 +27,17 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
-    void view_callback(WindowKind kind, ViewWindow window);
     void on_notify() override;
 
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*! \brief Remove time transformation cut views */
-    void cancel_time_transformation_cuts();
-    /*! \brief Adds auto contrast to the pipe over cut views */
-    void set_auto_contrast_cuts();
+    /*! \brief Changes the image type in the UI and hides irrelevant options.
+     * Notably, when the input data is moments, only moments views are available.
+     *
+     * \param[in] img_type The image type to set.
+     */
+    void update_img_type(int img_type);
 
   public slots:
     /*! \brief Modifies view image type
@@ -60,6 +61,11 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_fft_shift(bool value);
+    /*! \brief Enables or Disables registration mode on the main display window.
+     *
+     * \param value true: enable, false: disable
+     */
+    void set_registration(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove
@@ -93,16 +99,16 @@ class ViewPanel : public Panel
     void set_q_acc();
 
     /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
-    void rotateTexture();
+    void rotate_texture();
 
     /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
-    void flipTexture();
+    void flip_texture();
 
     /*! \brief Enables or Disables log scale on the current window
      *
      * \param value true: enable, false: disable
      */
-    void set_log_scale(bool value);
+    void set_log_enabled(bool value);
 
     /*! \brief Modifies the accumulation level on the current window
      *
@@ -115,8 +121,6 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
-    /*! \brief Enalbles auto-contrast */
-    void set_auto_contrast();
 
     /*! \brief Enables or Disables auto refresh contrast
      *
@@ -157,6 +161,11 @@ class ViewPanel : public Panel
      * \param value The new reticle scale
      */
     void reticle_scale(double value);
+
+    /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+     *  \param[in] value The new zone value.
+     */
+    void update_registration_zone(double value);
 
   private:
     QShortcut* p_left_shortcut_;

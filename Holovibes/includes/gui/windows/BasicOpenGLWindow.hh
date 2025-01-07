@@ -26,7 +26,7 @@ enum class KindOfView
 {
     Raw = 1,  /*!< Simply displaying the input frames */
     Hologram, /*!< Applying the demodulation and computations on the input frames */
-    Lens,     /*!< Displaying the FFT1/FFT2 lens view */
+    Lens,     /*!< Displaying the Fresnel/Angular lens view */
     SliceXZ,  /*!< Displaying the XZ view of the hologram */
     SliceYZ,  /*!< Displaying the YZ view of the hologram */
     Filter2D, /*!< Displaying the Filter2D view of the hologram */
@@ -34,7 +34,7 @@ enum class KindOfView
 
 /*! \class BasicOpenGLWindow
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a basic OpenGL window.
  */
 class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
@@ -45,7 +45,6 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
-    void resetSelection();
 
     const camera::FrameDescriptor& getFd() const;
     OverlayManager& getOverlayManager();

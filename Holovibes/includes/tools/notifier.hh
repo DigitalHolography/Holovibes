@@ -23,9 +23,9 @@ class Notifier;
 /**
  * @brief Manages instances of Notifier objects.
  *
- * @note This class is a singleton and should be accessed using the get_instance() method.
+ * @note This class is a singleton and should be accessed using the instance() method.
  *
- * @see get_instance()
+ * @see instance()
  * @see Notifier
  */
 class NotifierManager
@@ -35,7 +35,7 @@ class NotifierManager
      * @brief Gets the singleton instance of NotifierManager.
      * @return The singleton instance of NotifierManager.
      */
-    static NotifierManager& get_instance()
+    static NotifierManager& instance()
     {
         static NotifierManager instance;
         return instance;

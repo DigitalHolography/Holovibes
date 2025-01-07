@@ -1,6 +1,6 @@
 #include "camera_frame_read_worker.hh"
 #include "holovibes.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "api.hh"
 
 namespace holovibes::worker
@@ -20,12 +20,13 @@ void CameraFrameReadWorker::run()
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
                                std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
 
-    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
-    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    auto entry1 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
     *entry1 = camera_->get_name();
     *entry2 = input_format;
 
-    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
+    temperature_ = FastUpdatesMap::map<IntType>.create_entry(IntType::TEMPERATURE, true);
 
     try
     {
@@ -46,9 +47,10 @@ void CameraFrameReadWorker::run()
         LOG_ERROR("[CAPTURE] {}", e.what());
     }
 
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::TEMPERATURE);
 
     camera_.reset();
 }
@@ -56,30 +58,22 @@ void CameraFrameReadWorker::run()
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
                                          const camera::FrameDescriptor& camera_fd)
 {
-    cudaMemcpyKind copy_kind;
-    bool input_queue_on_gpu = api::get_input_queue_location() == holovibes::Device::GPU;
-    if (input_queue_on_gpu) // if the input queue is on gpu
-        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
-    else // if it is on CPU
-        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost;
-
-    for (unsigned i = 0; i < captured_fd.count1; ++i)
+    cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+    if (captured_fd.count1 > 0)
     {
-        auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();
-        input_queue_.load()->enqueue(ptr, copy_kind);
+        auto ptr1 = static_cast<uint8_t*>(captured_fd.region1);
+        input_queue_.load()->enqueue(ptr1, copy_kind, captured_fd.count1);
+    }
+    if (captured_fd.count2 > 0)
+    {
+        auto ptr2 = static_cast<uint8_t*>(captured_fd.region2);
+        input_queue_.load()->enqueue(ptr2, copy_kind, captured_fd.count2);
     }
 
-    for (unsigned i = 0; i < captured_fd.count2; ++i)
-    {
-        auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.get_frame_size();
-        input_queue_.load()->enqueue(ptr, copy_kind);
-    }
+    *current_fps_ += captured_fd.count1 + captured_fd.count2;
+    *temperature_ = camera_->get_temperature();
 
-    processed_frames_ += captured_fd.count1 + captured_fd.count2;
-    compute_fps();
-
-    if (input_queue_on_gpu)
-        input_queue_.load()->sync_current_batch();
+    input_queue_.load()->sync_current_batch();
 }
 
 } // namespace holovibes::worker

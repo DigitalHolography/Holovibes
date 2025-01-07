@@ -4,15 +4,15 @@
  */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "filled_rect_overlay.hh"
 
 namespace holovibes::gui
 {
 /*! \class NoiseOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a noise overlay in the window.
  */
-class NoiseOverlay : public RectOverlay
+class NoiseOverlay : public FilledRectOverlay
 {
   public:
     NoiseOverlay(BasicOpenGLWindow* parent);

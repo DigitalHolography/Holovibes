@@ -1,5 +1,3 @@
-#pragma once
-
 /*! \file
  *
  * \brief Qt Advanced settings window class.
@@ -13,7 +11,6 @@
 #include <QSpinBox>
 #include <QGroupBox>
 
-#include "advanced_settings_window_panel.hh"
 #include "ui_advancedsettingswindow.h"
 
 namespace holovibes::gui
@@ -34,26 +31,25 @@ class AdvancedSettingsWindow : public QMainWindow
 
     /*! \brief Advanced Settings Window
      *
-     * \param parent the object that will embed the layouts
-     * \param specific_panel the external panel to plug
+     * \param[in] parent the object that will embed the layouts
      */
 
-    AdvancedSettingsWindow(QMainWindow* parent = nullptr, AdvancedSettingsWindowPanel* specific_panel = nullptr);
+    AdvancedSettingsWindow(QMainWindow* parent = nullptr);
 
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
-  private:
-    /*! \brief Link/Plug the given panel to the AdvancedSettingWindow (this)
+    /*! \brief Set the callback function called when user click on the Save button
      *
-     * \param specific_panel The given panel to plug
+     * \param[in] callback the function to call
      */
-    void plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel);
+    void set_callback(std::function<void()> callback) { callback_ = callback; }
 
+  private:
     /*!
      * \brief Change the correspondant folder lineEdit
      *
-     * \param lineEdit The line that is currently changed
+     * \param[in] lineEdit The line that is currently changed
      */
     void change_folder(Drag_drop_lineedit* lineEdit);
 
@@ -62,7 +58,9 @@ class AdvancedSettingsWindow : public QMainWindow
 
   private:
     Ui::AdvancedSettingsWindow ui;
-    AdvancedSettingsWindowPanel* specific_panel_;
+
+    /*! \brief Callback function called when user click on the Save button */
+    std::function<void()> callback_ = []() {};
 
   public slots:
     /*! \brief emit signal closed on window is closed */
@@ -73,6 +71,5 @@ class AdvancedSettingsWindow : public QMainWindow
 
     void change_input_folder_path();
     void change_output_folder_path();
-    void change_batch_input_folder_path();
 };
 } // namespace holovibes::gui

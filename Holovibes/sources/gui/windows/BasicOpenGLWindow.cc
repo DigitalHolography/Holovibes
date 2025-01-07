@@ -51,7 +51,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
-    setIcon(QIcon(":/holovibes_logo.png"));
+    setIcon(QIcon(":/assets/icons/holovibes_logo.png"));
     this->installEventFilter(this);
 }
 
@@ -205,8 +205,6 @@ void BasicOpenGLWindow::setTransform()
         Program->release();
     }
 }
-
-void BasicOpenGLWindow::resetSelection() { overlay_manager_.reset(); }
 
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {

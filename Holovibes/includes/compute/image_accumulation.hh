@@ -12,8 +12,6 @@
 #include "rect.hh"
 #include "logger.hh"
 
-#include "global_state_holder.hh"
-
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
@@ -57,7 +55,7 @@ class ImageAccumulation
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ImageAccumulation(FunctionVector& fn_compute_vect,
+    ImageAccumulation(std::shared_ptr<FunctionVector> fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
@@ -86,6 +84,12 @@ class ImageAccumulation
 
     /*! \brief Free ressources for image accumulation */
     void dispose();
+
+    /*! \brief Allocate ressources for image accumulation queue for the two cuts. */
+    void init_cuts_queue();
+
+    /*! \brief Free ressources for image accumulation queue for the two cuts. */
+    void dispose_cuts_queue();
 
     /*! \brief Clear image accumulation queue */
     void clear();
@@ -153,7 +157,7 @@ class ImageAccumulation
 
   private:
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Image Accumulation environment */
     ImageAccEnv& image_acc_env_;

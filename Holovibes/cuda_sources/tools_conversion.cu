@@ -29,6 +29,42 @@ static __global__ void kernel_complex_to_modulus_pacc(
     }
 }
 
+/* Kernel function wrapped by complex_to_modulus. */
+static __global__ void kernel_complex_to_modulus(
+    float* output, const cuComplex* input, const size_t frame_res, const ushort f_start, const ushort f_end)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    for (int i = f_start; i <= f_end; i++)
+    {
+        const cuComplex* current_p_frame = input + i * frame_res;
+        float* output_frame = output + i * frame_res;
+
+        const float real = current_p_frame[index].x;
+        const float im = current_p_frame[index].y;
+
+        output_frame[index] = real * real + im * im;
+    }
+}
+
+void complex_to_modulus_moments(float* output,
+                                const cuComplex* input,
+                                const size_t frame_res,
+                                const ushort f_start,
+                                const ushort f_end,
+                                const cudaStream_t stream)
+{
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(frame_res, threads); // FIXME
+
+    kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(output, input, frame_res, f_start, f_end);
+    // No sync needed since everything is run on stream 0
+    cudaCheckError();
+}
+
 void complex_to_modulus(float* output,
                         const cuComplex* input,
                         const ushort pmin,
@@ -85,7 +121,7 @@ void input_queue_to_input_buffer(void* const output,
                                  const void* const input,
                                  const size_t frame_res,
                                  const int batch_size,
-                                 const uint depth,
+                                 const camera::PixelDepth depth,
                                  const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
@@ -106,7 +142,7 @@ void input_queue_to_input_buffer(void* const output,
     static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
     switch (depth)
     {
-    case 1:
+    case camera::PixelDepth::Bits8:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const uchar* const>(input),
@@ -114,7 +150,7 @@ void input_queue_to_input_buffer(void* const output,
                                              frame_res,
                                              batch_size);
         break;
-    case 2:
+    case camera::PixelDepth::Bits16:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const ushort* const>(input),
@@ -122,7 +158,7 @@ void input_queue_to_input_buffer(void* const output,
                                              frame_res,
                                              batch_size);
         break;
-    case 4:
+    case camera::PixelDepth::Bits32:
         kernel_input_queue_to_input_buffer<cuComplex, float>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const float* const>(input),
@@ -131,6 +167,17 @@ void input_queue_to_input_buffer(void* const output,
                                              batch_size);
         break;
     }
+    cudaCheckError();
+}
+
+void input_queue_to_input_buffer_floats(void* const output,
+                                        const void* const input,
+                                        const size_t frame_res,
+                                        const int batch_size,
+                                        const camera::PixelDepth depth,
+                                        const cudaStream_t stream)
+{
+    cudaXMemcpyAsync(output, input, frame_res * batch_size * depth, cudaMemcpyDeviceToDevice, stream);
     cudaCheckError();
 }
 
@@ -225,7 +272,7 @@ static __global__ void kernel_minmax(const float* data, const size_t size, float
     }
 }
 
-void rescale_float(const float* input, float* output, const size_t size, const cudaStream_t stream)
+void rescale_float(float* output, const float* input, const size_t size, const cudaStream_t stream)
 {
     const uint threads = THREADS_128;
     const uint blocks = map_blocks_to_problem(size, threads);
@@ -265,7 +312,7 @@ void rescale_float(const float* input, float* output, const size_t size, const c
     cudaXFree(gpu_local_max);
 }
 
-void rescale_float_unwrap2d(float* input, float* output, float* cpu_buffer, size_t frame_res, const cudaStream_t stream)
+void rescale_float_unwrap2d(float* output, float* input, float* cpu_buffer, size_t frame_res, const cudaStream_t stream)
 {
     float min = 0;
     float max = 0;
@@ -284,14 +331,14 @@ void rescale_float_unwrap2d(float* input, float* output, float* cpu_buffer, size
         else
             return (in - min) / (max - min) * max_ushort_value_to_float;
     };
-    map_generic(input, output, frame_res, lambda, stream);
+    map_generic(output, input, frame_res, lambda, stream);
 }
 
 void endianness_conversion(
-    const ushort* input, ushort* output, const uint batch_size, const size_t frame_res, const cudaStream_t stream)
+    ushort* output, const ushort* input, const uint batch_size, const size_t frame_res, const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> ushort { return (in << 8) | (in >> 8); };
-    map_generic(input, output, frame_res * batch_size, lambda, stream);
+    map_generic(output, input, frame_res * batch_size, lambda, stream);
 }
 
 /*
@@ -312,7 +359,7 @@ static __device__ ushort device_float_to_ushort(const float input, const uint sh
 }
 
 void complex_to_uint(
-    const cuComplex* const input, uint* const output, const size_t size, cudaStream_t stream, const uint shift)
+    uint* const output, const cuComplex* const input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda_complex_to_ushort = [shift] __device__(const cuComplex in) -> uint
     {
@@ -329,67 +376,65 @@ void complex_to_uint(
 
         return ((x << size_half_uint) | y) << shift;
     };
-    map_generic(input, output, size, lambda_complex_to_ushort, stream);
+    map_generic(output, input, size, lambda_complex_to_ushort, stream);
 }
 
 void float_to_ushort(
-    const float* const input, ushort* const output, const size_t size, cudaStream_t stream, const uint shift)
+    ushort* const output, const float* const input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda = [shift] __device__(const float in) -> ushort { return device_float_to_ushort(in, shift); };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
-void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream)
+void float_to_ushort_normalized(ushort* const output, const float* const input, const size_t size, cudaStream_t stream)
 {
     const auto lambda = [] __device__(const float in) -> ushort { return in * max_ushort_value; };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
 void ushort_to_shifted_ushort(
-    const ushort* const input, ushort* const output, const size_t size, cudaStream_t stream, const uint shift)
+    ushort* const output, const ushort* const input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda_shift_ushort = [shift] __device__(const ushort in) -> ushort { return in << shift; };
-    map_generic(input, output, size, lambda_shift_ushort, stream);
+    map_generic(output, input, size, lambda_shift_ushort, stream);
 }
 
-void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, const cudaStream_t stream)
+void ushort_to_uchar(uchar* output, const ushort* input, const size_t size, const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> uchar { return in >> (sizeof(uchar) * 8); };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
-void uchar_to_shifted_uchar(const uchar* input, uchar* output, const size_t size, cudaStream_t stream, const uint shift)
+void uchar_to_shifted_uchar(uchar* output, const uchar* input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda_shift_uchar = [shift] __device__(const uchar in) -> uchar { return in << shift; };
-    map_generic(static_cast<const uchar* const>(input),
-                static_cast<uchar* const>(output),
+    map_generic(static_cast<uchar* const>(output),
+                static_cast<const uchar* const>(input),
                 size,
                 lambda_shift_uchar,
                 stream);
 }
 
-__global__ void kernel_accumulate_images(const float* input,
-                                         float* output,
-                                         const size_t end,
+__global__ void kernel_accumulate_images(float* output,
+                                         const float* input,
+                                         const size_t start,
                                          const size_t max_elmt,
                                          const size_t nb_elmt,
                                          const size_t nb_pixel)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    long int pos = end; // end is excluded
+    long int pos = start;
 
     if (index < nb_pixel)
     {
         float val = 0;
-        for (size_t i = 0; i < nb_elmt; i++)
+        for (size_t i = 0; i < nb_elmt; ++i)
         {
-            // get last index when pos is out of range
-            // reminder: the given input is from ciruclar queue
-            pos--;
-            if (pos < 0)
-                pos = max_elmt - 1;
-
             val += input[index + pos * nb_pixel];
+
+            // get first index when pos is out of range
+            // reminder: the given input is from ciruclar queue
+            pos = (pos + 1) % max_elmt;
         }
         output[index] = val / nb_elmt;
     }
@@ -398,8 +443,8 @@ __global__ void kernel_accumulate_images(const float* input,
 /*! \brief Kernel function wrapped in accumulate_images, making
 ** the call easier
 **/
-void accumulate_images(const float* input,
-                       float* output,
+void accumulate_images(float* output,
+                       const float* input,
                        const size_t start,
                        const size_t max_elmt,
                        const size_t nb_elmt,
@@ -408,7 +453,7 @@ void accumulate_images(const float* input,
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(nb_pixel, threads);
-    kernel_accumulate_images<<<blocks, threads, 0, stream>>>(input, output, start, max_elmt, nb_elmt, nb_pixel);
+    kernel_accumulate_images<<<blocks, threads, 0, stream>>>(output, input, start, max_elmt, nb_elmt, nb_pixel);
     cudaCheckError();
 }
 
@@ -423,60 +468,42 @@ void normalize_complex(cuComplex* image, const size_t size, const cudaStream_t s
     map_generic(image, image, size, lambda, stream);
 }
 
-void convert_frame_for_display(
-    const void* input, void* output, const size_t size, const uint depth, const ushort shift, const cudaStream_t stream)
+void convert_frame_for_display(void* output,
+                               const void* input,
+                               const size_t size,
+                               const camera::PixelDepth depth,
+                               const ushort shift,
+                               const cudaStream_t stream)
 {
-    if (depth == 8)
+    switch (depth)
     {
-        // In depth 8 the output is encoded onto a uint (for the lens)
-        complex_to_uint(static_cast<const cuComplex* const>(input),
-                        static_cast<uint* const>(output),
+    case camera::PixelDepth::Complex:
+        complex_to_uint(static_cast<uint* const>(output),
+                        static_cast<const cuComplex* const>(input),
                         size,
                         stream,
                         shift);
-    }
-    else if (depth == 4)
-    {
-        float_to_ushort(static_cast<const float* const>(input),
-                        static_cast<ushort* const>(output),
+        break;
+    case camera::PixelDepth::Bits32:
+        float_to_ushort(static_cast<ushort* const>(output),
+                        static_cast<const float* const>(input),
                         size,
                         stream,
                         shift);
-    }
-    else if (depth == 2)
-    {
-        ushort_to_shifted_ushort(static_cast<const ushort* const>(input),
-                                 static_cast<ushort* const>(output),
+        break;
+    case camera::PixelDepth::Bits16:
+        ushort_to_shifted_ushort(static_cast<ushort* const>(output),
+                                 static_cast<const ushort* const>(input),
                                  size,
                                  stream,
                                  shift);
-    }
-    else if (depth == 1)
-    {
-        uchar_to_shifted_uchar(static_cast<const uchar* const>(input),
-                               static_cast<uchar* const>(output),
+        break;
+    case camera::PixelDepth::Bits8:
+        uchar_to_shifted_uchar(static_cast<uchar* const>(output),
+                               static_cast<const uchar* const>(input),
                                size,
                                stream,
                                shift);
+        break;
     }
-}
-
-/* Simply transfers values from float buffer to cuComplex buffer */
-static __global__ void kernel_float_to_complex(cuComplex* output, const float* input, size_t size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < size)
-    {
-        output[index] = cuComplex{input[index], 0.0f};
-    }
-}
-
-void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream)
-{
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(size, threads);
-
-    kernel_float_to_complex<<<blocks, threads, 0, stream>>>(output, input, size);
-    cudaCheckError();
 }

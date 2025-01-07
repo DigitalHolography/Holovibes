@@ -8,11 +8,13 @@
 
 #include "Overlay.hh"
 
+#include <QTimer>
+
 namespace holovibes::gui
 {
 /*! \class OverlayManager
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that manages the overlays of a window
  */
 class OverlayManager
 {
@@ -20,18 +22,23 @@ class OverlayManager
     OverlayManager(BasicOpenGLWindow* parent);
     ~OverlayManager();
 
-    /*! \brief Create an overlay depending on the value passed to the template. */
+    /*! \brief Create an overlay if it does not exist already, activate it and make it visible.
+     *
+     * \param[in] make_current If true, the overlay will be set as the current overlay.
+     * \param[in] ms The time in ms before the overlay will disappear. Default -1 means it will never disappear.
+     */
     template <KindOfOverlay ko>
-    void create_overlay();
-    /*! \brief Create the default overlay in the view. Zoom for Raw/Holo, Cross for Slices. */
-    void create_default();
+    void enable(bool make_current = true, int ms = -1);
 
-    /*! \brief Disable all the overlay of kind ko */
-    bool disable_all(KindOfOverlay ko);
-    /*! \brief Enable all the overlay of kind ko */
-    bool enable_all(KindOfOverlay ko);
-    /*! \brief Disable all the overlays. If def is set, it will create a default overlay. */
-    void reset(bool def = true);
+    /*! \brief Disable all the overlay of kind ko
+     *
+     * \param[in] ko The kind of overlay to disable.
+     * \return True if an overlay was found and disabled, false otherwise.
+     */
+    bool disable(KindOfOverlay ko);
+
+    /*! \brief Create the default overlay in the view if it doesn't exist. Zoom for Raw/Holo, Cross for Slices. */
+    void create_default();
 
     /*! \brief Call the press function of the current overlay. */
     void press(QMouseEvent* e);
@@ -44,10 +51,9 @@ class OverlayManager
 
     /*! \brief Draw every overlay that should be displayed. */
     void draw();
-    /*! \brief Get the zone of the current overlay. */
-    units::RectWindow getZone() const;
+
     /*! \brief Get the kind of the current overlay. */
-    KindOfOverlay getKind() const;
+    inline KindOfOverlay getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
 
 #ifdef _DEBUG
     /*! \brief Prints every overlay in the vector. Debug purpose. */
@@ -55,21 +61,28 @@ class OverlayManager
 #endif
 
   private:
-    /*! \brief Push in the vector the newly created overlay, set the current overlay, and call its init function. */
-    void create_overlay(std::shared_ptr<Overlay> new_overlay);
+    /*! \brief Create an overlay of kind ko and return it.
+     *
+     * \param[in] ko The kind of overlay to create.
+     * \return The created overlay.
+     */
+    std::shared_ptr<Overlay> create_overlay(KindOfOverlay ko);
 
-    /*! \brief Set the current overlay and notify observers to update gui. */
-    void set_current(std::shared_ptr<Overlay> new_overlay);
-    /*! \brief Try to set the current overlay to the first active overlay of a given type. */
-    bool set_current(KindOfOverlay ko);
+    /*! \brief Hide overlays when the timer timeout. */
+    void hide_overlay();
 
     /*! \brief Deletes from the vector every disabled overlay. */
     void clean();
 
+  private:
     /*! \brief Containing every created overlay. */
     std::vector<std::shared_ptr<Overlay>> overlays_;
+
     /*! \brief Current overlay used by the user. */
     std::shared_ptr<Overlay> current_overlay_;
+
+    /*! \brief Timer used to hide Overlay after a delay. */
+    QTimer timer_;
 
     /*! \brief Parent window
      *
@@ -80,3 +93,5 @@ class OverlayManager
     BasicOpenGLWindow* parent_;
 };
 } // namespace holovibes::gui
+
+#include "overlay_manager.hxx"

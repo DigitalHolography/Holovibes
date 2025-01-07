@@ -18,10 +18,6 @@
 
 #define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
-#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
-#define UPDATE_SETTING(setting, value)                                                                                 \
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
-
 namespace holovibes
 {
 
@@ -39,30 +35,37 @@ void Reticle::Update()
     this->scale = GET_SETTING(ReticleScale);
 }
 
+void Registration::Update()
+{
+    this->registration_enabled = GET_SETTING(RegistrationEnabled);
+    this->registration_zone = GET_SETTING(RegistrationZone);
+}
+
 void Views::Update()
 {
     this->image_type = GET_SETTING(ImageType);
     this->fft_shift = GET_SETTING(FftShiftEnabled);
-    this->x = GET_SETTING(X); // GSH::instance().get_x();
+    this->x = GET_SETTING(X);
     this->y = GET_SETTING(Y);
     this->z = GET_SETTING(P);
     this->z2 = GET_SETTING(Q);
     this->window.Update();
     this->renorm = GET_SETTING(RenormEnabled);
     this->reticle.Update();
+    this->registration.Update();
 }
 
 void Rendering::Convolution::Update()
 {
     this->enabled = GET_SETTING(ConvolutionEnabled);
-    this->type = UserInterfaceDescriptor::instance().convo_name;
+    this->type = GET_SETTING(ConvolutionFileName);
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
 void Rendering::Filter::Update()
 {
-    this->enabled = api::get_filter_enabled();
-    this->type = UserInterfaceDescriptor::instance().filter_name;
+    this->enabled = API.filter2d.get_filter_enabled();
+    this->type = API.filter2d.get_filter_file_name();
 }
 
 void Rendering::Filter2D::Update()
@@ -200,6 +203,12 @@ void Reticle::Load()
     UPDATE_SETTING(ReticleScale, this->scale);
 }
 
+void Registration::Load()
+{
+    UPDATE_SETTING(RegistrationEnabled, this->registration_enabled);
+    UPDATE_SETTING(RegistrationZone, this->registration_zone);
+}
+
 void Views::Load()
 {
     UPDATE_SETTING(ImageType, this->image_type);
@@ -211,19 +220,20 @@ void Views::Load()
     this->window.Load();
     UPDATE_SETTING(RenormEnabled, this->renorm);
     this->reticle.Load();
+    this->registration.Load();
 }
 
 void Rendering::Convolution::Load()
 {
     UPDATE_SETTING(ConvolutionEnabled, this->enabled);
-    UserInterfaceDescriptor::instance().convo_name = this->type;
+    UPDATE_SETTING(ConvolutionFileName, this->type == "None" ? "" : this->type);
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 
 void Rendering::Filter::Load()
 {
-    UPDATE_SETTING(FilterEnabled, this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
-    UserInterfaceDescriptor::instance().filter_name = this->type;
+    UPDATE_SETTING(FilterEnabled, this->enabled && !this->type.empty());
+    UPDATE_SETTING(FilterFileName, this->type);
 }
 
 void Rendering::Filter2D::Load()
@@ -237,7 +247,7 @@ void Rendering::Load()
 {
     UPDATE_SETTING(TimeStride, this->time_transformation_stride);
     UPDATE_SETTING(ComputeMode, this->image_mode);
-    api::set_batch_size(this->batch_size);
+    API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);
     UPDATE_SETTING(TimeTransformation, this->time_transformation);
@@ -370,10 +380,17 @@ void Reticle::Assert() const
         throw std::exception("Reticle scale is 0 or negative");
 }
 
+void Registration::Assert() const
+{
+    if (this->registration_zone <= 0)
+        throw std::exception("Reticle scale is 0 or negative");
+}
+
 void Views::Assert() const
 {
     this->window.Assert();
     this->reticle.Assert();
+    this->registration.Assert();
 }
 
 } // namespace holovibes

@@ -15,7 +15,6 @@
 
 // namespace holovibes
 #include "custom_exception.hh"
-#include "observer.hh"
 
 // panel struct
 #include "import_panel.hh"
@@ -30,6 +29,11 @@
 #pragma warning(pop)
 
 Q_DECLARE_METATYPE(std::function<void()>)
+
+namespace holovibes::api
+{
+class Api;
+}
 
 namespace holovibes::gui
 {
@@ -47,7 +51,7 @@ namespace holovibes::gui
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
-class MainWindow : public QMainWindow, public Observer
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -59,14 +63,11 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void notify() override;
-    void notify_error(const std::exception& e) override;
+    void notify();
+    void notify_error(const std::exception& e);
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
-
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
 
     /*! \brief Stops critical compute */
     void close_critical_compute();
@@ -96,7 +97,6 @@ class MainWindow : public QMainWindow, public Observer
     void write_compute_settings();
     void open_advanced_settings();
     void reset_settings();
-    void close_advanced_settings();
 
     void configure_camera();
     void camera_none();
@@ -110,8 +110,22 @@ class MainWindow : public QMainWindow, public Observer
     void camera_opencv();
     void camera_ametek_s991_coaxlink_qspf_plus();
     void camera_ametek_s711_coaxlink_qspf_plus();
+    void auto_detection_phantom();
     void camera_euresys_egrabber();
     void camera_alvium();
+
+    void camera_adimec_settings();
+    void camera_ids_settings();
+    void camera_phantom_settings();
+    void camera_bitflow_cyton_settings();
+    void camera_hamamatsu_settings();
+    void camera_xiq_settings();
+    void camera_xib_settings();
+    void camera_opencv_settings();
+    void camera_ametek_s991_coaxlink_qspf_plus_settings();
+    void camera_ametek_s711_coaxlink_qspf_plus_settings();
+    void camera_euresys_egrabber_settings();
+    void camera_alvium_settings();
 
     /*! \brief Opens the credit display */
     void credits();
@@ -135,12 +149,6 @@ class MainWindow : public QMainWindow, public Observer
      * * Request a pipe refresh
      * * Set visibility to true
      */
-
-    void refresh_view_mode();
-
-    bool need_refresh(const std::string& last_type, const std::string& new_type);
-    void set_composite_values();
-
     /*! \brief Modifies view image type
      *
      * \param value The new image type
@@ -168,9 +176,10 @@ class MainWindow : public QMainWindow, public Observer
     void set_preset(std::filesystem::path file);
 
   signals:
-    /*! \brief TODO: comment
+    /*!
+     * \brief Signal to execute a function in the main thread
      *
-     * \param f
+     * \param f The function to execute
      */
     void synchronize_thread_signal(std::function<void()> f);
 
@@ -182,12 +191,15 @@ class MainWindow : public QMainWindow, public Observer
     virtual void closeEvent(QCloseEvent* event) override;
 
   private:
-    /*! \brief Sets camera frame timout */
-    void set_camera_timeout();
-
     /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();
+
+    /**
+     * \brief Small helper function that just writes tooltips.
+     * Note : the only affected locations should be drop-down menus, or 'comboBox'.
+     */
+    void init_tooltips();
 
   public:
     /*! \brief Changes camera
@@ -199,6 +211,7 @@ class MainWindow : public QMainWindow, public Observer
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
     std::shared_ptr<LightUI> light_ui_;
+    api::Api& api_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;
@@ -214,5 +227,6 @@ class MainWindow : public QMainWindow, public Observer
     Subscriber<bool> acquisition_finished_subscriber_;
     bool acquisition_finished_notification_received;
     Subscriber<bool> set_preset_subscriber_;
+    Subscriber<bool> notify_subscriber_;
 };
 } // namespace holovibes::gui

@@ -8,15 +8,21 @@
 
 #include <string>
 #include <optional>
+#include "enum_file_load_kind.hh"
 #include "enum/enum_record_mode.hh"
+#include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
+#include "enum/enum_camera_kind.hh"
+#include "enum_recorded_eye_type.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
+#include "frame_desc.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -38,18 +44,15 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+DECLARE_SETTING(ImportedFileFd, camera::FrameDescriptor);
+
+DECLARE_SETTING(ImportType, holovibes::ImportType);
+DECLARE_SETTING(CameraKind, holovibes::CameraKind);
 
 /*!
- * \brief The setting that specifies if we loop at the end of the
- * input_file once it has been read entirely.
+ * \brief The setting that specifies how to read frames from a file.
  */
-DECLARE_SETTING(LoopOnInputFile, bool);
-
-/*!
- * \brief The setting that specifies if we load input file entirely in GPU
- * before sending it to the compute pipeline input queue.
- */
-DECLARE_SETTING(LoadFileInGPU, bool);
+DECLARE_SETTING(FileLoadKind, holovibes::FileLoadKind);
 
 /*!
  * \brief The setting that specifies the path of the file where to record
@@ -68,22 +71,20 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
 DECLARE_SETTING(RecordMode, holovibes::RecordMode);
 
 /*!
+ * \brief Get the eye that is recorded by the program
+ * Can be LEFT, RIGHT or NONE if no eye is selected
+ * It only influences the name of the output files and is saved across .holo files
+ */
+DECLARE_SETTING(RecordedEye, RecordedEyeType);
+
+/*!
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */
-DECLARE_SETTING(RecordFrameSkip, size_t);
+DECLARE_SETTING(RecordFrameOffset, size_t);
 
 /*! \brief The setting that specifies the size of the output buffer. */
 DECLARE_SETTING(OutputBufferSize, size_t);
-
-/*!
- * \brief The setting that specifies whether the batch mode is enabled or not.
- * If it is enabled, a batch script is read and executed.
- */
-DECLARE_SETTING(BatchEnabled, bool);
-
-/*! \brief The setting that specifies the path of the batch script to execute. */
-DECLARE_SETTING(BatchFilePath, std::string);
 
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
@@ -103,10 +104,12 @@ DECLARE_SETTING(ChartDisplayEnabled, bool);
 DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
+DECLARE_SETTING(RegistrationEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
 DECLARE_SETTING(ReticleScale, float);
+DECLARE_SETTING(RegistrationZone, float);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
 
 /*! \name Filter2D Cache */
@@ -114,11 +117,12 @@ DECLARE_SETTING(Filter2dN1, int);
 DECLARE_SETTING(Filter2dN2, int);
 DECLARE_SETTING(Filter2dSmoothLow, int);
 DECLARE_SETTING(Filter2dSmoothHigh, int);
+DECLARE_SETTING(FilterFileName, std::string);
 
 /*! \name FileReadCache */
 /*!
  * \brief The size of the buffer in CPU memory used to read a file
- * when `LoadFileInGPU` is set to false.
+ * when `FileLoadKind` is not set to GPU.
  */
 DECLARE_SETTING(FileBufferSize, size_t);
 
@@ -139,14 +143,12 @@ DECLARE_SETTING(ChartRecordEnabled, bool);
 /*! \name Advanced Cache */
 DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
-DECLARE_SETTING(InputQueueLocation, holovibes::Device);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
 DECLARE_SETTING(RawBitshift, size_t);
 DECLARE_SETTING(ContrastUpperThreshold, float);
 DECLARE_SETTING(RenormConstant, unsigned);
 DECLARE_SETTING(CutsContrastPOffset, size_t);
-DECLARE_SETTING(RecordOnGPU, bool);
 DECLARE_SETTING(BenchmarkMode, bool);
 
 /*! \name ComputeCache */
@@ -157,12 +159,14 @@ DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
+
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
+DECLARE_SETTING(ConvolutionFileName, std::string);
+
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
-DECLARE_SETTING(UnwrapHistorySize, uint);
 DECLARE_SETTING(IsComputationStopped, bool);
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint);
 DECLARE_SETTING(FilterEnabled, bool);
@@ -178,9 +182,6 @@ DECLARE_SETTING(NoiseZone, units::RectFd);
 /*! \brief The area on which we'll normalize the colors */
 DECLARE_SETTING(CompositeZone, units::RectFd);
 
-/*! \brief The area used to limit the stft computations */
-DECLARE_SETTING(ZoomedZone, units::RectFd);
-
 /*! \brief The zone of the reticle area */
 DECLARE_SETTING(ReticleZone, units::RectFd);
 
@@ -192,8 +193,10 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV);
 DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
-DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
-DECLARE_SETTING(FrameSkip, uint)
-DECLARE_SETTING(Mp4Fps, uint)
+DECLARE_SETTING(FrameSkip, uint);
+DECLARE_SETTING(Mp4Fps, uint);
+DECLARE_SETTING(CameraFps, uint);
+
+DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings

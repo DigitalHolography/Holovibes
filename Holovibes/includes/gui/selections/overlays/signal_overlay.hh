@@ -4,15 +4,15 @@
  */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "filled_rect_overlay.hh"
 
 namespace holovibes::gui
 {
 /*! \class SignalOverlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents a signal overlay in the window.
  */
-class SignalOverlay : public RectOverlay
+class SignalOverlay : public FilledRectOverlay
 {
   public:
     SignalOverlay(BasicOpenGLWindow* parent);

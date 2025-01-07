@@ -1,0 +1,6076 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1283</width>
+    <height>810</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>Holovibes</string>
+  </property>
+  <property name="animated">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="holovibes::gui::ImageRenderingPanel" name="ImageRenderingPanel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>Image rendering</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_12">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0" columnstretch="0,0">
+           <property name="verticalSpacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="ImageModeLabel">
+             <property name="toolTip">
+              <string>Either display the raw input or the processed hologram</string>
+             </property>
+             <property name="text">
+              <string>Image</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="ImageModeComboBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <item>
+              <property name="text">
+               <string>Raw</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Processed</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="BatchSizeLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Batch Size</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="BatchSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="TimeStrideLabel">
+             <property name="toolTip">
+              <string>(time_stride - batch_size) = number of images to drop before processing a single batch</string>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>Time Stride</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="TimeStrideSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="Filter2DContainer">
+           <property name="verticalSpacing">
+            <number>6</number>
+           </property>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="Filter2D">
+             <property name="toolTip">
+              <string>Add a filter on top of the processed image</string>
+             </property>
+             <property name="text">
+              <string>Filter2D</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="Filter2DView">
+             <property name="text">
+              <string>View</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QSpinBox" name="Filter2DN1SpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="Filter2DN2SpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="InputFilterLabel">
+             <property name="text">
+              <string>Input Filter</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <property name="verticalSpacing">
+            <number>6</number>
+           </property>
+           <item row="1" column="0">
+            <widget class="QLabel" name="SpaceTransformationLabel">
+             <property name="toolTip">
+              <string>Space transformation algorithm used</string>
+             </property>
+             <property name="text">
+              <string>Space Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="SpaceTransformationComboBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Fresnel Tr.</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Angular SP.</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="TimeTransformationLabel">
+             <property name="toolTip">
+              <string>Time transformation algorithm used</string>
+             </property>
+             <property name="text">
+              <string>Time Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="TimeTransformationComboBox">
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>STFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>PCA</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>SSA_STFT</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="timeTransformationSizeLabel">
+             <property name="toolTip">
+              <string>The size of the time transformation</string>
+             </property>
+             <property name="text">
+              <string>Nb. img</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="LambdaLabel">
+             <property name="toolTip">
+              <string>Wavelength (lambda) of light used to record interferograms</string>
+             </property>
+             <property name="text">
+              <string>λ (nm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="LambdaSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
+             <property name="toolTip">
+              <string>The maximum value of the focus</string>
+             </property>
+             <property name="text">
+              <string>Boundary (mm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>The boundary value</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="ZLabel">
+             <property name="toolTip">
+              <string>Adjust the distance to the target</string>
+             </property>
+             <property name="text">
+              <string>Focus (mm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>reconstruction distance of the hologram</string>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.005000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QSlider" name="ZSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="ConvoCheckBox">
+           <property name="toolTip">
+            <string>Add a convolution step in the post-processing stage</string>
+           </property>
+           <property name="title">
+            <string>Convolve</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="kernelSelectLayout">
+            <item>
+             <widget class="QComboBox" name="KernelQuickSelectComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="BottomViewSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="holovibes::gui::ViewPanel" name="ViewPanel">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>230</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>250</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>230</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>View</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_15">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item row="9" column="0" colspan="2">
+          <widget class="QFrame" name="frame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="lineWidth">
+            <number>2</number>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <property name="sizeConstraint">
+               <enum>QLayout::SetNoConstraint</enum>
+              </property>
+              <item>
+               <widget class="QPushButton" name="FlipPushButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>1</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Flips the image horizontally</string>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string>h. flip 0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="RotatePushButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Rotates the image by 90° angles.
+The rotation steps counterclockwise</string>
+                </property>
+                <property name="text">
+                 <string>Rotate   0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="LogScaleCheckBox">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <kerning>true</kerning>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Set log filter for output</string>
+                </property>
+                <property name="text">
+                 <string>Log</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QLabel" name="ImgAccuLabel">
+                <property name="toolTip">
+                 <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
+                </property>
+                <property name="text">
+                 <string>Output Image Acc.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="ImgAccuSpinBox">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::DefaultContextMenu</enum>
+                </property>
+                <property name="toolTip">
+                 <string>number of holograms processed (phase mode only)</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>999</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ContrastCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Contrast</string>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>2</number>
+               </property>
+               <item row="2" column="1" rowspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_8">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="ContrastRangeLabel">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="statusTip">
+                    <string>The lower and upper limit of the contrast</string>
+                   </property>
+                   <property name="text">
+                    <string>Range</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimum">
+                    <double>-100.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimum">
+                    <double>-100.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="0" colspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <item>
+                  <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
+                   <property name="text">
+                    <string>Auto</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="InvertContrastCheckBox">
+                   <property name="text">
+                    <string>Invert</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>I</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <layout class="QGridLayout" name="XYZGridLayout" columnstretch="0,0,0,0">
+           <property name="horizontalSpacing">
+            <number>6</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>1</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="XSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="YLabel">
+             <property name="text">
+              <string>y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="YSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QSpinBox" name="XAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="PLabel">
+             <property name="toolTip">
+              <string>The Time Transform FFT filter's start frequency.
+The range of frequencies kept is [z, z + width].</string>
+             </property>
+             <property name="text">
+              <string>z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="Q_SpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="XLabel">
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="PSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>index of the image displayed</string>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="Q_Label">
+             <property name="toolTip">
+              <string>The SVD/SSA filter's start frequency.
+The range of frequencies kept is [z2, z2 + width].</string>
+             </property>
+             <property name="text">
+              <string>z2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QSpinBox" name="PAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="YAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QSpinBox" name="Q_AccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>9999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="QaccLabel">
+             <property name="toolTip">
+              <string>Number of frequencies kept by the SVD/SSA algorithm.
+The range of frequencies kept is [z2, z2 + width].</string>
+             </property>
+             <property name="text">
+              <string>Width</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="PAccLabel">
+             <property name="toolTip">
+              <string>Number of frequencies kept by the FFT in the time transformation algorithm.
+The range of frequencies kept is [z, z + width]</string>
+             </property>
+             <property name="text">
+              <string>Width</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="YAccLabel">
+             <property name="text">
+              <string>Width</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="XAccLabel">
+             <property name="text">
+              <string>Width</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="ImgTypeLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>The computation mode for the Hologram</string>
+             </property>
+             <property name="text">
+              <string>Image Type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ViewModeComboBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Squared magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Argument</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Phase increase</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Composite image</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 0</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 2</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="17" column="0" colspan="2">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QComboBox" name="WindowSelectionComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="currentText">
+            <string>XY view</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>XY view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>XZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>YZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Filter2D view</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetNoConstraint</enum>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="5" column="1">
+            <widget class="QCheckBox" name="LensViewCheckBox">
+             <property name="toolTip">
+              <string extracomment="Show the lens"/>
+             </property>
+             <property name="text">
+              <string>Lens view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="QCheckBox" name="PhaseUnwrap2DCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>Accumulate n images</string>
+             </property>
+             <property name="text">
+              <string>Unwrap 2D</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="tristate">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QCheckBox" name="RawDisplayingCheckBox">
+             <property name="toolTip">
+              <string>Show the raw input</string>
+             </property>
+             <property name="text">
+              <string>Raw view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="TimeTransformationCutsCheckBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>3D cuts</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QCheckBox" name="FFTShiftCheckBox">
+             <property name="toolTip">
+              <string>Shifts zero-frequency components to the center of the spectrum</string>
+             </property>
+             <property name="text">
+              <string>FFT shift</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="16" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_registration">
+           <item>
+            <widget class="QCheckBox" name="RegistrationCheckBox">
+             <property name="toolTip">
+              <string>Stabilize the image</string>
+             </property>
+             <property name="text">
+              <string>Registration</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>The radius of the circle to compute the Registration</string>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="15" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="DisplayReticleCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Display Reticle</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="14" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="RenormalizeCheckBox">
+             <property name="toolTip">
+              <string>Normalize input according to a renormalize constant</string>
+             </property>
+             <property name="text">
+              <string>Renormalize</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="holovibes::gui::CompositePanel" name="CompositePanel">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>210</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>Composite</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>11</number>
+         </property>
+         <property name="topMargin">
+          <number>11</number>
+         </property>
+         <property name="rightMargin">
+          <number>11</number>
+         </property>
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_33">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="radioButton_rgb">
+             <property name="text">
+              <string>RGB</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_hsv">
+             <property name="text">
+              <string>HSV</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="zFFTShiftCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <kerning>true</kerning>
+            </font>
+           </property>
+           <property name="text">
+            <string>Z FFT Shift</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Frequency channels (p)</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>1</number>
+              </property>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="PRedSpinBox_Composite">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QSpinBox" name="PBlueSpinBox_Composite">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_hue">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777214</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Hue</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_13">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetDefaultConstraint</enum>
+              </property>
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>1</number>
+              </property>
+              <item row="1" column="1" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_hue_freq_min">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>9</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="5">
+               <widget class="QLabel" name="label_hue_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="5">
+               <widget class="QLabel" name="label_hue_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label_hue_freq_max">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_threshold_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="5">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Range</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="5">
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>H Streching</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_hue_shift_min_name">
+                <property name="text">
+                 <string>  Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="5">
+               <widget class="QLabel" name="label_hue_shift_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_hue_shift_max_name">
+                <property name="text">
+                 <string>  Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="5">
+               <widget class="QLabel" name="label_hue_shift_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_hue_freq_max">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>99</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="5">
+               <widget class="QLabel" name="label_hue_freq">
+                <property name="text">
+                 <string>Z selection </string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_hue_threshold_max_name">
+                <property name="text">
+                 <string>  Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_hue_freq_min">
+                <property name="text">
+                 <string>  Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_hue_threshold_min_name">
+                <property name="text">
+                 <string>  Min</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_saturation">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Saturation</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_35">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" name="saturationLayout">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_saturation_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_saturation_freq_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="SpinBox_saturation_freq_min">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_saturation_freq_max">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_saturation_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <kerning>true</kerning>
+                 </font>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_saturation_threshold_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>1000</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksAbove</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QCheckBox" name="checkBox_saturation_freq">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="5">
+               <widget class="QLabel" name="label_saturation_threshold">
+                <property name="text">
+                 <string>S Streching</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QLabel" name="label_saturation_freq">
+                <property name="text">
+                 <string>Z selection </string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_value">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Value</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_20">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_14">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetFixedSize</enum>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_value_threshold_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_value_threshold_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="SpinBox_value_freq_min">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_value_freq_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="4">
+               <widget class="QLabel" name="label_value_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_value_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_value_freq_max">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QCheckBox" name="checkBox_value_freq">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string extracomment="Enable the differenciation of frequency channels between Hue and Value"/>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QLabel" name="label_value_freq">
+                <property name="text">
+                 <string>Z selection </string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_value_threshold_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>1000</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>1000</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksAbove</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_value_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QLabel" name="label_value_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="5">
+               <widget class="QLabel" name="label_value_threshold">
+                <property name="text">
+                 <string>V Streching</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Color equalization</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_red">
+                <property name="text">
+                 <string>R</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_green">
+                <property name="text">
+                 <string>G</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_blue">
+                <property name="text">
+                 <string>B</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="RenormalizationCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <kerning>true</kerning>
+            </font>
+           </property>
+           <property name="text">
+            <string>Automatic equalization</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="CompositeAreaButton">
+           <property name="text">
+            <string>Set auto equalization area</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="holovibes::gui::Frame" name="ImportExportFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>221</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="holovibes::gui::ImportPanel" name="ImportPanel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>252</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
+           </property>
+           <property name="title">
+            <string>Import</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetNoConstraint</enum>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="dragEnabled">
+                 <bool>false</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="placeholderText">
+                 <string>Select File</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="InputBrowseToolButton">
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>The .holo file to use instead of a camera</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="shortcut">
+                 <string>Ctrl+O</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_12">
+              <property name="horizontalSpacing">
+               <number>9</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>4</number>
+              </property>
+              <item row="1" column="0">
+               <widget class="QLabel" name="ImportStartIndexLabel">
+                <property name="toolTip">
+                 <string>The frame to start reading at</string>
+                </property>
+                <property name="text">
+                 <string>Start Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="ImportStartIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="ImportInputFpsSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="ImportEndIndexLabel">
+                <property name="toolTip">
+                 <string>The frame to stop reading at</string>
+                </property>
+                <property name="text">
+                 <string>End Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="ImportFpsLabel">
+                <property name="toolTip">
+                 <string>The number of images that will be read per second</string>
+                </property>
+                <property name="text">
+                 <string>Input FPS</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QComboBox" name="FileLoadKindComboBox">
+              <item>
+               <property name="text">
+                <string>Regular access</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in GPU VRAM</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Load in CPU RAM</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
+              <item>
+               <widget class="QPushButton" name="ImportStartPushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Start processing the file</string>
+                </property>
+                <property name="text">
+                 <string>Start</string>
+                </property>
+                <property name="shortcut">
+                 <string>Ctrl+T</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ImportStopPushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Stop processing</string>
+                </property>
+                <property name="text">
+                 <string>Stop</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="holovibes::gui::ExportPanel" name="ExportPanel">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>255</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
+           </property>
+           <property name="title">
+            <string>Export</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QComboBox" name="RecordImageModeComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>126</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Defines what to record</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Raw Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Processed Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Chart</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Moments</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts XZ</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts YZ</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QFrame" name="RecordFrame">
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>250</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
+              <layout class="QVBoxLayout" name="recordLayout">
+               <property name="spacing">
+                <number>6</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="ChartPlotWidget" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>210</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetDefaultConstraint</enum>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="ChartSignalPushButton">
+                    <property name="text">
+                     <string>Signal</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="ChartNoisePushButton">
+                    <property name="text">
+                     <string>Noise</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="ChartPlotPushButton">
+                    <property name="text">
+                     <string>Plot</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="outputFileSelectionLayout">
+                 <property name="spacing">
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFilePathLineEdit">
+                   <property name="inputMask">
+                    <string/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="dragEnabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>Select output file</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="RecordExtComboBox">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>The extension of the file; also defines the format of the recording</string>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>.holo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.mp4</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.avi</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.csv</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.txt</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QToolButton" name="OutputFileBrowseToolButton">
+                   <property name="text">
+                    <string>...</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>Ctrl+S</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="recordedEyeGridLayout">
+                 <item row="0" column="0" colspan="3">
+                  <widget class="QLabel" name="RecordedEyeLabel">
+                   <property name="toolTip">
+                    <string>Which eye is being recorded.</string>
+                   </property>
+                   <property name="text">
+                    <string>Eye recorded</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3" colspan="3">
+                  <widget class="QPushButton" name="RecordedEyePushButton">
+                   <property name="text">
+                    <string>Unspecified</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Switch between left and right eye</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="6">
+                  <widget class="QPushButton" name="ResetRecordedEyePushButton">
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Cancel the eye choice and set it back to unspecified</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="numberOfFramesLayout">
+                 <item>
+                  <widget class="QCheckBox" name="NumberOfFramesCheckBox">
+                   <property name="toolTip">
+                    <string>Number of frames to record</string>
+                   </property>
+                   <property name="text">
+                    <string>Nb. of frames</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="NumberOfFramesSpinBox">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string/>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>8388608</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="recordPushButtonsLayout">
+                 <item>
+                  <widget class="QPushButton" name="ExportRecPushButton">
+                   <property name="toolTip">
+                    <string>Start recording</string>
+                   </property>
+                   <property name="text">
+                    <string>Rec.</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>Ctrl+R</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ExportStopPushButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>Stop the recording manually</string>
+                   </property>
+                   <property name="text">
+                    <string>Stop</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>Ctrl+R</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <spacer name="BottomExportSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="holovibes::gui::InfoPanel" name="InfoPanel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>Info</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+          <widget class="QTextEdit" name="InfoTextEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="html">
+            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="FileReaderProgressBar">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>input: %v/%m</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="RecordProgressBar">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+           <property name="textVisible">
+            <bool>true</bool>
+           </property>
+           <property name="textDirection">
+            <enum>QProgressBar::TopToBottom</enum>
+           </property>
+           <property name="format">
+            <string>record: %v/%m</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1283</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menuSelect_preset">
+     <property name="title">
+      <string>Select preset</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuImport_from_ini">
+     <property name="title">
+      <string>Import compute settings</string>
+     </property>
+     <addaction name="actionReload_ini"/>
+     <addaction name="actionBrowse"/>
+    </widget>
+    <widget class="QMenu" name="menuExport_to_ini">
+     <property name="title">
+      <string>Export compute settings</string>
+     </property>
+     <addaction name="actionExport"/>
+     <addaction name="actionExport_as"/>
+    </widget>
+    <addaction name="actionPreset"/>
+    <addaction name="menuSelect_preset"/>
+    <addaction name="menuImport_from_ini"/>
+    <addaction name="menuExport_to_ini"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdvanced"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Camera">
+    <property name="title">
+     <string>&amp;Camera</string>
+    </property>
+    <widget class="QMenu" name="menu_Model">
+     <property name="title">
+      <string>&amp;Model</string>
+     </property>
+     <addaction name="actionNone"/>
+     <addaction name="actionBitflowCyton"/>
+     <addaction name="actionAdimec"/>
+     <addaction name="actionAlvium"/>
+     <addaction name="actionHamamatsu"/>
+     <addaction name="actionIDS"/>
+     <addaction name="actionXIQ"/>
+     <addaction name="actionXIB"/>
+     <addaction name="actionOpenCV"/>
+     <addaction name="actionPhantom_S710"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="AutoDetectionPhantom"/>
+    </widget>
+    <widget class="QMenu" name="menu_Settings">
+     <property name="title">
+      <string>All Settings</string>
+     </property>
+     <addaction name="actionBitflowCytonSettings"/>
+     <addaction name="actionAdimecSettings"/>
+     <addaction name="actionAlviumSettings"/>
+     <addaction name="actionHamamatsuSettings"/>
+     <addaction name="actionIDSSettings"/>
+     <addaction name="actionXIQSettings"/>
+     <addaction name="actionXIBSettings"/>
+     <addaction name="actionOpenCVSettings"/>
+     <addaction name="actionPhantom_S710Settings"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
+    </widget>
+    <addaction name="menu_Model"/>
+    <addaction name="actionSettings"/>
+    <addaction name="menu_Settings"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionCredits"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionImage_rendering"/>
+    <addaction name="actionView"/>
+    <addaction name="actionImportExport"/>
+    <addaction name="actionInfo"/>
+    <addaction name="actionLightUI"/>
+   </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionClassic"/>
+    <addaction name="actionNight"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Camera"/>
+   <addaction name="menu_Help"/>
+   <addaction name="menuTheme"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <action name="actionIDS">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>IDS CMOSIS CMV 4000</string>
+   </property>
+  </action>
+  <action name="actionXIQ">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>XIMEA xiQ MQ042 m/RG CM</string>
+   </property>
+  </action>
+  <action name="actionXIB">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>XIMEA xiB-64</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionAuto_contrast">
+   <property name="text">
+    <string>Auto contrast</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionCredits">
+   <property name="text">
+    <string>Credits</string>
+   </property>
+  </action>
+  <action name="actionImage_rendering">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Image rendering</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+D</string>
+   </property>
+  </action>
+  <action name="actionView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+V</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionNone">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="actionFull_screen">
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
+  </action>
+  <action name="actionImportExport">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Import/Export</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+I</string>
+   </property>
+  </action>
+  <action name="actionAdimec">
+   <property name="text">
+    <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
+   </property>
+  </action>
+  <action name="actionInfo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Info</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+N</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionClassic">
+   <property name="text">
+    <string>Classic</string>
+   </property>
+  </action>
+  <action name="actionNight">
+   <property name="text">
+    <string>Night</string>
+   </property>
+  </action>
+  <action name="actionHamamatsu">
+   <property name="text">
+    <string>Hamamatsu C11440</string>
+   </property>
+  </action>
+  <action name="actionBitflowCyton">
+   <property name="text">
+    <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionAlvium">
+   <property name="text">
+    <string>Alvium-1800-u/2050</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710">
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="AutoDetectionPhantom">
+   <property name="text">
+    <string>Auto Detection Camera Euresys</string>
+   </property>
+  </action>
+  <action name="actionBitflowCytonSettings">
+   <property name="text">
+    <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionAdimecSettings">
+   <property name="text">
+    <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
+   </property>
+  </action>
+  <action name="actionAlviumSettings">
+   <property name="text">
+    <string>Alvium-1800-u/2050</string>
+   </property>
+  </action>
+  <action name="actionHamamatsuSettings">
+   <property name="text">
+    <string>Hamamatsu C11440</string>
+   </property>
+  </action>
+  <action name="actionIDSSettings">
+   <property name="text">
+    <string>IDS CMOSIS CMV 4000</string>
+   </property>
+  </action>
+  <action name="actionXIQSettings">
+   <property name="text">
+    <string>XIMEA xiQ MQ042 m/RG CM</string>
+   </property>
+  </action>
+  <action name="actionXIBSettings">
+   <property name="text">
+    <string>XIMEA xiB-64</string>
+   </property>
+  </action>
+  <action name="actionOpenCVSettings">
+   <property name="text">
+    <string>OpenCV Camera</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710Settings">
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+Settings">
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionReload_ini">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionBrowse">
+   <property name="text">
+    <string>Browse</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionExport_as">
+   <property name="text">
+    <string>Export as...</string>
+   </property>
+  </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+A</string>
+   </property>
+  </action>
+  <action name="actionOpenCV">
+   <property name="text">
+    <string>OpenCV Camera</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset settings and quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Q</string>
+   </property>
+  </action>
+  <action name="actionLightUI">
+   <property name="text">
+    <string>Mini panel</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+M</string>
+   </property>
+  </action>
+  <action name="actionPreset">
+   <property name="text">
+    <string>Default preset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>holovibes::gui::Drag_drop_lineedit</class>
+   <extends>QLineEdit</extends>
+   <header>gui_drag_drop_lineedit.hh</header>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::Frame</class>
+   <extends>QFrame</extends>
+   <header>gui_frame.hh</header>
+   <container>1</container>
+   <slots>
+    <slot>ShowOrHide()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ImportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>import_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ExportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>export_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::InfoPanel</class>
+   <extends>QGroupBox</extends>
+   <header>info_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ViewPanel</class>
+   <extends>QGroupBox</extends>
+   <header>view_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::CompositePanel</class>
+   <extends>QGroupBox</extends>
+   <header>composite_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ImageRenderingPanel</class>
+   <extends>QGroupBox</extends>
+   <header>image_rendering_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>InfoTextEdit</tabstop>
+  <tabstop>ViewModeComboBox</tabstop>
+  <tabstop>TimeTransformationCutsCheckBox</tabstop>
+  <tabstop>XAccSpinBox</tabstop>
+  <tabstop>YAccSpinBox</tabstop>
+  <tabstop>PAccSpinBox</tabstop>
+  <tabstop>ImgAccuSpinBox</tabstop>
+  <tabstop>ContrastCheckBox</tabstop>
+  <tabstop>WeightSpinBox_R</tabstop>
+  <tabstop>WeightSpinBox_G</tabstop>
+  <tabstop>WeightSpinBox_B</tabstop>
+  <tabstop>ChartSignalPushButton</tabstop>
+  <tabstop>ChartNoisePushButton</tabstop>
+  <tabstop>NumberOfFramesSpinBox</tabstop>
+  <tabstop>OutputFilePathLineEdit</tabstop>
+  <tabstop>OutputFileBrowseToolButton</tabstop>
+  <tabstop>ExportRecPushButton</tabstop>
+  <tabstop>ExportStopPushButton</tabstop>
+  <tabstop>ImportPathLineEdit</tabstop>
+  <tabstop>InputBrowseToolButton</tabstop>
+  <tabstop>ImportInputFpsSpinBox</tabstop>
+  <tabstop>ImportStartIndexSpinBox</tabstop>
+  <tabstop>ImportEndIndexSpinBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>28</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIDS</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ids()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIB</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xib()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQ</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNone</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_none()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCredits</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>credits()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_camera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdimec</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_adimec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImage_rendering</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImportExport</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionView</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionInfo</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNight</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_night()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClassic</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_classic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHamamatsu</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDocumentation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>documentation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BatchSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_batch_size()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AutoRefreshContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_contrast_auto_refresh(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ContrastMaxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_contrast_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionInfo</sender>
+   <signal>changed()</signal>
+   <receiver>InfoPanel</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1361</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LambdaSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_lambda(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImgAccuSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_accumulation_level(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>380</x>
+     <y>296</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>391</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LogScaleCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_log_enabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>380</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_z_distance(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImage_rendering</sender>
+   <signal>changed()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RotatePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>rotate_texture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>338</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>260</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpaceTransformationComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_space_transformation(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>237</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FlipPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>flip_texture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionView</sender>
+   <signal>changed()</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PRedSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PBlueSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TimeTransformationCutsCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>update_3d_cuts_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FFTShiftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_fft_shift(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RegistrationCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_registration(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PhaseUnwrap2DCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_unwrapping_2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RenormalizationCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_auto_weights(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>605</x>
+     <y>606</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ViewModeComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_view_mode(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_R</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_weights()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>524</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_G</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_weights()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>550</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeTransformationSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_time_transformation_size()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_value_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>actualize_frequency_channel_v()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CompositeAreaButton</sender>
+   <signal>clicked()</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_area()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>605</x>
+     <y>631</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RawDisplayingCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>update_raw_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_hue_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_h_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>498</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_B</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_weights()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>576</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_h_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>542</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_shift_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_shift_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LensViewCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>update_lens_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_rgb</sender>
+   <signal>clicked()</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_hsv</sender>
+   <signal>clicked()</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>604</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zFFTShiftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>click_z_fft_shift(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_h_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>542</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_value_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_v_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_value_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_v_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_value_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_v_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_hue_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_h_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_value_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_v_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_saturation_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_s_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_s_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DisplayReticleCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>display_reticle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>289</x>
+     <y>437</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_saturation_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>actualize_frequency_channel_s()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DivideConvoCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_divide_convolution(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>791</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ConvoCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_convolution_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ReticleScaleDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>reticle_scale(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RegistrationZoneSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>update_registration_zone(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_threshold_s_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TimeStrideSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_time_stride()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_saturation_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>set_composite_intervals_hsv_s_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TimeTransformationComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_time_transformation(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImageModeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_computation_mode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>KernelQuickSelectComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_convo_kernel(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>747</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ContrastMinDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_contrast_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>318</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_contrast_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InvertContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_contrast_invert(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>259</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RenormalizeCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>toggle_renormalize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>790</x>
+     <y>312</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordImageModeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>set_record_mode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>793</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChartNoisePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>activeNoiseZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChartSignalPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>activeSignalZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>782</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChartPlotPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>start_chart_display()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>909</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OutputFileBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>browse_record_output_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExportRecPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>start_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>797</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExportStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>stop_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>894</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InputBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_browse_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_start_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_end_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_stop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>531</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>797</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImportExport</sender>
+   <signal>changed()</signal>
+   <receiver>ImportExportFrame</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>845</x>
+     <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumberOfFramesCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>set_nb_frames_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>799</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPhantom_S710</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_phantom()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DN1SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_filter2d_n1(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DN2SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_filter2d_n2(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InputFilterQuickSelectComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_input_filter(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>747</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2D</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_filter2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DView</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_filter2d_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>XAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_x_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>YAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_y_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_p(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>XSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_x_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>YSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_x_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>168</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Q_SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_q(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>311</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Q_AccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_q_acc()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBitflowCyton</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_bitflow_cyton()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AutoDetectionPhantom</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>auto_detection_phantom()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlvium</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_alvium()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBitflowCytonSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_bitflow_cyton_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdimecSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_adimec_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlviumSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_alvium_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHamamatsuSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIDSSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ids_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIBSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xib_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpenCVSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_opencv_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPhantom_S710Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_phantom_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBrowse</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_import_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReload_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reload_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_compute_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport_as</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_export_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reset_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdvanced</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_advanced_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WindowSelectionComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_window(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumberOfFramesCheckBox</sender>
+   <signal>stateChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_frame_count_enabled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumberOfFramesSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_frame_count_enabled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OutputFilePathLineEdit</sender>
+   <signal>textChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordExtComboBox</sender>
+   <signal>currentTextChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_file_extension(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportInputFpsSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_fps()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>889</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>117</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportPathLineEdit</sender>
+   <signal>textChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_import_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpenCV</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_opencv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLightUI</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_light_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPreset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_preset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_z_distance_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>504</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResetRecordedEyePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>reset_recorded_eye()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>501</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FileLoadKindComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_file_load_kind(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>859</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>set_computation_mode(int)</slot>
+  <slot>set_p(int)</slot>
+  <slot>set_lambda(double)</slot>
+  <slot>set_z_distance(double)</slot>
+  <slot>set_z_distance_slider(int)</slot>
+  <slot>set_space_transformation(QString)</slot>
+  <slot>set_time_transformation(QString)</slot>
+  <slot>set_contrast_min(double)</slot>
+  <slot>set_contrast_max(double)</slot>
+  <slot>set_contrast_invert(bool)</slot>
+  <slot>set_log_enabled(bool)</slot>
+  <slot>set_fft_shift(bool)</slot>
+  <slot>set_registration(bool)</slot>
+  <slot>set_view_mode(QString)</slot>
+  <slot>set_contrast_mode(bool)</slot>
+  <slot>camera_ids()</slot>
+  <slot>camera_phantom()</slot>
+  <slot>camera_bitflow_cyton()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>auto_detection_phantom()</slot>
+  <slot>camera_alvium()</slot>
+  <slot>camera_euresys_egrabber()</slot>
+  <slot>camera_xiq()</slot>
+  <slot>camera_xib()</slot>
+  <slot>camera_adimec()</slot>
+  <slot>camera_hamamatsu()</slot>
+  <slot>camera_none()</slot>
+  <slot>camera_opencv()</slot>
+  <slot>change_window(int)</slot>
+  <slot>credits()</slot>
+  <slot>documentation()</slot>
+  <slot>configure_camera()</slot>
+  <slot>camera_adimec_settings()</slot>
+  <slot>camera_ids_settings()</slot>
+  <slot>camera_phantom_settings()</slot>
+  <slot>camera_bitflow_cyton_settings()</slot>
+  <slot>camera_hamamatsu_settings()</slot>
+  <slot>camera_xiq_settings()</slot>
+  <slot>camera_xib_settings()</slot>
+  <slot>camera_opencv_settings()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_euresys_egrabber_settings()</slot>
+  <slot>camera_alvium_settings()</slot>
+  <slot>start_chart_display()</slot>
+  <slot>browse_record_output_file()</slot>
+  <slot>start_record()</slot>
+  <slot>stop_record()</slot>
+  <slot>import_browse_file()</slot>
+  <slot>import_start()</slot>
+  <slot>import_stop()</slot>
+  <slot>update_input_file_start_index(int)</slot>
+  <slot>update_input_file_end_index(int)</slot>
+  <slot>layout_toggled()</slot>
+  <slot>update_convo_kernel(QString)</slot>
+  <slot>set_convolution_mode(bool)</slot>
+  <slot>set_divide_convolution(bool)</slot>
+  <slot>toggle_renormalize(bool)</slot>
+  <slot>set_night()</slot>
+  <slot>set_classic()</slot>
+  <slot>set_accumulation_level(int)</slot>
+  <slot>set_unwrapping_2d(bool)</slot>
+  <slot>reload_ini()</slot>
+  <slot>browse_import_ini()</slot>
+  <slot>write_compute_settings()</slot>
+  <slot>browse_export_ini()</slot>
+  <slot>update_batch_size()</slot>
+  <slot>update_time_stride()</slot>
+  <slot>rotate_texture()</slot>
+  <slot>flip_texture()</slot>
+  <slot>activeSignalZone()</slot>
+  <slot>activeNoiseZone()</slot>
+  <slot>set_time_transformation_size()</slot>
+  <slot>set_p_accu()</slot>
+  <slot>set_x_accu()</slot>
+  <slot>set_y_accu()</slot>
+  <slot>set_x_y()</slot>
+  <slot>set_q(int)</slot>
+  <slot>set_q_acc()</slot>
+  <slot>set_composite_weights()</slot>
+  <slot>set_composite_auto_weights(bool)</slot>
+  <slot>update_lens_view(bool)</slot>
+  <slot>set_composite_intervals()</slot>
+  <slot>set_composite_intervals_hsv_h_min()</slot>
+  <slot>set_composite_intervals_hsv_h_max()</slot>
+  <slot>set_composite_intervals_hsv_s_min()</slot>
+  <slot>set_composite_intervals_hsv_s_max()</slot>
+  <slot>set_composite_intervals_hsv_v_min()</slot>
+  <slot>set_composite_intervals_hsv_v_max()</slot>
+  <slot>slide_update_threshold_h_min()</slot>
+  <slot>slide_update_threshold_h_max()</slot>
+  <slot>slide_update_shift_h_min()</slot>
+  <slot>slide_update_shift_h_max()</slot>
+  <slot>slide_update_threshold_s_min()</slot>
+  <slot>slide_update_threshold_s_max()</slot>
+  <slot>slide_update_threshold_v_min()</slot>
+  <slot>slide_update_threshold_v_max()</slot>
+  <slot>actualize_frequency_channel_s()</slot>
+  <slot>actualize_frequency_channel_v()</slot>
+  <slot>set_composite_area()</slot>
+  <slot>update_raw_view(bool)</slot>
+  <slot>normalize(bool)</slot>
+  <slot>click_composite_rgb_or_hsv()</slot>
+  <slot>display_reticle(bool)</slot>
+  <slot>reticle_scale(double)</slot>
+  <slot>update_registration_zone(double)</slot>
+  <slot>set_contrast_auto_refresh(bool)</slot>
+  <slot>set_record_mode(int)</slot>
+  <slot>set_nb_frames_mode(bool)</slot>
+  <slot>update_filter2d_view(bool)</slot>
+  <slot>set_filter2d_n1(int)</slot>
+  <slot>set_filter2d_n2(int)</slot>
+  <slot>set_filter2d(bool)</slot>
+  <slot>open_advanced_settings()</slot>
+  <slot>reset_settings()</slot>
+  <slot>update_record_file_extension(QString)</slot>
+  <slot>on_input_fps_change(int)</slot>
+  <slot>open_light_ui()</slot>
+  <slot>set_preset()</slot>
+ </slots>
+</ui>

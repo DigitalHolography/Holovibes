@@ -19,12 +19,10 @@
 #include "image_rendering_panel.hh"
 
 #include "API.hh"
+#include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include "view_struct.hh"
-
-#include "asw_mainwindow_panel.hh"
-
-#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
 {
@@ -36,6 +34,7 @@ namespace holovibes::gui
 {
 namespace
 {
+
 void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 {
     class DoubleValidator : public QValidator
@@ -64,8 +63,11 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
     QLineEdit* lineEdit = doubleSpinBox->findChild<QLineEdit*>();
     lineEdit->setValidator(new DoubleValidator(lineEdit->validator()));
 }
+
 } // namespace
+
 #pragma region Constructor - Destructor
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
@@ -82,7 +84,11 @@ MainWindow::MainWindow(QWidget* parent)
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
     , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
+    , api_(API)
+    , notify_subscriber_("notify", [this](bool success) { notify(); })
 {
+    disable_notify();
+
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
                ui_->ViewPanel,
@@ -97,7 +103,7 @@ MainWindow::MainWindow(QWidget* parent)
             this,
             SLOT(synchronize_thread(std::function<void()>)));
 
-    setWindowIcon(QIcon(":/holovibes_logo.png"));
+    setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
     ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
     { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
@@ -143,48 +149,27 @@ MainWindow::MainWindow(QWidget* parent)
 
     try
     {
-        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+        api_.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
     }
     catch (const std::exception&)
     {
         LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
                  ::holovibes::settings::compute_settings_filepath);
-        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+        api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Display default values
-    api::set_compute_mode(api::get_compute_mode());
-    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
-                                                             ? "Composite image"
-                                                             : UserInterfaceDescriptor::instance().last_img_type_;
-    bool is_conv_enabled =
-        api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
+    // Store the value because when the camera is initialised it is reset
+    bool is_conv_enabled = api_.global_pp.get_convolution_enabled();
 
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
     load_gui();
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
-    {
-        ui_->actionSettings->setEnabled(true);
-        if (api::get_compute_mode() == Computation::Raw)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
-    }
-
-    notify();
+    if (api_.input.get_import_type() != ImportType::None)
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -198,41 +183,36 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    ;
+    api_.information.start_information_display();
 
-    // ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ExportPanel->init_light_ui();
-    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    // ui_->InfoPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
+    // Add the convolution after the initialisation of the panel
+    // if the value is enabled in the compute settings.
 
-    api::start_information_display();
-
-    ui_->ImageRenderingPanel->set_convolution_mode(
-        is_conv_enabled); // Add the convolution after the initialisation of the panel
-                          // if the value is enabled in the compute settings.
-
-    if (api::get_yz_enabled() and api::get_xz_enabled())
-    {
+    if (api_.window_pp.get_enabled(WindowKind::YZview) && api_.window_pp.get_enabled(WindowKind::XZview))
         ui_->ViewPanel->update_3d_cuts_view(true);
-    }
 
-    qApp->setStyle(QStyleFactory::create("Fusion"));
+    init_tooltips();
+
+    enable_notify();
+
+    notify();
 }
 
 MainWindow::~MainWindow()
 {
     ui_->menuSelect_preset->clear();
 
-    api::close_windows();
-    api::close_critical_compute();
-    api::stop_all_worker_controller();
-    api::camera_none_without_json();
+    gui::close_windows();
+    api_.compute.close_critical_compute();
+    api_.compute.stop_all_worker_controller();
+    api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Notify
 void MainWindow::synchronize_thread(std::function<void()> f)
 {
@@ -256,7 +236,7 @@ void MainWindow::notify()
 void MainWindow::on_notify()
 {
     // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
-    api::disable_pipe_refresh();
+    api_.compute.disable_pipe_refresh();
 
     // Disable the notify for the same reason
     disable_notify();
@@ -267,10 +247,10 @@ void MainWindow::on_notify()
 
     enable_notify();
 
-    api::enable_pipe_refresh();
+    api_.compute.enable_pipe_refresh();
 
     QSpinBox* fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
-    fps_number_sb->setValue(api::get_input_fps());
+    fps_number_sb->setValue(api_.input.get_input_fps());
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
@@ -293,7 +273,7 @@ void MainWindow::on_notify()
     }
 
     // Tabs
-    if (api::get_is_computation_stopped())
+    if (api_.compute.get_is_computation_stopped())
     {
         ui_->CompositePanel->hide();
         ui_->ImageRenderingPanel->setEnabled(false);
@@ -304,23 +284,22 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api_.input.get_import_type() != ImportType::None)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
-        ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
+        ui_->ViewPanel->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
         ui_->ExportPanel->setEnabled(true);
         light_ui_->pipeline_active(true);
     }
 
-    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
-                                   (api::get_img_type() != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api_.compute.get_compute_mode() == Computation::Raw ||
+                                   (api_.compute.get_img_type() != ImgType::Composite));
+
+    ui_->actionSettings->setEnabled(api_.input.get_camera_kind() != CameraKind::NONE);
 
     resize(baseSize());
-
     adjustSize();
 }
-
-static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -333,9 +312,9 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::handle_update_exception();
-                api::close_windows();
-                api::close_critical_compute();
+                api_.compute.handle_update_exception();
+                gui::close_windows();
+                api_.compute.close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
             };
@@ -345,10 +324,8 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
         {
             if (accu)
-            {
-                handle_accumulation_exception();
-            }
-            api::close_critical_compute();
+                api_.window_pp.set_accumulation_level(1, WindowKind::XYview);
+            api_.compute.close_critical_compute();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
             notify();
@@ -374,8 +351,7 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    // const std::string msg = api::get_credits();
-    const std::vector<std::string> columns = api::get_credits();
+    const std::vector<std::string> columns = api_.information.get_credits();
 
     // Create HTML for 3 columns inside a table
     QString columnarText = QString("Holovibes v" + QString::fromStdString(std::string(__HOLOVIBES_VERSION__)) +
@@ -399,44 +375,47 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
+void MainWindow::documentation()
+{
+    QDesktopServices::openUrl(QUrl(QString::fromStdString(api_.information.get_documentation_url())));
+}
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Json
 
-void MainWindow::write_compute_settings() { api::save_compute_settings(); }
+void MainWindow::write_compute_settings() { api_.settings.save_compute_settings(); }
 
 void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.json)"));
-    api::save_compute_settings(filename.toStdString());
+    api_.settings.save_compute_settings(filename.toStdString());
     // Reload to change drop down preset menu
     notify();
 }
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = UserInterfaceDescriptor::instance().import_type_;
+    ImportType it = api_.input.get_import_type();
     ui_->ImportPanel->import_stop();
 
     try
     {
-        api::load_compute_settings(filename);
+        api_.settings.load_compute_settings(filename);
         // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
     }
     catch (const std::exception&)
     {
         LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
                  ::holovibes::settings::compute_settings_filepath);
-        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+        api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
-        change_camera(UserInterfaceDescriptor::instance().kCamera);
+        change_camera(api_.input.get_camera_kind());
     else // if (it == ImportType::None)
         notify();
 }
@@ -495,11 +474,9 @@ void MainWindow::load_gui()
                                         json_get_or_default(j_us, 560, "light ui window", "x"),
                                         json_get_or_default(j_us, 290, "light ui window", "y"));
 
-    api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
-    api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
-    // int nb = json_get_or_default(j_us, 0, "record", "number of frames to record");
-    // if (nb > 0)
-    // api::set_record_frame_count(nb);
+    api_.view.set_display_rate(json_get_or_default(j_us, api_.view.get_display_rate(), "display", "refresh rate"));
+    api_.window_pp.set_raw_bitshift(
+        json_get_or_default(j_us, api_.window_pp.get_raw_bitshift(), "file info", "raw bit shift"));
 
     ui_->ExportPanel->set_record_frame_step(
         json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
@@ -524,24 +501,19 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().file_input_directory_,
                             "files",
                             "file input directory");
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().batch_input_directory_,
-                            "files",
-                            "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
-    bool is_camera = api::change_camera(camera);
+    bool is_camera = api_.input.set_camera_kind(camera);
 }
 
 void MainWindow::set_preset_file_on_gpu()
 {
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
-    api::import_buffer(dest.string());
+    std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
+    api_.settings.import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
 
@@ -577,14 +549,13 @@ void MainWindow::save_gui()
     j_us["light ui window"]["x"] = light_ui_->pos().x();
     j_us["light ui window"]["y"] = light_ui_->pos().y();
 
-    j_us["display"]["refresh rate"] = api::get_display_rate();
-    j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
+    j_us["display"]["refresh rate"] = api_.view.get_display_rate();
+    j_us["file info"]["raw bit shift"] = api_.window_pp.get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
-    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -596,51 +567,39 @@ void MainWindow::save_gui()
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Close Compute
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
     save_gui();
     if (save_cs)
-        api::save_compute_settings();
+        api_.settings.save_compute_settings();
 
-    api::camera_none_without_json();
+    gui::close_windows();
+    api_.input.set_camera_kind(CameraKind::NONE, false);
     Logger::flush();
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Cameras
 
 void MainWindow::change_camera(CameraKind c)
 {
-    const bool res = api::change_camera(c);
+    ui_->ImportPanel->import_stop();
 
-    if (res)
+    if (api_.input.set_camera_kind(c))
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
         shift_screen();
-
-        // TODO: Trigger callbacks of view (filter2d/raw/lens/3d_cuts)
-
-        // Make camera's settings menu accessible
-        ui_->actionSettings->setEnabled(true);
-
-        notify();
     }
-}
-
-void MainWindow::camera_none()
-{
-    change_camera(CameraKind::NONE);
-
-    // Make camera's settings menu unaccessible
-    ui_->actionSettings->setEnabled(false);
 
     notify();
 }
+
+void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
@@ -662,101 +621,82 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
+
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera() { api::configure_camera(); }
+void MainWindow::configure_camera()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api_.input.get_camera_ini_name())));
+}
+
+void open_file(const std::string& filename)
+{
+    if (filename.empty())
+        return;
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(
+        QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
+}
+
+void MainWindow::camera_ids_settings() { open_file("ids.ini"); }
+
+void MainWindow::camera_phantom_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
+
+void MainWindow::camera_bitflow_cyton_settings() { open_file("bitflow.ini"); }
+
+void MainWindow::camera_hamamatsu_settings() { open_file("hamamatsu.ini"); }
+
+void MainWindow::camera_adimec_settings() { open_file("adimec.ini"); }
+
+void MainWindow::camera_xiq_settings() { open_file("xiq.ini"); }
+
+void MainWindow::camera_xib_settings() { open_file("xib.ini"); }
+
+void MainWindow::camera_opencv_settings() { open_file("opencv.ini"); }
+
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus_settings()
+{
+    open_file("ametek_s991_euresys_coaxlink_qsfp+.ini");
+}
+
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
+{
+    open_file("ametek_s711_euresys_coaxlink_qsfp+.ini");
+}
+
+void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
+
+void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
+
 #pragma endregion
-/* ------------ */
+
 #pragma region Image Mode
-
-void MainWindow::refresh_view_mode()
-{
-    // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(window_max_size, ui_->ViewModeComboBox->currentIndex());
-
-    notify();
-    layout_toggled();
-}
-
-// Is there a change in window pixel depth (needs to be re-opened)
-bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
-{
-    std::vector<std::string> types_needing_refresh({"Composite image"});
-    for (auto& type : types_needing_refresh)
-        if ((last_type == type) != (new_type == type))
-            return true;
-    return false;
-}
-
-void MainWindow::set_composite_values()
-{
-    const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
-    const unsigned max_val_composite = api::get_time_transformation_size() - 1;
-
-    ui_->PRedSpinBox_Composite->setValue(min_val_composite);
-    ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_value_freq_min->setValue(min_val_composite);
-
-    ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
-    ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_value_freq_max->setValue(max_val_composite);
-}
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
+
+    bool composite = img_type == ImgType::Composite || api_.compute.get_img_type() == ImgType::Composite;
+
+    if (api_.compute.set_view_mode(img_type) == ApiCode::OK)
     {
-        LOG_ERROR("Cannot set view image type in raw mode");
-        return;
-    }
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
+        if (composite)
+            gui::refresh_window(window_max_size);
 
-    const std::string& str = value.toStdString();
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
-    {
-        refresh_view_mode();
-        if (api::get_img_type() == ImgType::Composite)
-        {
-            set_composite_values();
-        }
-    }
-
-    // FIXME: delete comment
-    // C'est ce que philippe faisait pour les space/time_transform aussi
-    // Pas faux
-    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
-    // Perso la string me va très bien
-    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
-    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
-    // Faudrait peut-être demander l'avis de tt le monde
-    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
-    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
-    // On peut demander aux autres
-
-    auto callback = ([=]() {
-        api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
         notify();
-        layout_toggled();
-    });
-
-    // Force XYview autocontrast
-    api::set_view_mode(str, callback);
-
-    // Force cuts views autocontrast if needed
-    if (api::get_cuts_view_enabled())
-        api::set_auto_contrast_cuts();
+    }
 }
 
 #pragma endregion
 
-/* ------------ */
-
 void MainWindow::change_window(int index)
 {
-    api::change_window(index);
+    api_.view.change_window(static_cast<WindowKind>(index));
 
     notify();
 }
@@ -770,26 +710,24 @@ void MainWindow::start_import(QString filename)
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Advanced
 
-void MainWindow::close_advanced_settings()
+void MainWindow::open_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().has_been_updated)
-    {
-        // If the settings have been updated, they must be not considered updated after closing the window.
-        UserInterfaceDescriptor::instance().has_been_updated = false;
+    if (UserInterfaceDescriptor::instance().advanced_settings_window_)
+        return;
 
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
-        ui_->ImportPanel->import_stop();
+    gui::open_advanced_settings(this,
+                                [=]()
+                                {
+                                    ImportType it = api_.input.get_import_type();
 
-        if (it == ImportType::File)
-            ui_->ImportPanel->import_start();
-        else if (it == ImportType::Camera)
-            change_camera(UserInterfaceDescriptor::instance().kCamera);
-    }
-
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+                                    if (it == ImportType::File)
+                                        ui_->ImportPanel->import_start();
+                                    else if (it == ImportType::Camera)
+                                        change_camera(api_.input.get_camera_kind());
+                                });
 }
 
 void MainWindow::reset_settings()
@@ -826,24 +764,8 @@ void MainWindow::reset_settings()
     }
 }
 
-void MainWindow::open_advanced_settings()
-{
-    if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
-        return;
-
-    ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
-    api::open_advanced_settings(this, panel);
-
-    connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
-            SIGNAL(closed()),
-            this,
-            SLOT(close_advanced_settings()),
-            Qt::UniqueConnection);
-}
-
 #pragma endregion
 
-/* ------------ */
 #pragma region UI
 
 void MainWindow::shift_screen()
@@ -865,7 +787,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
@@ -877,36 +799,60 @@ void MainWindow::set_preset(std::filesystem::path file)
     LOG_INFO("Preset loaded with file " + file.string());
 }
 
+void MainWindow::init_tooltips()
+{
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Modulus),
+                                       "Compute the modulus of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::SquaredModulus),
+                                       "Compute the squared modulus of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Argument),
+                                       "Compute the argument angle of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::PhaseIncrease),
+                                       "Adjust phase angles of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Composite),
+                                       "Do computations with color encoding",
+                                       Qt::ToolTipRole);
+
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::NONE),
+                                                  "No space transformation",
+                                                  Qt::ToolTipRole);
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FRESNELTR),
+                                                  "Fresnel Transform",
+                                                  Qt::ToolTipRole);
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::ANGULARSP),
+                                                  "Angular Spectrum Propagation",
+                                                  Qt::ToolTipRole);
+
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::NONE),
+                                                 "No time transformation",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::PCA),
+                                                 "Principal Component Analysis",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::STFT),
+                                                 "Short-Time Fourier Transformation",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::SSA_STFT),
+                                                 "Self-adaptive Spectrum Analysis Short-Time Fourier Transformation",
+                                                 Qt::ToolTipRole);
+}
+
 #pragma endregion
 
-/* ------------ */
 #pragma region Themes
 
 void MainWindow::set_night()
 {
-    // Dark mode style
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-    darkPalette.setColor(QPalette::Light, Qt::black);
-
-    qApp->setPalette(darkPalette);
     theme_ = Theme::Dark;
+    QFile file(":/assets/style/style.css");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+
+    qApp->setStyleSheet(styleSheet);
 }
 
 void MainWindow::set_classic()

@@ -1,7 +1,12 @@
-/*! \mainpage Holovibes
-
-    Documentation for developpers. \n
-*/
+/*! \file main.cc
+ *
+ * \brief Starts the application in CLI mode or GUI mode (light ui mode if previously
+ * closed in light ui mode) in function of passed parameters.
+ *
+ * This file also check if a GPU in installed and if the CUDA version is greater than 3.5.
+ * On each run in release mode, data from the local AppData (preset, camera ini, shaders, ...)
+ * are copied to the user AppData.
+ */
 
 #include <QApplication>
 #include <QLocale>
@@ -9,6 +14,7 @@
 #include <QSplashScreen>
 
 #include "API.hh"
+#include "GUI.hh"
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
@@ -16,29 +22,27 @@
 #include "logger.hh"
 
 #include "cli.hh"
-#include "global_state_holder.hh"
 
 #include <spdlog/spdlog.h>
+
+#define MIN_CUDA_VERSION 35
 
 static void check_cuda_graphic_card(bool gui)
 {
     std::string error_message;
-    int device;
     int nDevices;
-    int min_compute_capability = 35;
-    int compute_capability;
-    cudaError_t status;
-    cudaDeviceProp props;
 
     /* Checking for Compute Capability */
-    if ((status = cudaGetDeviceCount(&nDevices)) == cudaSuccess)
+    if (cudaGetDeviceCount(&nDevices) == cudaSuccess)
     {
+        cudaDeviceProp props;
+        int device;
+
         cudaGetDevice(&device);
         cudaGetDeviceProperties(&props, device);
 
-        compute_capability = props.major * 10 + props.minor;
-
-        if (compute_capability >= min_compute_capability)
+        // Check cuda version
+        if (props.major * 10 + props.minor >= MIN_CUDA_VERSION)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";
@@ -55,9 +59,8 @@ static void check_cuda_graphic_card(bool gui)
         messageBox.setFixedSize(800, 300);
     }
     else
-    {
         LOG_CRITICAL("{}", error_message);
-    }
+
     std::exit(11);
 }
 
@@ -69,11 +72,11 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     QLocale::setDefault(QLocale("en_US"));
     // Create the Qt app
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(":/Holovibes.ico"));
+    app.setWindowIcon(QIcon(":/assets/icons/Holovibes.ico"));
 
     LOG_TRACE(" ");
     check_cuda_graphic_card(true);
-    QSplashScreen splash(QPixmap(":/holovibes_logo.png"));
+    QSplashScreen splash(QPixmap(":/assets/icons/holovibes_logo.png"));
     splash.show();
 
     LOG_TRACE(" ");
@@ -88,7 +91,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::gui::MainWindow window;
 
     LOG_TRACE(" ");
-    if (holovibes::api::get_ui_mode())
+    if (holovibes::gui::is_light_ui_mode())
         window.light_ui_->show();
     else
         window.show();
@@ -96,7 +99,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     splash.finish(&window);
 
     // Set callbacks
-    holovibes::GSH::instance().set_notify_callback([&]() { window.notify(); });
     holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
     if (!filename.empty())
@@ -160,11 +162,6 @@ int main(int argc, char* argv[])
         std::exit(0);
     }
 
-    if (opts.benchmark)
-    {
-        holovibes::api::set_benchmark_mode(true);
-    }
-
     holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
     int ret = 0;
@@ -194,13 +191,9 @@ int main(int argc, char* argv[])
             ret = cli::start_cli(holovibes, opts);
         }
         else if (opts.input_path)
-        {
             ret = start_gui(holovibes, argc, argv, opts.input_path.value());
-        }
         else
-        {
             ret = start_gui(holovibes, argc, argv);
-        }
     }
     catch (const std::exception& e)
     {

@@ -1,6 +1,6 @@
-/*! \file
+/*! \file file_frame_read_worker.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This worker handles the reading of frames from a file.
  */
 #pragma once
 
@@ -8,13 +8,13 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::InputFPS                  \
+    holovibes::settings::InputFPS,                 \
+    holovibes::settings::BatchSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::InputFilePath,            \
     holovibes::settings::FileBufferSize,           \
-    holovibes::settings::LoopOnInputFile,          \
-    holovibes::settings::LoadFileInGPU,            \
+    holovibes::settings::FileLoadKind,             \
     holovibes::settings::InputFileStartIndex,      \
     holovibes::settings::InputFileEndIndex
 
@@ -27,8 +27,9 @@
 #include "input_frame_file.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
-#include "utils/custom_type_traits.hh"
-#include "utils/fps_limiter.hh"
+#include "fast_updates_holder.hh"
+#include "custom_type_traits.hh"
+#include "fps_limiter.hh"
 #include <optional>
 #include "logger.hh"
 
@@ -68,7 +69,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue, InitSettings settings)
         : FrameReadWorker(input_queue)
-        , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
+        , fast_updates_entry_(FastUpdatesMap::map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
         , realtime_settings_(settings)
@@ -146,12 +147,12 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     void remove_fast_update_map_entries();
 
-    /*! \brief Load all the frames of the file in the gpu
+    /*! \brief Load all the frames of the file in the memory, either GPU or RAM
      *
-     * Read all the frames in cpu and copy them in gpu.
+     * Read all the frames in cpu, and copy them in the GPU if the option to is enabled.
      * Then enqueue the frames one by one in the input_queue
      */
-    void read_file_in_gpu();
+    void read_file_in_memory();
 
     /*! \brief Load the frames of the file by batch into the gpu
      *
@@ -214,7 +215,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     /**
      * @brief GPU buffer in which the frames are temporarly stored
      */
-    char* gpu_frame_buffer_;
+    char* gpu_file_frame_buffer_;
 
     /**
      * @brief Tmp GPU buffer in which the frames are temporarly stored to convert

@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of the Pipe class
  *
  * The Pipe is a sequential computing model, storing procedures
  * in a single container.
@@ -11,11 +11,13 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
+#include "fast_updates_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
 #include "postprocessing.hh"
 #include "function_vector.hh"
 #include "logger.hh"
+#include "registration.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -68,12 +70,9 @@ class Pipe : public ICompute
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
+        , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
-        ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
-
-        fn_compute_vect_ = FunctionVector(batch_condition);
-        fn_end_vect_ = FunctionVector(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>();
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -87,8 +86,15 @@ class Pipe : public ICompute
                                                                           input.get_fd(),
                                                                           spatial_transformation_plan_,
                                                                           time_transformation_env_,
+                                                                          moments_env_,
                                                                           stream_,
                                                                           settings);
+        registration_ = std::make_unique<compute::Registration>(fn_compute_vect_,
+                                                                buffers_,
+                                                                image_acc_env_,
+                                                                input.get_fd(),
+                                                                stream_,
+                                                                settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
@@ -137,9 +143,6 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
-
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
 
@@ -165,6 +168,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Registration>)
+            registration_->update_setting(setting);
 
         if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
@@ -198,11 +204,14 @@ class Pipe : public ICompute
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
-    /*! \brief Increase batch_index by batch_size */
-    void update_batch_index();
-
     /*! \brief Wait that there are at least a batch of frames in input queue */
-    void insert_wait_frames();
+    void insert_wait_batch();
+
+    /*! \brief Discard batch until we reach time stride */
+    void insert_wait_time_stride();
+
+    /*! \brief Pause computation until a complete batch of time transformation size has arrived */
+    void insert_wait_time_transformation_size();
 
     /*! \brief Dequeue the input queue frame by frame in raw mode */
     void insert_dequeue_input();
@@ -213,19 +222,18 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
-    void insert_request_autocontrast();
-
     void insert_raw_view();
 
     void insert_raw_record();
 
     void insert_hologram_record();
 
+    void insert_moments();
+
+    void insert_moments_record();
+
     void insert_cuts_record();
 
-    /*! \brief Reset the batch index if time_stride has been reached */
-    void insert_reset_batch_index();
     /*! \}*/
 
     /*! \brief Iterates and executes function of the pipe.
@@ -263,22 +271,14 @@ class Pipe : public ICompute
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
-    FunctionVector fn_compute_vect_;
-
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \name Compute objects
      * \{
      */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+    std::unique_ptr<compute::Registration> registration_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;

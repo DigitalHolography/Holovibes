@@ -105,7 +105,7 @@
      },
      "lambda": 8.519999710188131e-07,
      "propagation_distance": 0.5,
-     "space_transformation": "FFT2",
+     "space_transformation": "ANGULARSP",
      "time_transformation": "STFT",
      "time_transformation_size": 64,
      "time_transformation_stride": 32

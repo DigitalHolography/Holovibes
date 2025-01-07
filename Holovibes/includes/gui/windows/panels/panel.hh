@@ -9,12 +9,18 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <nlohmann/json.hpp>
+
 using json = ::nlohmann::json;
 
 namespace Ui
 {
 class MainWindow;
 } // namespace Ui
+
+namespace holovibes::api
+{
+class Api;
+}
 
 namespace holovibes::gui
 {
@@ -36,13 +42,13 @@ class Panel : public QGroupBox
     /*! \brief Panel destructor */
     ~Panel();
 
-    virtual void on_notify() {};
+    virtual void on_notify(){};
 
     // #TODO Put this into constructors when .ui files exist for every panel
-    virtual void init() {};
+    virtual void init(){};
 
-    virtual void load_gui(const json& j_us) {};
-    virtual void save_gui(json& j_us) {};
+    virtual void load_gui(const json& j_us){};
+    virtual void save_gui(json& j_us){};
 
     /*! \brief Changes Box value without triggering any signal
      *
@@ -70,6 +76,7 @@ class Panel : public QGroupBox
   protected:
     MainWindow* parent_;
     Ui::MainWindow* ui_;
+    api::Api& api_;
 
   private:
     /*! \brief Recursively search the parent tree to find the MainWindow */

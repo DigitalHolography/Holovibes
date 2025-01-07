@@ -1,5 +1,98 @@
 ## Changelog
 
+### 14.3.0
+
+- Updated all preset:
+  - batchsize from 32 to 64
+  - time_transformation_size from 16 to 32
+  - time_transformation_stride 32 to 64
+  - z width from 8 to 16
+- Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
+- Added an option 'Load file in CPU RAM' in that drop-down
+- Added UI buttons that specify which eye is recorded, which is reflected in the file name
+
+
+### 14.2.0
+
+- The UI can record again
+- When closing a view, calculations of this view are stopped
+- Record in ps1 do not overwrite a file with the same name
+- When getting frames from the camera or the file memory transfer are now batched
+- Input fps are calculated correctly
+- Some UI related crash are now fixed (start = end index, 3d cuts, ...)
+
+### 14.1.0
+
+- Restucuration of the API
+
+### 14.0.2
+
+- Registration is fixed:
+  - Now the registaration is working with LDH.
+  - The registration does not need the fftshift to work anymore. Hence the image is registered whether or not the fftshift is activated.
+- Add 3 new preset :
+  - doppler_8b_512_256_25.json
+  - doppler_8b_1024_768_120.json
+  - doppler_8b_1280_800_130.json
+- Rename doppler_8b_384_27.json to doppler_8b_384_384_27.json
+- Rename doppler_8b_512_40.json to doppler_8b_512_512_40.json
+
+### 14.0.1
+
+- Remove the second .ps1 script
+- Autocontrast works more consistently; thus removed the 'apply' button from the UI
+
+### 14.0.0
+
+- Create a second ps1 for registration
+- Enhance the registration process:
+  - The user can choose the radius of the circle where the cross-correlation is computed. A spinbox is added in the GUI.
+  - The registration is now working in CLI mode.
+  - The registration is now in the compute settings. The registration zone (circle radius) is saved in the compute settings.
+
+### 13.10.0
+
+- Add image registration. Used to stabilize the image to the center of the eye. A reference is taken when the user click on
+  `registration` check box in the frontend.
+
+### 13.9.0
+
+- New dark theme style
+- Add a boundary information above the focus
+- Information worker data are now displayed in a table
+- Add temperature for phantom cameras and alvium
+- Add the possibility to use compute settings which doesn't have all the fields
+
+### 13.8.0
+
+- Fixed default S710 ini file
+- Removed the BatchEnabled and the BatchInputFile in the UI
+- Moved "CPU Record" from the main UI to the AdvancedUI.
+- Mini panel now has contrast and camera settings
+- Renamed "Record on GPU" to "Record queue on GPU"
+- Renamed "FresnelTR" to "Fresnel Tr." and "AngularSP" to "Angular SP."
+- All parameters for Filter2D and 3DCuts are now hidden when the checkbox are not enabled
+- Show only active views in the window selection view dropdown
+- Fixed reticle displaying white screen
+- Removed useless Euresys eGrabber camera model option
+
+### 13.7.5
+
+- Renamed space transforms more accordingly: fft1 to Fresnel transform and fft2 to Angular spectrum
+- New specifications table in S991, S710, S711 ini files
+- BufferPartCount default parameter set to 128 instead of 64 for camera S711
+- Added tooltips visible when putting mouse cursor on labels
+- Fix install of camera Alvium
+- Change the focus in mm instead of m in the main window
+
+### 13.7.1
+
+- Added the possibility to change .ini files before loading cameras
+- Simplify .ps1 script
+- Holovibes and the Process Holo Files script can now be installed separately in the installer
+- Added a logo for the ps1 script
+- Added moments
+
 ### 13.7.0
 
 - Support for Alvium Camera
@@ -546,7 +639,7 @@
 - Filter2D: rework filter2D
 - CLI: add progress bar and other info
 - Fix: minor gui bugfixes
-- Fix: batch_input_queue async copy and input file gpu_frame_buffer synchro
+- Fix: batch_input_queue async copy and input file gpu_file_frame_buffer synchro
 
 ### 9.1
 

@@ -5,7 +5,7 @@
 namespace holovibes::gui
 {
 SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
-    : RectOverlay(KindOfOverlay::Signal, parent)
+    : FilledRectOverlay(KindOfOverlay::Signal, parent)
 {
     color_ = {0.557f, 0.4f, 0.85f};
 }
@@ -13,6 +13,6 @@ SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
 void SignalOverlay::release(ushort frameSide)
 {
     if (parent_->getKindOfView() == KindOfView::Hologram)
-        api::set_signal_zone(zone_);
+        API.record.set_signal_zone(zone_);
 }
 } // namespace holovibes::gui

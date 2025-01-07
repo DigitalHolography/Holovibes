@@ -14,7 +14,7 @@ using namespace holovibes;
 using cuda_tools::CudaUniquePtr;
 using cuda_tools::CufftHandle;
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
+__global__ void kernel_complex_to_modulus(float* output, const cuComplex* input, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -23,7 +23,7 @@ __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output,
 }
 
 void frame_memcpy(
-    const float* input, const units::RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
+    float* output, const float* input, const units::RectFd& zone, const uint input_width, const cudaStream_t stream)
 {
     const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,
@@ -36,75 +36,42 @@ void frame_memcpy(
                                    stream));
 }
 
-__global__ void circ_shift(const cuComplex* input,
-                           cuComplex* output,
-                           const uint batch_size,
-                           const int i, // shift on x axis
-                           const int j, // shift on y axis
-                           const uint width,
-                           const uint height,
-                           const uint size)
+/*! \brief CUDA Kernel to perform circ_shift computations in parallel.
+ *
+ *  \param[out] output The buffer to store the output image.
+ *  \param[in] input The input image.
+ *  \param[in] width The width of the image.
+ *  \param[in] height The height of the image.
+ *  \param[in] shift_x The x point to shift.
+ *  \param[in] shift_y The y point to shift.
+ */
+__global__ void circ_shift_kernel(float* output, const float* input, int width, int height, int shift_x, int shift_y)
 {
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height)
     {
-        int index_x = index % width;
-        int index_y = index / width;
-        int shift_x = index_x - i;
-        int shift_y = index_y - j;
-        shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
-        shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
+        // Computing new coordinates after shift application.
+        int new_x = (x + shift_x) % width;
+        int new_y = (y + shift_y) % height;
 
-        for (uint i = 0; i < batch_size; ++i)
-        {
-            const uint batch_index = index + i * size;
+        // Avoid negative shifts.
+        new_x += width * (new_x < 0);
+        new_y += height * (new_y < 0);
 
-            const cuComplex rhs = input[batch_index];
-
-            output[((width * shift_y) + shift_x) + i * size] = rhs;
-        }
+        // Copy of the pixel at the new position.
+        output[new_y * width + new_x] = input[y * width + x];
     }
 }
 
-__global__ void circ_shift_float(const float* input,
-                                 float* output,
-                                 const uint batch_size,
-                                 const int i, // shift on x axis
-                                 const int j, // shift on y axis
-                                 const uint width,
-                                 const uint height,
-                                 const uint size)
+void circ_shift(float* output, float* input, uint width, uint height, int shift_x, int shift_y, cudaStream_t stream)
 {
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-    {
-        int index_x = index % width;
-        int index_y = index / width;
-        int shift_x = index_x - i;
-        int shift_y = index_y - j;
-        shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
-        shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
-        for (uint i = 0; i < batch_size; ++i)
-        {
-            const uint batch_index = index + i * size;
+    circ_shift_kernel<<<lblocks, lthreads, 0, stream>>>(output, input, width, height, shift_x, shift_y);
 
-            const float rhs = input[batch_index];
-
-            output[((width * shift_y) + shift_x) + i * size] = rhs;
-        }
-    }
-}
-
-__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < width * height)
-    {
-        const int new_x = index % width;
-        const int new_y = index / width;
-        const int old_x = (new_x - shift_x + width) % width;
-        const int old_y = (new_y - shift_y + height) % height;
-        output[index] = input[old_y * width + old_x];
-    }
+    cudaCheckError();
 }

@@ -1,4 +1,4 @@
-/*! \file
+/*! \file export_panel.hh
  *
  * \brief File containing methods, attributes and slots related to the Export panel
  */
@@ -31,10 +31,7 @@ class ExportPanel : public Panel
     void set_record_frame_step(int step);
     int get_record_frame_step();
 
-    void init_light_ui();
     void set_output_file_name(std::string std_filepath);
-
-    void set_record_image_mode();
 
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
@@ -43,33 +40,27 @@ class ExportPanel : public Panel
 
     /*! \brief Enables or Disables number of frame restriction for recording
      *
-     * \param value true: enable, false: disable
+     * \param[in] value true: enable, false: disable
      */
     void set_nb_frames_mode(bool value);
 
-    /*! \brief Browses output file */
-    void browse_batch_input();
-
     /*! \brief Modifies the record mode
      *
-     * \param value The new record mode
+     * \param[in] index The new record mode's index in the UI. As it is the same as the enum, it is directly casted.
      */
-    void set_record_mode(const QString& value);
+    void set_record_mode(int index);
 
     /*! \brief Stops the record */
     void stop_record();
 
     /*! \brief Resets ui on record finished
      *
-     * \param record_mode The current record mode
+     * \param[in] record_mode The current record mode
      */
     void record_finished(RecordMode record_mode);
 
     /*! \brief Starts recording */
     void start_record();
-
-    /*! \brief Set the record device : GPU, with the pipeline and the realtime display, or CPU, with no pipe */
-    void set_record_device(bool value);
 
     /*! \brief Creates Signal overlay */
     void activeSignalZone();
@@ -83,44 +74,34 @@ class ExportPanel : public Panel
     /*! \brief Closes Chart window */
     void stop_chart_display();
 
-    /**
-     * @brief Handles the update of the batch mode enabled setting checkbox.
-     */
-    void update_batch_enabled();
-
-    /**
-     * @brief Handles the update of the record frame count enabled setting checkbox.
+    /*!
+     * \brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
 
-    /**
-     * @brief Handles the update of the record frame count setting spinbox.
-     */
-    void update_record_frame_count();
-
-    /**
-     * @brief Handles the update of the record file path setting line edit.
+    /*!
+     * \brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
 
-    /**
-     * @brief Handles the update of the batch file path setting line edit.
-     */
-    void update_batch_file_path();
-
-    /**
-     * @brief Handles the update of the record mode setting combo box.
-     */
-    void update_record_mode();
-
-    /**
-     * @brief Handles the update of the record file extension setting combo box.
+    /*!
+     * \brief Handles the update of the record file extension setting combo box.
      */
     void update_record_file_extension(const QString& value);
 
+    /*!
+     * \brief Handles the update of the recorded eye button
+     * Changes the current recorded eye, cycling between left and right
+     */
+    void update_recorded_eye();
+
+    /*!
+     * \brief Sets the recorded eye to None instead of left or right
+     */
+    void reset_recorded_eye();
+
   private:
     int record_frame_step_ = 512;
-    Subscriber<bool> import_start_subscriber_;
     Subscriber<bool> start_record_subscriber_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;

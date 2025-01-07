@@ -18,7 +18,7 @@ CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
     LOG_FUNC();
 
     color_ = {1.f, 0.f, 0.f};
-    alpha_ = 0.05f;
+    alpha_ = 0.1f;
     display_ = true;
 }
 
@@ -28,69 +28,36 @@ CrossOverlay::~CrossOverlay()
     glDeleteBuffers(1, &elemLineIndex_);
 }
 
+#define VERTEX_COUNT 8 // 4 by rectangle
+
 void CrossOverlay::init()
 {
     // Program_ already bound by caller (initProgram)
-
     Vao_.bind();
 
     // Set vertices position
-    const float vertices[] = {// vertical area
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              // horizontal area
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f,
-                              0.f};
+    const float vertices[VERTEX_COUNT * 2] = {0};
+
     glGenBuffers(1, &verticesIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * VERTEX_COUNT, vertices, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(verticesShader_);
     glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     glDisableVertexAttribArray(verticesShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Set color
-    const float colorData[] = {// vertical area
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               // horizontal area
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2],
-                               color_[0],
-                               color_[1],
-                               color_[2]};
+    float colorData[VERTEX_COUNT * 3];
+    for (uint i = 0; i < VERTEX_COUNT; ++i)
+    {
+        colorData[i * 3] = color_[0];
+        colorData[i * 3 + 1] = color_[1];
+        colorData[i * 3 + 2] = color_[2];
+    }
+
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * VERTEX_COUNT, colorData, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(colorShader_);
     glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glDisableVertexAttribArray(colorShader_);
@@ -115,6 +82,7 @@ void CrossOverlay::init()
                                    7,
                                    7,
                                    4};
+
     glGenBuffers(1, &elemLineIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(lineElements), lineElements, GL_STATIC_DRAW);
@@ -135,49 +103,37 @@ void CrossOverlay::init()
                                  6,
                                  7,
                                  4};
+
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLuint), elements.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     Vao_.release();
-
     // Program_ released by caller (initProgram)
 }
 
 void CrossOverlay::draw()
 {
-    parent_->makeCurrent();
-    computeZone();
-    setBuffer();
-    Vao_.bind();
-    Program_->bind();
+    initDraw();
 
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
+    // Drawing areas between lines
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
+    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // Drawing four lines
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
     Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
     glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    // Drawing areas between lines
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
-    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 void CrossOverlay::onSetCurrent()
 {
-    mouse_position_ = units::PointFd(units::ConversionData(parent_), api::get_x_cuts(), api::get_y_cuts());
+    mouse_position_ =
+        units::PointFd(units::ConversionData(parent_), API.transform.get_x_cuts(), API.transform.get_y_cuts());
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -198,8 +154,8 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        api::set_x_cuts(mouse_position_.x());
-        api::set_y_cuts(mouse_position_.y());
+        API.transform.set_x_cuts(mouse_position_.x());
+        API.transform.set_y_cuts(mouse_position_.y());
     }
 }
 
@@ -211,29 +167,32 @@ void CrossOverlay::computeZone()
     units::PointFd bottomRight;
 
     // Computing min/max coordinates in function of the frame_descriptor
-    ViewXY x = api::get_x();
-    ViewXY y = api::get_y();
-    int x_min = x.start;
-    int x_max = x.start;
-    int y_min = y.start;
-    int y_max = y.start;
-    (x.width < 0 ? x_min : x_max) += x.width;
-    (y.width < 0 ? y_min : y_max) += y.width;
+    int x_start = API.transform.get_x_cuts();
+    int x_width = API.transform.get_x_accu_level();
+    int y_start = API.transform.get_y_cuts();
+    int y_width = API.transform.get_y_accu_level();
+
+    int x_min = x_start;
+    int x_max = x_start;
+    int y_min = y_start;
+    int y_max = y_start;
+    (x_width < 0 ? x_min : x_max) += x_width;
+    (y_width < 0 ? y_min : y_max) += y_width;
     units::ConversionData convert(parent_);
 
     units::PointFd min(convert, x_min, y_min);
     units::PointFd max(convert, x_max, y_max);
 
     // Setting the zone_
-    if (x.width == 0)
+    if (x_width == 0)
     {
-        min.x().set(x.start);
-        max.x().set(x.start);
+        min.x().set(x_start);
+        max.x().set(x_start);
     }
-    if (y.width == 0)
+    if (y_width == 0)
     {
-        min.y().set(y.start);
-        max.y().set(y.start);
+        min.y().set(y_start);
+        max.y().set(y_start);
     }
     max.x() += 1;
     max.y() += 1;
@@ -243,6 +202,8 @@ void CrossOverlay::computeZone()
 
 void CrossOverlay::setBuffer()
 {
+    computeZone();
+
     parent_->makeCurrent();
     Program_->bind();
 

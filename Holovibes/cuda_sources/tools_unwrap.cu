@@ -2,11 +2,12 @@
 
 #include "cuda_memory.cuh"
 #include "frame_desc.hh"
+#include "complex_utils.cuh"
 
 using namespace holovibes;
 using namespace camera;
 
-__global__ void kernel_extract_angle(const cuComplex* input, float* output, const size_t size)
+__global__ void kernel_extract_angle(float* output, const cuComplex* input, const size_t size)
 {
     const uint index = blockDim.x * blockIdx.x + threadIdx.x;
     if (index < size)
@@ -16,7 +17,7 @@ __global__ void kernel_extract_angle(const cuComplex* input, float* output, cons
     }
 }
 
-__global__ void kernel_unwrap(const float* pred, const float* cur, float* output, const size_t size)
+__global__ void kernel_unwrap(float* output, const float* pred, const float* cur, const size_t size)
 {
     const uint index = blockDim.x * blockIdx.x + threadIdx.x;
     if (index < size)
@@ -35,7 +36,7 @@ __global__ void kernel_unwrap(const float* pred, const float* cur, float* output
     }
 }
 
-__global__ void kernel_compute_angle_mult(const cuComplex* pred, const cuComplex* cur, float* output, const size_t size)
+__global__ void kernel_compute_angle_mult(float* output, const cuComplex* pred, const cuComplex* cur, const size_t size)
 {
     const uint index = blockDim.x * blockIdx.x + threadIdx.x;
     if (index < size)
@@ -53,7 +54,7 @@ __global__ void kernel_compute_angle_mult(const cuComplex* pred, const cuComplex
     }
 }
 
-__global__ void kernel_compute_angle_diff(const cuComplex* pred, const cuComplex* cur, float* output, const size_t size)
+__global__ void kernel_compute_angle_diff(float* output, const cuComplex* pred, const cuComplex* cur, const size_t size)
 {
     const uint index = blockDim.x * blockIdx.x + threadIdx.x;
     if (index < size)
@@ -94,7 +95,7 @@ __global__ void kernel_init_unwrap_2d(
 }
 
 __global__ void kernel_multiply_complexes_by_floats_(
-    const float* input1, const float* input2, cuComplex* output1, cuComplex* output2, const uint size)
+    cuComplex* output1, cuComplex* output2, const float* input1, const float* input2, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -139,16 +140,6 @@ __global__ void kernel_multiply_complex_by_single_complex(cuComplex* output, con
     }
 }
 
-__global__ void kernel_conjugate_complex(cuComplex* output, const uint size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < size)
-    {
-        output[index].y = -output[index].y;
-    }
-}
-
 __global__ void kernel_multiply_complex_frames_by_complex_frame(cuComplex* output1,
                                                                 cuComplex* output2,
                                                                 const cuComplex* input,
@@ -169,7 +160,7 @@ __global__ void kernel_multiply_complex_frames_by_complex_frame(cuComplex* outpu
 }
 
 __global__ void
-kernel_norm_ratio(const float* input1, const float* input2, cuComplex* output1, cuComplex* output2, const uint size)
+kernel_norm_ratio(cuComplex* output1, cuComplex* output2, const float* input1, const float* input2, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -235,9 +226,9 @@ void phase_increase(const cuComplex* cur,
     }
 
     // Compute the newest phase image, not unwrapped yet
-    kernel_compute_angle_mult<<<blocks, threads, 0, stream>>>(resources->gpu_predecessor_,
+    kernel_compute_angle_mult<<<blocks, threads, 0, stream>>>(resources->gpu_angle_current_,
+                                                              resources->gpu_predecessor_,
                                                               cur,
-                                                              resources->gpu_angle_current_,
                                                               image_size);
     cudaCheckError();
     // Updating predecessor (complex image) for the next iteration
@@ -275,11 +266,11 @@ void phase_increase(const cuComplex* cur,
     resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
 
-void unwrap_2d(float* input,
+void unwrap_2d(float* output,
+               float* input,
                const cufftHandle plan2d,
                UnwrappingResources_2d* res,
                const FrameDescriptor& fd,
-               float* output,
                const cudaStream_t stream)
 {
     uint threads_2d = get_max_threads_2d();
@@ -293,31 +284,15 @@ void unwrap_2d(float* input,
                                                             res->gpu_fy_,
                                                             res->gpu_z_);
     cudaCheckError();
+
     ushort middlex = fd.width >> 1;
     ushort middley = fd.height >> 1;
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fx_,
-                                                     res->gpu_shift_fx_,
-                                                     1,
-                                                     middlex,
-                                                     middley,
-                                                     fd.width,
-                                                     fd.height,
-                                                     fd.get_frame_res());
-    cudaCheckError();
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fy_,
-                                                     res->gpu_shift_fy_,
-                                                     1,
-                                                     middlex,
-                                                     middley,
-                                                     fd.width,
-                                                     fd.height,
-                                                     fd.get_frame_res());
-    cudaCheckError();
+    circ_shift(res->gpu_shift_fx_, res->gpu_fx_, fd.width, fd.height, -middlex, -middley, stream);
+    circ_shift(res->gpu_shift_fy_, res->gpu_fy_, fd.width, fd.height, -middlex, -middley, stream);
+
     gradient_unwrap_2d(plan2d, res, fd, stream);
     eq_unwrap_2d(plan2d, res, fd, stream);
-    phi_unwrap_2d(plan2d, res, fd, output, stream);
+    phi_unwrap_2d(output, plan2d, res, fd, stream);
 }
 
 void gradient_unwrap_2d(const cufftHandle plan2d,
@@ -331,10 +306,10 @@ void gradient_unwrap_2d(const cufftHandle plan2d,
 
     cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
     cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
-    kernel_multiply_complexes_by_floats_<<<blocks, threads, 0, stream>>>(res->gpu_shift_fx_,
-                                                                         res->gpu_shift_fy_,
-                                                                         res->gpu_grad_eq_x_,
+    kernel_multiply_complexes_by_floats_<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                                          res->gpu_grad_eq_y_,
+                                                                         res->gpu_shift_fx_,
+                                                                         res->gpu_shift_fy_,
                                                                          fd.get_frame_res());
     cudaCheckError();
     cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
@@ -359,8 +334,7 @@ void eq_unwrap_2d(const cufftHandle plan2d,
                                                                               single_complex,
                                                                               fd.get_frame_res());
     cudaCheckError();
-    kernel_conjugate_complex<<<blocks, threads, 0, stream>>>(res->gpu_z_, fd.get_frame_res());
-    cudaCheckError();
+    conjugate_complex(res->gpu_z_, fd.get_frame_res(), stream);
     kernel_multiply_complex_frames_by_complex_frame<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                                                     res->gpu_grad_eq_y_,
                                                                                     res->gpu_z_,
@@ -368,18 +342,18 @@ void eq_unwrap_2d(const cufftHandle plan2d,
     cudaCheckError();
     cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
     cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
-    kernel_norm_ratio<<<blocks, threads, 0, stream>>>(res->gpu_shift_fx_,
-                                                      res->gpu_shift_fy_,
-                                                      res->gpu_grad_eq_x_,
+    kernel_norm_ratio<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                       res->gpu_grad_eq_y_,
+                                                      res->gpu_shift_fx_,
+                                                      res->gpu_shift_fy_,
                                                       fd.get_frame_res());
     cudaCheckError();
 }
 
-void phi_unwrap_2d(const cufftHandle plan2d,
+void phi_unwrap_2d(float* output,
+                   const cufftHandle plan2d,
                    UnwrappingResources_2d* res,
                    const FrameDescriptor& fd,
-                   float* output,
                    const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();

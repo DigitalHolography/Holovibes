@@ -9,25 +9,15 @@
 
 namespace holovibes::gui
 {
-HoloWindow::HoloWindow(QPoint p,
-                       QSize s,
-                       DisplayQueue* q,
-                       SharedPipe ic,
-                       std::unique_ptr<SliceWindow>& xz,
-                       std::unique_ptr<SliceWindow>& yz,
-                       float ratio)
+HoloWindow::HoloWindow(
+    QPoint p, QSize s, DisplayQueue* q, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, float ratio)
     : RawWindow(p, s, q, ratio, KindOfView::Hologram)
-    , Ic(ic)
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    if (api::get_contrast_auto_refresh())
-        Ic->request_autocontrast(WindowKind::XYview);
 }
 
 HoloWindow::~HoloWindow() {}
-
-std::shared_ptr<ICompute> HoloWindow::getPipe() { return Ic; }
 
 void HoloWindow::initShaders()
 {
@@ -39,13 +29,15 @@ void HoloWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
+
     overlay_manager_.create_default();
 }
 
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    api::change_window(static_cast<int>(WindowKind::XYview));
+    API.view.change_window(WindowKind::XYview);
+    NotifierManager::notify("notify", true);
 }
 
 void HoloWindow::update_slice_transforms()

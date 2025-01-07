@@ -25,12 +25,9 @@ using ConditionType = std::function<bool()>;
 using FnType = std::function<void()>;
 
 /*! \brief A procedure vector. */
-using FnVector = std::vector<FnType>;
+using FnVector = std::vector<std::pair<ushort, FnType>>;
 
 /*! \brief A procedure deque. */
 using FnDeque = std::deque<FnType>;
 
 using Color = std::array<float, 3>;
-
-class ICompute;
-using SharedPipe = std::shared_ptr<ICompute>;

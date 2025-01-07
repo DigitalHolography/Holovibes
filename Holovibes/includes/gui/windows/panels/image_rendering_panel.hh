@@ -32,8 +32,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    void actualise_z_distance(const double z_distance);
-
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
      *
@@ -43,7 +41,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_mode(int mode);
+    void set_computation_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
@@ -76,10 +74,6 @@ class ImageRenderingPanel : public Panel
      * \param value The new filter to apply
      */
     void update_input_filter(const QString& value);
-
-    /*! \brief Refreshed the input filter iff one was passed before
-     */
-    void refresh_input_filter();
 
     /*! \brief Modifies space transform calculation
      *
@@ -129,13 +123,6 @@ class ImageRenderingPanel : public Panel
     void set_divide_convolution(const bool value);
 
     /*!
-     * \brief Sets the z step
-     *
-     * \param value the new value
-     */
-    void set_z_step(double value);
-
-    /*!
      * \brief Gets the z step
      *
      * \return double the current z step
@@ -145,10 +132,9 @@ class ImageRenderingPanel : public Panel
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
-    Subscriber<double> z_distance_subscriber_;
 
   public:
     // should be moved to double in the ui if we need more precision than 5 digits
-    double z_step_ = 0.005f;
+    double z_step_ = 1.0f;
 };
 } // namespace holovibes::gui

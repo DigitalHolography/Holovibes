@@ -81,7 +81,8 @@ def generate_holo_from(folder: str, input: str, output: str, output_error: str, 
     if sub.returncode != 0:
         with open(output_error, "w") as f_out:
             f_out.write(f"{sub.returncode}\n{sub.stderr.decode('utf-8')}")
-
+    
+    os.makedirs("test_logs", exist_ok=True)
     with open(os.path.join("test_logs", "all_errcode.txt"), "a") as f_all:
         f_all.write(f"=== {folder} ===\nReturn: {sub.returncode}\n{sub.stderr.decode('utf-8')}\n")
 
@@ -143,14 +144,14 @@ def test_holo(folder: str):
 
     if os.path.isfile(ref_error):
         error_wanted = True
-    elif find_files(path, "[0-9]*_" + REF_FILENAME) == []:
+    elif find_files(path, "R_" + REF_FILENAME) == []:
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
         config = None
         print("Default values might have changed")
 
-    for file in find_files(path, "[0-9]*_" + OUTPUT_FILENAME):
+    for file in find_files(path, "R_" + OUTPUT_FILENAME):
         os.remove(os.path.join(path, file))
 
     if os.path.isfile(output_error):
@@ -161,7 +162,7 @@ def test_holo(folder: str):
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
     else:
-        assert  find_files(path, "[0-9]*_" + OUTPUT_FILENAME) != [], f"Should have succeded but {OUTPUT_FILENAME} not found"
+        assert  find_files(path, "R_" + OUTPUT_FILENAME) != [], f"Should have succeded but {OUTPUT_FILENAME} not found"
         assert not os.path.isfile(output_error), f"Should have succeded but {OUTPUT_ERROR_FILENAME} found"
 
 
@@ -178,8 +179,8 @@ def test_holo(folder: str):
 
             assert output_error_code == ref_error_code, f"Return value is invalid: wanted {ref_error_code} but got {output_error_code}"
         else:
-            out = read_holo(os.path.join(path,find_files(path, "[0-9]*_" + OUTPUT_FILENAME)[0]))
-            ref = read_holo(os.path.join(path,find_files(path, "[0-9]*_" + REF_FILENAME)[0]))
+            out = read_holo(os.path.join(path,find_files(path, "R_" + OUTPUT_FILENAME)[0]))
+            ref = read_holo(os.path.join(path,find_files(path, "R_" + REF_FILENAME)[0]))
             try:
                 ref_time = read_time(os.path.join(path, "ref_time.txt"))
                 logger.info(f"Current time: {current_time} Ref time: {ref_time}")

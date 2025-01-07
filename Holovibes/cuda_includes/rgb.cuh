@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Declaration of rgb function
  */
 #pragma once
 
@@ -45,8 +45,8 @@ struct RGBPixel
 };
 
 // Computes 3 different p slices and put them in each color
-void rgb(cuComplex* input,
-         float* output,
+void rgb(float* output,
+         cuComplex* input,
          const size_t frame_res,
          bool auto_weights,
          const ushort min,
