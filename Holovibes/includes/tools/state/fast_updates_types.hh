@@ -44,6 +44,7 @@ enum class IntType
     OUTPUT_FPS,
     SAVING_FPS,
     TEMPERATURE,
+    CAMERA_FPS,
 };
 
 enum class ProgressType

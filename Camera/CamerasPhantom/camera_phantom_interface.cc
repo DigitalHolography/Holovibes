@@ -272,4 +272,10 @@ int CameraPhantomInt::get_temperature() const
     }
 }
 
+int CameraPhantomInt::get_camera_fps() const
+{
+    auto cycle = params_.get<unsigned int>("CycleMinimumPeriod");
+    return cycle ? 10e6 / cycle.value() : -1;
+}
+
 } // namespace camera

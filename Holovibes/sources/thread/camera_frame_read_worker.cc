@@ -27,6 +27,9 @@ void CameraFrameReadWorker::run()
 
     current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
     temperature_ = FastUpdatesMap::map<IntType>.create_entry(IntType::TEMPERATURE, true);
+    auto camera_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::CAMERA_FPS);
+
+    *camera_fps_ = camera_->get_camera_fps();
 
     try
     {
@@ -50,6 +53,7 @@ void CameraFrameReadWorker::run()
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
     FastUpdatesMap::map<IntType>.remove_entry(IntType::TEMPERATURE);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::CAMERA_FPS);
 }
 
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,

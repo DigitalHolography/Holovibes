@@ -21,7 +21,7 @@ class OutputFrameFile : public FrameFile
      * \param input_fps how fast the input was
      * \param contiguous How many frames were contiguous in input
      */
-    virtual void export_compute_settings(int input_fps, size_t contiguous) = 0;
+    virtual void export_compute_settings(int input_fps, size_t contiguous, int camera_fps) = 0;
 
     /*! \brief Write the header in the file
      *

@@ -12,7 +12,7 @@ OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDe
     size_length_ = std::max(fd_.width, fd_.height);
 }
 
-void OutputAviFile::export_compute_settings(int input_fps, size_t contiguous) {}
+void OutputAviFile::export_compute_settings(int input_fps, size_t contiguous, int camera_fps) {}
 
 void OutputAviFile::write_header()
 {

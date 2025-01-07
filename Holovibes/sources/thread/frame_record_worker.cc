@@ -65,6 +65,7 @@ void FrameRecordWorker::run()
     size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
 
     nb_frames_recorded = 0;
+    int camera_fps = 0;
 
     // Get the real number of frames to record taking in account the frame skip
     auto frame_count = setting<settings::RecordFrameCount>();
@@ -147,6 +148,11 @@ void FrameRecordWorker::run()
                 }
             }
 
+            if (nb_frames_recorded == 0)
+            {
+                auto& fps_map = FastUpdatesMap::map<IntType>;
+                camera_fps = static_cast<int>(fps_map.get_entry(IntType::CAMERA_FPS).get()->load());
+            }
             wait_for_frames();
 
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
@@ -196,7 +202,8 @@ void FrameRecordWorker::run()
         // Change the fps according to the frame skip
         output_frame_file->export_compute_settings(
             static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)),
-            contiguous);
+            contiguous,
+            camera_fps);
 
         output_frame_file->write_footer();
     }

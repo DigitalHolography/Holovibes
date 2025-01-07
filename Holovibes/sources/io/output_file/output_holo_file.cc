@@ -34,7 +34,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
+void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous, int camera_fps)
 {
     LOG_FUNC(input_fps, contiguous);
 
@@ -44,7 +44,7 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         auto j_fi = json{
             {"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
             {"input_fps", input_fps},
-            {"camera_fps", api.input.get_import_type() == ImportType::Camera ? input_fps : api.input.get_camera_fps()},
+            {"camera_fps", api.input.get_import_type() == ImportType::Camera ? camera_fps : api.input.get_camera_fps()},
             {"eye_type", api.record.get_recorded_eye()},
             {"contiguous", contiguous},
             {"holovibes_version", __HOLOVIBES_VERSION__}};

@@ -27,7 +27,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \param input_fps how fast the input was
      * \param contiguous How many frames were contiguous in input
      */
-    void export_compute_settings(int input_fps, size_t contiguous) override;
+    void export_compute_settings(int input_fps, size_t contiguous, int camera_fps) override;
 
     /*! \brief Write the header in the file
      *
