@@ -520,10 +520,10 @@
               <number>0</number>
              </property>
              <property name="minimum">
-              <double>0.000000000000000</double>
+              <double>-4000.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>10000.000000000000000</double>
+              <double>40000.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>0.005000000000000</double>
