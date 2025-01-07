@@ -204,7 +204,6 @@ class ICompute
         DisableFrameRecord,
         Convolution,
         DisableConvolution,
-        Filter,
 
         // Add other setting here
 
