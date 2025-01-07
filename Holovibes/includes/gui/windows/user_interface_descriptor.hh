@@ -24,6 +24,7 @@
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
+#include "GUI.hh"
 
 namespace holovibes
 {
@@ -33,7 +34,7 @@ class UserInterfaceDescriptor
   private:
     UserInterfaceDescriptor()
     {
-        std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
+        std::filesystem::path holovibes_documents_path = gui::get_user_documents_path() / "Holovibes";
         std::filesystem::create_directory(holovibes_documents_path);
         record_output_directory_ = holovibes_documents_path.string();
     }

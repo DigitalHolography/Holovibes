@@ -152,8 +152,11 @@ class GlobalPostProcessApi : public IApi
     /*! \brief Enables the convolution and loads the convolution matrix/kernel from the given file
      *
      * \param[in] file The file containing the convolution matrix/kernel
+     *
+     * \return ApiCode OK if the convolution was enabled, WRONG_COMP_MODE if we are in Raw mode or FAILURE if the matrix
+     * could not be loaded.
      */
-    void enable_convolution(const std::string& file) const;
+    ApiCode enable_convolution(const std::string& file) const;
 
     /*! \brief Disables the convolution */
     void disable_convolution() const;

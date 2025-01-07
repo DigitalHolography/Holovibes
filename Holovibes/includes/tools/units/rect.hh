@@ -4,15 +4,10 @@
  */
 #pragma once
 
-#include "point.hh"
-#include "window_pixel.hh"
-#include "fd_pixel.hh"
-#include "opengl_position.hh"
-#include "all_struct.hh"
-
-#include "logger.hh"
-
 #include <cmath>
+
+#include "all_struct.hh"
+#include "point.hh"
 
 namespace holovibes::units
 {
@@ -25,49 +20,41 @@ namespace holovibes::units
  * or as source / destination, two corner points that can be swapped (used in
  * overlays)
  */
-template <typename T>
-class Rect
+class RectFd
 {
   public:
-    /*! \brief Default constructors, will crash when trying to convert it */
-    Rect() = default;
-
     /*! \brief Constructs a rectangle from two points
      *
      * \param top_left Top left point
      * \param size bottom_right Bottom right point
      */
-    Rect(Point<T> src, Point<T> dst)
+    RectFd(PointFd src, PointFd dst)
         : src_(src)
         , dst_(dst)
     {
     }
 
     /*! \brief Constructs a rectangle from its position and size */
-    Rect(ConversionData data,
-         typename T::primary_type x1 = 0,
-         typename T::primary_type y1 = 0,
-         typename T::primary_type x2 = 0,
-         typename T::primary_type y2 = 0)
-        : src_(data, x1, y1)
-        , dst_(data, x2, y2)
+    RectFd(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0)
+        : src_(x1, y1)
+        , dst_(x2, y2)
     {
     }
 
     /*! \name Getters and setters
      * \{
      */
-    Point<T> topLeft() const { return Point<T>(x(), y()); }
+    PointFd top_left() const { return PointFd(x(), y()); }
 
-    Point<T> bottomRight() const { return Point<T>(right(), bottom()); }
+    PointFd bottom_right() const { return PointFd(right(), bottom()); }
 
-    Point<T> topRight() const { return Point<T>(right(), y()); }
+    PointFd top_right() const { return PointFd(right(), y()); }
 
-    Point<T> bottomLeft() const { return Point<T>(x(), bottom()); }
+    PointFd bottom_left() const { return PointFd(x(), bottom()); }
 
-    Point<T> size() const
+    PointFd size() const
     {
-        Point<T> res;
+        PointFd res;
 
         res.x() = dst_.x() > src_.x() ? dst_.x() : src_.x();
         res.x() -= dst_.x() > src_.x() ? src_.x() : dst_.x();
@@ -78,217 +65,94 @@ class Rect
         return res;
     }
 
-    T x() const { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
+    int x() const { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    T& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
+    int& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-    template <typename U>
-    void setX(U newx)
+    void set_x(int newx) { x() = newx; }
+
+    int y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
+
+    int& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
+
+    void set_y(int newy) { y() = newy; }
+
+    int width() const { return size().x(); }
+
+    int unsigned_width() const { return std::abs(width()); }
+
+    void set_width(int w) { right() = x() + w; }
+
+    int height() const { return size().y(); }
+
+    int unsigned_height() const { return std::abs(height()); }
+
+    void set_height(int h) { bottom() = y() + h; }
+
+    int& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
+
+    int bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
+
+    void set_bottom(int y) { bottom() = y; }
+
+    int& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
+
+    int right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
+
+    void set_right(int x) { right() = x; }
+
+    void set_top_left(PointFd p)
     {
-        x().set(newx);
+        set_x(p.x());
+        set_y(p.y());
     }
 
-    T y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
-
-    T& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
-
-    template <typename U>
-    void setY(U newy)
+    void set_bottom_right(PointFd p)
     {
-        y().set(newy);
+        set_right(p.x());
+        set_bottom(p.y());
     }
 
-    T width() const { return size().x(); }
+    void set_src(PointFd p) { src_ = p; }
 
-    T unsigned_width() const
-    {
-        T res = size().x();
-        if (res < 0)
-            res *= -1;
-        return res;
-    }
+    void set_dst(PointFd p) { dst_ = p; }
 
-    template <typename U>
-    void setWidth(U w)
-    {
-        right().set(x() + w);
-    }
+    PointFd src() const { return src_; }
 
-    T height() const { return size().y(); }
+    PointFd dst() const { return dst_; }
 
-    T unsigned_height() const
-    {
-        T res = size().y();
-        if (res < 0)
-            res *= -1;
-        return res;
-    }
+    PointFd& src_ref() { return src_; }
 
-    template <typename U>
-    void setHeight(U h)
-    {
-        bottom().set(y() + h);
-    }
-
-    T& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
-
-    T bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
-
-    template <typename U>
-    void setBottom(U y)
-    {
-        bottom().set(y);
-    }
-
-    T& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
-
-    T right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
-
-    template <typename U>
-    void setRight(U x)
-    {
-        return right().set(x);
-    }
-
-    void setTopLeft(Point<T> p)
-    {
-        setX(p.x());
-        setY(p.y());
-    }
-
-    void setBottomRight(Point<T> p)
-    {
-        setRight(p.x());
-        setBottom(p.y());
-    }
-
-    void setSrc(Point<T> p) { src_ = p; }
-
-    void setDst(Point<T> p) { dst_ = p; }
-
-    Point<T> src() const { return src_; }
-
-    Point<T> dst() const { return dst_; }
-
-    Point<T>& srcRef() { return src_; }
-
-    Point<T>& dstRef() { return dst_; }
+    PointFd& dst_ref() { return dst_; }
     /*! \} */
 
-    /*! \brief Implicit cast into a rectangle of an other unit*/
-    template <typename U>
-    operator Rect<U>() const
-    {
-        Rect<U> res(src_, dst_);
-        return res;
-    }
-
     /*! \brief area, abs(width * height) */
-    typename T::primary_type area() const { return std::abs(width() * height()); }
+    int area() const { return std::abs(width() * height()); }
 
     /*! \brief Center of the rectangle */
-    Point<T> center() const
+    PointFd center() const
     {
-        T x = this->x();
+        int x = this->x();
         x += right();
         x /= 2;
-        T y = this->y();
+        int y = this->y();
         y += bottom();
         y /= 2;
-        Point<T> res(x, y);
+        PointFd res(x, y);
         return res;
     }
 
+    inline bool operator==(const units::RectFd& other) const { return src_ == other.src_ && dst_ == other.dst_; }
+
+    SERIALIZE_JSON_STRUCT(RectFd, src_, dst_);
+
   private:
-    Point<T> src_;
-    Point<T> dst_;
+    PointFd src_;
+    PointFd dst_;
 };
 
-/*! \brief Rectangle in the OpenGL coordinates [-1;1] */
-using RectOpengl = Rect<OpenglPosition>;
-
-/*! \brief Rectangle in the frame desc coordinates */
-using RectFd = Rect<FDPixel>;
-
-/*! \brief Rectangle in the window coordinates */
-using RectWindow = Rect<WindowPixel>;
-
-template <typename T>
-std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
+inline std::ostream& operator<<(std::ostream& o, const RectFd& r)
 {
     return o << '[' << r.src() << ", " << r.dst() << ']';
 }
-
-inline bool operator==(const units::RectFd& lhs, const units::RectFd& rhs)
-{
-    return lhs.src() == rhs.src() && lhs.dst() == rhs.dst();
-}
-
-// clang-format off
-SERIALIZE_JSON_ENUM(Axis, {
-    {HORIZONTAL, "HORIZONTAL"},
-    {VERTICAL, "VERTICAL"},
-})
-
-// Temporary situation needed to not touch all template classes in the units tools
-inline void to_json(json& j, const units::RectFd& rect)
-{
-    j = json{
-        {"src", {
-            {"x", {
-                {"val", rect.src().x().get()},
-                {"axis", rect.src().x().get_axis()},
-                {"conversion", (size_t)rect.src().x().getConversion().get_opengl()},
-            }},
-            {"y", {
-                {"val", rect.src().y().get()},
-                {"axis", rect.src().y().get_axis()},
-                {"conversion", (size_t)rect.src().y().getConversion().get_opengl()},
-            }},
-        }},
-        {"dst", {
-            {"x", {
-                {"val", rect.dst().x().get()},
-                {"axis", rect.dst().x().get_axis()},
-                {"conversion", (size_t)rect.dst().x().getConversion().get_opengl()},
-            }},
-            {"y", {
-                {"val", rect.dst().y().get()},
-                {"axis", rect.dst().y().get_axis()},
-                {"conversion", (size_t)rect.dst().y().getConversion().get_opengl()},
-            }},
-        }}
-    };
-}
-
-inline void from_json(const json& j, units::RectFd& rect)
-{
-    rect = units::RectFd(
-        units::PointFd(
-            units::FDPixel(
-                (const gui::BasicOpenGLWindow*)j.at("src").at("x").at("conversion").get<size_t>(),
-                j.at("src").at("x").at("axis").get<Axis>(),
-                j.at("src").at("x").at("val").get<int>()
-            ),
-            units::FDPixel(
-                (const gui::BasicOpenGLWindow*)j.at("src").at("y").at("conversion").get<size_t>(),
-                j.at("src").at("y").at("axis").get<Axis>(),
-                j.at("src").at("y").at("val").get<int>()
-            )
-        ),
-        units::PointFd(
-            units::FDPixel(
-                (const gui::BasicOpenGLWindow*)j.at("dst").at("x").at("conversion").get<size_t>(),
-                j.at("dst").at("x").at("axis").get<Axis>(),
-                j.at("dst").at("x").at("val").get<int>()
-            ),
-            units::FDPixel(
-                (const gui::BasicOpenGLWindow*)j.at("dst").at("y").at("conversion").get<size_t>(),
-                j.at("dst").at("y").at("axis").get<Axis>(),
-                j.at("dst").at("y").at("val").get<int>()
-            )
-        )
-    );
-}
-// clang-format on
 } // namespace holovibes::units

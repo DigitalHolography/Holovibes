@@ -121,6 +121,13 @@ bool Pipe::make_requests()
                    "Update time tr. algorithm",
                    perform_time_transformation_setting_specific_tasks(setting<settings::TimeTransformationSize>()));
 
+    if (is_requested(ICS::OutputBuffer))
+    {
+        LOG_DEBUG("output_buffer_requested");
+        init_output_queue();
+        clear_request(ICS::OutputBuffer);
+    }
+
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
     HANDLE_REQUEST(ICS::Filter, "Filter Init", api.filter2d.enable_filter(api.filter2d.get_filter_file_name()));
@@ -181,7 +188,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("filter2d_view_requested");
 
-        auto fd = gpu_output_queue_.get_fd();
+        auto fd = buffers_.gpu_output_queue->get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
         api.view.set_filter2d_view_enabled(true);
         clear_request(ICS::Filter2DView);
@@ -442,7 +449,7 @@ void Pipe::insert_dequeue_input()
         {
             (*processed_output_fps_) += setting<settings::BatchSize>();
 
-            safe_enqueue_output(gpu_output_queue_,
+            safe_enqueue_output(*buffers_.gpu_output_queue.get(),
                                 static_cast<unsigned short*>(input_queue_.get_last_image()),
                                 "Can't enqueue the input frame in gpu_output_queue");
 
@@ -460,7 +467,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
         {
             (*processed_output_fps_)++;
 
-            safe_enqueue_output(gpu_output_queue_,
+            safe_enqueue_output(*buffers_.gpu_output_queue.get(),
                                 buffers_.gpu_output_frame.get(),
                                 "Can't enqueue the output frame in gpu_output_queue");
 
@@ -493,8 +500,8 @@ void Pipe::insert_filter2d_view()
         fn_compute_vect_->push_back(
             [this]()
             {
-                int width = gpu_output_queue_.get_fd().width;
-                int height = gpu_output_queue_.get_fd().height;
+                int width = buffers_.gpu_output_queue->get_fd().width;
+                int height = buffers_.gpu_output_queue->get_fd().height;
 
                 shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
 
@@ -588,7 +595,7 @@ void Pipe::insert_hologram_record()
         fn_compute_vect_->push_back(
             [this]()
             {
-                if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
+                if (buffers_.gpu_output_queue->get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
                     record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
                                                      stream_,
                                                      get_memcpy_kind<settings::RecordQueueLocation>());

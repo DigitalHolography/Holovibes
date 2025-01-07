@@ -6,5 +6,6 @@ repos:
         files: \.(cc|hh|cu|cuh|hxx|cuhxx)$
         args:
           - -style=file
+          - -assume-filename=.clang-format
           - -i
         additional_dependencies: []

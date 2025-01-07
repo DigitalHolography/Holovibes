@@ -15,7 +15,7 @@ void ZoomOverlay::release(ushort frameSide)
 {
     display_ = false;
 
-    if (zone_.topLeft() == zone_.bottomRight())
+    if (zone_.top_left() == zone_.bottom_right())
         return;
 
     // handle Zoom
