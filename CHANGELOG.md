@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.X.X
+
+- Fixed image registration: Now working with anamorphic data (ex: 512x256).
+
 ### 14.3.0
 
 - Updated all preset:
@@ -10,7 +14,6 @@
 - Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
 - Added an option 'Load file in CPU RAM' in that drop-down
 - Added UI buttons that specify which eye is recorded, which is reflected in the file name
-
 
 ### 14.2.0
 
