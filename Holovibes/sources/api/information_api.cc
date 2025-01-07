@@ -13,6 +13,12 @@ namespace holovibes::api
     else                                                                                                               \
         target.reset()
 
+#define UPDATE_STRING_OPTIONAL(map, iterator, type, target)                                                            \
+    if ((iterator = map.find(type)) != map.end())                                                                      \
+        target = iterator->second;                                                                                     \
+    else                                                                                                               \
+        target.reset()
+
 #define UPDATE_PAIR_OPTIONAL(map, iterator, type, target)                                                              \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = {type, iterator->second->first, iterator->second->second};                                            \
@@ -32,7 +38,7 @@ const std::string InformationApi::get_documentation_url() const
     return "https://ftp.espci.fr/incoming/Atlan/holovibes/manual/";
 }
 
-void get_information(Information* info)
+void InformationApi::get_information(Information* info) const
 {
     if (!info)
         throw std::runtime_error("Cannot build information: no structure provided");
@@ -43,6 +49,12 @@ void get_information(Information* info)
     UPDATE_INT_OPTIONAL(int_map, int_it, IntType::OUTPUT_FPS, info->output_fps);
     UPDATE_INT_OPTIONAL(int_map, int_it, IntType::SAVING_FPS, info->saving_fps);
     UPDATE_INT_OPTIONAL(int_map, int_it, IntType::TEMPERATURE, info->temperature);
+
+    auto& indication_map = FastUpdatesMap::map<IndicationType>;
+    FastUpdatesHolder<IndicationType>::const_iterator indication_it;
+    UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::IMG_SOURCE, info->img_source);
+    UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::INPUT_FORMAT, info->input_format);
+    UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::OUTPUT_FORMAT, info->output_format);
 
     auto& progress_map = FastUpdatesMap::map<ProgressType>;
     FastUpdatesHolder<ProgressType>::const_iterator progress_it;

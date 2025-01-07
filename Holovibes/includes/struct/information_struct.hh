@@ -42,6 +42,9 @@ struct Information
     std::optional<uint> output_fps;
     std::optional<uint> saving_fps;
     std::optional<uint> temperature;
+    std::shared_ptr<std::string> img_source;
+    std::shared_ptr<std::string> input_format;
+    std::shared_ptr<std::string> output_format;
     std::optional<ProgressInfo> file_read_progress;
     std::optional<ProgressInfo> record_progress;
     std::map<QueueType, QueueInfo> queues;

@@ -68,6 +68,8 @@ void InformationWorker::run()
     {
         chrono.stop();
 
+        API.information.get_information(&information_);
+
         auto waited_time = chrono.get_milliseconds();
         if (waited_time >= 1000)
         {

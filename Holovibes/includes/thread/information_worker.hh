@@ -7,6 +7,7 @@
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
 #include "fast_updates_types.hh"
+#include "information_struct.hh"
 #include "enum/enum_device.hh"
 #include "worker.hh"
 #include "logger.hh"
@@ -126,6 +127,9 @@ class InformationWorker final : public Worker
 
     /*! \brief Saving throughput */
     size_t saving_throughput_ = 0;
+
+    /*! \brief Structure that will be used to retrieve information from the API */
+    Information information_;
 
     /**
      * @brief Contains all the settings of the worker that should be updated

@@ -146,7 +146,7 @@ class InformationApi : public IApi
     /*! \brief Displays information */
     void start_information_display() const;
 
-    void get_information(Information* info);
+    void get_information(Information* info) const;
 
 #pragma endregion
 };
