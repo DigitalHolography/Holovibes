@@ -4,6 +4,16 @@
 
 - Nb. frames now isn't reset when interacting with certain UI components
 - Removed boundaries to Nb. frames, but it is set to the maximum when a file is loaded
+- Rename UI elements:
+  - "Registration" to "Image Registration"
+  - "View" (next to Filter2D) to "Filter2D View"
+  - "Regular Access" to "Sequential File Read" for the drop down menu of file mode loading
+  - "Nb. img" to "Time Window"
+  - "Renormalize" to "Renormalize Image Levels"
+  - "Contrast" to "Brightness and Contrast"
+- Change eye recorded:
+  - Rename "Eye recorded" to "Tag"
+  - There is a single button that switch between left, right or none
 
 ### 14.3.0
 

@@ -142,7 +142,8 @@ void RecordApi::set_record_buffer_size(uint value) const
         if (is_recording())
             stop_record();
 
-        Holovibes::instance().init_record_queue();
+        if (!api_->compute.get_is_computation_stopped())
+            Holovibes::instance().init_record_queue();
     }
 }
 
