@@ -123,11 +123,6 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
-    if (api_.input.get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
-
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
@@ -300,7 +295,10 @@ void ExportPanel::update_record_frame_count_enabled()
     if (!checked)
         api_.record.set_record_frame_count(std::nullopt);
     else
-        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+    {
+        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());            // Performs bound checks
+        ui_->NumberOfFramesSpinBox->setValue(api_.record.get_record_frame_count().value()); // Applies these checks
+    }
 }
 
 void ExportPanel::update_record_file_path()
