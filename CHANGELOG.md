@@ -1,5 +1,10 @@
 ## Changelog
 
+### XX.X.X
+
+- Nb. frames now isn't reset when interacting with certain UI components
+- Removed boundaries to Nb. frames, but it is set to the maximum when a file is loaded
+
 ### 14.3.0
 
 - Updated all preset:
@@ -10,7 +15,6 @@
 - Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
 - Added an option 'Load file in CPU RAM' in that drop-down
 - Added UI buttons that specify which eye is recorded, which is reflected in the file name
-
 
 ### 14.2.0
 
