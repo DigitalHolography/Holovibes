@@ -315,7 +315,7 @@ void InformationWorker::display_gui_information()
         }
     }
 
-    if (API.input.get_import_type() != ImportType::None)
+    if (!API.compute.get_is_computation_stopped())
     {
         for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
         {
