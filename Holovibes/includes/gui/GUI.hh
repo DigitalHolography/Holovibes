@@ -105,8 +105,8 @@ void set_reticle_overlay_visible(bool value);
  * \param[in] parent The window.
  * \param[in] callback The function to be called on closing.
  */
-void open_advanced_setting(
-    QMainWindow parent, std::function<void()> callback = []() {});
+void open_advanced_settings(
+    QMainWindow* parent, std::function<void()> callback = []() {});
 
 /*!
  * \brief Gets a string representation of the current recorded eye
