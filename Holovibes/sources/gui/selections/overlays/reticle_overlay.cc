@@ -15,8 +15,8 @@ ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
 void ReticleOverlay::setBuffer()
 {
     const float scale = API.contrast.get_reticle_scale();
-    const float w_2 = API.input.get_fd().width / 2;
-    const float h_2 = API.input.get_fd().height / 2;
+    const float w_2 = API.input.get_input_fd().width / 2;
+    const float h_2 = API.input.get_input_fd().height / 2;
 
     auto top_left = units::PointFd(w_2 - w_2 * scale, h_2 - h_2 * scale);
     auto bottom_right = units::PointFd(w_2 + w_2 * scale, h_2 + h_2 * scale);

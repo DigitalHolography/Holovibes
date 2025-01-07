@@ -27,10 +27,10 @@ PointGL::PointGL(const BasicOpenGLWindow& window, units::PointFd point)
 units::PointFd PointGL::to_fd() const
 {
     float x = (x_ + 1.f) / 2.f;
-    x *= API.input.get_fd().width;
+    x *= API.input.get_input_fd().width;
 
     float y = (-y_ + 1.f) / 2.f;
-    y *= API.input.get_fd().height;
+    y *= API.input.get_input_fd().height;
 
     units::PointFd res(x, y);
 
