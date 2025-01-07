@@ -243,7 +243,7 @@
            <item row="1" column="1">
             <widget class="QCheckBox" name="Filter2DView">
              <property name="text">
-              <string>View</string>
+              <string>Filter2D View</string>
              </property>
             </widget>
            </item>
@@ -384,7 +384,7 @@
               <string>The size of the time transformation</string>
              </property>
              <property name="text">
-              <string>Nb. img</string>
+              <string>Time window</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -520,10 +520,10 @@
               <number>0</number>
              </property>
              <property name="minimum">
-              <double>0.000000000000000</double>
+              <double>-4000.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>10000.000000000000000</double>
+              <double>40000.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>0.005000000000000</double>
@@ -809,7 +809,7 @@ It's a post-processing step to remove noise</string>
                </sizepolicy>
               </property>
               <property name="title">
-               <string>Contrast</string>
+               <string>Brightness and Contrast</string>
               </property>
               <property name="flat">
                <bool>false</bool>
@@ -1321,7 +1321,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string extracomment="Show the lens"/>
              </property>
              <property name="text">
-              <string>Lens view</string>
+              <string>Lens View</string>
              </property>
             </widget>
            </item>
@@ -1350,7 +1350,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string>Show the raw input</string>
              </property>
              <property name="text">
-              <string>Raw view</string>
+              <string>Raw View</string>
              </property>
             </widget>
            </item>
@@ -1363,7 +1363,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>3D cuts</string>
+              <string>3D Cuts</string>
              </property>
             </widget>
            </item>
@@ -1373,7 +1373,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string>Shifts zero-frequency components to the center of the spectrum</string>
              </property>
              <property name="text">
-              <string>FFT shift</string>
+              <string>FFT Shift</string>
              </property>
             </widget>
            </item>
@@ -1387,7 +1387,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string>Stabilize the image</string>
              </property>
              <property name="text">
-              <string>Registration</string>
+              <string>Image Registration</string>
              </property>
             </widget>
            </item>
@@ -1407,6 +1407,18 @@ The range of frequencies kept is [z, z + width]</string>
              </property>
              <property name="singleStep">
               <double>0.050000000000000</double>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -1441,6 +1453,18 @@ The range of frequencies kept is [z, z + width]</string>
              <property name="value">
               <double>0.500000000000000</double>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
             </widget>
            </item>
           </layout>
@@ -1453,7 +1477,7 @@ The range of frequencies kept is [z, z + width]</string>
               <string>Normalize input according to a renormalize constant</string>
              </property>
              <property name="text">
-              <string>Renormalize</string>
+              <string>Renormalize Image Levels</string>
              </property>
             </widget>
            </item>
@@ -2653,7 +2677,7 @@ The range of frequencies kept is [z, z + width]</string>
              <widget class="QComboBox" name="FileLoadKindComboBox">
               <item>
                <property name="text">
-                <string>Regular access</string>
+                <string>Sequential File Read</string>
                </property>
               </item>
               <item>
@@ -2968,27 +2992,17 @@ The range of frequencies kept is [z, z + width]</string>
                     <string>Which eye is being recorded.</string>
                    </property>
                    <property name="text">
-                    <string>Eye recorded</string>
+                    <string>Tag</string>
                    </property>
                   </widget>
                  </item>
                  <item row="0" column="3" colspan="3">
                   <widget class="QPushButton" name="RecordedEyePushButton">
                    <property name="text">
-                    <string>Unspecified</string>
+                    <string>None</string>
                    </property>
                    <property name="toolTip">
-                    <string>Switch between left and right eye</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="6">
-                  <widget class="QPushButton" name="ResetRecordedEyePushButton">
-                   <property name="text">
-                    <string>X</string>
-                   </property>
-                   <property name="toolTip">
-                    <string>Cancel the eye choice and set it back to unspecified</string>
+                    <string>Switch between left eye, right eye or none</string>
                    </property>
                   </widget>
                  </item>
@@ -5915,22 +5929,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>859</x>
      <y>504</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ResetRecordedEyePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>reset_recorded_eye()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>935</x>
-     <y>344</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>859</x>
-     <y>501</y>
     </hint>
    </hints>
   </connection>

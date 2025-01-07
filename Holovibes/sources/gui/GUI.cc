@@ -349,7 +349,7 @@ std::string getNameFromFilename(const std::string& filename)
 std::string get_recorded_eye_display_string()
 {
     static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
-                                                          {RecordedEyeType::NONE, "Unspecified"},
+                                                          {RecordedEyeType::NONE, "None"},
                                                           {RecordedEyeType::RIGHT, "Right"}};
     return eye_map[API.record.get_recorded_eye()];
 }
