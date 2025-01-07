@@ -12,7 +12,7 @@ OutputMp4File::OutputMp4File(const std::string& file_path, const camera::FrameDe
     img_nb_ = img_nb;
 }
 
-void OutputMp4File::export_compute_settings(int input_fps, size_t contiguous, int camera_fps) {}
+void OutputMp4File::export_compute_settings(int input_fps, size_t contiguous) {}
 
 void OutputMp4File::write_header()
 {
