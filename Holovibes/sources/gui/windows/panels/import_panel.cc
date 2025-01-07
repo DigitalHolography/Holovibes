@@ -99,6 +99,10 @@ void ImportPanel::import_file(const QString& filename)
         ui_->ImportStartIndexSpinBox->setMaximum(nb_frames);
         ui_->ImportEndIndexSpinBox->setMaximum(nb_frames);
 
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((api_.input.get_input_file_end_index() - api_.input.get_input_file_start_index()) /
+                 (float)api_.transform.get_time_stride()));
+
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);
 
