@@ -17,6 +17,15 @@
 namespace holovibes::gui
 {
 
+/*! \brief Start the computation and open the main window
+ *
+ * \param window_size the size of the window
+ */
+void start(ushort window_size);
+
+/*! \brief Stop the computation and close all windows */
+void stop();
+
 /*! \brief Closes all the currently displaying windows */
 void close_windows();
 

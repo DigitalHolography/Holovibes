@@ -145,21 +145,21 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_computation_mode(int mode)
+void ImageRenderingPanel::set_compute_mode(int mode)
 {
-    if (api_.input.get_import_type() == ImportType::None)
-        return;
-
     Computation comp_mode = static_cast<Computation>(mode);
 
     gui::close_windows();
-    api_.compute.set_computation_mode(comp_mode);
-    gui::create_window(comp_mode, parent_->window_max_size);
+    if (api_.compute.set_compute_mode(comp_mode) != ApiCode::OK)
+        return;
+
+    if (!api_.compute.get_is_computation_stopped())
+        gui::create_window(comp_mode, parent_->window_max_size);
 
     if (comp_mode == Computation::Hologram)
     {
         /* Filter2D */
-        camera::FrameDescriptor fd = api_.input.get_fd();
+        camera::FrameDescriptor fd = api_.input.get_input_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
 
@@ -188,7 +188,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = api_.input.get_fd();
+        const camera::FrameDescriptor& fd = api_.input.get_input_fd();
         const int size_max = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
         ui_->Filter2DN2SpinBox->setMaximum(size_max);
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
@@ -292,7 +292,7 @@ void ImageRenderingPanel::decrement_z() { set_z_distance(api_.transform.get_z_di
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (api_.input.get_import_type() == ImportType::None)
+    if (api_.compute.get_is_computation_stopped())
         return;
 
     if (value)
@@ -306,8 +306,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
     std::string v = value.toStdString();
-    api_.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
-    parent_->notify();
+    if (api_.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)

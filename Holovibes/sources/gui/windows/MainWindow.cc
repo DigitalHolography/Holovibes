@@ -150,8 +150,6 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api_.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
-        // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
     }
     catch (const std::exception&)
     {
@@ -167,9 +165,6 @@ MainWindow::MainWindow(QWidget* parent)
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
     load_gui();
-
-    if (api_.input.get_import_type() != ImportType::None)
-        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -197,6 +192,9 @@ MainWindow::MainWindow(QWidget* parent)
     enable_notify();
 
     notify();
+
+    if (api_.input.get_import_type() != ImportType::None)
+        gui::start(window_max_size);
 }
 
 MainWindow::~MainWindow()
@@ -204,8 +202,8 @@ MainWindow::~MainWindow()
     ui_->menuSelect_preset->clear();
 
     gui::close_windows();
-    api_.compute.close_critical_compute();
-    api_.compute.stop_all_worker_controller();
+    api_.compute.stop();
+    api_.information.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
@@ -311,10 +309,10 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [&, this]
             {
-                // notify will be in close_critical_compute
-                api_.compute.handle_update_exception();
+                api_.transform.set_time_transformation_size(1);
+                api_.filter2d.enable_filter("");
                 gui::close_windows();
-                api_.compute.close_critical_compute();
+                api_.compute.stop();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
             };
@@ -325,7 +323,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             if (accu)
                 api_.window_pp.set_accumulation_level(1, WindowKind::XYview);
-            api_.compute.close_critical_compute();
+            api_.compute.stop();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
             notify();
@@ -396,14 +394,12 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = api_.input.get_import_type();
-    ui_->ImportPanel->import_stop();
+    gui::stop();
 
     try
     {
         api_.settings.load_compute_settings(filename);
-        // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
+        notify();
     }
     catch (const std::exception&)
     {
@@ -412,6 +408,7 @@ void MainWindow::reload_ini(const std::string& filename)
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
+    ImportType it = api_.input.get_import_type();
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
@@ -587,16 +584,14 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
-    ui_->ImportPanel->import_stop();
+    // When changing to camera, disable input file button and clear choosen file
+    ui_->ImportPanel->set_start_stop_buttons(false);
+    ui_->ImportPathLineEdit->clear();
+
+    gui::stop();
 
     if (api_.input.set_camera_kind(c))
-    {
-        // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api_.compute.get_compute_mode()));
-        shift_screen();
-    }
-
-    notify();
+        gui::start(window_max_size);
 }
 
 void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
@@ -673,38 +668,16 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 #pragma endregion
 
-#pragma region Image Mode
-
-void MainWindow::set_view_image_type(const QString& value)
-{
-    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-
-    bool composite = img_type == ImgType::Composite || api_.compute.get_img_type() == ImgType::Composite;
-
-    if (api_.compute.set_view_mode(img_type) == ApiCode::OK)
-    {
-        // Composite need a refresh of the window since the depth has changed.
-        // A better way would be to just update the buffer and texParam of OpenGL
-        if (composite)
-            gui::refresh_window(window_max_size);
-
-        notify();
-    }
-}
-
-#pragma endregion
-
 void MainWindow::change_window(int index)
 {
     api_.view.change_window(static_cast<WindowKind>(index));
-
     notify();
 }
 
 void MainWindow::start_import(QString filename)
 {
     ui_->ImportPanel->import_file(filename);
-    ui_->ImportPanel->import_start();
+    gui::start(window_max_size);
 }
 
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
@@ -767,16 +740,6 @@ void MainWindow::reset_settings()
 #pragma endregion
 
 #pragma region UI
-
-void MainWindow::shift_screen()
-{
-    return;
-    // we want to remain at the position indicated in the user_settings.json
-    QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int screen_height = rec.height();
-    int screen_width = rec.width();
-    move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
-}
 
 void MainWindow::open_light_ui()
 {

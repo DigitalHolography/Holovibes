@@ -38,7 +38,7 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
-    holovibes::settings::ImportedFileFd,                         \
+    holovibes::settings::InputFd,                                \
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
@@ -199,41 +199,56 @@ class Holovibes
     /*! \name Queue getters
      * \{
      */
-    /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_input_queue();
-
-    /*! \brief Used to display frames */
-    std::shared_ptr<Queue> get_gpu_output_queue();
-    /*! \} */
-
-    /*!
-     * \brief Used to record frames
+    /*! \brief Return the input queue (the one storing the input frames)
+     *
+     * \return std::shared_ptr<BatchInputQueue> The input queue
      */
-    std::atomic<std::shared_ptr<Queue>> get_record_queue();
+    inline std::shared_ptr<BatchInputQueue> get_input_queue() const { return input_queue_.load(); }
+
+    /*! \brief Return the record queue (the one storing the computed frames before saving)
+     *
+     * \return std::shared_ptr<Queue> The record queue
+     */
+    inline std::atomic<std::shared_ptr<Queue>> get_record_queue() const { return record_queue_.load(); }
+    /*! \} */
 
     /*! \name Getters/Setters
      * \{
      */
-    std::shared_ptr<Pipe> get_compute_pipe();
-    std::shared_ptr<Pipe> get_compute_pipe_no_throw();
-
-    const CudaStreams& get_cuda_streams() const;
-
-    /*! \return Corresponding Camera INI file path */
-    const char* get_camera_ini_name() const;
-
-    /*! \brief Get zb = N d^2 / lambda
+    /*! \brief Return the compute pipe and throw if no pipe.
+     * user.
      *
-     * Is updated everytime the camera changes or lamdba changes
-     * N = frame height
-     * d = pixel size
-     * lambda = wavelength
-     *
-     * \return const float
+     * \return std::shared_ptr<Pipe> The compute pipe
+     * \throw std::runtime_error If the compute pipe is not initialized
      */
-    const float get_boundary();
+    inline std::shared_ptr<Pipe> get_compute_pipe()
+    {
+        auto loaded = compute_pipe_.load();
+        if (!loaded)
+            throw std::runtime_error("Pipe is not initialized");
 
-    /*! \brief Say if the worker recording raw/holo/cuts is running.
+        return loaded;
+    }
+
+    /*! \brief Return the compute pipe.
+     *
+     * \return std::shared_ptr<Pipe> The compute pipe
+     */
+    inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() const { return compute_pipe_.load(); }
+
+    /*! \brief Return the cuda streams
+     *
+     * \return const CudaStreams& The cuda streams
+     */
+    inline const Holovibes::CudaStreams& get_cuda_streams() const { return cuda_streams_; }
+
+    /*! \brief Return the path of the camera INI file used.
+     *
+     * \return const char* the path of the camera INI file of the current camera.
+     */
+    inline const char* get_camera_ini_name() const { return active_camera_->get_ini_name(); }
+
+    /*! \brief Return whether the recording worker is running or not
      *
      * \return bool true if recording, else false
      */
@@ -249,13 +264,6 @@ class Holovibes
     void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
 
     /*!
-     * \brief Initializes the input queue with the same fd, when it already exist
-     *
-     * \param input_queue_size size of the input queue
-     */
-    void init_input_queue(const unsigned int input_queue_size);
-
-    /*!
      * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
      *
      */
@@ -269,12 +277,8 @@ class Holovibes
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
-     *
-     * \param camera_kind
-     * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read();
 
     /*! \brief Handle frame reading interruption
      *
@@ -302,20 +306,9 @@ class Holovibes
 
     void stop_information_display();
 
-    /*! \brief Start compute worker */
-    void start_compute_worker(const std::function<void()>& callback = []() {});
-
-    void start_compute(const std::function<void()>& callback = []() {});
+    void start_compute();
 
     void stop_compute();
-
-    // Always close the 3D cuts before calling this function
-    void stop_all_worker_controller();
-
-    void init_pipe();
-
-    /*! \brief Reload the cuda streams when the device is reset */
-    void reload_streams();
 
     /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
      * used to know if queues have to keep contiguity or not. */
@@ -370,7 +363,7 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
-                                             settings::ImportedFileFd{camera::FrameDescriptor{}},
+                                             settings::InputFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::FileLoadKind{FileLoadKind::REGULAR},
@@ -456,7 +449,6 @@ class Holovibes
 
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
-    std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
@@ -470,14 +462,14 @@ class Holovibes
      * \{
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
-    std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
 
     CudaStreams cuda_streams_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+  public:
+    std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 };
 } // namespace holovibes
-
-#include "holovibes.hxx"

@@ -81,8 +81,8 @@ void CameraOpenCV::bind_params()
 
 void CameraOpenCV::init_camera()
 {
-    deviceID_ = 0;        /* open default camera */
-    apiID_ = cv::CAP_ANY; /* autodetect default API */
+    deviceID_ = 0;          /* open default camera */
+    apiID_ = cv::CAP_DSHOW; /* autodetect default API */
     capture_device_.open(deviceID_, apiID_);
     if (!capture_device_.isOpened())
     {
