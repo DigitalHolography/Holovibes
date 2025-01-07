@@ -95,8 +95,6 @@ void ImportPanel::import_file(const QString& filename)
 
     if (input_file_opt)
     {
-        NotifierManager::notify<bool>("file_imported", true); // Broadcast that a file has been imported
-
         auto input_file = input_file_opt.value();
 
         parent_->notify();
@@ -116,6 +114,10 @@ void ImportPanel::import_file(const QString& filename)
         // This whole logic will need to go in the API at one point
         api_.input.set_input_file_start_index(0);
         api_.input.set_input_file_end_index(nb_frames);
+
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((api_.input.get_input_file_end_index() - api_.input.get_input_file_start_index()) /
+                 (float)api_.transform.get_time_stride()));
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);

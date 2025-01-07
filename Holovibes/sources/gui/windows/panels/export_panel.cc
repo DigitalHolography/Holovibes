@@ -22,7 +22,6 @@ ExportPanel::ExportPanel(QWidget* parent)
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
     , browse_record_output_file_subscriber_("browse_record_output_file",
                                             [this](bool _unused) { return browse_record_output_file().toStdString(); })
-    , imported_file_subscriber_("file_imported", [this](bool unused) { set_max_record_frame_count(); })
 {
 }
 
@@ -286,13 +285,6 @@ void ExportPanel::stop_chart_display()
     gui::set_chart_display(false);
 
     ui_->ChartPlotPushButton->setEnabled(true);
-}
-
-void ExportPanel::set_max_record_frame_count()
-{
-    ui_->NumberOfFramesSpinBox->setValue(
-        ceil((API.input.get_input_file_end_index() - API.input.get_input_file_start_index()) /
-             (float)API.transform.get_time_stride()));
 }
 
 void ExportPanel::update_record_frame_count_enabled()
