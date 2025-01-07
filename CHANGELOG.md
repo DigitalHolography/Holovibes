@@ -14,6 +14,7 @@
 - Change eye recorded:
   - Rename "Eye recorded" to "Tag"
   - There is a single button that switch between left, right or none
+- Fixed image registration: Now working with anamorphic data (ex: 512x256).
 
 ### 14.3.0
 
