@@ -64,13 +64,7 @@ void RecordApi::set_recorded_eye(RecordedEyeType value) const
 
 bool RecordApi::start_record_preconditions() const
 {
-    std::optional<size_t> nb_frames_to_record = get_record_frame_count();
-    bool nb_frame_checked = nb_frames_to_record.has_value();
-
-    if (!nb_frame_checked)
-        nb_frames_to_record = std::nullopt;
-
-    if (get_record_mode() == RecordMode::CHART && nb_frames_to_record == std::nullopt)
+    if (get_record_mode() == RecordMode::CHART && get_record_frame_count() == std::nullopt)
     {
         LOG_ERROR("Number of frames must be activated");
         return false;
@@ -92,8 +86,7 @@ void RecordApi::start_record(std::function<void()> callback) const
         Holovibes::instance().start_frame_record(callback);
 
     // Notify the changes
-    NotifierManager::notify<RecordMode>("record_start", record_mode); // notifying lightUI
-    NotifierManager::notify<bool>("acquisition_started", true);       // notifying MainWindow
+    NotifierManager::notify<bool>("acquisition_started", true); // notifying MainWindow
 }
 
 void RecordApi::stop_record() const
@@ -106,9 +99,6 @@ void RecordApi::stop_record() const
         Holovibes::instance().stop_chart_record();
     else if (record_mode != RecordMode::NONE)
         Holovibes::instance().stop_frame_record();
-
-    // Notify the changes
-    NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
 bool RecordApi::is_recording() const { return Holovibes::instance().is_recording(); }

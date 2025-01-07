@@ -234,10 +234,7 @@ class RecordApi : public IApi
      */
     void start_record(std::function<void()> callback) const;
 
-    /*! \brief Stops recording
-     *
-     * \note This functions calls the notification `record_stop` when this is done.
-     */
+    /*! \brief Stops recording. */
     void stop_record() const;
 
     /*! \brief Return whether we are recording or not

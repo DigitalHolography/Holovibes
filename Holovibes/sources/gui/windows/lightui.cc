@@ -24,18 +24,8 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , main_window_(main_window)
     , visible_(false)
     , notify_subscriber_("notify", std::bind(&LightUI::on_notify, this, std::placeholders::_1))
-    , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
-    , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
     , record_progress_subscriber_("record_progress",
                                   std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
-    , record_progress_bar_color_subscriber_(
-          "record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
-    , record_finished_subscriber_("record_finished",
-                                  [this](bool success)
-                                  {
-                                      reset_start_button();
-                                      reset_record_progress_bar();
-                                  })
 {
     ui_->setupUi(this);
 }
@@ -92,52 +82,40 @@ void LightUI::set_record_file_name()
 void LightUI::start_stop_recording(bool start)
 {
     if (start)
-        NotifierManager::notify<bool>("start_record_export_panel", true);
+    {
+        main_window_->ui_->ExportPanel->start_record();
+
+        // Update UI
+        set_recordProgressBar_color(QColor(209, 90, 25), "Recording...");
+
+        ui_->startButton->setText("Stop recording");
+
+        LOG_INFO("Recording started");
+    }
     else
-        API.record.stop_record();
-}
+    {
+        main_window_->ui_->ExportPanel->stop_record();
 
-void LightUI::on_record_start(RecordMode record)
-{
-    ui_->startButton->setText("Stop recording");
-    ui_->RecordedEyePushButton->setEnabled(false);
-    LOG_INFO("Recording started");
-}
+        // Reset record progress bar
+        set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
+        actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 
-void LightUI::on_record_stop(RecordMode record)
-{
-    reset_start_button();
+        // Reset start button
+        ui_->startButton->setChecked(false);
+        ui_->startButton->setText("Start recording");
 
-    ui_->RecordedEyePushButton->setEnabled(true);
+        LOG_INFO("Recording stopped");
+    }
 
-    reset_record_progress_bar();
-
-    LOG_INFO("Recording stopped");
+    ui_->RecordedEyePushButton->setEnabled(!start);
 }
 
 void LightUI::on_record_progress(const RecordProgressData& data) { actualise_record_progress(data.value, data.max); }
-
-void LightUI::on_record_progress_bar_color(const RecordBarColorData& data)
-{
-    set_recordProgressBar_color(data.color, data.text);
-}
-
-void LightUI::reset_start_button()
-{
-    ui_->startButton->setChecked(false);
-    ui_->startButton->setText("Start recording");
-}
 
 void LightUI::actualise_record_progress(const int value, const int max)
 {
     ui_->recordProgressBar->setMaximum(max);
     ui_->recordProgressBar->setValue(value);
-}
-
-void LightUI::reset_record_progress_bar()
-{
-    set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
-    actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 }
 
 void LightUI::notify()

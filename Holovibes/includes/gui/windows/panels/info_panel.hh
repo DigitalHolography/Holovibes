@@ -43,6 +43,5 @@ class InfoPanel : public Panel
   private:
     int height_ = 0;
     int resize_again_ = 0;
-    Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
 };
 } // namespace holovibes::gui

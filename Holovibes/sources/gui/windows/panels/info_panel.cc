@@ -11,7 +11,6 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
-    , record_finished_subscriber_("record_finished", [this](bool success) { set_visible_record_progress(false); })
 {
 }
 
