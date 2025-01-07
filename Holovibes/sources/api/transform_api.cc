@@ -150,7 +150,7 @@ void TransformApi::set_p_index(uint value) const
 
     if (value >= get_time_transformation_size() || value == 0)
     {
-        LOG_ERROR("p param has to be between 1 and #img");
+        LOG_WARN("p param has to be between 1 and #img");
         return;
     }
 
