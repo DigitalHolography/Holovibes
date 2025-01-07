@@ -146,6 +146,7 @@ void FrameRecordWorker::run()
                                  "are written");
                 }
             }
+
             wait_for_frames();
 
             // While wait_for_frames() is running, a stop might be requested and the queue reset.

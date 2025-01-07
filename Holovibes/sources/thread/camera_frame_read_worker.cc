@@ -27,7 +27,8 @@ void CameraFrameReadWorker::run()
 
     current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
     temperature_ = FastUpdatesMap::map<IntType>.create_entry(IntType::TEMPERATURE, true);
-    API.input.set_camera_fps(camera_->get_camera_fps());
+    if (camera_->get_camera_fps() != -1)
+        API.input.set_camera_fps(static_cast<uint>(camera_->get_camera_fps()));
 
     try
     {
