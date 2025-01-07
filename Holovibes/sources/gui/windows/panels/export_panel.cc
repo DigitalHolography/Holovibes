@@ -302,11 +302,7 @@ void ExportPanel::update_record_frame_count_enabled()
     if (!checked)
         api_.record.set_record_frame_count(std::nullopt);
     else
-    {
-        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value()); // Performs bound checks
-        ui_->NumberOfFramesSpinBox->setValue(
-            static_cast<int>(api_.record.get_record_frame_count().value())); // Applies these checks
-    }
+        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
 void ExportPanel::update_record_file_path()
