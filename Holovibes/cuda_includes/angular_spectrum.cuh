@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common.cuh"
+#include "frame_desc.hh"
 
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
  *

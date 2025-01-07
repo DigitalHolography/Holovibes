@@ -8,30 +8,19 @@
 #define _USE_MATH_DEFINES
 #endif
 #include <string>
-#include <ctime>
-#include <cassert>
 
-#ifndef __NVCC__
-#include <qrect.h>
-#else
-class QString;
 using uchar = unsigned char;
 using uint = unsigned int;
 using ushort = unsigned short;
 using ulong = unsigned long;
-#endif
 
 #include <filesystem>
-#include <fstream>
 
-#include "rect.hh"
 #include "hardware_limits.hh"
-#include "frame_desc.hh"
-#include "cufft.h"
 
 #include "logger.hh"
-#include "notifier.hh"
 #include "chrono.hh"
+#include "rect.hh" // Used by files that include this file
 
 #include <nlohmann/json.hpp>
 
@@ -74,12 +63,6 @@ void get_good_size(ushort& width, ushort& height, ushort window_size);
  */
 std::string
 get_record_filename(std::string file_path, std::string append = "", std::string prepend = Chrono::get_current_date());
-
-/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
-QString create_absolute_qt_path(const std::string& relative_path);
-
-/*! \brief Returns the absolute path to the user Documents folder */
-std::filesystem::path get_user_documents_path();
 
 // Json tools
 

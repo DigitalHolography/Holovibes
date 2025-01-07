@@ -1,7 +1,7 @@
 # Where to look for .ui files.
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-SET(CUDA_EXTERNAL_INCLUDES
+set(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${glm_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
@@ -348,3 +348,8 @@ set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 ")
 
 include(CPack)
+
+# ---------------------------------------------------------------------
+# Unit testing
+# ---------------------------------------------------------------------
+add_subdirectory(tests)

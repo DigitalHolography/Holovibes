@@ -5,6 +5,9 @@
 #include <regex>
 #include <string>
 
+#include <Windows.h>
+#include <shlobj.h>
+
 #define UI UserInterfaceDescriptor::instance()
 
 namespace holovibes::gui
@@ -348,6 +351,28 @@ const std::string browse_record_output_file(std::string& std_filepath)
     UI.output_filename_ = std::move(fileNameWithoutExt);
 
     return fileExt;
+}
+
+QString create_absolute_qt_path(const std::string& relative_path)
+{
+    std::filesystem::path dir(GET_EXE_DIR);
+    dir = dir / relative_path;
+    return QString(dir.string().c_str());
+}
+
+std::filesystem::path get_user_documents_path()
+{
+    wchar_t document_path[MAX_PATH];
+    HRESULT sh_res = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
+
+    if (sh_res == S_OK)
+    {
+        char str[MAX_PATH];
+        wcstombs(str, document_path, MAX_PATH - 1);
+        return str;
+    }
+
+    return "";
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display() { return UI.mainDisplay; }

@@ -5,6 +5,7 @@
 
 #include <QGuiApplication>
 #include <QMouseEvent>
+#include <QPointF>
 #include <QRect>
 #include <QScreen>
 #include <QWheelEvent>
@@ -15,7 +16,10 @@
 #include "common.cuh"
 #include "tools.hh"
 #include "API.hh"
+
 #include "GUI.hh"
+#include "notifier.hh"
+#include "rect_gl.hh"
 
 namespace holovibes
 {
@@ -60,10 +64,10 @@ void RawWindow::initShaders()
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
     Program->addShaderFromSourceFile(
         QOpenGLShader::Fragment,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
     Program->link();
     overlay_manager_.create_default();
 }
@@ -351,9 +355,11 @@ void RawWindow::keyPressEvent(QKeyEvent* e)
     setTransform();
 }
 
-void RawWindow::zoomInRect(units::RectOpengl zone)
+void RawWindow::zoomInRect(units::RectFd zone)
 {
-    const units::PointOpengl center = zone.center();
+    const RectGL converted(*this, zone);
+
+    const PointGL center = converted.center();
 
     const float delta_x = center.x() / (getScale() * 2);
     const float delta_y = center.y() / (getScale() * 2);
@@ -365,11 +371,11 @@ void RawWindow::zoomInRect(units::RectOpengl zone)
 
     setTranslate(new_translate_x, new_translate_y);
 
-    const float xRatio = zone.unsigned_width();
+    const float xRatio = converted.unsigned_width();
 
     // Use the commented line below if you are using square windows,
     // and comment the 2 lines below
-    const float yRatio = zone.unsigned_height();
+    const float yRatio = converted.unsigned_height();
     setScale(getScale() / (std::min(xRatio, yRatio) / 2));
 
     setTransform();

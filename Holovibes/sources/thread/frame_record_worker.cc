@@ -62,7 +62,9 @@ void FrameRecordWorker::run()
     if (frame_count.has_value())
     {
         nb_frames_to_record = static_cast<unsigned int>(frame_count.value());
-        nb_frames_to_record = std::ceil((float)(nb_frames_to_record) / (float)(setting<settings::FrameSkip>() + 1));
+
+        float pas = setting<settings::FrameSkip>() + 1.0f;
+        nb_frames_to_record = static_cast<uint>(std::ceilf(static_cast<float>(nb_frames_to_record) / pas));
         // One frame will result in three moments.
         if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
             nb_frames_to_record = nb_frames_to_record * 3;

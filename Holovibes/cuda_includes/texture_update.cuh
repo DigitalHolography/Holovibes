@@ -6,6 +6,7 @@
 
 #include <surface_functions.h>
 #include "common.cuh"
+#include "frame_desc.hh"
 
 /*!
  * \brief Update a texture with a frame

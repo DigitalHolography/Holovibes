@@ -10,7 +10,6 @@
 #include "enum_record_mode.hh"
 #include "enum_window_kind.hh"
 #include "fast_updates_holder.hh"
-#include "user_interface_descriptor.hh"
 #include "API.hh"
 #include "logger.hh"
 #include "spdlog/spdlog.h"
@@ -26,7 +25,7 @@ static void progress_bar(int current, int total, int length)
     text.reserve(length + 2);
 
     float ratio = (current * 1.0f) / total;
-    int n = length * ratio;
+    int n = static_cast<int>(length * ratio);
 
     text += '[';
     if (n == length)

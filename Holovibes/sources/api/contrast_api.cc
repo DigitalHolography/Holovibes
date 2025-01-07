@@ -9,7 +9,7 @@ namespace holovibes::api
 
 float ftruncate(const int precision, float value)
 {
-    const double multiplier = std::pow(10.0, precision);
+    const float multiplier = std::powf(10.0f, static_cast<float>(precision));
     return std::round(value * multiplier) / multiplier;
 }
 
@@ -33,7 +33,7 @@ void ContrastApi::set_contrast_min(float value, WindowKind kind) const
     if (old_val == value)
         return;
 
-    float new_val = get_log_enabled(kind) ? value : pow(10, value);
+    float new_val = get_log_enabled(kind) ? value : powf(10, value);
 
     if (kind == WindowKind::Filter2D)
     {
@@ -64,7 +64,7 @@ void ContrastApi::set_contrast_max(float value, WindowKind kind) const
     if (old_val == value)
         return;
 
-    float new_val = get_log_enabled(kind) ? value : pow(10, value);
+    float new_val = get_log_enabled(kind) ? value : powf(10, value);
 
     if (kind == WindowKind::Filter2D)
     {

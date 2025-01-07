@@ -5,6 +5,8 @@
 
 #include <thread>
 
+using camera::PixelDepth;
+
 static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q, size_t pos, std::string expected)
 {
     // TODO: getter max size
@@ -37,7 +39,7 @@ static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
 
     char* d_buff;
     cudaXMallocHost((void**)&d_buff, frame_size * batch_size);
-    q.dequeue(d_buff, sizeof(char), lambda);
+    q.dequeue(d_buff, PixelDepth::Bits8, lambda);
 
     return d_buff;
 }
@@ -46,7 +48,7 @@ TEST(BatchInputQueueTest, SimpleInstantiation)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
     ASSERT_EQ(queue.get_size(), 0);
@@ -60,7 +62,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -81,7 +83,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueAndDequeueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -109,7 +111,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -140,7 +142,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteMoreElements)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {4, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {4, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -193,7 +195,7 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -224,7 +226,7 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -257,7 +259,7 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_size = queue.get_fd().get_frame_size();
 
@@ -329,7 +331,7 @@ void consumer_gpu(holovibes::BatchInputQueue& queue,
         if (stop_requested)
             return;
 
-        queue.dequeue(d_buff, sizeof(float), dequeue_func);
+        queue.dequeue(d_buff, PixelDepth::Bits32, dequeue_func);
 
         if (stop_requested)
             return;
@@ -371,7 +373,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
         constexpr uint total_nb_frames = 1024;
         constexpr uint batch_size = 1;
         constexpr uint max_batch_size = total_nb_frames;
-        constexpr camera::FrameDescriptor fd = {2, 2, sizeof(float), camera::Endianness::LittleEndian};
+        constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits32, camera::Endianness::LittleEndian};
         holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
         size_t frame_res = queue.get_fd().get_frame_res();
 
@@ -402,7 +404,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
 TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
 {
     // Test with float
-    constexpr camera::FrameDescriptor fd = {1, 1, sizeof(float), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits32, camera::Endianness::LittleEndian};
     constexpr uint total_nb_frames = 2;
     constexpr uint batch_size = 1;
     const size_t frame_size = fd.get_frame_size();
@@ -459,7 +461,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationFloat)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(float), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits32, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_res = queue.get_fd().get_frame_res();
 
@@ -496,7 +498,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationChar)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(char), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits8, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_res = queue.get_fd().get_frame_res();
 
@@ -533,7 +535,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationShort)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits16, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_res = queue.get_fd().get_frame_res();
 
@@ -570,7 +572,7 @@ TEST(BatchInputQueueTest, PartialProducerConsumerSituationShort)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits16, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     size_t frame_res = queue.get_fd().get_frame_res();
 
@@ -602,7 +604,7 @@ TEST(BatchInputQueueTest, CreateQueueSizeNotMatcingBatchSize)
 {
     constexpr uint total_nb_frames = 11;
     constexpr uint batch_size = 5;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits16, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - total_nb_frames % batch_size);
@@ -612,7 +614,7 @@ TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
 {
     constexpr uint total_nb_frames = 10;
     constexpr uint batch_size = 5;
-    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, PixelDepth::Bits16, camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames);

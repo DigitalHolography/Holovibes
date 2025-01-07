@@ -4,24 +4,28 @@
  */
 #pragma once
 
-#include "worker.hh"
+#include <array>
+#include <atomic>
+#include <cuda_runtime.h>
+#include <optional>
+
 #include "enum_record_mode.hh"
+#include "logger.hh"
+#include "queue.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
-#include <optional>
-#include <array>
-#include "logger.hh"
+#include "worker.hh"
 
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS               \
-  holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount, \
-  holovibes::settings::RecordMode,       \
-  holovibes::settings::RecordFrameOffset,  \
-  holovibes::settings::OutputBufferSize, \
-  holovibes::settings::FrameSkip,        \
+#define ONRESTART_SETTINGS                \
+  holovibes::settings::RecordFilePath,    \
+  holovibes::settings::RecordFrameCount,  \
+  holovibes::settings::RecordMode,        \
+  holovibes::settings::RecordFrameOffset, \
+  holovibes::settings::OutputBufferSize,  \
+  holovibes::settings::FrameSkip,         \
   holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
