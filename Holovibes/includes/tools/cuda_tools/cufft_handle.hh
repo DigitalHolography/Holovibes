@@ -61,16 +61,16 @@ class CufftHandle
 
     /*! \brief Calls cufftPlanMany.
      *
-     *  \param[in] rank Dimensionality of the transform.
+     *  \param[in] rank Dimensionality of the transform (1 for 1D, 2 for 2D...).
      *  \param[in] n Array of size `rank`, describing the size of each dimension, `n[0]` being the size of the outermost
      *  and `n[rank-1]` innermost (contiguous) dimension of a transform.
-     *  \param[in] inembed Pointer of size `rank` that indicates the storage dimensions of the input data in memory.
+     *  \param[in] inembed Array of size `rank` that indicates the storage dimensions of the input data in memory.
      *  If set to NULL all other advanced data layout parameters are ignored.
      *  \param[in] istride Indicates the distance between two successive input elements in the least significant
      *  (i.e., innermost) dimension.
      *  \param[in] idist Indicates the distance between the first element of two consecutive signals in a batch of the
      *  input data.
-     *  \param[in] onembed Pointer of size `rank` that indicates the storage dimensions of the output data in memory. If
+     *  \param[in] onembed Array of size `rank` that indicates the storage dimensions of the output data in memory. If
      *  set to NULL all other advanced data layout parameters are ignored.
      *  \param[in] ostride Indicates the distance between two successive output elements in the output array in the
      *  least significant (i.e., innermost) dimension.
@@ -99,17 +99,17 @@ class CufftHandle
      *  It's equal in byte to : frame_width * frame_height * sizeof(T) (in our
      *  case cuComplex) * batch_size.
      *
-     *  \param[in] rank Dimensionality of the transform.
+     *  \param[in] rank Dimensionality of the transform (1 for 1D, 2 for 2D...).
      *  \param[in] n Array of size `rank`, describing the size of each dimension, `n[0]` being the size of the outermost
      *  and `n[rank-1]` innermost (contiguous) dimension of a transform.
-     *  \param[in] inembed Pointer of size `rank` that indicates the storage dimensions of the input data in memory.
+     *  \param[in] inembed Array of size `rank` that indicates the storage dimensions of the input data in memory.
      *  If set to NULL all other advanced data layout parameters are ignored.
      *  \param[in] istride Indicates the distance between two successive input elements in the least significant
      *  (i.e., innermost) dimension.
      *  \param[in] idist Indicates the distance between the first element of two consecutive signals in a batch of the
      *  input data.
-     *  \param inputtype Type of input data.
-     *  \param[in] onembed Pointer of size `rank` that indicates the storage dimensions of the output data in memory. If
+     *  \param[in] inputtype Type of input data.
+     *  \param[in] onembed Array of size `rank` that indicates the storage dimensions of the output data in memory. If
      *  set to NULL all other advanced data layout parameters are ignored.
      *  \param[in] ostride Indicates the distance between two successive output elements in the output array in the
      *  least significant (i.e., innermost) dimension.
