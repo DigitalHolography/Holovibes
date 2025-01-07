@@ -115,24 +115,6 @@ bool RecordApi::is_recording() const { return Holovibes::instance().is_recording
 
 #pragma endregion
 
-#pragma region Frame record
-
-void RecordApi::set_record_frame_count(std::optional<size_t> value) const
-{
-    if (API.input.get_import_type() == ImportType::File && value.has_value())
-    {
-        // Assuring that the number of frames to record stays in file range
-        const int maximum =
-            static_cast<int>(ceil((API.input.get_input_file_end_index() - API.input.get_input_file_start_index()) /
-                                  (float)API.transform.get_time_stride()));
-        UPDATE_SETTING(RecordFrameCount, value.value() < maximum ? value : maximum);
-    }
-    else
-        UPDATE_SETTING(RecordFrameCount, value);
-}
-
-#pragma endregion
-
 #pragma region Buffer
 
 void RecordApi::set_record_queue_location(Device device) const

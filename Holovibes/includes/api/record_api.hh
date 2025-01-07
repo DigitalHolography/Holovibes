@@ -80,7 +80,7 @@ class RecordApi : public IApi
      *
      * \param[in] value the new record frame count
      */
-    void set_record_frame_count(std::optional<size_t> value) const;
+    inline void set_record_frame_count(std::optional<size_t> value) const { UPDATE_SETTING(RecordFrameCount, value); }
 
     /*! \brief Return the number of frames that will be skipped at the beginning of the recording.
      *

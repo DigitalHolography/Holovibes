@@ -22,6 +22,7 @@ ExportPanel::ExportPanel(QWidget* parent)
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
     , browse_record_output_file_subscriber_("browse_record_output_file",
                                             [this](bool _unused) { return browse_record_output_file().toStdString(); })
+    , imported_file_subscriber_("file_imported", [this](bool unused) { set_max_record_frame_count(); })
 {
 }
 
@@ -117,7 +118,6 @@ void ExportPanel::on_notify()
     // Number of frames
     if (api_.record.get_record_frame_count().has_value())
     {
-        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
         ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api_.record.get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
@@ -288,6 +288,13 @@ void ExportPanel::stop_chart_display()
     ui_->ChartPlotPushButton->setEnabled(true);
 }
 
+void ExportPanel::set_max_record_frame_count()
+{
+    ui_->NumberOfFramesSpinBox->setValue(
+        ceil((API.input.get_input_file_end_index() - API.input.get_input_file_start_index()) /
+             (float)API.transform.get_time_stride()));
+}
+
 void ExportPanel::update_record_frame_count_enabled()
 {
     bool checked = ui_->NumberOfFramesCheckBox->isChecked();
@@ -296,8 +303,9 @@ void ExportPanel::update_record_frame_count_enabled()
         api_.record.set_record_frame_count(std::nullopt);
     else
     {
-        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());            // Performs bound checks
-        ui_->NumberOfFramesSpinBox->setValue(api_.record.get_record_frame_count().value()); // Applies these checks
+        api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value()); // Performs bound checks
+        ui_->NumberOfFramesSpinBox->setValue(
+            static_cast<int>(api_.record.get_record_frame_count().value())); // Applies these checks
     }
 }
 

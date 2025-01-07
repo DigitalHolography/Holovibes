@@ -75,6 +75,12 @@ class ExportPanel : public Panel
     void stop_chart_display();
 
     /*!
+     * \brief Force sets the record frame count to the maximum possible regarding a file.
+     * Is called by a subscriber when a file has been imported.
+     */
+    void set_max_record_frame_count();
+
+    /*!
      * \brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
@@ -105,5 +111,6 @@ class ExportPanel : public Panel
     Subscriber<bool> start_record_subscriber_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;
+    Subscriber<bool> imported_file_subscriber_;
 };
 } // namespace holovibes::gui

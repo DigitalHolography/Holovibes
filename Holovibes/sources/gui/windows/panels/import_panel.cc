@@ -95,6 +95,8 @@ void ImportPanel::import_file(const QString& filename)
 
     if (input_file_opt)
     {
+        NotifierManager::notify<bool>("file_imported", true); // Broadcast that a file has been imported
+
         auto input_file = input_file_opt.value();
 
         parent_->notify();
