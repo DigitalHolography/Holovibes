@@ -318,7 +318,7 @@ void InformationWorker::display_gui_information()
         }
     }
 
-    if (API.compute.get_is_computation_stopped())
+    if (!API.compute.get_is_computation_stopped())
     {
         for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
         {

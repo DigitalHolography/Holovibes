@@ -103,7 +103,7 @@ void TransformApi::set_z_distance(float value) const
         return;
 
     // Avoid 0 for cuda kernel
-    if (value <= 0)
+    if (value == 0)
         value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);

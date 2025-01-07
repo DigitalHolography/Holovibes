@@ -118,10 +118,6 @@ class Pipe : public ICompute
 
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
-
-        // Pre init
-        if (setting<settings::FilterEnabled>())
-            request(ICS::Filter);
     }
 
     ~Pipe() override;

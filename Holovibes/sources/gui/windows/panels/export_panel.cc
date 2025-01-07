@@ -117,16 +117,10 @@ void ExportPanel::on_notify()
     // Number of frames
     if (api_.record.get_record_frame_count().has_value())
     {
-        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
         ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api_.record.get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
-
-    if (api_.input.get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
 
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
@@ -321,14 +315,8 @@ void ExportPanel::update_record_file_extension(const QString& value)
 
 void ExportPanel::update_recorded_eye()
 {
-    api_.record.set_recorded_eye(api_.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
-                                                                                         : RecordedEyeType::LEFT);
-    on_notify();
-}
-
-void ExportPanel::reset_recorded_eye()
-{
-    api_.record.set_recorded_eye(RecordedEyeType::NONE);
+    int next = (static_cast<int>(API.record.get_recorded_eye()) + 1) % 3;
+    API.record.set_recorded_eye(static_cast<RecordedEyeType>(next));
     on_notify();
 }
 
