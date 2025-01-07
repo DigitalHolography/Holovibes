@@ -130,8 +130,6 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
-    HANDLE_REQUEST(ICS::Filter, "Filter Init", api.filter2d.enable_filter(api.filter2d.get_filter_file_name()));
-
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
     {

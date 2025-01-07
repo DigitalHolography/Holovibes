@@ -54,9 +54,6 @@ void Filter2dApi::load_input_filter(const std::string& file) const
 
 void Filter2dApi::enable_filter(const std::string& filename) const
 {
-    if (filename == get_filter_file_name())
-        return;
-
     if (!api_->compute.get_compute_pipe_no_throw())
         return;
 
