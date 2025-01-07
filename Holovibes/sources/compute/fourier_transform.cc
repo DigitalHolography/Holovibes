@@ -238,7 +238,6 @@ void FourierTransform::insert_stft()
                  time_transformation_env_.stft_plan);
         });
 }
-
 template <typename T>
 void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
 {
@@ -279,7 +278,6 @@ void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename
     cudaXStreamSynchronize(stream);
     write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
 }
-
 void FourierTransform::insert_moments()
 {
     LOG_FUNC();
@@ -294,8 +292,9 @@ void FourierTransform::insert_moments()
                                    moments_env_.f0_buffer,
                                    fd_.get_frame_res(),
                                    moments_env_.f_start,
-                                   moments_env_.f_end,
+                                   moments_env_.f_end - 1,
                                    stream_);
+            print_in_file_gpu(moments_env_.moment0_buffer.get(), 512, 512, "moment0", stream_);
 
             // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
             // frequencies at order 1
@@ -306,6 +305,8 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
+            print_in_file_gpu(moments_env_.f1_buffer.get(), 512, 1, "f1", stream_);
+            print_in_file_gpu(moments_env_.moment1_buffer.get(), 512, 512, "moment1", stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
             // frequencies at order 2

@@ -398,7 +398,7 @@ void Pipe::insert_moments()
     if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
     {
         auto p = setting<settings::P>();
-        moments_env_.f_start = p.start - 1; // -1 because indexes start at 0 in C++
+        moments_env_.f_start = p.start;
         moments_env_.f_end =
             std::min<int>(p.start + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()) - 1);
 

@@ -74,7 +74,7 @@ __global__ void kernel_tensor_multiply_vector(float* output,
         return;
 
     float val = 0.0f;
-    for (uint i = f_start; i < f_end; i++)
+    for (uint i = f_start; i <= f_end; i++)
     {
         const float* current_frame = tensor + i * frame_res;
         val += current_frame[index] * vector[i];

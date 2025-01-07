@@ -38,7 +38,7 @@ static __global__ void kernel_complex_to_modulus(
     if (index >= frame_res)
         return;
 
-    for (int i = f_start; i < f_end; i++)
+    for (int i = f_start; i <= f_end; i++)
     {
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;

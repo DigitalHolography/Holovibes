@@ -166,8 +166,8 @@ void ViewPanel::on_notify()
     ui_->PAccSpinBox->setMaximum(INT_MAX);
 
     // p accu
+    ui_->PSpinBox->setValue(api_.transform.get_p_index() + 1);
     ui_->PAccSpinBox->setValue(api_.transform.get_p_accu_level());
-    ui_->PSpinBox->setValue(api_.transform.get_p_index());
     ui_->PAccSpinBox->setEnabled(api_.compute.get_img_type() != ImgType::PhaseIncrease &&
                                  api_.compute.get_img_type() != ImgType::Composite);
     ui_->PAccSpinBox->setVisible(is_data_not_moments);
@@ -176,8 +176,8 @@ void ViewPanel::on_notify()
     api_.transform.check_p_limits(); // FIXME: May be moved in setters
 
     // Enforce maximum value for p_index and p_accu_level
-    ui_->PSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_accu_level() - 1);
-    ui_->PAccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_index() - 1);
+    ui_->PSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_accu_level());
+    ui_->PAccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_index());
     ui_->PSpinBox->setEnabled(!is_raw && api_.compute.get_img_type() != ImgType::Composite);
     ui_->PSpinBox->setVisible(is_data_not_moments);
     ui_->PLabel->setVisible(is_data_not_moments);
@@ -308,7 +308,7 @@ void ViewPanel::set_y_accu() { api_.transform.set_y_accu_level(ui_->YAccSpinBox-
 
 void ViewPanel::set_p(int value)
 {
-    api_.transform.set_p_index(value);
+    api_.transform.set_p_index(value - 1);
     parent_->notify();
 }
 

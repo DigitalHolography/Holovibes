@@ -148,9 +148,9 @@ void TransformApi::set_p_index(uint value) const
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
-    if (value >= get_time_transformation_size() || value == 0)
+    if (value >= get_time_transformation_size())
     {
-        LOG_ERROR("p param has to be between 1 and #img");
+        LOG_WARN("p param has to be between 1 and #img");
         return;
     }
 
@@ -178,7 +178,7 @@ void TransformApi::set_q_accu_level(uint value) const
 
 void TransformApi::check_p_limits() const
 {
-    int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
+    int upper_bound = static_cast<int>(get_time_transformation_size());
 
     if (std::cmp_greater(get_p_accu_level(), upper_bound))
         set_p_accu_level(upper_bound);
