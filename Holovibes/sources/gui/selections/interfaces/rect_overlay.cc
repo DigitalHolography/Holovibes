@@ -1,6 +1,8 @@
 #include "rect_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
+#include "rect_gl.hh"
+
 namespace holovibes::gui
 {
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
@@ -82,7 +84,7 @@ void RectOverlay::draw()
 void RectOverlay::setBuffer()
 {
     // Normalizing the zone to (-1; 1)
-    units::RectOpengl zone_gl = zone_;
+    RectGL zone_gl(*parent_, zone_);
 
     // The translation is the center of the rectangle
     translation_.x = (zone_gl.x() + zone_gl.right()) / 2;
@@ -98,7 +100,7 @@ void RectOverlay::move(QMouseEvent* e)
     if (e->buttons() == Qt::LeftButton)
     {
         auto pos = getMousePos(e->pos());
-        zone_.setDst(pos);
+        zone_.set_dst(pos);
         checkCorners();
         setBuffer();
         display_ = true;
@@ -110,13 +112,13 @@ void RectOverlay::checkCorners()
     auto parent_fd = parent_->getFd();
 
     if (zone_.dst().x() < 0)
-        zone_.dstRef().x().set(0);
+        zone_.dst_ref().x() = 0;
     else if (zone_.dst().x() > parent_fd.width)
-        zone_.dstRef().x().set(parent_fd.width);
+        zone_.dst_ref().x() = parent_fd.width;
 
     if (zone_.dst().y() < 0)
-        zone_.dstRef().y().set(0);
+        zone_.dst_ref().y() = 0;
     else if (zone_.dst().y() > parent_fd.height)
-        zone_.dstRef().y().set(parent_fd.height);
+        zone_.dst_ref().y() = parent_fd.height;
 }
 } // namespace holovibes::gui

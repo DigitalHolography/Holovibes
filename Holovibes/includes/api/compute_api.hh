@@ -18,31 +18,35 @@ class ComputeApi : public IApi
     {
     }
 
+#pragma region Compute
+
     /*! \brief Return whether the computation is stopped or not.
      *
      * \return bool True if the computation is stopped, false otherwise
      */
     inline bool get_is_computation_stopped() const { return GET_SETTING(IsComputationStopped); }
 
-    /*! \brief Sets whether the computation is stopped or not.
+    /*! \brief Stops the pipe and the file/camera reading.
      *
-     * \param[in] value True to stop the computation, false otherwise
+     * \return ApiCode OK if the computation was stopped or NOT_STARTED if nothing needed to be stopped.
      */
-    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
+    ApiCode stop() const;
 
-    /*! \brief Stops the pipe. */
-    void close_critical_compute() const;
+    /*! \brief Starts the computation. This function will:
+     * - init the input_queue if not initialized
+     * - init the GPU output_queue if not initialized
+     * - create a new pipe if not initialized
+     * - start the computation worker
+     * - start the frame read worker
+     *
+     * \return ApiCode OK if the computation was started or NO_IN_DATA if there is no source (file/camera).
+     */
+    ApiCode start() const;
 
-    /*! \brief Reset some values after MainWindow receives an update exception */
-    void handle_update_exception() const;
+#pragma endregion
 
     /*! \brief Stops holovibes' controllers for computation*/
     void stop_all_worker_controller() const;
-
-    /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
-    void loaded_moments_data() const;
-
-#pragma region Buffer
 
     /*! \brief Returns the capacity (number of frames) of the output buffer. The output buffer stores the final frames
      * of the Holographic pipeline.
@@ -62,7 +66,13 @@ class ComputeApi : public IApi
      *
      * \return std::shared_ptr<Queue> The gpu output queue
      */
-    inline std::shared_ptr<Queue> get_gpu_output_queue() const { return Holovibes::instance().get_gpu_output_queue(); };
+    inline std::shared_ptr<Queue> get_gpu_output_queue() const
+    {
+        if (Holovibes::instance().get_compute_pipe_no_throw())
+            return Holovibes::instance().get_compute_pipe()->get_output_queue();
+
+        return nullptr;
+    };
 
     /*! \brief Return the input queue.
      *
@@ -91,18 +101,24 @@ class ComputeApi : public IApi
         return Holovibes::instance().get_compute_pipe_no_throw();
     };
 
-    /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh() const;
+    /*! \brief Triggers the pipe to make it refresh.
+     *
+     * \return ApiCode OK if the pipe was refreshed or NOT_STARTED if no computation.
+     */
+    ApiCode pipe_refresh() const;
 
-    /*! \brief Enables the pipe refresh */
-    void enable_pipe_refresh() const;
+    /*! \brief Enables the pipe refresh.
+     *
+     * \return ApiCode OK if the pipe refresh was enabled or NOT_STARTED if no computation.
+     */
+    ApiCode enable_pipe_refresh() const;
 
     /*! \brief Disables the pipe refresh. You must enable pipe refresh after otherwise computations will be weird. Use
-     * with caution. */
-    void disable_pipe_refresh() const;
-
-    /*! \brief Creates a new pipe and start computation */
-    void create_pipe() const;
+     * with caution.
+     *
+     * \return ApiCode OK if the pipe refresh was disabled or NOT_STARTED if no computation.
+     */
+    ApiCode disable_pipe_refresh() const;
 
 #pragma endregion
 
@@ -114,20 +130,15 @@ class ComputeApi : public IApi
      */
     inline ImgType get_img_type() const { return GET_SETTING(ImageType); }
 
-    /*! \brief Sets the view mode (Magnitude, Argument, Phase Increase, Composite Image, etc.). It's not a realtime
-     * function
-     *
-     * \param[in] type The new view mode
-     */
-    inline void set_img_type(ImgType type) const { UPDATE_SETTING(ImageType, type); }
-
-    /*! \brief Changes the image type in realtime. Changes the setting and requests a pipe refresh. If the type is
-     * composite the pipe is rebuild
+    /*! \brief Changes the image type (Magnitude, Argument, Phase Increase, Composite Image, etc.). If computation has
+     * started requests a pipe refresh or a pipe rebuild in case of Composite.
      *
      * \param[in] type The new image type
-     * \return ApiCode OK if the image type was changed, an error code otherwise
+     *
+     * \return ApiCode OK if the image type was changed, NO_CHANGE if the image type was the same, WRONG_COMP_MODE if we
+     * are in Raw mode or FAILURE on error.
      */
-    ApiCode set_view_mode(const ImgType type) const;
+    ApiCode set_img_type(const ImgType type) const;
 
 #pragma endregion
 
@@ -139,19 +150,24 @@ class ComputeApi : public IApi
      */
     inline Computation get_compute_mode() const { return GET_SETTING(ComputeMode); }
 
-    /*! \brief Sets the computation mode (Raw or Holographic). It's not in realtime.
+    /*! \brief Sets the computation mode to Raw or Holographic. If computation has started
+     *  the pipe is refreshed and the gpu output queue is rebuild.
      *
-     * \param[in] mode The new computation mode
-     */
-    inline void set_compute_mode(Computation mode) const { UPDATE_SETTING(ComputeMode, mode); }
-
-    /*! \brief Sets the computation mode to Raw or Holographic in realtime.
+     * \param[in] mode The new computation mode.
      *
-     * \param[in] mode The new computation mode
+     * \return ApiCode OK if the computation mode was changed or NO_CHANGE if the computation mode was the same.
      */
-    void set_computation_mode(Computation mode) const;
+    ApiCode set_compute_mode(Computation mode) const;
 
 #pragma endregion
+};
+
+private:
+/*! \brief Sets whether the computation is stopped or not.
+ *
+ * \param[in] value True to stop the computation, false otherwise
+ */
+inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
 };
 
 } // namespace holovibes::api

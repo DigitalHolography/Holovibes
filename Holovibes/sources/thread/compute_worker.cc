@@ -10,10 +10,9 @@
 namespace holovibes::worker
 {
 
-ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe, std::atomic<std::shared_ptr<Queue>>& output)
+ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe)
     : Worker()
     , pipe_(pipe)
-    , output_(output)
     , stream_(Holovibes::instance().get_cuda_streams().compute_stream)
 {
     cuda_tools::CublasHandle::set_stream(stream_);
@@ -33,6 +32,5 @@ void ComputeWorker::run()
     pipe_.load()->exec();
 
     pipe_.store(nullptr);
-    output_.store(nullptr);
 }
 } // namespace holovibes::worker

@@ -212,7 +212,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         if (flag_packed % 8 != 0) // Irregular encoding (not aligned on bytes)
         {
             const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-            size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
+            size_t packed_frame_size = static_cast<size_t>(fd.width * fd.height * (flag_packed / 8.f));
             for (size_t i = 0; i < frames_read; ++i)
             {
                 char* gpu_output = gpu_file_frame_buffer_ + i * frame_size_;

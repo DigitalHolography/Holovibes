@@ -4,9 +4,14 @@
  */
 #pragma once
 
+#include <algorithm>
 #include <deque>
 #include <mutex>
 #include <tuple>
+
+// Avoid conflict with std::max and std::min (min and max are defined in windows.h)
+#undef max
+#undef min
 
 namespace holovibes
 {

@@ -1,6 +1,6 @@
-/*! \file
+/*! \file convolution.cuh
  *
- * \brief Declaration of convolution compute function
+ *  \brief Declaration of convolution and xcorr2 computes functions.
  */
 #pragma once
 

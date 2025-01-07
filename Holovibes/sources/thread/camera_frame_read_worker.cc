@@ -40,7 +40,6 @@ void CameraFrameReadWorker::run()
 
         input_queue_.load()->stop_producer();
         camera_->stop_acquisition();
-        camera_->shutdown_camera();
     }
     catch (const std::exception& e)
     {
@@ -51,8 +50,6 @@ void CameraFrameReadWorker::run()
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
     FastUpdatesMap::map<IntType>.remove_entry(IntType::TEMPERATURE);
-
-    camera_.reset();
 }
 
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,

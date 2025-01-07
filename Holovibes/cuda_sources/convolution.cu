@@ -83,11 +83,11 @@ void xcorr2(float* output,
             const int freq_size,
             cudaStream_t stream)
 {
-    cufftExecR2C(plan_2d, input1, d_freq_1);
-    cufftExecR2C(plan_2d, input2, d_freq_2);
+    cufftSafeCall(cufftExecR2C(plan_2d, input1, d_freq_1));
+    cufftSafeCall(cufftExecR2C(plan_2d, input2, d_freq_2));
 
     conjugate_complex(d_freq_2, freq_size, stream);
     complex_hadamard_product(d_freq_1, d_freq_1, d_freq_2, freq_size, stream);
 
-    cufftExecC2R(plan_2dinv, d_freq_1, output);
+    cufftSafeCall(cufftExecC2R(plan_2dinv, d_freq_1, output));
 }

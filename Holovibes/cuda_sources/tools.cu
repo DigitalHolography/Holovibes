@@ -1,13 +1,15 @@
 #include "tools.cuh"
-#include "tools_compute.cuh"
-#include "tools_unwrap.cuh"
-#include "cuda_tools/unique_ptr.hh"
-#include "cuda_tools/cufft_handle.hh"
-#include "logger.hh"
-#include "cuda_memory.cuh"
-#include "common.cuh"
 
 #include <cassert>
+
+#include "common.cuh"
+#include "cuda_tools/unique_ptr.hh"
+#include "cuda_tools/cufft_handle.hh"
+#include "cuda_memory.cuh"
+#include "frame_desc.hh"
+#include "logger.hh"
+#include "tools_compute.cuh"
+#include "tools_unwrap.cuh"
 
 using camera::FrameDescriptor;
 using namespace holovibes;
@@ -25,7 +27,7 @@ __global__ void kernel_complex_to_modulus(float* output, const cuComplex* input,
 void frame_memcpy(
     float* output, const float* input, const units::RectFd& zone, const uint input_width, const cudaStream_t stream)
 {
-    const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
+    const float* zone_ptr = input + (zone.top_left().y() * input_width + zone.top_left().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,
                                    zone.width() * sizeof(float),
                                    zone_ptr,

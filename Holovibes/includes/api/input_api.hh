@@ -20,13 +20,6 @@ class InputApi : public IApi
 
 #pragma region Input
 
-    /*! \brief Return the current frame descriptor used. A file must be loaded or a camera must be running in order to
-     * have a valid frame descriptor.
-     *
-     * \return const camera::FrameDescriptor& the current frame descriptor
-     */
-    inline const camera::FrameDescriptor& get_fd() const { return Holovibes::instance().get_input_queue()->get_fd(); };
-
     /*! \brief Return from where frames came from (camera, file, etc.) or none if no import has been setup.
      *
      * \return ImportType the import type
@@ -90,13 +83,8 @@ class InputApi : public IApi
      */
     inline std::string get_input_file_path() const { return GET_SETTING(InputFilePath); }
 
-    /*! \brief Set the absolute path of the file that will be loaded.
-     *
-     * \param[in] value the new absolute file path
-     */
-    inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
-
-    /*! \brief Get how the file is currently being read
+    /*! \brief Get how the file is currently being read. Either REGULAR (read by batch from the storage device),
+     *  CPU (whole file in RAM) or GPU (whole file in VRAM, no copy but high GPU usage).
      *
      * \return FileLoadKind The current way that files are read
      *
@@ -104,7 +92,8 @@ class InputApi : public IApi
      */
     inline FileLoadKind get_file_load_kind() const { return GET_SETTING(FileLoadKind); }
 
-    /*! \brief Set how the files should be read
+    /*! \brief Set how the files should be read. Either REGULAR (read by batch from the storage device),
+     *  CPU (whole file in RAM) or GPU (whole file in VRAM, no copy but high GPU usage).
      *
      * \param[in] value The new way that files should be read
      *
@@ -164,24 +153,23 @@ class InputApi : public IApi
 
 #pragma region File Import
 
-    /*! \brief Launchs the reading of the loaded file.
+    /*! \brief Load the file at the given filename. This function will set the file path, the start index to 0, the end
+     * index to the number of frames in the file and the frame descriptor.
      *
-     * Will stop any computation currently running (camera or file loading).
-     *
-     * \return bool false on failure
-     */
-    bool import_start() const;
-
-    /*! \brief Stops the importing of the file and all computation */
-    void import_stop() const;
-
-    /*! \brief Gets an Input file from a given filename
+     * - If the file has a footer, it will also import the compute settings and info (pixel size).
+     * - If the file has no footer and `json_path` is not an empty string. The compute settings located at `json_path`
+     * will be loaded.
+     * - If the file has no footer and `json_path` is an empty string, no compute settings will be loaded.
      *
      * \param[in] filename the given filename to open
+     * \param[in] json_path the path to the json file containing the compute settings (default is the user compute
+     * settings file)
      *
      * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
      */
-    std::optional<io_files::InputFrameFile*> import_file(const std::string& filename) const;
+    std::optional<io_files::InputFrameFile*>
+    import_file(const std::string& filename,
+                const std::string& json_path = holovibes::settings::compute_settings_filepath) const;
 
 #pragma endregion
 
@@ -242,25 +230,31 @@ class InputApi : public IApi
 
 #pragma endregion
 
-  private:
     /*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
      * descriptor.
      *
      * \return camera::FrameDescriptor the frame descriptor of the file
      */
-    camera::FrameDescriptor get_input_fd() const { return GET_SETTING(ImportedFileFd); }
+    camera::FrameDescriptor get_input_fd() const { return GET_SETTING(InputFd); }
 
     /*! \brief Set the frame descriptor of the loaded file.
      *
      * \param[in] value the new frame descriptor
      */
-    void set_input_fd(camera::FrameDescriptor value) const { UPDATE_SETTING(ImportedFileFd, value); }
+    void set_input_fd(camera::FrameDescriptor value) const { UPDATE_SETTING(InputFd, value); }
 
+  private:
     /*! \brief Set the type of camera used or none if no camera is used.
      *
      * \param[in] value the new camera kind
      */
     void set_camera_kind_enum(CameraKind value) const { UPDATE_SETTING(CameraKind, value); }
+
+    /*! \brief Set the absolute path of the file that will be loaded.
+     *
+     * \param[in] value the new absolute file path
+     */
+    inline void set_input_file_path(std::string value) const { UPDATE_SETTING(InputFilePath, value); }
 
     /*! \brief Stop the camera and close the critical compute. */
     void camera_none() const;
