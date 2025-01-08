@@ -40,9 +40,13 @@ class InfoPanel : public Panel
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
 
+  public slots:
+    void timer_timeout();
+
   private:
     int height_ = 0;
     int resize_again_ = 0;
     Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
+    QTimer timer_;
 };
 } // namespace holovibes::gui

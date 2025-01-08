@@ -13,9 +13,12 @@ InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
     , record_finished_subscriber_("record_finished", [this](bool success) { set_visible_record_progress(false); })
 {
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(timer_timeout()));
 }
 
 InfoPanel::~InfoPanel() {}
+
+void InfoPanel::timer_timeout() {}
 
 void InfoPanel::init()
 {
