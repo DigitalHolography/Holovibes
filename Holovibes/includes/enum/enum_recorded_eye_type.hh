@@ -18,16 +18,16 @@ namespace holovibes
  */
 enum class RecordedEyeType
 {
-    LEFT, /*!< The left eye, adds '_L' to the end of the filename */
-    NONE, /*!< No eye; this will not affect the filename */
-    RIGHT /*!< The right eye, adds '_R' to the end of the filename */
+    LEFT = 0, /*!< The left eye, adds '_L' to the end of the filename */
+    RIGHT,    /*!< The right eye, adds '_R' to the end of the filename */
+    NONE      /*!< No eye; this will not affect the filename */
 };
 
 // clang-format off
 SERIALIZE_JSON_ENUM(RecordedEyeType, {
     {RecordedEyeType::LEFT, "LEFT"},
-    {RecordedEyeType::NONE, "NONE"},
-    {RecordedEyeType::RIGHT, "RIGHT"}
+    {RecordedEyeType::RIGHT, "RIGHT"},
+    {RecordedEyeType::NONE, "NONE"}
 })
 
 // clang-format on

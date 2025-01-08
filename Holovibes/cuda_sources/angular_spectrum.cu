@@ -1,11 +1,13 @@
 #include "angular_spectrum.cuh"
-#include "masks.cuh"
-#include "tools_compute.cuh"
-#include "cuda_memory.cuh"
-#include "apply_mask.cuh"
-#include "shift_corners.cuh"
 
 #include <cufftXt.h>
+
+#include "apply_mask.cuh"
+#include "cuda_memory.cuh"
+#include "frame_desc.hh"
+#include "masks.cuh"
+#include "shift_corners.cuh"
+#include "tools_compute.cuh"
 
 using camera::FrameDescriptor;
 

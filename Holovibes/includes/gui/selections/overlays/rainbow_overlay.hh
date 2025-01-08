@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Overlay.hh"
-#include "unit.hh"
 
 namespace holovibes::gui
 {

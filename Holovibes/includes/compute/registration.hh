@@ -80,14 +80,14 @@ class Registration
         , fd_(fd)
         , stream_(stream)
         , realtime_settings_(settings)
-        , plan_2d_(fd_.width, fd_.height, CUFFT_R2C)
-        , plan_2dinv_(fd_.width, fd_.height, CUFFT_C2R)
+        , plan_2d_(fd_.height, fd_.width, CUFFT_R2C)
+        , plan_2dinv_(fd_.height, fd_.width, CUFFT_C2R)
     {
         int err = !gpu_circle_mask_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_current_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_xcorr_output_.resize(buffers_.gpu_postprocess_frame_size);
-        freq_size_ = fd_.width * (fd_.height / 2 + 1);
+        freq_size_ = fd_.width * fd_.height;
         err += !d_freq_1_.resize(freq_size_);
         err += !d_freq_2_.resize(freq_size_);
 

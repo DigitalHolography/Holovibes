@@ -1,15 +1,6 @@
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <shlobj.h>
-#include <sstream>
-#include <Windows.h>
-
-#include "API.hh"
-#include "chrono.hh"
-#include "logger.hh"
 #include "tools.hh"
-#include "tools_conversion.cuh"
+
+#include <filesystem>
 
 namespace holovibes
 {
@@ -48,28 +39,6 @@ std::string get_record_filename(std::string file_path, std::string append, std::
 
     return newFilePath.string();
 }
-
-QString create_absolute_qt_path(const std::string& relative_path)
-{
-    std::filesystem::path dir(GET_EXE_DIR);
-    dir = dir / relative_path;
-    return QString(dir.string().c_str());
-}
-
-std::filesystem::path get_user_documents_path()
-{
-    wchar_t document_path[MAX_PATH];
-    HRESULT sh_res = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
-
-    if (sh_res == S_OK)
-    {
-        char str[MAX_PATH];
-        wcstombs(str, document_path, MAX_PATH - 1);
-        return str;
-    }
-
-    return "";
-}
 } // namespace holovibes
 
 std::string engineering_notation(double value, int nb_significant_figures)
@@ -90,7 +59,7 @@ std::string engineering_notation(double value, int nb_significant_figures)
         value = -value;
     }
 
-    int expof10 = log10(value);
+    int expof10 = static_cast<int>(log10(value));
     if (expof10 > 0)
         expof10 = (expof10 / 3) * 3;
     else

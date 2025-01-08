@@ -25,9 +25,8 @@ class ComputeWorker final : public Worker
     /*!
      * \param pipe The compute pipe used to perform all operations
      * \param input Input queue that is filled either by the file_frame_read_worker or the camera_frame_read_worker
-     * \param output Output queue that store processed images for display
      */
-    ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe, std::atomic<std::shared_ptr<Queue>>& output);
+    ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe);
 
     void stop() override;
 
@@ -36,9 +35,6 @@ class ComputeWorker final : public Worker
   private:
     /*! \brief The compute pipe used to perform all operations */
     std::atomic<std::shared_ptr<Pipe>>& pipe_;
-
-    /*! \brief Output queue that store processed images for display */
-    std::atomic<std::shared_ptr<Queue>>& output_;
 
     const cudaStream_t stream_;
 };

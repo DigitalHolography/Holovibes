@@ -1,8 +1,10 @@
 #include "input_filter.hh"
-#include "API.hh"
 
-#include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <iostream>
+
+#include "API.hh"
 
 namespace holovibes
 {
@@ -134,9 +136,9 @@ void bilinear_interpolation(
 
             // Get the coordinates of the 4 neighboring pixels
             size_t floor_x = static_cast<size_t>(floorf(input_x_float));
-            size_t ceil_x = fmin(width - 1, static_cast<size_t>(ceilf(input_x_float)));
+            size_t ceil_x = std::min(width - 1, static_cast<size_t>(ceilf(input_x_float)));
             size_t floor_y = static_cast<size_t>(floorf(input_y_float));
-            size_t ceil_y = fmin(height - 1, static_cast<size_t>(ceilf(input_y_float)));
+            size_t ceil_y = std::min(height - 1, static_cast<size_t>(ceilf(input_y_float)));
 
             // Get the values of the 4 neighboring pixels
             float v00 = filter_input[floor_y * width + floor_x];

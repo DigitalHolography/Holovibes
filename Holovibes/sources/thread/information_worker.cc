@@ -156,19 +156,19 @@ void InformationWorker::compute_fps(const long long waited_time)
 
     if (information_.input_fps)
     {
-        input_fps_ = std::round(information_.input_fps->load() * (1000.f / waited_time));
+        input_fps_ = static_cast<size_t>(std::round(information_.input_fps->load() * (1000.f / waited_time)));
         information_.input_fps.get()->store(0);
     }
 
     if (information_.output_fps)
     {
-        output_fps_ = std::round(information_.output_fps->load() * (1000.f / waited_time));
+        output_fps_ = static_cast<size_t>(std::round(information_.output_fps->load() * (1000.f / waited_time)));
         information_.output_fps->store(0); // TODO Remove
     }
 
     if (information_.saving_fps)
     {
-        saving_fps_ = std::round(information_.saving_fps->load() * (1000.f / waited_time));
+        saving_fps_ = static_cast<size_t>(std::round(information_.saving_fps->load() * (1000.f / waited_time)));
         information_.saving_fps->store(0); // TODO Remove
     }
 }
@@ -182,8 +182,8 @@ void InformationWorker::compute_throughput(size_t output_frame_res, size_t input
 
 static std::string format_throughput(size_t throughput, const std::string& unit)
 {
-    float throughput_ = throughput / (throughput > 1e9 ? 1e9 : 1e6);
-    std::string unit_ = (throughput > 1e9 ? " G" : " M") + unit;
+    float throughput_ = throughput / (throughput > 1e9f ? 1e9f : 1e6f);
+    std::string unit_ = (throughput > 1e9f ? " G" : " M") + unit;
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
 
@@ -244,7 +244,7 @@ std::string gpu_load()
     }
 
     // Print GPU load
-    auto load = gpuLoad.gpu;
+    float load = static_cast<float>(gpuLoad.gpu);
     ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
@@ -273,7 +273,7 @@ std::string gpu_memory_controller_load()
     }
 
     // Print GPU memory load
-    auto load = gpuLoad.memory;
+    float load = static_cast<float>(gpuLoad.memory);
     ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
@@ -296,8 +296,11 @@ std::string gpu_memory()
     size_t free, total;
     cudaMemGetInfo(&free, &total);
 
-    ss << "<td style=\"color:" << get_load_color(total - free, total) << ";\">" << engineering_notation(free, 3)
-       << "B free/" << engineering_notation(total, 3) << "B</td>";
+    float free_f = static_cast<float>(free);
+    float total_f = static_cast<float>(total);
+
+    ss << "<td style=\"color:" << get_load_color(total_f - free_f, total_f) << ";\">" << engineering_notation(free_f, 3)
+       << "B free/" << engineering_notation(total_f, 3) << "B</td>";
 
     return ss.str();
 }
@@ -321,14 +324,14 @@ void InformationWorker::display_gui_information()
     if (information_.output_format)
         to_display << "<tr><td>Output Format</td><td>" << *information_.output_format.get() << "</td></tr>";
 
-    if (API.input.get_import_type() != ImportType::None)
+    if (!API.compute.get_is_computation_stopped())
     {
         for (auto const& [key, info] : information_.queues)
         {
             if (key == QueueType::UNDEFINED)
                 continue;
-            auto currentLoad = info.current_size;
-            auto maxLoad = info.max_size;
+            float currentLoad = static_cast<float>(info.current_size);
+            float maxLoad = static_cast<float>(info.max_size);
 
             to_display << "<tr style=\"color:";
             if (key == QueueType::OUTPUT_QUEUE)
@@ -425,8 +428,7 @@ void InformationWorker::write_information(std::ofstream& csvFile)
     csvFile << gpu_memory_controller_load_as_number() << ",";
 
     // Exemple d'écriture dans le fichier CSV pour la limite z
-    csvFile << Holovibes::instance().get_boundary();
-
+    csvFile << API.information.get_boundary();
     csvFile << "\n";
 }
 

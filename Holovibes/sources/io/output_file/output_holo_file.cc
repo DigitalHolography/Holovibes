@@ -25,7 +25,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     holo_file_header_.bits_per_pixel = fd_.depth * camera::PixelDepth::Complex;
     holo_file_header_.img_width = fd_.width;
     holo_file_header_.img_height = fd_.height;
-    holo_file_header_.img_nb = img_nb;
+    holo_file_header_.img_nb = static_cast<uint32_t>(img_nb);
     holo_file_header_.endianness = camera::Endianness::LittleEndian;
     holo_file_header_.data_type = static_cast<uint8_t>(data_type);
 

@@ -135,8 +135,13 @@ class InformationApi : public IApi
 #pragma region Information
 
     /*! \brief Get the boundary of the frame descriptor. It's used to choose the space transformation algorithm.
+     * The formula of the boundary is: boundary = N * d^2 / lambda
+     * Where:
+     * N = frame height
+     * d = pixel size
+     * lambda = wavelength
      *
-     * \return float boundary
+     * \return const float The boundary
      */
     float get_boundary() const;
 
@@ -150,6 +155,9 @@ class InformationApi : public IApi
     void start_information_display();
 
     void get_information(Information* info);
+
+    /*! \brief Stop the displays of information */
+    void stop_information_display() const;
 
 #pragma endregion
 };

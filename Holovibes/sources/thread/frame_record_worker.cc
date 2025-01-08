@@ -43,6 +43,15 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
+bool has_input_queue_overwritten()
+{
+    auto input_queue = API.compute.get_input_queue();
+    if (!input_queue)
+        return false;
+
+    return input_queue->has_overwritten();
+}
+
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -62,7 +71,9 @@ void FrameRecordWorker::run()
     if (frame_count.has_value())
     {
         nb_frames_to_record = static_cast<unsigned int>(frame_count.value());
-        nb_frames_to_record = std::ceil((float)(nb_frames_to_record) / (float)(setting<settings::FrameSkip>() + 1));
+
+        float pas = setting<settings::FrameSkip>() + 1.0f;
+        nb_frames_to_record = static_cast<uint>(std::ceilf(static_cast<float>(nb_frames_to_record) / pas));
         // One frame will result in three moments.
         if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
             nb_frames_to_record = nb_frames_to_record * 3;
@@ -73,8 +84,9 @@ void FrameRecordWorker::run()
 
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request(ICS::FrameRecord);
+    auto pipe = Holovibes::instance().get_compute_pipe_no_throw();
+    if (pipe)
+        pipe->request(ICS::FrameRecord);
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
@@ -111,14 +123,12 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        auto input_queue = API.compute.get_input_queue();
-
-        if (input_queue->has_overwritten())
-            input_queue->reset_override();
+        if (has_input_queue_overwritten())
+            API.compute.get_input_queue()->reset_override();
 
         while (!stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record))
         {
-            if (record_queue_.load()->has_overwritten() || input_queue->has_overwritten())
+            if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
@@ -131,7 +141,7 @@ void FrameRecordWorker::run()
                             "The record queue has been saturated ; the record will stop once all contiguous frames "
                             "are written");
 
-                    if (input_queue->has_overwritten())
+                    if (has_input_queue_overwritten())
                         LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
                                  "are written");
                 }
@@ -214,16 +224,8 @@ void FrameRecordWorker::wait_for_frames()
 
 void FrameRecordWorker::reset_record_queue()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
+    auto pipe = API.compute.get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
     record_queue_.load()->reset();
-
-    /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(setting<settings::OutputBufferSize>(), stream_);
-
-    std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-    if (output_queue)
-        output_queue->resize(setting<settings::OutputBufferSize>(), stream_);*/
 }
 } // namespace holovibes::worker

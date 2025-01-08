@@ -6,6 +6,8 @@
 
 #include "BasicOpenGLWindow.hh"
 
+#include "rect.hh"
+
 namespace holovibes::gui
 {
 
@@ -21,7 +23,7 @@ class RawWindow : public BasicOpenGLWindow
     RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio = 0.f, KindOfView k = KindOfView::Raw);
     virtual ~RawWindow();
 
-    void zoomInRect(units::RectOpengl zone);
+    void zoomInRect(units::RectFd zone);
 
     bool is_resize_call() const;
     void set_is_resize(bool b);
