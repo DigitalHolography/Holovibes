@@ -9,7 +9,7 @@ namespace holovibes::api
 
 #define UPDATE_INT_OPTIONAL(map, iterator, type, target)                                                               \
     if ((iterator = map.find(type)) != map.end())                                                                      \
-        target = iterator->second->load();                                                                             \
+        target = iterator->second;                                                                                     \
     else                                                                                                               \
         target.reset()
 
@@ -21,7 +21,7 @@ namespace holovibes::api
 
 #define UPDATE_PAIR_OPTIONAL(map, iterator, type, target)                                                              \
     if ((iterator = map.find(type)) != map.end())                                                                      \
-        target = {type, iterator->second->first, iterator->second->second};                                            \
+        target = {iterator->second->first, iterator->second->second};                                                  \
     else                                                                                                               \
         target.reset()
 
@@ -29,7 +29,11 @@ namespace holovibes::api
 
 #pragma region Information
 
-void InformationApi::start_information_display() const { Holovibes::instance().start_information_display(); }
+void InformationApi::start_information_display()
+{
+    elapsed_time_chrono_.start();
+    Holovibes::instance().start_information_display();
+}
 
 float InformationApi::get_boundary() const { return Holovibes::instance().get_boundary(); }
 
@@ -38,10 +42,12 @@ const std::string InformationApi::get_documentation_url() const
     return "https://ftp.espci.fr/incoming/Atlan/holovibes/manual/";
 }
 
-void InformationApi::get_information(Information* info) const
+void InformationApi::get_information(Information* info)
 {
     if (!info)
         throw std::runtime_error("Cannot build information: no structure provided");
+
+    info->elapsed_time = elapsed_time_chrono_.get_milliseconds();
 
     auto& int_map = FastUpdatesMap::map<IntType>;
     FastUpdatesHolder<IntType>::const_iterator int_it;
@@ -56,18 +62,15 @@ void InformationApi::get_information(Information* info) const
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::INPUT_FORMAT, info->input_format);
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::OUTPUT_FORMAT, info->output_format);
 
-    auto& progress_map = FastUpdatesMap::map<ProgressType>;
-    FastUpdatesHolder<ProgressType>::const_iterator progress_it;
-    UPDATE_PAIR_OPTIONAL(progress_map, progress_it, ProgressType::FILE_READ, info->file_read_progress);
-    // The two 'record' entries are in the same 'slot' because they will never be active at the same time.
-    UPDATE_PAIR_OPTIONAL(progress_map, progress_it, ProgressType::FRAME_RECORD, info->record_progress);
-    // Chart not as a macro because if FRAME_RECORD is active, using a macro would .reset() the FRAME_RECORD data.
-    if ((progress_it = progress_map.find(ProgressType::CHART_RECORD)) != progress_map.end())
-        info->record_progress = {ProgressType::CHART_RECORD, progress_it->second->first, progress_it->second->second};
+    info->progresses.clear();
+    for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)
+        info->progresses[key] = {value->first.load(), value->second.load()};
 
     info->queues.clear();
     for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
         info->queues[key] = {std::get<0>(*value).load(), std::get<1>(*value).load(), std::get<2>(*value).load()};
+
+    this->elapsed_time_chrono_.start();
 }
 
 #pragma endregion

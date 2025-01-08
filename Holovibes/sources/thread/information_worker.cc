@@ -109,16 +109,22 @@ void InformationWorker::run()
         {
             if (!info_found)
             {
-                if (!FastUpdatesMap::map<IndicationType>.empty())
+                // Checking if there is at least 1 indication type
+                if (information_.img_source || information_.input_format || information_.output_format)
                 {
                     // metadata
                     benchmark_file << "Version: 0";
-                    for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
-                        benchmark_file << "," << indication_type_to_string_.at(key) << ": " << *value;
-                    for (auto const& [key, value] :
-                         FastUpdatesMap::map<QueueType>) //! FIXME causes a crash on start when camera pre-selected
-                        benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
-                                       << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
+                    if (information_.img_source)
+                        benchmark_file << ",Image Source: " << *information_.img_source.get();
+                    if (information_.input_format)
+                        benchmark_file << ",Input Format: " << *information_.input_format.get();
+                    if (information_.output_format)
+                        benchmark_file << ",Output Format: " << *information_.output_format.get();
+
+                    for (auto const& [key, info] :
+                         information_.queues) //! FIXME causes a crash on start when camera pre-selected
+                        benchmark_file << "," << (info.device == Device::GPU ? "GPU " : "CPU ")
+                                       << queue_type_to_string_.at(key) << " size: " << info.max_size;
                     benchmark_file << "\n";
                     // 11 headers
                     benchmark_file
@@ -145,27 +151,25 @@ void InformationWorker::run()
 
 void InformationWorker::compute_fps(const long long waited_time)
 {
-    auto& fps_map = FastUpdatesMap::map<IntType>;
-    FastUpdatesHolder<IntType>::const_iterator it;
-    if ((it = fps_map.find(IntType::TEMPERATURE)) != fps_map.end())
-        temperature_ = it->second->load();
+    if (information_.temperature)
+        temperature_ = information_.temperature->load();
 
-    if ((it = fps_map.find(IntType::INPUT_FPS)) != fps_map.end())
+    if (information_.input_fps)
     {
-        input_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0);
+        input_fps_ = std::round(information_.input_fps->load() * (1000.f / waited_time));
+        information_.input_fps.get()->store(0);
     }
 
-    if ((it = fps_map.find(IntType::OUTPUT_FPS)) != fps_map.end())
+    if (information_.output_fps)
     {
-        output_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0); // TODO Remove
+        output_fps_ = std::round(information_.output_fps->load() * (1000.f / waited_time));
+        information_.output_fps->store(0); // TODO Remove
     }
 
-    if ((it = fps_map.find(IntType::SAVING_FPS)) != fps_map.end())
+    if (information_.saving_fps)
     {
-        saving_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0); // TODO Remove
+        saving_fps_ = std::round(information_.saving_fps->load() * (1000.f / waited_time));
+        information_.saving_fps->store(0); // TODO Remove
     }
 }
 
@@ -303,28 +307,28 @@ void InformationWorker::display_gui_information()
     std::string str;
     str.reserve(512);
     std::stringstream to_display(str);
-    auto& fps_map = FastUpdatesMap::map<IntType>;
 
     to_display << "<table>";
 
-    for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
+    if (information_.img_source)
     {
-        to_display << "<tr><td>" << indication_type_to_string_.at(key) << "</td><td>" << *value << "</td></tr>";
-        if (key == IndicationType::IMG_SOURCE && fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
-        {
-            to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
-                       << "°C</td></tr>";
-        }
+        to_display << "<tr><td>Image Source</td><td>" << *information_.img_source.get() << "</td></tr>";
+        if (information_.temperature && temperature_ != 0)
+            to_display << "<tr><td>Camera Temperature</td><td>" << temperature_ << "°C</td></tr>";
     }
+    if (information_.input_format)
+        to_display << "<tr><td>Input Format</td><td>" << *information_.input_format.get() << "</td></tr>";
+    if (information_.output_format)
+        to_display << "<tr><td>Output Format</td><td>" << *information_.output_format.get() << "</td></tr>";
 
     if (API.input.get_import_type() != ImportType::None)
     {
-        for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
+        for (auto const& [key, info] : information_.queues)
         {
             if (key == QueueType::UNDEFINED)
                 continue;
-            auto currentLoad = std::get<0>(*value).load();
-            auto maxLoad = std::get<1>(*value).load();
+            auto currentLoad = info.current_size;
+            auto maxLoad = info.max_size;
 
             to_display << "<tr style=\"color:";
             if (key == QueueType::OUTPUT_QUEUE)
@@ -339,30 +343,28 @@ void InformationWorker::display_gui_information()
 
             to_display << ";\">";
 
-            to_display << "<td>" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
-                       << queue_type_to_string_.at(key) << "</td>";
+            to_display << "<td>" << (info.device == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
+                       << "</td>";
             to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
         }
     }
 
-    if (fps_map.contains(IntType::INPUT_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::INPUT_FPS) << "</td><td>" << input_fps_
-                   << "</td></tr>";
+    if (information_.input_fps)
+        to_display << "<tr><td>Input FPS</td><td>" << input_fps_ << "</td></tr>";
 
-    if (fps_map.contains(IntType::OUTPUT_FPS))
+    if (information_.output_fps)
     {
-        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::OUTPUT_FPS) << "</td>";
+        to_display << "<tr><td>Output FPS</td>";
         if (output_fps_ == 0)
             to_display << "<td style=\"color: red;\">" << output_fps_ << "</td></tr>";
         else
             to_display << "<td>" << output_fps_ << "</td></tr>";
     }
 
-    if (fps_map.contains(IntType::SAVING_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::SAVING_FPS) << "</td><td>" << saving_fps_
-                   << "</td></tr>";
+    if (information_.saving_fps)
+        to_display << "<tr><td>Saving FPS</td><td>" << saving_fps_ << "</td></tr>";
 
-    if (fps_map.contains(IntType::OUTPUT_FPS))
+    if (information_.output_fps)
     {
         to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(input_throughput_, "B/s")
                    << "</td></tr>";
@@ -370,7 +372,7 @@ void InformationWorker::display_gui_information()
                    << "</td></tr>";
     }
 
-    if (fps_map.contains(IntType::SAVING_FPS))
+    if (information_.saving_fps)
     {
         to_display << "<tr><td>Saving Throughput</td><td>  " << format_throughput(saving_throughput_, "B/s")
                    << "</td></tr>";
@@ -388,21 +390,19 @@ void InformationWorker::display_gui_information()
 
     display_info_text_function_(to_display.str());
 
-    for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)
-        update_progress_function_(key, value->first.load(), value->second.load());
+    for (auto const& [key, info] : information_.progresses)
+        update_progress_function_(key, info.current_size, info.max_size);
 }
 
 void InformationWorker::write_information(std::ofstream& csvFile)
 {
-    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in FastUpdatesMap::map<QueueType> check if key present
-    // then write valuem if not write 0
     uint8_t i = 3;
-    for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
+    for (auto const& [key, info] : information_.queues)
     {
         if (key == QueueType::UNDEFINED)
             continue;
 
-        csvFile << std::get<0>(*value).load() << ",";
+        csvFile << info.current_size << ",";
         i--;
     }
 

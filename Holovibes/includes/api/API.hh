@@ -65,7 +65,7 @@ class Api
     const ContrastApi contrast;
     const Filter2dApi filter2d;
     const GlobalPostProcessApi global_pp;
-    const InformationApi information;
+    InformationApi information;
     const InputApi input;
     const RecordApi record;
     const TransformApi transform;

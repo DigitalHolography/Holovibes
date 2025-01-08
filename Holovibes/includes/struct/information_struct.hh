@@ -6,6 +6,7 @@
 
 #pragma once
 #include "all_struct.hh"
+#include "atomic"
 
 namespace holovibes
 {
@@ -16,7 +17,6 @@ namespace holovibes
  */
 struct ProgressInfo
 {
-    ProgressType type;
     uint current_size;
     uint max_size;
 };
@@ -38,16 +38,16 @@ struct QueueInfo
  */
 struct Information
 {
-    std::optional<uint> input_fps;
-    std::optional<uint> output_fps;
-    std::optional<uint> saving_fps;
-    std::optional<uint> temperature;
+    std::shared_ptr<std::atomic<uint>> input_fps;
+    std::shared_ptr<std::atomic<uint>> output_fps;
+    std::shared_ptr<std::atomic<uint>> saving_fps;
+    std::shared_ptr<std::atomic<uint>> temperature;
     std::shared_ptr<std::string> img_source;
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;
-    std::optional<ProgressInfo> file_read_progress;
-    std::optional<ProgressInfo> record_progress;
+    std::map<ProgressType, ProgressInfo> progresses;
     std::map<QueueType, QueueInfo> queues;
+    size_t elapsed_time;
 };
 
 } // namespace holovibes

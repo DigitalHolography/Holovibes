@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "chrono.hh"
 #include "common_api.hh"
 #include "fast_updates_types.hh"
 #include "information_struct.hh"
@@ -21,6 +22,8 @@ class InformationApi : public IApi
     }
 
   private:
+    Chrono elapsed_time_chrono_;
+
 #pragma region Credits
 
     /*! \brief Authors of the project */
@@ -144,9 +147,9 @@ class InformationApi : public IApi
     const std::string get_documentation_url() const;
 
     /*! \brief Displays information */
-    void start_information_display() const;
+    void start_information_display();
 
-    void get_information(Information* info) const;
+    void get_information(Information* info);
 
 #pragma endregion
 };
