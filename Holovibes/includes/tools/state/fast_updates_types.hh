@@ -44,6 +44,7 @@ enum class IntType
     OUTPUT_FPS,
     SAVING_FPS,
     TEMPERATURE,
+    FRAME_ACQUIRED,
 };
 
 enum class ProgressType

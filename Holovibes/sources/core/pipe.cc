@@ -27,17 +27,32 @@
 namespace holovibes
 {
 
-void Pipe::keep_contiguous(int nb_elm_to_add) const
+bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 {
-    while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
-           // This check prevents being stuck in this loop because record might stop while in this loop
-           API.record.is_recording())
+    // When stopping a record the record queue is emptied and the FrameRecordEnabled setting is set to false.
+    // But the pipe isn't refreshed directly so the insert_XXX_function still insert in the record queue.
+    if (!setting<settings::FrameRecordEnabled>())
+        return false;
+
+    if (setting<settings::RecordFrameCount>() != std::nullopt &&
+        *nb_frames_acquired_ >= setting<settings::RecordFrameCount>().value())
+        return false;
+
+    // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
+    // will stop
+    while (API.record.is_recording() && record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size())
         continue;
+
+    return true;
 }
 
 using camera::FrameDescriptor;
 
-Pipe::~Pipe() { FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS); }
+Pipe::~Pipe()
+{
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::FRAME_ACQUIRED);
+}
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
     if (is_requested(setting))                                                                                         \
@@ -102,6 +117,7 @@ bool Pipe::make_requests()
         chart_env_.chart_record_queue_.reset(nullptr);
         api.record.set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
+        (*nb_frames_acquired_) = 0;
         clear_request(ICS::DisableChartRecord);
     }
 
@@ -111,6 +127,7 @@ bool Pipe::make_requests()
 
         record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         api.record.set_frame_record_enabled(false);
+        (*nb_frames_acquired_) = 0;
         clear_request(ICS::DisableFrameRecord);
     }
 
@@ -530,79 +547,70 @@ void Pipe::insert_raw_view()
         });
 }
 
+#pragma region Insert Record
+
 void Pipe::insert_raw_record()
 {
+    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::RAW)
+        return;
 
-    // Increment the number of frames inserted in the record queue, so that when it bypasses the requested number, the
-    // record finishes This counter happens during the enqueing instead of the dequeuing, because the frequency of the
-    // input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of
-    // the record queue When a new record is started, a refresh of the pipe is requested, and this variable is reset
-    static size_t inserted = 0;
-    inserted = 0;
-    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::RAW)
-    {
-        // if (Holovibes::instance().is_cli)
-        fn_compute_vect_->push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
+    fn_compute_vect_->push_back(
+        [&]()
+        {
+            if (!can_insert_to_record_queue(setting<settings::BatchSize>()))
+                return;
 
-        fn_compute_vect_->push_back(
-            [&]()
-            {
-                // If the number of frames to record is reached, stop
-                if (setting<settings::RecordFrameCount>() != std::nullopt &&
-                    inserted >= setting<settings::RecordFrameCount>().value())
-                {
-                    NotifierManager::notify<bool>("acquisition_finished", true);
-                    return;
-                }
+            input_queue_.copy_multiple(record_queue_,
+                                       setting<settings::BatchSize>(),
+                                       get_memcpy_kind<settings::RecordQueueLocation>());
 
-                input_queue_.copy_multiple(record_queue_,
-                                           setting<settings::BatchSize>(),
-                                           get_memcpy_kind<settings::RecordQueueLocation>());
-
-                inserted += setting<settings::BatchSize>();
-            });
-    }
+            (*nb_frames_acquired_) += setting<settings::BatchSize>();
+        });
 }
 
 void Pipe::insert_moments_record()
 {
-    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
-    {
-        // if (Holovibes::instance().is_cli)
-        fn_compute_vect_->push_back([&]() { keep_contiguous(3); });
+    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::MOMENTS)
+        return;
 
-        fn_compute_vect_->push_back(
-            [&]()
-            {
-                cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
+    fn_compute_vect_->push_back(
+        [&]()
+        {
+            if (!can_insert_to_record_queue(3))
+                return;
 
-                record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
-                record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
-                record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
-            });
-    }
+            cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
+
+            record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
+            record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
+            record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+
+            (*nb_frames_acquired_) += 3;
+        });
 }
 
 void Pipe::insert_hologram_record()
 {
-    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::HOLOGRAM)
-    {
-        // if (Holovibes::instance().is_cli)
-        fn_compute_vect_->push_back([this]() { keep_contiguous(1); });
+    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::HOLOGRAM)
+        return;
 
-        fn_compute_vect_->push_back(
-            [this]()
-            {
-                if (buffers_.gpu_output_queue->get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
-                    record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                     stream_,
-                                                     get_memcpy_kind<settings::RecordQueueLocation>());
-                else
-                    record_queue_.enqueue(buffers_.gpu_output_frame.get(),
-                                          stream_,
-                                          get_memcpy_kind<settings::RecordQueueLocation>());
-            });
-    }
+    fn_compute_vect_->push_back(
+        [this]()
+        {
+            if (!can_insert_to_record_queue(1))
+                return;
+
+            if (buffers_.gpu_output_queue->get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
+                record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                 stream_,
+                                                 get_memcpy_kind<settings::RecordQueueLocation>());
+            else
+                record_queue_.enqueue(buffers_.gpu_output_frame.get(),
+                                      stream_,
+                                      get_memcpy_kind<settings::RecordQueueLocation>());
+
+            (*nb_frames_acquired_) += 1;
+        });
 }
 
 void Pipe::insert_cuts_record()
@@ -615,13 +623,22 @@ void Pipe::insert_cuts_record()
                   : recordMode == RecordMode::CUTS_YZ ? buffers_.gpu_output_frame_yz.get()
                                                       : nullptr;
 
-    if (buffer != nullptr)
-    {
-        fn_compute_vect_->push_back(
-            [this, &buffer = buffer]()
-            { record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>()); });
-    }
+    if (!buffer)
+        return;
+
+    fn_compute_vect_->push_back(
+        [this, &buffer = buffer]()
+        {
+            if (!can_insert_to_record_queue(1))
+                return;
+
+            record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+
+            (*nb_frames_acquired_) += 1;
+        });
 }
+
+#pragma endregion
 
 void Pipe::exec()
 {
