@@ -126,19 +126,28 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 
     const float z = setting<settings::ZDistance>();
 
+    // angular_spectrum_lens(gpu_lens_.get(),
+    //                       lens_side_size_,
+    //                       fd_.height,
+    //                       fd_.width,
+    //                       setting<settings::Lambda>(),
+    //                       z,
+    //                       setting<settings::PixelSize>(),
+    //                       stream_);
+    LOG_INFO(setting<settings::Lambda>());
     angular_spectrum_lens(gpu_lens_.get(),
-                          lens_side_size_,
-                          fd_.height,
                           fd_.width,
-                          setting<settings::Lambda>(),
+                          fd_.height,
                           z,
-                          setting<settings::PixelSize>(),
+                          setting<settings::Lambda>(),
+                          setting<settings::PixelSize>() * 1e-6f,
+                          setting<settings::PixelSize>() * 1e-6f,
                           stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
-    if (filter2d_enabled)
-        apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
+    // if (filter2d_enabled)
+    //     apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 

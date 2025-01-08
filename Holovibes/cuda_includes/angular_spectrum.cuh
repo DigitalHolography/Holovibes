@@ -20,13 +20,22 @@
  * \param pixel_size Used by the kernel
  * \param stream The input (and output) stream ; the data
  */
-void angular_spectrum_lens(cuComplex* lens,
-                           const uint lens_side_size,
-                           const uint frame_height,
-                           const uint frame_width,
-                           const float lambda,
-                           const float z,
-                           const float pixel_size,
+// void angular_spectrum_lens(cuComplex* lens,
+//                            const uint lens_side_size,
+//                            const uint frame_height,
+//                            const uint frame_width,
+//                            1const float lambda,
+//                            const float z,
+//                            const float pixel_size,
+//                            const cudaStream_t stream);
+
+void angular_spectrum_lens(cuFloatComplex* d_kernel,
+                           int Nx,
+                           int Ny,
+                           float z,
+                           float lambda,
+                           float x_step,
+                           float y_step,
                            const cudaStream_t stream);
 
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
