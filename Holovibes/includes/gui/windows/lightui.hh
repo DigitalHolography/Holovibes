@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <tuple>
 
-#include "notifier_struct.hh"
 #include "notifier.hh"
 #include "enum_record_mode.hh"
 #include "enum_camera_kind.hh"
@@ -60,16 +59,6 @@ class LightUI : public QMainWindow
      * @param filename The name of the output file.
      */
     void actualise_record_output_file_ui(const std::filesystem::path file_path);
-
-    void activate_start_button(bool activate);
-    void set_progress_bar_value(int value);
-    void set_progress_bar_maximum(int value);
-
-    /**
-     * @brief Handles the updating of a recording ; used to update the progress bar.
-     * @param record Contains info about the progress bar : its value and its max value.
-     */
-    void on_record_progress(const RecordProgressData& data);
 
     void actualise_record_progress(const int value, const int max);
 
@@ -194,7 +183,6 @@ class LightUI : public QMainWindow
     MainWindow* main_window_;            // Pointer to the MainWindow instance.
     bool visible_;                       // Boolean to track the visibility state of the UI.
     Subscriber<bool> notify_subscriber_; // Subscriber that runs the notify function and updates the UI.
-    Subscriber<RecordProgressData> record_progress_subscriber_; // Subscriber for record progress events.
 };
 
 } // namespace holovibes::gui

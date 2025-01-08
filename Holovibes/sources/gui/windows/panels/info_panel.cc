@@ -35,9 +35,7 @@ void InfoPanel::init()
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
 
-                    NotifierManager::notify<RecordProgressData>(
-                        "record_progress",
-                        RecordProgressData{static_cast<int>(value), static_cast<int>(max_size)});
+                    parent_->light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;

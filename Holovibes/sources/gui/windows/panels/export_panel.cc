@@ -199,11 +199,7 @@ void ExportPanel::set_record_mode(int index)
     parent_->notify();
 }
 
-void ExportPanel::stop_record()
-{
-    api_.record.stop_record();
-    record_finished();
-}
+void ExportPanel::stop_record() { api_.record.stop_record(); }
 
 void ExportPanel::record_finished()
 {
