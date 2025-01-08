@@ -7,6 +7,8 @@
 #include "fast_updates_holder.hh"
 #include "API.hh"
 #include "logger.hh"
+
+#include <tuple>
 #include <spdlog/spdlog.h>
 #include <fstream>
 #include <filesystem>
@@ -52,15 +54,17 @@ bool has_input_queue_overwritten()
     return input_queue->has_overwritten();
 }
 
+// bool can_run() { !stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record) }
+
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
     LOG_FUNC();
     // Progress recording FastUpdatesHolder entry
 
-    auto fast_update_progress_entry = FastUpdatesMap::map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
-    std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
-    std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
+    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    std::atomic<uint>& nb_frames_recorded = std::get<1>(*fast_update_progress_entry);
+    std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
 
     size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
 
@@ -78,10 +82,8 @@ void FrameRecordWorker::run()
         if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
             nb_frames_to_record = nb_frames_to_record * 3;
     }
-    else
-        nb_frames_to_record = 0;
-    // Processed FPS FastUpdatesHolder entry
 
+    // Processed FPS FastUpdatesHolder entry
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe_no_throw();
@@ -126,8 +128,14 @@ void FrameRecordWorker::run()
         if (has_input_queue_overwritten())
             API.compute.get_input_queue()->reset_override();
 
-        while (!stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record))
+        while (true)
         {
+            if (frame_count.has_value() && nb_frames_recorded >= nb_frames_to_record)
+                break;
+
+            if (stop_requested_ && !frame_count.has_value() && nb_frames_recorded >= nb_frames_to_record)
+                break;
+
             if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
@@ -149,11 +157,13 @@ void FrameRecordWorker::run()
 
             wait_for_frames();
 
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
             // and stop recording if needed.
-            if (stop_requested_ || (contiguous_frames.has_value() &&
-                                    std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value())))
+            if (contiguous_frames.has_value() &&
+                std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value()))
                 break;
 
             if (nb_frames_to_skip > 0)
@@ -175,8 +185,6 @@ void FrameRecordWorker::run()
             nb_frames_recorded++;
 
             integrate_fps_average();
-            if (!setting<settings::RecordFrameCount>().has_value())
-                nb_frames_to_record++;
         }
 
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
@@ -210,7 +218,6 @@ void FrameRecordWorker::run()
 
     reset_record_queue();
 
-    FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
     FastUpdatesMap::map<IntType>.remove_entry(IntType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");

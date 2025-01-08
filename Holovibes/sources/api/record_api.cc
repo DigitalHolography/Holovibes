@@ -1,5 +1,7 @@
 #include "record_api.hh"
 
+#include <tuple>
+
 #include "API.hh"
 #include "notifier.hh"
 
@@ -62,6 +64,16 @@ void RecordApi::set_recorded_eye(RecordedEyeType value) const
 
 #pragma region Recording
 
+RecordProgress RecordApi::get_record_progress() const
+{
+    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    std::atomic<uint>& nb_frame_acquired = std::get<0>(*fast_update_progress_entry);
+    std::atomic<uint>& nb_frames_recorded = std::get<1>(*fast_update_progress_entry);
+    std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
+
+    return {nb_frame_acquired.load(), nb_frames_recorded.load(), nb_frames_to_record.load()};
+}
+
 bool RecordApi::start_record_preconditions() const
 {
     if (get_record_mode() == RecordMode::CHART && get_record_frame_count() == std::nullopt)
@@ -93,12 +105,18 @@ void RecordApi::stop_record() const
 {
     LOG_FUNC();
 
+    if (api_->compute.get_is_computation_stopped())
+        return;
+
     auto record_mode = GET_SETTING(RecordMode);
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
     else if (record_mode != RecordMode::NONE)
+    {
+        api_->compute.get_compute_pipe()->request(ICS::DisableFrameRecord);
         Holovibes::instance().stop_frame_record();
+    }
 }
 
 bool RecordApi::is_recording() const { return Holovibes::instance().is_recording(); }

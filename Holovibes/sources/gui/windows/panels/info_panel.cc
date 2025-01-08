@@ -2,6 +2,7 @@
  *
  */
 
+#include "API.hh"
 #include "info_panel.hh"
 #include "MainWindow.hh"
 #include "information_worker.hh"
@@ -35,7 +36,6 @@ void InfoPanel::init()
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
 
-                    parent_->light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;
@@ -44,6 +44,41 @@ void InfoPanel::init()
     };
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
+
+    QTimer* timer = new QTimer();
+    connect(timer, &QTimer::timeout, this, &InfoPanel::handle_progress_bar);
+    timer->start(50);
+}
+
+void InfoPanel::handle_progress_bar()
+{
+    parent_->synchronize_thread(
+        [=]()
+        {
+            if (!api_.record.is_recording())
+                return;
+
+            api::RecordProgress progress = api_.record.get_record_progress();
+
+            // When all frames are acquired, we switch the color and the progress bar now tracks the saving progress
+            bool saving = !api_.record.get_frame_record_enabled();
+            int value = static_cast<int>(progress.acquired_frames);
+
+            if (saving)
+            {
+                ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236), "Saving: %v/%m");
+                parent_->light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
+
+                value = static_cast<int>(progress.saved_frames);
+            }
+            else
+                ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
+
+            ui_->RecordProgressBar->setMaximum(static_cast<int>(progress.total_frames));
+            ui_->RecordProgressBar->setValue(value);
+
+            parent_->light_ui_->actualise_record_progress(value, static_cast<int>(progress.total_frames));
+        });
 }
 
 void InfoPanel::load_gui(const json& j_us)

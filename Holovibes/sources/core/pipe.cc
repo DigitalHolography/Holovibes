@@ -34,14 +34,19 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
     if (!setting<settings::FrameRecordEnabled>())
         return false;
 
-    if (setting<settings::RecordFrameCount>() != std::nullopt &&
-        *nb_frames_acquired_ >= setting<settings::RecordFrameCount>().value())
+    bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
+
+    if (!unlimited_record && nb_frames_acquired_ >= setting<settings::RecordFrameCount>().value())
         return false;
 
     // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
     // will stop
     while (API.record.is_recording() && record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size())
         continue;
+
+    nb_frames_acquired_ += nb_elm_to_add;
+    if (unlimited_record)
+        total_nb_frames_to_acquire_ += nb_elm_to_add;
 
     return true;
 }
@@ -51,7 +56,7 @@ using camera::FrameDescriptor;
 Pipe::~Pipe()
 {
     FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS);
-    FastUpdatesMap::map<IntType>.remove_entry(IntType::FRAME_ACQUIRED);
+    FastUpdatesMap::map<RecordType>.remove_entry(RecordType::FRAME);
 }
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
@@ -117,7 +122,7 @@ bool Pipe::make_requests()
         chart_env_.chart_record_queue_.reset(nullptr);
         api.record.set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
-        (*nb_frames_acquired_) = 0;
+        nb_frames_acquired_ = 0;
         clear_request(ICS::DisableChartRecord);
     }
 
@@ -125,9 +130,8 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         api.record.set_frame_record_enabled(false);
-        (*nb_frames_acquired_) = 0;
+        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
         clear_request(ICS::DisableFrameRecord);
     }
 
@@ -563,8 +567,6 @@ void Pipe::insert_raw_record()
             input_queue_.copy_multiple(record_queue_,
                                        setting<settings::BatchSize>(),
                                        get_memcpy_kind<settings::RecordQueueLocation>());
-
-            (*nb_frames_acquired_) += setting<settings::BatchSize>();
         });
 }
 
@@ -584,8 +586,6 @@ void Pipe::insert_moments_record()
             record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
             record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
             record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
-
-            (*nb_frames_acquired_) += 3;
         });
 }
 
@@ -608,8 +608,6 @@ void Pipe::insert_hologram_record()
                 record_queue_.enqueue(buffers_.gpu_output_frame.get(),
                                       stream_,
                                       get_memcpy_kind<settings::RecordQueueLocation>());
-
-            (*nb_frames_acquired_) += 1;
         });
 }
 
@@ -633,8 +631,6 @@ void Pipe::insert_cuts_record()
                 return;
 
             record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
-
-            (*nb_frames_acquired_) += 1;
         });
 }
 

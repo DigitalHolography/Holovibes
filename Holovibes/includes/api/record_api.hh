@@ -10,6 +10,13 @@
 namespace holovibes::api
 {
 
+struct RecordProgress
+{
+    uint acquired_frames;
+    uint saved_frames;
+    uint total_frames;
+};
+
 class RecordApi : public IApi
 {
 
@@ -216,6 +223,12 @@ class RecordApi : public IApi
 #pragma endregion
 
 #pragma region Record
+
+    /*! \brief Gets the current progress of the recording
+     *
+     * \return RecordProgress the current progress of the recording
+     */
+    RecordProgress get_record_progress() const;
 
     /*! \brief Checks preconditions to start recording
      *

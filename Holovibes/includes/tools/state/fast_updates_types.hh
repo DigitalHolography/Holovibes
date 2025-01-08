@@ -44,7 +44,6 @@ enum class IntType
     OUTPUT_FPS,
     SAVING_FPS,
     TEMPERATURE,
-    FRAME_ACQUIRED,
 };
 
 enum class ProgressType
@@ -52,6 +51,11 @@ enum class ProgressType
     FILE_READ,
     FRAME_RECORD,
     CHART_RECORD,
+};
+
+enum class RecordType
+{
+    FRAME,
 };
 
 enum class QueueType
@@ -94,6 +98,16 @@ struct TypeValue<ProgressType>
 {
     using key = ProgressType;
     using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+};
+
+/*!
+ * \brief entry type for record. 3 values : nb of frames acquired, nb of frames saved, total nb frames to acquire.
+ */
+template <>
+struct TypeValue<RecordType>
+{
+    using key = RecordType;
+    using value = std::tuple<std::atomic<uint>, std::atomic<uint>, std::atomic<uint>>;
 };
 
 /*!

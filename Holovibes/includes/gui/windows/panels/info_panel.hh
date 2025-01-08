@@ -43,5 +43,8 @@ class InfoPanel : public Panel
   private:
     int height_ = 0;
     int resize_again_ = 0;
+
+  private:
+    void handle_progress_bar();
 };
 } // namespace holovibes::gui

@@ -152,7 +152,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
     frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream, record_queue_);
 }
 
-void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
+void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(false); }
 
 void Holovibes::start_chart_record(const std::function<void()>& callback)
 {
