@@ -18,7 +18,6 @@
 
 #include "tools.cuh"
 #include "cudalaunch_exception.hh"
-#include "popup_error.hh"
 #include "logger.hh"
 
 #ifndef M_PI
@@ -59,9 +58,8 @@ inline void gpuAssertRelease(cudaError_t code)
 {
     if (code != cudaSuccess)
     {
-        holovibes::gui::show_error_and_exit("Run Holovibes again by reducing buffers size (such as "
-                                            "input_buffer_size)",
-                                            static_cast<int>(code));
+        LOG_ERROR("Run Holovibes again by reducing buffers size (such as input_buffer_size).");
+        exit(static_cast<int>(code));
     }
 }
 #else

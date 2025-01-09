@@ -1,11 +1,12 @@
 /*! \file GUI.hh
  *
- * \brief This file contains the GUI API functions for the Holovibes application. These functions manage UI window and
- * recurent functions. They can call the API
+ * \brief This file contains the GUI API functions for the Holovibes application.
+ * These functions manage UI window and recurent functions. They can call the API
  */
 #pragma once
 
 #include <memory>
+#include <QMainWindow>
 
 #include "RawWindow.hh"
 #include "SliceWindow.hh"
@@ -15,6 +16,15 @@
 
 namespace holovibes::gui
 {
+
+/*! \brief Start the computation and open the main window
+ *
+ * \param window_size the size of the window
+ */
+void start(ushort window_size);
+
+/*! \brief Stop the computation and close all windows */
+void stop();
 
 /*! \brief Closes all the currently displaying windows */
 void close_windows();
@@ -101,11 +111,11 @@ void set_reticle_overlay_visible(bool value);
 
 /*! \brief Opens additional settings window
  *
- * \param[in] parent then window that will embed the specific panel
- * \param[in] callback the function to call when the advanced settings are closed on clicking on the save button
+ * \param[in] parent The window.
+ * \param[in] callback The function to be called on closing.
  */
 void open_advanced_settings(
-    QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
+    QMainWindow* parent, std::function<void()> callback = []() {});
 
 /*!
  * \brief Gets a string representation of the current recorded eye
@@ -122,6 +132,19 @@ std::string get_recorded_eye_display_string();
  * \return const std::string the extension of the output file
  */
 const std::string browse_record_output_file(std::string& std_filepath);
+
+/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt.
+ *
+ * \param[in] relative_path the relative path
+ * \return QString the absolute path
+ */
+QString create_absolute_qt_path(const std::string& relative_path);
+
+/*! \brief Returns the absolute path to the user Documents folder.
+ *
+ * \return std::filesystem::path the absolute path to the user Documents folder
+ */
+std::filesystem::path get_user_documents_path();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

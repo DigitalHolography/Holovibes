@@ -44,7 +44,7 @@ class ViewPanel : public Panel
      *
      * \param value The new image type
      */
-    void set_view_mode(const QString& value);
+    void set_img_type(const QString& value);
 
     /*! \brief Enables or Disables unwrapping 2d
      *

@@ -9,7 +9,7 @@ namespace holovibes::api
 
 void GlobalPostProcessApi::update_registration_zone(float value) const
 {
-    if (!is_between(value, 0.f, 1.f) || api_->input.get_import_type() == ImportType::None)
+    if (!is_between(value, 0.f, 1.f) || api_->compute.get_is_computation_stopped())
         return;
 
     set_registration_zone(value);
@@ -43,8 +43,6 @@ static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const
 {
-    auto& holo = Holovibes::instance();
-
     auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file;
     std::string path = path_file.string();
 
@@ -86,8 +84,8 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
     fclose(c_file);
 
     // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-    const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-    const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+    const uint output_width = api_->compute.get_gpu_output_queue()->get_fd().width;
+    const uint output_height = api_->compute.get_gpu_output_queue()->get_fd().height;
     const uint size = output_width * output_height;
 
     // The convo matrix is centered and padded with 0 since the kernel is
@@ -144,7 +142,7 @@ void GlobalPostProcessApi::load_convolution_matrix(std::string filename) const
 
 void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
 {
-    if (api_->input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+    if (api_->compute.get_is_computation_stopped() || get_divide_convolution_enabled() == value ||
         !get_convolution_enabled())
         return;
 
@@ -156,24 +154,29 @@ void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) cons
 
 #pragma region Convolution
 
-void GlobalPostProcessApi::enable_convolution(const std::string& filename) const
+ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) const
 {
-    if (api_->input.get_import_type() == ImportType::None)
-        return;
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     set_convolution_file_name(filename);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     load_convolution_matrix(filename);
 
     if (filename.empty())
     {
         api_->compute.pipe_refresh();
-        return;
+        return ApiCode::OK;
     }
 
     try
     {
         auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::Convolution);
+        LOG_ERROR("Convolution requested: {}", get_convo_matrix().size());
         // Wait for the convolution to be enabled for notify
         while (pipe->is_requested(ICS::Convolution))
             continue;
@@ -182,7 +185,11 @@ void GlobalPostProcessApi::enable_convolution(const std::string& filename) const
     {
         disable_convolution();
         LOG_ERROR("Catch {}", e.what());
+
+        return ApiCode::FAILURE;
     }
+
+    return ApiCode::OK;
 }
 
 void GlobalPostProcessApi::disable_convolution() const

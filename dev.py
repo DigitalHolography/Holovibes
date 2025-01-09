@@ -82,10 +82,10 @@ def install(args: GoalArgs) -> int:
         print("Please make sure you have installed the build/requirements.txt")
         raise
 
-
 def conan_build_goal(args: GoalArgs, option: str) -> int:
     build_dir = build_utils.get_build_dir(args.build_dir)
 
+    # Handle prerequisite tasks
     if not os.path.isdir(build_dir):
         sys.stdout.flush()
         if option == "--install" and conan_build_goal(args, "--test"):
@@ -97,35 +97,36 @@ def conan_build_goal(args: GoalArgs, option: str) -> int:
         if option == "--configure" and install(args):
             return 1
 
-    build = "--build" if option == "--build" else ""
-    preset = (
-        "conan-debug"
-        if args.build_mode in ["d", "D", "Debug", "debug"]
-        else "conan-relwithdebinfo"
+    # Determine build preset based on mode
+    preset = "conan-debug" if args.build_mode in ["d", "D", "Debug", "debug"] else "conan-relwithdebinfo"
+    
+    cmake_flags = []
+    if option == "--test":
+        cmake_flags.append("--target test")
+
+    cmake_build_step = []
+    if option in ["--build", "--test"]:
+        cmake_build_step.append("--build")
+
+    # Construct the full command
+    cmd = (
+        [os.path.join(DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir, "generators", "conanbuild.bat"), "&&", "cmake"]
+        + cmake_build_step
+        + ["--preset", preset]
+        + cmake_flags
+        + args.goal_args
     )
-    cmd = [
-        os.path.join(
-            DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir,
-            "generators",
-            "conanbuild.bat",
-        ),
-        "&&",
-        "cmake",
-        build,
-        "--preset",
-        preset,
-    ] + args.goal_args
 
     if args.verbose:
         print("cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     try:
+        # Execute the command
         return subprocess.call(cmd)
     except Exception as e:
-        print("Did you install build/requirements.txt ?")
+        print("Did you install build/requirements.txt?")
         raise
-
 
 @goal
 def cmake(args: GoalArgs) -> int:
@@ -139,8 +140,18 @@ def build(args: GoalArgs) -> int:
 
 @goal
 def test(args: GoalArgs) -> int:
-    return conan_build_goal(args, "--test")
+    res = conan_build_goal(args, "--test")
 
+    build_dir = build_utils.get_build_dir(args.build_dir)
+
+    cmd = f"./{build_dir}/test.exe"
+    
+    try:
+        # Execute the command
+        return subprocess.call(cmd)
+    except Exception as e:
+        print("Did you install build/requirements.txt?")
+        raise
 
 @goal
 def doc(args: GoalArgs) -> int:

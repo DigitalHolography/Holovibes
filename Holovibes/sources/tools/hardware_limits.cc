@@ -1,7 +1,8 @@
+#include "hardware_limits.hh"
+
 #include <cmath>
 #include <cuda_runtime.h>
 
-#include "hardware_limits.hh"
 #include "logger.hh"
 
 static int max_threads_per_block_1d;

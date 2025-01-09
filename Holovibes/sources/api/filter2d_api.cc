@@ -38,14 +38,13 @@ inline static const std::filesystem::path dir(GET_EXE_DIR);
 
 void Filter2dApi::load_input_filter(const std::string& file) const
 {
-    auto& holo = Holovibes::instance();
     try
     {
         auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
         InputFilter(get_input_filter(),
                     path_file.string(),
-                    holo.get_gpu_output_queue()->get_fd().width,
-                    holo.get_gpu_output_queue()->get_fd().height);
+                    api_->compute.get_gpu_output_queue()->get_fd().width,
+                    api_->compute.get_gpu_output_queue()->get_fd().height);
     }
     catch (std::exception& e)
     {
@@ -55,9 +54,6 @@ void Filter2dApi::load_input_filter(const std::string& file) const
 
 void Filter2dApi::enable_filter(const std::string& filename) const
 {
-    if (filename == get_filter_file_name())
-        return;
-
     if (!api_->compute.get_compute_pipe_no_throw())
         return;
 

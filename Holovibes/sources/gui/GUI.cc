@@ -5,10 +5,31 @@
 #include <regex>
 #include <string>
 
+#include <Windows.h>
+#include <shlobj.h>
+
 #define UI UserInterfaceDescriptor::instance()
 
 namespace holovibes::gui
 {
+
+void start(ushort window_size)
+{
+    close_windows();
+    if (API.compute.start() == ApiCode::OK)
+    {
+        create_window(API.compute.get_compute_mode(), window_size);
+        NotifierManager::notify("notify", true);
+    }
+}
+
+/*! \brief Stop the computation and close all windows */
+void stop()
+{
+    close_windows();
+    API.compute.stop();
+    NotifierManager::notify("notify", true);
+}
 
 void set_light_ui_mode(bool value)
 {
@@ -69,7 +90,7 @@ void close_windows()
 void create_window(Computation window_kind, ushort window_size)
 {
     auto& api = API;
-    const camera::FrameDescriptor& fd = api.input.get_fd();
+    const camera::FrameDescriptor& fd = api.input.get_input_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_size);
@@ -130,7 +151,7 @@ void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)
     {
-        const camera::FrameDescriptor& fd = API.input.get_fd();
+        const camera::FrameDescriptor& fd = API.input.get_input_fd();
         ushort filter2d_window_width = fd.width;
         ushort filter2d_window_height = fd.height;
         get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
@@ -157,7 +178,7 @@ void set_lens_view(bool enabled, uint auxiliary_window_max_size)
         // main GL window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
 
-        const ::camera::FrameDescriptor& fd = API.input.get_fd();
+        const ::camera::FrameDescriptor& fd = API.input.get_input_fd();
         ushort lens_window_width = fd.width;
         ushort lens_window_height = fd.height;
         get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
@@ -178,7 +199,7 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)
     {
-        const ::camera::FrameDescriptor& fd = API.input.get_fd();
+        const ::camera::FrameDescriptor& fd = API.input.get_input_fd();
         ushort raw_window_width = fd.width;
         ushort raw_window_height = fd.height;
         get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
@@ -328,7 +349,7 @@ std::string getNameFromFilename(const std::string& filename)
 std::string get_recorded_eye_display_string()
 {
     static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "Left"},
-                                                          {RecordedEyeType::NONE, "Unspecified"},
+                                                          {RecordedEyeType::NONE, "None"},
                                                           {RecordedEyeType::RIGHT, "Right"}};
     return eye_map[API.record.get_recorded_eye()];
 }
@@ -348,6 +369,28 @@ const std::string browse_record_output_file(std::string& std_filepath)
     UI.output_filename_ = std::move(fileNameWithoutExt);
 
     return fileExt;
+}
+
+QString create_absolute_qt_path(const std::string& relative_path)
+{
+    std::filesystem::path dir(GET_EXE_DIR);
+    dir = dir / relative_path;
+    return QString(dir.string().c_str());
+}
+
+std::filesystem::path get_user_documents_path()
+{
+    wchar_t document_path[MAX_PATH];
+    HRESULT sh_res = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
+
+    if (sh_res == S_OK)
+    {
+        char str[MAX_PATH];
+        wcstombs(str, document_path, MAX_PATH - 1);
+        return str;
+    }
+
+    return "";
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display() { return UI.mainDisplay; }

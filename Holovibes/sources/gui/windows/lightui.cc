@@ -101,7 +101,6 @@ void LightUI::on_record_start(RecordMode record)
 {
     ui_->startButton->setText("Stop recording");
     ui_->RecordedEyePushButton->setEnabled(false);
-    ui_->ResetRecordedEyePushButton->setEnabled(false);
     LOG_INFO("Recording started");
 }
 
@@ -110,7 +109,6 @@ void LightUI::on_record_stop(RecordMode record)
     reset_start_button();
 
     ui_->RecordedEyePushButton->setEnabled(true);
-    ui_->ResetRecordedEyePushButton->setEnabled(true);
 
     reset_record_progress_bar();
 
@@ -245,14 +243,8 @@ void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
 
 void LightUI::update_recorded_eye()
 {
-    API.record.set_recorded_eye(API.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
-                                                                                       : RecordedEyeType::LEFT);
-    notify();
-}
-
-void LightUI::reset_recorded_eye()
-{
-    API.record.set_recorded_eye(RecordedEyeType::NONE);
+    int next = (static_cast<int>(API.record.get_recorded_eye()) + 1) % 3;
+    API.record.set_recorded_eye(static_cast<RecordedEyeType>(next));
     notify();
 }
 

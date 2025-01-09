@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <cuComplex.h>
+
 namespace holovibes
 {
 
@@ -31,6 +33,7 @@ void device_print(T* d_data, size_t offset, size_t nb_elts);
  * \param[in]  offset   The offset
  * \param[in]  nb_elts  The number of elements to print
  */
+template <>
 void device_print(cuComplex* d_data, size_t offset, size_t nb_elts);
 
 } // namespace holovibes

@@ -206,9 +206,6 @@ class LightUI : public QMainWindow
     /*! \brief Changes the recorded eye according to the current one */
     void update_recorded_eye();
 
-    /*! \brief Sets the recorded eye to None */
-    void reset_recorded_eye();
-
   protected:
     /**
      * \brief Overridden closeEvent handler.
