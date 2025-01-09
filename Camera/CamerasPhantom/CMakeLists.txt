@@ -23,6 +23,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
+    CameraCommon
     Boost::boost
     CUDA::cudart
     spdlog::spdlog_header_only

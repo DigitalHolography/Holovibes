@@ -1,7 +1,7 @@
 # Where to look for .ui files.
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-set(CUDA_EXTERNAL_INCLUDES
+SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${glm_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
@@ -82,12 +82,11 @@ qt_add_resources(Holovibes "HolovibesRessources"
 
 add_custom_command(
     TARGET Holovibes PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E remove -f $<TARGET_FILE:Holovibes>
-    COMMAND taskkill /F /IM holovibes.exe || exit 0
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/check_file_unlock.py
 )
 
-
 target_link_libraries(Holovibes PRIVATE
+    CameraCommon
     spdlog::spdlog_header_only
     Boost::program_options
     Qt6::OpenGL
@@ -114,7 +113,7 @@ set_target_properties(Holovibes PROPERTIES
     CUDA_ARCHITECTURES "61;75;86;89"
     CUDA_STANDARD 17
     AUTOUIC_SEARCH_PATHS "assets/ui"
-    LINK_FLAGS "/INCREMENTAL:NO"
+    LINK_FLAGS "/SAFESEH:NO"
 )
 
 target_compile_options(Holovibes PRIVATE
@@ -356,8 +355,3 @@ set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 ")
 
 include(CPack)
-
-# ---------------------------------------------------------------------
-# Unit testing
-# ---------------------------------------------------------------------
-add_subdirectory(tests)

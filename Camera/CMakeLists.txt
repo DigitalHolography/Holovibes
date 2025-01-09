@@ -20,6 +20,8 @@ find_file(HAVE_EGrabbers "EGrabbers.h" PATHS "${EURESYS_SDK}/include")
 
 find_file(HAVE_VIMBAX "VmbCPP.h" PATHS "${VIMBAX_SDK}/api/include/VmbCPP")
 
+add_subdirectory(CameraCommon)
+
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     add_subdirectory(BitflowCyton)
 else()

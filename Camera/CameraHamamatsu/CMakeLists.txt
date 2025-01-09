@@ -13,6 +13,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
+    CameraCommon
     "${CMAKE_SOURCE_DIR}/libs/hamamatsu/dcamapi.lib"
     Boost::boost
     spdlog::spdlog_header_only

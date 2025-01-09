@@ -13,6 +13,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
+    CameraCommon
     "${VIMBAX_SDK}/api/lib/VmbC.lib"
     "${VIMBAX_SDK}/api/lib/VmbCPP.lib"
     "${VIMBAX_SDK}/api/lib/VmbImageTransform.lib"

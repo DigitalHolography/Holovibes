@@ -13,6 +13,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
+    CameraCommon
     "${CMAKE_SOURCE_DIR}/libs/ximea/xiapi64.lib"
     Boost::boost
     spdlog::spdlog_header_only

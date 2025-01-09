@@ -14,6 +14,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
+    CameraCommon
     "${BITFLOW_SDK}/Lib64/BFD.lib"
     "${BITFLOW_SDK}/Lib64/BFDiskIO.lib"
     "${BITFLOW_SDK}/Lib64/BFEr.lib"
