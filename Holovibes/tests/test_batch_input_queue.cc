@@ -2,6 +2,7 @@
 
 #include "cuda_memory.cuh"
 #include "batch_input_queue.hh"
+#include "test_disable_log.hh"
 
 #include <thread>
 
