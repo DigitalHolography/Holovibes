@@ -65,7 +65,6 @@ target_include_directories(test PRIVATE
 add_custom_command(
     TARGET test PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E remove -f $<TARGET_FILE:test>
-    COMMAND taskkill /F /IM test.exe || exit 0
 )
 
 target_link_libraries(test PRIVATE
