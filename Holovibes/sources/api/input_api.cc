@@ -198,7 +198,7 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         set_data_type(RecordedDataType::RAW);
 
         if (active_camera->get_camera_fps() != -1)
-            API.input.set_camera_fps(static_cast<uint>(active_camera->get_camera_fps()));
+            api_->input.set_camera_fps(static_cast<uint>(active_camera->get_camera_fps()));
     }
     catch (const std::exception& e)
     {

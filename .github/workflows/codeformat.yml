@@ -4,8 +4,9 @@ on:
   pull_request:
   push:
     branches:
-      - master
-      - dev
+      - fix-it-if-you-have-faith
+      # - master
+      # - dev
 
 jobs:
   clang-format:
