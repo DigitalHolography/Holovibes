@@ -6,6 +6,7 @@
 
 #include "notifier.hh"
 #include "panel.hh"
+#include "gui_info_text_edit.hh"
 
 namespace holovibes::gui
 {
@@ -48,5 +49,6 @@ class InfoPanel : public Panel
     int resize_again_ = 0;
     Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
     QTimer timer_;
+    InfoTextEdit text_;
 };
 } // namespace holovibes::gui

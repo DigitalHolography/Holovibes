@@ -10,7 +10,7 @@
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMainWindow>
-#include <QWidgets/QTextEdit>
+#include <QTWidgets/QTextEdit>
 
 namespace holovibes::gui
 {
@@ -20,6 +20,12 @@ namespace holovibes::gui
  */
 class InfoTextEdit : public QTextEdit
 {
-    QObject
+    Q_OBJECT
+
+  public:
+    InfoTextEdit(QWidget* parent = nullptr)
+        : QTextEdit(parent)
+    {
+    }
 };
 } // namespace holovibes::gui
