@@ -5,8 +5,16 @@
  */
 
 #pragma once
+
+#include <atomic>
+#include <map>
+#include <memory>
+
 #include "all_struct.hh"
-#include "atomic"
+#include "enum_device.hh"
+#include "fast_updates_types.hh"
+
+typedef unsigned int uint;
 
 namespace holovibes
 {

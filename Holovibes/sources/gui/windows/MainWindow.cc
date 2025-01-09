@@ -105,9 +105,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
-    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
-    { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
-
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();

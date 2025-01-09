@@ -4,9 +4,10 @@
  */
 #pragma once
 
+#include "chrono.hh"
+#include "gui_info_text_edit.hh"
 #include "notifier.hh"
 #include "panel.hh"
-#include "gui_info_text_edit.hh"
 
 namespace holovibes::gui
 {
@@ -29,8 +30,14 @@ class InfoPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*! \brief Change the text in the text area */
-    void set_text(const char* text);
+    /*!
+     * \brief Updates the progress bar depending of the progress type
+     *
+     * \param type The progress type to set in the bar
+     * \param value The current state of the bar
+     * \param max_size The maximum boundary of the bar
+     */
+    void update_progress(ProgressType type, const size_t value, const size_t max_size);
 
     /*! \brief Show or hide the file reader progress */
     void set_visible_file_reader_progress(bool visible);
@@ -42,13 +49,15 @@ class InfoPanel : public Panel
     void set_recordProgressBar_color(const QColor& color, const QString& text);
 
   public slots:
-    void timer_timeout();
+    /*!
+     * \brief Is triggered every 50ms to update the information text
+     *
+     */
+    void update_information();
 
   private:
-    int height_ = 0;
-    int resize_again_ = 0;
     Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
     QTimer timer_;
-    InfoTextEdit text_;
+    Chrono chrono_;
 };
 } // namespace holovibes::gui
