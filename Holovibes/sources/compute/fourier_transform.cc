@@ -276,6 +276,44 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_end,
                                    stream_);
         });
+
+    /*  When time transform size is even we need to do some adjustments:
+        Double the Nyquist frequency for each pixel in M0 and M2
+        Suppress the Nyquist frequency for each pixel in M1 (it should cancel itself with its negative counterpart) */
+    auto time_transformation_size = setting<settings::TimeTransformationSize>();
+    auto nyquist_index = time_transformation_size / 2;
+    if (time_transformation_size % 2 == 0 && nyquist_index >= moments_env_.f_start &&
+        nyquist_index <= moments_env_.f_end)
+    {
+        fn_compute_vect_->push_back(
+            [=]()
+            {
+                add_nyquist_freq(moments_env_.moment0_buffer,
+                                 moments_env_.stft_res_buffer,
+                                 moments_env_.f0_buffer,
+                                 fd_.get_frame_res(),
+                                 moments_env_.f_start,
+                                 moments_env_.f_end,
+                                 nyquist_index,
+                                 stream_);
+                remove_nyquist_freq(moments_env_.moment1_buffer,
+                                    moments_env_.stft_res_buffer,
+                                    moments_env_.f1_buffer,
+                                    fd_.get_frame_res(),
+                                    moments_env_.f_start,
+                                    moments_env_.f_end,
+                                    nyquist_index,
+                                    stream_);
+                add_nyquist_freq(moments_env_.moment2_buffer,
+                                 moments_env_.stft_res_buffer,
+                                 moments_env_.f2_buffer,
+                                 fd_.get_frame_res(),
+                                 moments_env_.f_start,
+                                 moments_env_.f_end,
+                                 nyquist_index,
+                                 stream_);
+            });
+    }
 }
 
 void FourierTransform::insert_moments_split()

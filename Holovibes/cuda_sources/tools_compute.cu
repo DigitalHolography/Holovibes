@@ -57,6 +57,96 @@ __global__ void kernel_tensor_multiply_vector(float* output,
     output[index] = val;
 }
 
+void tensor_multiply_vector(float* output,
+                            const float* tensor,
+                            const float* vector,
+                            const size_t frame_res,
+                            const ushort f_start,
+                            const ushort f_end,
+                            const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
+    cudaCheckError();
+}
+
+static __global__ void kernel_remove_nyquist_freq(float* input_output,
+                                                  const float* tensor,
+                                                  const float* vector,
+                                                  const size_t frame_res,
+                                                  const ushort f_start,
+                                                  const ushort f_end,
+                                                  const ushort nyquist_index)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    const float* current_frame = tensor + nyquist_index * frame_res;
+    input_output[index] -= current_frame[index] * vector[nyquist_index];
+}
+
+void remove_nyquist_freq(float* input_output,
+                         const float* tensor,
+                         const float* vector,
+                         const size_t frame_res,
+                         const ushort f_start,
+                         const ushort f_end,
+                         const ushort nyquist_index,
+                         const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_remove_nyquist_freq<<<blocks, threads, 0, stream>>>(input_output,
+                                                               tensor,
+                                                               vector,
+                                                               frame_res,
+                                                               f_start,
+                                                               f_end,
+                                                               nyquist_index);
+    cudaCheckError();
+}
+
+static __global__ void kernel_add_nyquist_freq(float* input_output,
+                                               const float* tensor,
+                                               const float* vector,
+                                               const size_t frame_res,
+                                               const ushort f_start,
+                                               const ushort f_end,
+                                               const ushort nyquist_index)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    const float* current_frame = tensor + nyquist_index * frame_res;
+    input_output[index] += current_frame[index] * vector[nyquist_index];
+}
+
+void add_nyquist_freq(float* input_output,
+                      const float* tensor,
+                      const float* vector,
+                      const size_t frame_res,
+                      const ushort f_start,
+                      const ushort f_end,
+                      const ushort nyquist_index,
+                      const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_add_nyquist_freq<<<blocks, threads, 0, stream>>>(input_output,
+                                                            tensor,
+                                                            vector,
+                                                            frame_res,
+                                                            f_start,
+                                                            f_end,
+                                                            nyquist_index);
+    cudaCheckError();
+}
+
 void gpu_normalize(float* const input,
                    double* const result_reduce,
                    const size_t frame_res,
@@ -81,18 +171,4 @@ void gpu_normalize(float* const input,
     };
 
     map_generic(input, input, frame_res, map_function, stream);
-}
-
-void tensor_multiply_vector(float* output,
-                            const float* tensor,
-                            const float* vector,
-                            const size_t frame_res,
-                            const ushort f_start,
-                            const ushort f_end,
-                            const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
-    cudaCheckError();
 }

@@ -41,7 +41,7 @@ void ICompute::fft_freqs()
 
     // initialize f1
     // f1 = [0, 1, ...,   n / 2,     -(n - 1) / 2, ..., -1] * fs / n   if n is even
-    // Note: we keep the Nyquist frequency (n / 2) only for the positive, this means f1 is of length n
+    // Note: we keep the Nyquist frequency (n / 2) only for the positive, this means f1 is of length n instead of n + 1
     if (time_transformation_size % 2 == 0)
     {
         for (uint i = 0; i <= time_transformation_size / 2; i++)
