@@ -16,38 +16,14 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-#define RED_COLORATION_RATIO 0.9f
-#define ORANGE_COLORATION_RATIO 0.7f
-
-#define INPUT_Q_RED_COLORATION_RATIO 0.8f
-#define INPUT_Q_ORANGE_COLORATION_RATIO 0.3f
-
-const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
-    {IndicationType::IMG_SOURCE, "Image Source"},
-    {IndicationType::INPUT_FORMAT, "Input Format"},
-    {IndicationType::OUTPUT_FORMAT, "Output Format"},
-};
-
-const std::unordered_map<IntType, std::string> InformationWorker::fps_type_to_string_ = {
-    {IntType::INPUT_FPS, "Input FPS"},
-    {IntType::OUTPUT_FPS, "Output FPS"},
-    {IntType::SAVING_FPS, "Saving FPS"},
-    {IntType::TEMPERATURE, "Camera Temperature"},
-};
-
-const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_to_string_ = {
+const std::unordered_map<QueueType, std::string> BenchmarkWorker::queue_type_to_string_ = {
     {QueueType::INPUT_QUEUE, "Input Queue"},
     {QueueType::OUTPUT_QUEUE, "Output Queue"},
     {QueueType::RECORD_QUEUE, "Record Queue"},
 };
 
-void InformationWorker::run()
+void BenchmarkWorker::run()
 {
-    std::shared_ptr<ICompute> pipe;
-    unsigned int output_frame_res = 0;
-    unsigned int input_frame_size = 0;
-    unsigned int record_frame_size = 0;
-
     // Init start
     Chrono chrono;
 
@@ -96,7 +72,7 @@ void InformationWorker::run()
                 }
             }
             else
-                InformationWorker::write_information(benchmark_file);
+                BenchmarkWorker::write_information(benchmark_file);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -111,7 +87,7 @@ void InformationWorker::run()
     }
 }
 
-void InformationWorker::write_information(std::ofstream& csvFile)
+void BenchmarkWorker::write_information(std::ofstream& csvFile)
 {
     uint8_t i = 3;
     for (auto const& [key, info] : information_.queues)

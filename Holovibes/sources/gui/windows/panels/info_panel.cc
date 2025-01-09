@@ -7,7 +7,7 @@
 #include "api.hh"
 #include "info_panel.hh"
 #include "MainWindow.hh"
-#include "information_worker.hh"
+#include "benchmark_worker.hh"
 #include "logger.hh"
 
 namespace holovibes::gui

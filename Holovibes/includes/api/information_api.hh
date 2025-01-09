@@ -130,6 +130,18 @@ class InformationApi : public IApi
      */
     inline void set_benchmark_mode(bool value) const { UPDATE_SETTING(BenchmarkMode, value); }
 
+    /*!
+     * \brief Starts the benchmark worker
+     *
+     */
+    void start_benchmark() const;
+
+    /*!
+     * \brief Stops the benchmark worker
+     *
+     */
+    void stop_benchmark() const;
+
 #pragma endregion
 
 #pragma region Information
@@ -151,13 +163,13 @@ class InformationApi : public IApi
      */
     const std::string get_documentation_url() const;
 
-    /*! \brief Displays information */
-    void start_information_display();
-
+    /*!
+     * \brief Gather all the information available from the FastUpdatesHolder and return it
+     *
+     * \param info The structure to update with new information. Every entry will have been adjusted,
+     * as the ones that are not present in the Holder will be reset (0, nullptr, ...)
+     */
     void get_information(Information* info);
-
-    /*! \brief Stop the displays of information */
-    void stop_information_display() const;
 
 #pragma endregion
 };

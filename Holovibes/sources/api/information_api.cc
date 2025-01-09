@@ -29,13 +29,13 @@ namespace holovibes::api
 
 #pragma region Information
 
-void InformationApi::start_information_display()
+void InformationApi::start_benchmark() const
 {
-    elapsed_time_chrono_.start();
-    Holovibes::instance().start_information_display();
+    if (get_benchmark_mode())
+        Holovibes::instance().start_benchmark();
 }
 
-void InformationApi::stop_information_display() const { Holovibes::instance().stop_information_display(); }
+void InformationApi::stop_benchmark() const { Holovibes::instance().stop_benchmark(); }
 
 float InformationApi::get_boundary() const
 {

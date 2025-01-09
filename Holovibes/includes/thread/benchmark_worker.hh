@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Declaration of the InformationWorker class.
+ * \brief Declaration of the BenchmarkWorker class.
  */
 #pragma once
 
@@ -25,19 +25,19 @@
 
 namespace holovibes::worker
 {
-/*! \class InformationWorker
+/*! \class BenchmarkWorker
  *
  * \brief Class used to display side information relative to the execution
  */
-class InformationWorker final : public Worker
+class BenchmarkWorker final : public Worker
 {
   public:
     /*!
      * \param is_cli Whether the program is running in cli mode or not
-     * \param info Information container where the InformationWorker periodicaly fetch data to display it
+     * \param info Information container where the BenchmarkWorker periodicaly fetch data to display it
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    InformationWorker(InitSettings settings)
+    BenchmarkWorker(InitSettings settings)
         : Worker()
         , realtime_settings_(settings)
     {
@@ -55,7 +55,7 @@ class InformationWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        LOG_TRACE("[InformationWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[BenchmarkWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
@@ -143,7 +143,7 @@ class InformationWorker final : public Worker
 namespace holovibes
 {
 template <typename T>
-struct has_setting<T, worker::InformationWorker> : is_any_of<T, ALL_SETTINGS>
+struct has_setting<T, worker::BenchmarkWorker> : is_any_of<T, ALL_SETTINGS>
 {
 };
 } // namespace holovibes

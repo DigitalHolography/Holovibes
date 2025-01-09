@@ -17,8 +17,8 @@ namespace holovibes
 
 /*! \class FastUpdatesHolder
  *
- * \brief Hold a templated map which is used by the informationWorker to access and
- * display information (like fps and queue occupancy) at a high rate, since this needs to be updated continuously.
+ * \brief Holds a templated map which is used to regroup useful monitoring information
+ * Is used by the InfoPanel to display useful data regarding the state of the software
  */
 template <class T>
 class FastUpdatesHolder

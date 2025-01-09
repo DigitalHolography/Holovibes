@@ -11,7 +11,7 @@
 #include "thread_worker_controller.hh"
 #include "file_frame_read_worker.hh"
 #include "camera_frame_read_worker.hh"
-#include "information_worker.hh"
+#include "benchmark_worker.hh"
 #include "chart_record_worker.hh"
 #include "frame_record_worker.hh"
 #include "compute_worker.hh"
@@ -302,9 +302,9 @@ class Holovibes
 
     void stop_chart_record();
 
-    void start_information_display();
+    void start_benchmark();
 
-    void stop_information_display();
+    void stop_benchmark();
 
     void start_compute();
 
@@ -453,7 +453,7 @@ class Holovibes
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 
-    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
+    worker::ThreadWorkerController<worker::BenchmarkWorker> benchmark_worker_controller_;
 
     worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
     std::atomic<std::shared_ptr<Pipe>> compute_pipe_{nullptr};

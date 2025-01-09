@@ -166,15 +166,15 @@ void Holovibes::start_chart_record(const std::function<void()>& callback)
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 
-void Holovibes::start_information_display()
+void Holovibes::start_benchmark()
 {
-    info_worker_controller_.set_error_callback(error_callback_);
-    info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
+    benchmark_worker_controller_.set_error_callback(error_callback_);
+    benchmark_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-    info_worker_controller_.start(all_settings);
+    benchmark_worker_controller_.start(all_settings);
 }
 
-void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
+void Holovibes::stop_benchmark() { benchmark_worker_controller_.stop(); }
 
 void Holovibes::start_compute()
 {
