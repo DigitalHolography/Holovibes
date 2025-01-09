@@ -62,7 +62,13 @@ target_include_directories(test PRIVATE
     ${INTERNAL_INCLUDES_TEST}
 )
 
-target_link_libraries(test
+add_custom_command(
+    TARGET test PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E remove -f $<TARGET_FILE:test>
+    COMMAND taskkill /F /IM test.exe || exit 0
+)
+
+target_link_libraries(test PRIVATE
     GTest::gtest_main
     spdlog::spdlog_header_only
     fmt::fmt
@@ -96,6 +102,7 @@ target_compile_definitions(test PRIVATE
 set_target_properties(test PROPERTIES
     CUDA_ARCHITECTURES "61;75;86;89"
     CUDA_STANDARD 17
+    LINK_FLAGS "/INCREMENTAL:NO"
 )
 
 gtest_discover_tests(test)

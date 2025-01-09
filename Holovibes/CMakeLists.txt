@@ -83,7 +83,9 @@ qt_add_resources(Holovibes "HolovibesRessources"
 add_custom_command(
     TARGET Holovibes PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E remove -f $<TARGET_FILE:Holovibes>
+    COMMAND taskkill /F /IM holovibes.exe || exit 0
 )
+
 
 target_link_libraries(Holovibes PRIVATE
     spdlog::spdlog_header_only
@@ -112,7 +114,7 @@ set_target_properties(Holovibes PROPERTIES
     CUDA_ARCHITECTURES "61;75;86;89"
     CUDA_STANDARD 17
     AUTOUIC_SEARCH_PATHS "assets/ui"
-    LINK_FLAGS "/SAFESEH:NO"
+    LINK_FLAGS "/INCREMENTAL:NO"
 )
 
 target_compile_options(Holovibes PRIVATE
