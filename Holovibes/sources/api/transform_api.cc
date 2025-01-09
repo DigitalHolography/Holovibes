@@ -148,9 +148,9 @@ void TransformApi::set_p_index(uint value) const
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
-    if (value >= get_time_transformation_size() || value == 0)
+    if (value >= get_time_transformation_size())
     {
-        LOG_ERROR("p param has to be between 1 and #img");
+        LOG_ERROR("p param has to be between 0 and #img");
         return;
     }
 
