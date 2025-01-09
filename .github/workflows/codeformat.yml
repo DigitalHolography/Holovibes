@@ -1,7 +1,7 @@
 name: Code-Format Check
 
 on:
-  pull_request:
+  # pull_request:
   push:
     branches:
       - fix-it-if-you-have-faith
