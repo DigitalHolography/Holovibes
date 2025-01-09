@@ -63,6 +63,9 @@ void tensor_multiply_vector(float* output,
                             const size_t frame_res,
                             const ushort f_start,
                             const ushort f_end,
+                            const size_t nyquist_freq,
+                            bool even,
+                            bool m1,
                             const cudaStream_t stream);
 
 void remove_nyquist_freq(float* input_output,

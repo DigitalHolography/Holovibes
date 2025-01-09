@@ -35,6 +35,41 @@ kernel_divide_frames_float(float* output, const float* numerator, const float* d
     }
 }
 
+__global__ void kernel_tensor_multiply_vector_nyquist_compensation(float* output,
+                                                                   const float* tensor,
+                                                                   const float* vector,
+                                                                   const size_t frame_res,
+                                                                   const ushort f_start,
+                                                                   const ushort f_end,
+                                                                   const size_t nyquist_index,
+                                                                   const bool even,
+                                                                   const bool m1)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    float val = 0.0f;
+    for (uint i = f_start; i < nyquist_index; i++)
+    {
+        const float* current_frame = tensor + i * frame_res;
+        val += current_frame[index] * vector[i];
+    }
+
+    // Nyquist frequency handling, when even time window must be doubled for M0/M2, zero for M1
+    const float* current_frame = tensor + nyquist_index * frame_res;
+    val += (1.f + even) * current_frame[index] * vector[nyquist_index] * !(m1 && even);
+
+    for (uint i = nyquist_index + 1; i < f_end; i++)
+    {
+        const float* current_frame = tensor + i * frame_res;
+        val += current_frame[index] * vector[i];
+    }
+
+    output[index] = val;
+}
+
 __global__ void kernel_tensor_multiply_vector(float* output,
                                               const float* tensor,
                                               const float* vector,
@@ -63,11 +98,22 @@ void tensor_multiply_vector(float* output,
                             const size_t frame_res,
                             const ushort f_start,
                             const ushort f_end,
+                            const size_t nyquist_freq,
+                            bool even,
+                            bool m1,
                             const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
+    kernel_tensor_multiply_vector_nyquist_compensation<<<blocks, threads, 0, stream>>>(output,
+                                                                                       tensor,
+                                                                                       vector,
+                                                                                       frame_res,
+                                                                                       f_start,
+                                                                                       f_end,
+                                                                                       nyquist_freq,
+                                                                                       even,
+                                                                                       m1);
     cudaCheckError();
 }
 static __global__ void kernel_remove_nyquist_freq(
