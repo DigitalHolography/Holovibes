@@ -294,12 +294,9 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
-            print_in_file_gpu(moments_env_.stft_res_buffer.get() + 0 * fd_.get_frame_res(), 512, 512, "stft0", stream_);
-            print_in_file_gpu(moments_env_.stft_res_buffer.get() + 1 * fd_.get_frame_res(), 512, 512, "stft1", stream_);
-            print_in_file_gpu(moments_env_.stft_res_buffer.get() + 2 * fd_.get_frame_res(), 512, 512, "stft2", stream_);
-            print_in_file_gpu(moments_env_.stft_res_buffer.get() + 3 * fd_.get_frame_res(), 512, 512, "stft3", stream_);
-
             print_in_file_gpu(moments_env_.moment0_buffer.get(), 512, 512, "moment0", stream_);
+            print_in_file_gpu(moments_env_.stft_res_buffer.get(), 512 * 4, 512, "stft", stream_);
+            print_in_file_gpu(moments_env_.f0_buffer.get(), 512, 1, "f0", stream_);
 
             // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
             // frequencies at order 1
@@ -310,8 +307,8 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_start,
                                    moments_env_.f_end,
                                    stream_);
-            print_in_file_gpu(moments_env_.f1_buffer.get(), 512, 1, "f1", stream_);
             print_in_file_gpu(moments_env_.moment1_buffer.get(), 512, 512, "moment1", stream_);
+            print_in_file_gpu(moments_env_.f1_buffer.get(), 512, 1, "f1", stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
             // frequencies at order 2
