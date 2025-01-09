@@ -82,7 +82,7 @@ qt_add_resources(Holovibes "HolovibesRessources"
 
 add_custom_command(
     TARGET Holovibes PRE_LINK
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/check_file_unlock.py
+    COMMAND ${CMAKE_COMMAND} -E remove -f $<TARGET_FILE:Holovibes>
 )
 
 target_link_libraries(Holovibes PRIVATE
