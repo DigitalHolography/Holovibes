@@ -69,16 +69,12 @@ void remove_nyquist_freq(float* input_output,
                          const float* tensor,
                          const float* vector,
                          const size_t frame_res,
-                         const ushort f_start,
-                         const ushort f_end,
-                         const ushort nyquist_index,
+                         const size_t nyquist_index,
                          const cudaStream_t stream);
 
 void add_nyquist_freq(float* input_output,
                       const float* tensor,
                       const float* vector,
                       const size_t frame_res,
-                      const ushort f_start,
-                      const ushort f_end,
-                      const ushort nyquist_index,
+                      const size_t nyquist_index,
                       const cudaStream_t stream);

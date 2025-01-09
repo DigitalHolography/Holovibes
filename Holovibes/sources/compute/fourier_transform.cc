@@ -238,7 +238,46 @@ void FourierTransform::insert_stft()
                  time_transformation_env_.stft_plan);
         });
 }
+template <typename T>
+void write_1D_array_to_file(const T* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
 
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+template <typename T>
+void print_in_file_gpu(const T* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    T* result = new T[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(T), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_array_to_file<T>(result, rows, col, "test_" + filename + ".txt");
+}
 void FourierTransform::insert_moments()
 {
     LOG_FUNC();
@@ -277,41 +316,44 @@ void FourierTransform::insert_moments()
                                    stream_);
         });
 
-    /*  When time transform size is even we need to do some adjustments:
-        Double the Nyquist frequency for each pixel in M0 and M2
-        Suppress the Nyquist frequency for each pixel in M1 (it should cancel itself with its negative counterpart) */
+    /*  When time transform size is even we need to do some adjustments (not done in the kernels above to avoid
+       checking the size at each call):
+        - Double the Nyquist frequency for each pixel in M0 and M2
+        - Suppress the Nyquist frequency for each pixel in M1 (it should cancel itself with its negative counterpart) */
     auto time_transformation_size = setting<settings::TimeTransformationSize>();
-    auto nyquist_index = time_transformation_size / 2;
+    size_t nyquist_index = time_transformation_size / 2;
     if (time_transformation_size % 2 == 0 && nyquist_index >= moments_env_.f_start &&
         nyquist_index <= moments_env_.f_end)
     {
         fn_compute_vect_->push_back(
             [=]()
             {
-                add_nyquist_freq(moments_env_.moment0_buffer,
-                                 moments_env_.stft_res_buffer,
-                                 moments_env_.f0_buffer,
-                                 fd_.get_frame_res(),
-                                 moments_env_.f_start,
-                                 moments_env_.f_end,
-                                 nyquist_index,
-                                 stream_);
+                print_in_file_gpu(moments_env_.moment0_buffer.get(), 512, 512, "before_m0", stream_);
+                remove_nyquist_freq(moments_env_.moment0_buffer,
+                                    moments_env_.stft_res_buffer,
+                                    moments_env_.f0_buffer,
+                                    fd_.get_frame_res(),
+                                    nyquist_index,
+                                    stream_);
+                print_in_file_gpu(moments_env_.moment0_buffer.get(), 512, 512, "after_m0", stream_);
+
+                print_in_file_gpu(moments_env_.moment1_buffer.get(), 512, 512, "before_m1", stream_);
                 remove_nyquist_freq(moments_env_.moment1_buffer,
                                     moments_env_.stft_res_buffer,
                                     moments_env_.f1_buffer,
                                     fd_.get_frame_res(),
-                                    moments_env_.f_start,
-                                    moments_env_.f_end,
                                     nyquist_index,
                                     stream_);
+                print_in_file_gpu(moments_env_.moment1_buffer.get(), 512, 512, "after_m1", stream_);
+
+                print_in_file_gpu(moments_env_.moment2_buffer.get(), 512, 512, "before_m2", stream_);
                 add_nyquist_freq(moments_env_.moment2_buffer,
                                  moments_env_.stft_res_buffer,
                                  moments_env_.f2_buffer,
                                  fd_.get_frame_res(),
-                                 moments_env_.f_start,
-                                 moments_env_.f_end,
                                  nyquist_index,
                                  stream_);
+                print_in_file_gpu(moments_env_.moment2_buffer.get(), 512, 512, "after_m2", stream_);
             });
     }
 }
