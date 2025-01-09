@@ -20,13 +20,13 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS                \
-  holovibes::settings::RecordFilePath,    \
-  holovibes::settings::RecordFrameCount,  \
-  holovibes::settings::RecordMode,        \
-  holovibes::settings::RecordFrameOffset, \
-  holovibes::settings::OutputBufferSize,  \
-  holovibes::settings::FrameSkip,         \
+#define ONRESTART_SETTINGS                    \
+  holovibes::settings::RecordFilePath,        \
+  holovibes::settings::RecordFrameCount,      \
+  holovibes::settings::RecordMode,            \
+  holovibes::settings::RecordFrameOffset,     \
+  holovibes::settings::OutputBufferSize,      \
+  holovibes::settings::FrameSkip,             \
   holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
@@ -96,27 +96,27 @@ class FrameRecordWorker final : public Worker
             return onrestart_settings_.get<T>().value;
     }
 
-    /*! \brief Init the record queue
+    /*! \brief Open the output file
      *
-     * \return The record queue
+     * \param[in] frame_count The number of frames to record
+     *
+     * \return The output file
      */
-    // Queue& init_record_queue();
-
-    /*! \brief Wait for frames to be present in the record queue*/
-    void wait_for_frames();
-
     io_files::OutputFrameFile* open_output_file(const uint frame_count);
 
-    /*! \brief Reset the record queue to free memory
-     *
-     * \param pipe The compute pipe used to perform the operations
-     */
+    /*! \brief Reset the record queue to free memory. */
     void reset_record_queue();
 
-    /*! \brief Integrate Input Fps in fps_buffers if relevent */
+    /*! \brief Integrate Input Fps in fps_buffers if relevent. */
     void integrate_fps_average();
 
-    /*! \brief Compute fps_buffer_ average on the correct number of value */
+    /*! \brief Check if all frames are saved.
+     *
+     * \return True if all frames are saved (acquired + saved), false otherwise.
+     */
+    bool all_frames_saved(uint frames_saved, uint total) const;
+
+    /*! \brief Compute fps_buffer_ average on the correct number of value. */
     size_t compute_fps_average() const;
 
   private:

@@ -62,18 +62,18 @@ class RecordApi : public IApi
 
 #pragma region Frame Record
 
-    /*! \brief Return whether the frame recording is enabled or not.
+    /*! \brief Return whether the frame are acquired or not.
      *
-     * \return bool true if frame recording is enabled
+     * \return bool true if frame acquisition is enabled
      */
-    inline bool get_frame_record_enabled() const { return GET_SETTING(FrameRecordEnabled); }
+    inline bool get_frame_acquisition_enabled() const { return GET_SETTING(FrameAcquisitionEnabled); }
 
-    /*! \brief Set whether the frame recording is enabled or not.
+    /*! \brief Set whether the frame are acquired or not.
      *
-     * \param[in] value true if frame recording is enabled
+     * \param[in] value true if frame acquisition is enabled
      * \warning This function is internal
      */
-    inline void set_frame_record_enabled(bool value) const { UPDATE_SETTING(FrameRecordEnabled, value); }
+    inline void set_frame_acquisition_enabled(bool value) const { UPDATE_SETTING(FrameAcquisitionEnabled, value); }
 
     /*! \brief Return the number of frames that will be recorded. This number is multiplied by three in case of moments
      * recording since one frame will results in three moments.

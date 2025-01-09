@@ -32,7 +32,6 @@ void InfoPanel::init()
                     ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
                     break;
                 case ProgressType::CHART_RECORD:
-                case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
 
@@ -61,7 +60,7 @@ void InfoPanel::handle_progress_bar()
             api::RecordProgress progress = api_.record.get_record_progress();
 
             // When all frames are acquired, we switch the color and the progress bar now tracks the saving progress
-            bool saving = !api_.record.get_frame_record_enabled();
+            bool saving = !api_.record.get_frame_acquisition_enabled();
             int value = static_cast<int>(progress.acquired_frames);
 
             if (saving)

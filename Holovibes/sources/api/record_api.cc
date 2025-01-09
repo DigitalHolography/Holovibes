@@ -111,13 +111,14 @@ void RecordApi::start_record(std::function<void()> callback) const
     if (record_mode == RecordMode::MOMENTS)
         nb_frames_to_record = nb_frames_to_record * 3;
 
+    // Start record worker
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().start_chart_record(callback);
     else
     {
         Holovibes::instance().start_frame_record(callback);
 
-        set_frame_record_enabled(true);
+        set_frame_acquisition_enabled(true);
         api_->compute.pipe_refresh();
     }
 }

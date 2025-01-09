@@ -220,6 +220,8 @@ void ExportPanel::record_finished()
     ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
     ui_->RecordedEyePushButton->setEnabled(true);
     ui_->InfoPanel->set_visible_record_progress(false);
+
+    parent_->light_ui_->notify();
 }
 
 void ExportPanel::start_record()

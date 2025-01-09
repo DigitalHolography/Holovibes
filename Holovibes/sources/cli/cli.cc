@@ -138,7 +138,6 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         }
     }
 
-    api.record.set_frame_record_enabled(true);
     if (opts.record_raw && opts.moments_record)
     {
         LOG_ERROR("Cannot record raw and moments at the same time");
@@ -168,22 +167,11 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
 
 static void main_loop()
 {
-    // Recording progress (used by the progress bar)
-    holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
-
-    while (API.record.get_frame_record_enabled())
+    while (API.record.is_recording())
     {
-        if (holovibes::FastUpdatesMap::map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
-        {
-            if (!progress)
-                progress = holovibes::FastUpdatesMap::map<holovibes::ProgressType>.get_entry(
-                    holovibes::ProgressType::FRAME_RECORD);
-            else
-            {
-                // Change the speed of the progress bar according to the nb of frames skip
-                progress_bar(progress->first, progress->second, 40);
-            }
-        }
+        holovibes::api::RecordProgress progress = API.record.get_record_progress();
+        progress_bar(static_cast<int>(progress.saved_frames), static_cast<int>(progress.total_frames), 40);
+
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -192,7 +180,7 @@ static void main_loop()
     progress_bar(1, 1, 40);
 }
 
-static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI workers");
     auto& api = API;
@@ -219,14 +207,14 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
         nb_frames_skip = api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview);
 
     if (opts.fps)
-        holovibes.update_setting(holovibes::settings::InputFPS{opts.fps.value()});
+        api.input.set_input_fps(opts.fps.value());
 
-    holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
-    holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
-    holovibes.update_setting(holovibes::settings::RecordFrameOffset{nb_frames_skip});
+    api.record.set_record_file_path(opts.output_path.value());
+    api.record.set_record_frame_count(record_nb_frames);
+    api.record.set_record_frame_offset(nb_frames_skip);
 
     if (opts.frame_skip)
-        holovibes.update_setting(holovibes::settings::FrameSkip{opts.frame_skip.value()});
+        api.record.set_nb_frame_skip(opts.frame_skip.value());
 
     if (opts.mp4_fps)
         api.record.set_mp4_fps(opts.mp4_fps.value());
@@ -245,12 +233,10 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
         if (frame_skip > 0)
             output_fps = output_fps / (frame_skip + 1);
 
-        holovibes.update_setting(holovibes::settings::FrameSkip{static_cast<uint>(output_fps * (frame_skip + 1)) /
-                                                                api.record.get_mp4_fps()});
+        api.record.set_nb_frame_skip(static_cast<uint>(output_fps * (frame_skip + 1)) / api.record.get_mp4_fps());
     }
 
-    holovibes.start_frame_record();
-
+    api.record.start_record([]() {});
     api.compute.start();
 
     return 0;
@@ -270,7 +256,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         print_verbose(opts);
 
     Chrono chrono;
-    if (int ret = start_cli_workers(holovibes, opts))
+    if (int ret = start_cli_workers(opts))
         return ret;
 
     LOG_INFO("CLI workers started, main looping");

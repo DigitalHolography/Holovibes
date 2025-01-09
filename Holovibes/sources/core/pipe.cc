@@ -27,23 +27,23 @@ namespace holovibes
 
 bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 {
-    // When stopping a record the record queue is emptied and the FrameRecordEnabled setting is set to false.
+    // When stopping a record the record queue is emptied and the FrameAcquisitionEnabled setting is set to false.
     // But the pipe isn't refreshed directly so the insert_XXX_function still insert in the record queue.
-    if (!setting<settings::FrameRecordEnabled>())
+    if (!setting<settings::FrameAcquisitionEnabled>())
         return false;
 
     bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
 
     if (record_queue_.has_overwritten() || input_queue_.has_overwritten())
     {
-        API.record.set_frame_record_enabled(false);
+        API.record.set_frame_acquisition_enabled(false);
         total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
         return false;
     }
 
     if (!unlimited_record && nb_frames_acquired_ >= total_nb_frames_to_acquire_)
     {
-        API.record.set_frame_record_enabled(false);
+        API.record.set_frame_acquisition_enabled(false);
         return false;
     }
 
@@ -138,7 +138,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        api.record.set_frame_record_enabled(false);
+        api.record.set_frame_acquisition_enabled(false);
         total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
         clear_request(ICS::DisableFrameRecord);
     }
@@ -424,7 +424,8 @@ void Pipe::insert_wait_time_transformation_size()
 
 void Pipe::insert_moments()
 {
-    bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS && setting<settings::FrameRecordEnabled>();
+    bool recording =
+        setting<settings::RecordMode>() == RecordMode::MOMENTS && setting<settings::FrameAcquisitionEnabled>();
     ImgType type = setting<settings::ImageType>();
 
     if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
@@ -561,7 +562,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::RAW)
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::RAW)
         return;
 
     fn_compute_vect_->push_back(
@@ -578,7 +579,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_moments_record()
 {
-    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::MOMENTS)
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::MOMENTS)
         return;
 
     fn_compute_vect_->push_back(
@@ -597,7 +598,7 @@ void Pipe::insert_moments_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (!setting<settings::FrameRecordEnabled>() || setting<settings::RecordMode>() != RecordMode::HOLOGRAM)
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::HOLOGRAM)
         return;
 
     fn_compute_vect_->push_back(
@@ -619,7 +620,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (!setting<settings::FrameRecordEnabled>())
+    if (!setting<settings::FrameAcquisitionEnabled>())
         return;
 
     auto recordMode = setting<settings::RecordMode>();

@@ -78,7 +78,7 @@
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::FilterFileName,                         \
-    holovibes::settings::FrameRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::DisplayRate,                            \
     holovibes::settings::InputBufferSize,                        \
@@ -402,7 +402,7 @@ class Holovibes
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
                                              settings::FilterFileName{std::string("")},
-                                             settings::FrameRecordEnabled{false},
+                                             settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
                                              settings::DisplayRate{24},
                                              settings::InputBufferSize{512},

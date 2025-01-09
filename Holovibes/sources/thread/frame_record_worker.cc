@@ -83,6 +83,11 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
     return output_frame_file;
 }
 
+bool FrameRecordWorker::all_frames_saved(uint frames_saved, uint total) const
+{
+    return !API.record.get_frame_acquisition_enabled() && frames_saved >= total;
+}
+
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -102,8 +107,13 @@ void FrameRecordWorker::run()
     auto frame_count = setting<settings::RecordFrameCount>();
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
 
+    nb_frames_recorded += static_cast<uint>(nb_frames_to_skip);
+
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
+
+    while (!API.record.get_frame_acquisition_enabled())
+        continue;
 
     try
     {
@@ -114,17 +124,8 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        if (has_input_queue_overwritten())
-            API.compute.get_input_queue()->reset_override();
-
         while (true)
         {
-            if (frame_count.has_value() && nb_frames_recorded >= nb_frames_to_record)
-                break;
-
-            if (stop_requested_ && !frame_count.has_value() && nb_frames_recorded >= nb_frames_to_record)
-                break;
-
             if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
@@ -144,15 +145,21 @@ void FrameRecordWorker::run()
                 }
             }
 
-            wait_for_frames();
+            // Stop the record when all frames has been aquired and written
+            if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+                break;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-            // While wait_for_frames() is running, a stop might be requested and the queue reset.
-            // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
-            // and stop recording if needed.
+            // Stop the record if a queue has overwritten and when all contiguous frames are written
             if (contiguous_frames.has_value() &&
-                std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value()))
+                (std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value()) ||
+                 nb_frames_recorded >= nb_frames_to_record))
+                break;
+
+            while (record_queue_.load()->get_size() == 0 && !all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+                continue;
+
+            // Stop the record when all frames has been aquired and written
+            if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
                 break;
 
             if (nb_frames_to_skip > 0)
@@ -208,12 +215,6 @@ void FrameRecordWorker::run()
     FastUpdatesMap::map<IntType>.remove_entry(IntType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");
-}
-
-void FrameRecordWorker::wait_for_frames()
-{
-    while (!stop_requested_ && record_queue_.load()->get_size() == 0)
-        continue;
 }
 
 void FrameRecordWorker::reset_record_queue()

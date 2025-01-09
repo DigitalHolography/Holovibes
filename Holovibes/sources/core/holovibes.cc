@@ -136,6 +136,8 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
         init_record_queue();
 
     record_queue_.load()->reset();
+    if (input_queue_.load())
+        input_queue_.load()->reset_override();
 
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
