@@ -2,6 +2,7 @@
 #include "api.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
+#include "gpu_stats.hh"
 #include "tools.hh"
 #include "chrono.hh"
 #include <cuda_runtime.h>
@@ -108,52 +109,6 @@ void InformationWorker::run()
             settings::benchmark_dirpath + "/benchmark_" + Chrono::get_current_date_time() + ".csv";
         std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
     }
-}
-
-int get_gpu_load(nvmlUtilization_t* gpuLoad)
-{
-    nvmlDevice_t device;
-
-    // Initialize NVML
-    if (nvmlInit() != NVML_SUCCESS)
-        return -1;
-
-    // Get the device handle (assuming only one GPU is present)
-    if (nvmlDeviceGetHandleByIndex(0, &device) != NVML_SUCCESS)
-    {
-        nvmlShutdown();
-        return -1;
-    }
-
-    // Query GPU load
-    if (nvmlDeviceGetUtilizationRates(device, gpuLoad) != NVML_SUCCESS)
-    {
-        nvmlShutdown();
-        return -1;
-    }
-
-    // Shutdown NVML
-    return nvmlShutdown();
-}
-
-std::string gpu_load_as_number()
-{
-    nvmlUtilization_t gpuLoad;
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-        return "Could not load GPU usage";
-
-    return std::to_string(gpuLoad.gpu);
-}
-
-std::string gpu_memory_controller_load_as_number()
-{
-    nvmlUtilization_t gpuLoad;
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-        return "Could not load GPU usage";
-
-    return std::to_string(gpuLoad.memory);
 }
 
 void InformationWorker::write_information(std::ofstream& csvFile)

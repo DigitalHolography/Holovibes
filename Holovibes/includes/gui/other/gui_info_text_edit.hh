@@ -20,9 +20,6 @@ namespace holovibes::gui
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-#define RED_COLORATION_RATIO 0.9f
-#define ORANGE_COLORATION_RATIO 0.7f
-
 #define INPUT_Q_RED_COLORATION_RATIO 0.8f
 #define INPUT_Q_ORANGE_COLORATION_RATIO 0.3f
 

@@ -1,14 +1,12 @@
 #include "gui_info_text_edit.hh"
 
-#include <cuda_runtime.h>
-#include <fstream>
 #include <map>
 #include <memory>
-#include <nvml.h>
 
 #include "api.hh"
 #include "batch_input_queue.hh"
 #include "fast_updates_types.hh"
+#include "gpu_stats.hh"
 #include "queue.hh"
 
 namespace holovibes::gui
@@ -25,121 +23,6 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     std::string unit_ = (throughput > 1e9f ? " G" : " M") + unit;
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
-
-    return ss.str();
-}
-
-int get_gpu_load(nvmlUtilization_t* gpuLoad)
-{
-    nvmlDevice_t device;
-
-    // Initialize NVML
-    if (nvmlInit() != NVML_SUCCESS)
-        return -1;
-
-    // Get the device handle (assuming only one GPU is present)
-    if (nvmlDeviceGetHandleByIndex(0, &device) != NVML_SUCCESS)
-    {
-        nvmlShutdown();
-        return -1;
-    }
-
-    // Query GPU load
-    if (nvmlDeviceGetUtilizationRates(device, gpuLoad) != NVML_SUCCESS)
-    {
-        nvmlShutdown();
-        return -1;
-    }
-
-    // Shutdown NVML
-    return nvmlShutdown();
-}
-
-const std::string get_load_color(float load,
-                                 float max_load,
-                                 float orange_ratio = ORANGE_COLORATION_RATIO,
-                                 float red_ratio = RED_COLORATION_RATIO)
-{
-    const float ratio = (load / max_load);
-    if (ratio < orange_ratio)
-        return "white";
-    if (ratio < red_ratio)
-        return "orange";
-    return "red";
-}
-
-const std::string get_percentage_color(float percentage) { return get_load_color(percentage, 100); }
-
-std::string gpu_load()
-{
-    nvmlUtilization_t gpuLoad;
-    std::stringstream ss;
-    ss << "<td>GPU load</td>";
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-    {
-        ss << "<td>Could not load GPU usage</td>";
-        return ss.str();
-    }
-
-    // Print GPU load
-    float load = static_cast<float>(gpuLoad.gpu);
-    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
-
-    return ss.str();
-}
-
-std::string gpu_load_as_number()
-{
-    nvmlUtilization_t gpuLoad;
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-        return "Could not load GPU usage";
-
-    return std::to_string(gpuLoad.gpu);
-}
-
-std::string gpu_memory_controller_load()
-{
-    nvmlUtilization_t gpuLoad;
-    std::stringstream ss;
-    ss << "<td style=\"padding-right: 15px\">VRAM controller load</td>";
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-    {
-        ss << "<td>Could not load GPU usage</td>";
-        return ss.str();
-    }
-
-    // Print GPU memory load
-    float load = static_cast<float>(gpuLoad.memory);
-    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
-
-    return ss.str();
-}
-
-std::string gpu_memory_controller_load_as_number()
-{
-    nvmlUtilization_t gpuLoad;
-
-    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
-        return "Could not load GPU usage";
-
-    return std::to_string(gpuLoad.memory);
-}
-
-std::string gpu_memory()
-{
-    std::stringstream ss;
-    ss << "<td>VRAM</td>";
-    size_t free, total;
-    cudaMemGetInfo(&free, &total);
-
-    float free_f = static_cast<float>(free);
-    float total_f = static_cast<float>(total);
-
-    ss << "<td style=\"color:" << get_load_color(total_f - free_f, total_f) << ";\">" << engineering_notation(free_f, 3)
-       << "B free/" << engineering_notation(total_f, 3) << "B</td>";
 
     return ss.str();
 }
