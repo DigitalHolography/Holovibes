@@ -42,7 +42,9 @@ class RecordApi : public IApi
      * The file extension will determine the format of the record. To see supported formats for a particular record
      * mode, see \ref holovibes::api::get_supported_formats "this".
      *
+     *
      * \param[in] value the new absolute file path
+     * \note If a record is already in progress, the new path will be used for the next record.
      */
     inline void set_record_file_path(std::string value) const { UPDATE_SETTING(RecordFilePath, value); }
 
@@ -55,6 +57,7 @@ class RecordApi : public IApi
     /*! \brief Set the number of frames that will be recorded per second for the mp4 format.
      *
      * \param[in] value the new number of frames per second
+     * \note If a record is already in progress, the new fps will be used for the next record.
      */
     inline void set_mp4_fps(uint value) const { UPDATE_SETTING(Mp4Fps, value); }
 
@@ -71,7 +74,7 @@ class RecordApi : public IApi
     /*! \brief Set whether the frame are acquired or not.
      *
      * \param[in] value true if frame acquisition is enabled
-     * \warning This function is internal
+     * \warning This function must not be cqlled outside of the backend
      */
     inline void set_frame_acquisition_enabled(bool value) const { UPDATE_SETTING(FrameAcquisitionEnabled, value); }
 
@@ -86,6 +89,7 @@ class RecordApi : public IApi
      * recording since one frame will results in three moments.
      *
      * \param[in] value the new record frame count
+     * \note If a record is already in progress, the new count will be used for the next record.
      */
     inline void set_record_frame_count(std::optional<size_t> value) const { UPDATE_SETTING(RecordFrameCount, value); }
 
@@ -102,6 +106,7 @@ class RecordApi : public IApi
      * Ex: `set_record_frame_offset(10)` means that the first 10 frames will be skipped.
      *
      * \param[in] value the new record frame offset
+     * \note If a record is already in progress, the new offset will be used for the next record.
      */
     inline void set_record_frame_offset(size_t value) const { UPDATE_SETTING(RecordFrameOffset, value); }
 
@@ -126,6 +131,7 @@ class RecordApi : public IApi
      * saved.
      *
      * \param[in] value the new record frame skip
+     * \note If a record is already in progress, the new skip will be used for the next record.
      */
     inline void set_nb_frame_skip(uint value) const { UPDATE_SETTING(FrameSkip, value); }
 
@@ -142,7 +148,7 @@ class RecordApi : public IApi
     /*! \brief Set whether the chart recording is enabled or not.
      *
      * \param[in] value true if chart recording is enabled
-     * \warning This function is internal
+     * \warning This function must not be called outside of the backend
      */
     inline void set_chart_record_enabled(bool value) const { UPDATE_SETTING(ChartRecordEnabled, value); }
 
@@ -155,6 +161,8 @@ class RecordApi : public IApi
     /*! \brief Set the rectangular region used as the signal zone.
      *
      * \param[in] rect the new signal zone
+     * \note The change will take effect immediately so during a recording, the new zone will be used for the next
+     * frame.
      */
     inline void set_signal_zone(const units::RectFd& rect) const { UPDATE_SETTING(SignalZone, rect); }
 
@@ -167,6 +175,8 @@ class RecordApi : public IApi
     /*! \brief Set the rectangular region used as the noise zone.
      *
      * \param[in] rect the new noise zone
+     * \note The change will take effect immediately so during a recording, the new zone will be used for the next
+     * frame.
      */
     inline void set_noise_zone(const units::RectFd& rect) const { UPDATE_SETTING(NoiseZone, rect); }
 
@@ -180,19 +190,13 @@ class RecordApi : public IApi
      */
     inline RecordMode get_record_mode() const { return GET_SETTING(RecordMode); }
 
-    /*! \brief Set the record mode (raw, holgram, moments, etc.).
-     *
-     * \param[in] value the new record mode
-     * \warning This function is not intended for realtime use.
-     */
-    inline void set_record_mode(RecordMode value) const { UPDATE_SETTING(RecordMode, value); }
-
     /*! \brief Change the record mode (raw, holgram, moments, etc.).
      *
      * \param[in] value The new record mode
-     * \warning This function is intended for realtime use.
+     *
+     * \return ApiCode the status of the operation. NO_CHANGE if the mode is already set to the new value, OK otherwise.
      */
-    void set_record_mode_enum(RecordMode value) const;
+    ApiCode set_record_mode(RecordMode value) const;
 
     /*!
      * \brief Gets the available extension for the given record mode
@@ -207,16 +211,17 @@ class RecordApi : public IApi
 #pragma region Eye
 
     /*!
-     * \brief Get the eye that is recorded by the program
+     * \brief Get the eye that is recorded by the program. This only affects the name of the file.
      *
      * \return RecordedEyeType Which eye is being recorded. Can be LEFT, RIGHT or NONE if no eye is selected
      */
     inline RecordedEyeType get_recorded_eye() const { return GET_SETTING(RecordedEye); }
 
     /*!
-     * \brief Sets the eye to be recorded; this only affects how the recording is called
+     * \brief Sets the eye to be recorded. This only affects the name of the file.
      *
      * \param[in] value Which eye to record
+     * \note If a recording is already in progress, the new eye will be used for the next record.
      */
     void set_recorded_eye(RecordedEyeType value) const;
 
@@ -224,7 +229,8 @@ class RecordApi : public IApi
 
 #pragma region Record
 
-    /*! \brief Gets the current progress of the recording
+    /*! \brief Gets the current progress of the recording. It includes the number of frames acquired, saved and the
+     * total number of frames to record.
      *
      * \return RecordProgress the current progress of the recording
      */
@@ -244,11 +250,15 @@ class RecordApi : public IApi
      *
      * \param[in] callback A lambda function to execute at the end of the recording process.
      *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
+     * \return ApiCode the status of the operation. FAILURE if the recording could not be started, OK otherwise.
      */
-    void start_record(std::function<void()> callback) const;
+    ApiCode start_record(std::function<void()> callback) const;
 
-    /*! \brief Stops recording. */
-    void stop_record() const;
+    /*! \brief Stops recording.
+     *
+     * \return ApiCode the status of the operation. NOT_STARTED if no recording is in progress, OK otherwise.
+     */
+    ApiCode stop_record() const;
 
     /*! \brief Return whether we are recording or not
      *
@@ -270,8 +280,10 @@ class RecordApi : public IApi
      * \brief Sets the record queue location, between gpu and cpu
      *
      * \param[in] gpu whether the record queue is on the gpu or the cpu
+     * \return ApiCode the status of the operation. NO_CHANGE if the location is already set to the new value, OK
+     * otherwise.
      */
-    void set_record_queue_location(Device device) const;
+    ApiCode set_record_queue_location(Device device) const;
 
     /*! \brief Gets the capacity (number of frames) of the record queue.
      *
@@ -282,8 +294,9 @@ class RecordApi : public IApi
     /*! \brief Sets the capacity (number of frames) of the record queue and rebuild it.
      *
      * \param[in] value the size of the record queue
+     * \return ApiCode the status of the operation. NO_CHANGE if the size is already set to the new value, OK otherwise.
      */
-    void set_record_buffer_size(uint value) const;
+    ApiCode set_record_buffer_size(uint value) const;
 
 #pragma endregion
 };

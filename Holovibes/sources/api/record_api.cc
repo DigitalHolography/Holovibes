@@ -9,30 +9,27 @@ namespace holovibes::api
 
 #pragma region Record Mode
 
-void RecordApi::set_record_mode_enum(RecordMode value) const
+ApiCode RecordApi::set_record_mode(RecordMode value) const
 {
-    stop_record();
+    if (value == get_record_mode())
+        return ApiCode::NO_CHANGE;
 
-    set_record_mode(value);
+    if (is_recording())
+        stop_record();
 
-    // Attempt to initialize compute pipe for non-CHART record modes
-    if (get_record_mode() != RecordMode::CHART)
-    {
-        try
-        {
-            auto pipe = api_->compute.get_compute_pipe();
-            if (is_recording())
-                stop_record();
+    UPDATE_SETTING(RecordMode, value);
 
-            Holovibes::instance().init_record_queue();
-            LOG_DEBUG("Pipe initialized");
-        }
-        catch (const std::exception& e)
-        {
-            (void)e; // Suppress warning in case debug log is disabled
-            LOG_DEBUG("Pipe not initialized: {}", e.what());
-        }
-    }
+    if (get_record_mode() == RecordMode::CHART)
+        return ApiCode::OK;
+
+    // Be update the record queue only if an input source is available since otherwise input_fd is not set
+    if (api_->input.get_import_type() != ImportType::None)
+        Holovibes::instance().init_record_queue();
+
+    // Apply the change
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) const
@@ -90,10 +87,10 @@ bool RecordApi::start_record_preconditions() const
     return true;
 }
 
-void RecordApi::start_record(std::function<void()> callback) const
+ApiCode RecordApi::start_record(std::function<void()> callback) const
 {
     if (!start_record_preconditions()) // Check if the record can be started
-        return;
+        return ApiCode::FAILURE;
 
     RecordMode record_mode = GET_SETTING(RecordMode);
 
@@ -121,14 +118,16 @@ void RecordApi::start_record(std::function<void()> callback) const
         set_frame_acquisition_enabled(true);
         api_->compute.pipe_refresh();
     }
+
+    return ApiCode::OK;
 }
 
-void RecordApi::stop_record() const
+ApiCode RecordApi::stop_record() const
 {
     LOG_FUNC();
 
     if (api_->compute.get_is_computation_stopped())
-        return;
+        return ApiCode::NOT_STARTED;
 
     auto record_mode = GET_SETTING(RecordMode);
 
@@ -139,6 +138,8 @@ void RecordApi::stop_record() const
         api_->compute.get_compute_pipe()->request(ICS::DisableFrameRecord);
         Holovibes::instance().stop_frame_record();
     }
+
+    return ApiCode::OK;
 }
 
 bool RecordApi::is_recording() const { return Holovibes::instance().is_recording(); }
@@ -147,34 +148,38 @@ bool RecordApi::is_recording() const { return Holovibes::instance().is_recording
 
 #pragma region Buffer
 
-void RecordApi::set_record_queue_location(Device device) const
+ApiCode RecordApi::set_record_queue_location(Device device) const
 {
-    // we check since this function is always triggered when we save the advanced settings, even if the location was not
-    // modified
-    if (get_record_queue_location() != device)
-    {
-        UPDATE_SETTING(RecordQueueLocation, device);
+    if (get_record_queue_location() == device)
+        return ApiCode::NO_CHANGE;
 
-        if (is_recording())
-            stop_record();
+    if (is_recording())
+        stop_record();
 
+    UPDATE_SETTING(RecordQueueLocation, device);
+
+    if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();
-    }
+
+    api_->compute.pipe_refresh(); // Used to know where to enqueue frames
+
+    return ApiCode::OK;
 }
 
-void RecordApi::set_record_buffer_size(uint value) const
+ApiCode RecordApi::set_record_buffer_size(uint value) const
 {
-    // since this function is always triggered when we save the advanced settings, even if the location was not modified
-    if (get_record_buffer_size() != value)
-    {
-        UPDATE_SETTING(RecordBufferSize, value);
+    if (get_record_buffer_size() == value)
+        return ApiCode::NO_CHANGE;
 
-        if (is_recording())
-            stop_record();
+    UPDATE_SETTING(RecordBufferSize, value);
 
-        if (!api_->compute.get_is_computation_stopped())
-            Holovibes::instance().init_record_queue();
-    }
+    if (is_recording())
+        stop_record();
+
+    if (api_->input.get_import_type() != ImportType::None)
+        Holovibes::instance().init_record_queue();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

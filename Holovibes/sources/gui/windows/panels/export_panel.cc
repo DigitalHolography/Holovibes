@@ -194,7 +194,7 @@ void ExportPanel::set_record_mode(int index)
     if (api_.record.get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api_.record.set_record_mode_enum(static_cast<RecordMode>(index));
+    api_.record.set_record_mode(static_cast<RecordMode>(index));
 
     parent_->notify();
 }

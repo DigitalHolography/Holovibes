@@ -147,14 +147,14 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     if (opts.record_raw)
     {
         api.compute.set_compute_mode(holovibes::Computation::Raw);
-        api.record.set_record_mode_enum(holovibes::RecordMode::RAW);
+        api.record.set_record_mode(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
-        api.record.set_record_mode_enum(holovibes::RecordMode::MOMENTS);
+        api.record.set_record_mode(holovibes::RecordMode::MOMENTS);
     else
     {
         api.compute.set_compute_mode(holovibes::Computation::Hologram);
-        api.record.set_record_mode_enum(holovibes::RecordMode::HOLOGRAM);
+        api.record.set_record_mode(holovibes::RecordMode::HOLOGRAM);
     }
 
     if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
