@@ -139,7 +139,7 @@ void LightUI::notify()
     if (is_recording)
     {
         ui_->startButton->setText("Stop recording");
-        set_recordProgressBar_color(QColor(209, 90, 25), "Recording...");
+        set_recordProgressBar_color(QColor(209, 90, 25), "Acquisition...");
     }
     else
     {

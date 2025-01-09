@@ -132,17 +132,10 @@ void Holovibes::stop_frame_read()
 
 void Holovibes::start_frame_record(const std::function<void()>& callback)
 {
-    API.compute.pipe_refresh();
-    if (get_setting<settings::BatchSize>().value > API.record.get_record_buffer_size())
-    {
-        LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
-        return;
-    }
-
-    API.record.set_record_frame_count(get_setting<settings::RecordFrameCount>().value);
-
     if (!record_queue_.load())
         init_record_queue();
+
+    record_queue_.load()->reset();
 
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);

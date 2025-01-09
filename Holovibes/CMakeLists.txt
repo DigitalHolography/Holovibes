@@ -24,6 +24,7 @@ set(INTERNAL_INCLUDES
     includes/enum/
     includes/struct/
     includes/gui/
+    includes/gui/notifier/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/

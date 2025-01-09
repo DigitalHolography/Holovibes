@@ -200,7 +200,6 @@ class ICompute
         UpdateTimeStride,
         UpdateRegistrationZone,
         DisableLensView,
-        FrameRecord,
         DisableFrameRecord,
         Convolution,
         DisableConvolution,

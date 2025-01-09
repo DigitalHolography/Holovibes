@@ -72,7 +72,7 @@ void InfoPanel::handle_progress_bar()
                 value = static_cast<int>(progress.saved_frames);
             }
             else
-                ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
+                ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Acquisition: %v/%m");
 
             ui_->RecordProgressBar->setMaximum(static_cast<int>(progress.total_frames));
             ui_->RecordProgressBar->setValue(value);
@@ -112,13 +112,9 @@ void InfoPanel::set_text(const char* text)
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {
     if (visible)
-    {
         ui_->FileReaderProgressBar->show();
-    }
     else
-    {
         ui_->FileReaderProgressBar->hide();
-    }
 }
 
 void InfoPanel::set_visible_record_progress(bool visible)
@@ -129,9 +125,7 @@ void InfoPanel::set_visible_record_progress(bool visible)
         ui_->RecordProgressBar->show();
     }
     else
-    {
         ui_->RecordProgressBar->hide();
-    }
 }
 
 void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)

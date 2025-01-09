@@ -54,71 +54,60 @@ bool has_input_queue_overwritten()
     return input_queue->has_overwritten();
 }
 
-// bool can_run() { !stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record) }
+io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_count)
+{
+    static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
+                                                          {RecordedEyeType::NONE, ""},
+                                                          {RecordedEyeType::RIGHT, "_R"}};
+    std::string eye_string = eye_map[API.record.get_recorded_eye()];
+
+    std::string record_file_path;
+    if (Holovibes::instance().is_cli)
+        record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string, "R");
+    else
+        record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);
+
+    static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
+                                                       {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
+                                                       {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
+    RecordedDataType data_type = m[API.record.get_record_mode()];
+
+    io_files::OutputFrameFile* output_frame_file =
+        io_files::OutputFrameFileFactory::create(record_file_path,
+                                                 record_queue_.load()->get_fd(),
+                                                 frame_count,
+                                                 data_type);
+
+    LOG_DEBUG("output_frame_file = {}", output_frame_file->get_file_path());
+
+    return output_frame_file;
+}
 
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
     LOG_FUNC();
-    // Progress recording FastUpdatesHolder entry
 
+    // Progress recording FastUpdatesHolder entry
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
     std::atomic<uint>& nb_frames_recorded = std::get<1>(*fast_update_progress_entry);
     std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
-
-    size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
-
-    nb_frames_recorded = 0;
-
-    // Get the real number of frames to record taking in account the frame skip
-    auto frame_count = setting<settings::RecordFrameCount>();
-    if (frame_count.has_value())
-    {
-        nb_frames_to_record = static_cast<unsigned int>(frame_count.value());
-
-        float pas = setting<settings::FrameSkip>() + 1.0f;
-        nb_frames_to_record = static_cast<uint>(std::ceilf(static_cast<float>(nb_frames_to_record) / pas));
-        // One frame will result in three moments.
-        if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
-            nb_frames_to_record = nb_frames_to_record * 3;
-    }
 
     // Processed FPS FastUpdatesHolder entry
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
-    auto pipe = Holovibes::instance().get_compute_pipe_no_throw();
-    if (pipe)
-        pipe->request(ICS::FrameRecord);
 
+    size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
+    auto frame_count = setting<settings::RecordFrameCount>();
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
+
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
 
     try
     {
-        static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
-                                                              {RecordedEyeType::NONE, ""},
-                                                              {RecordedEyeType::RIGHT, "_R"}};
-        std::string eye_string = eye_map[API.record.get_recorded_eye()];
-
-        std::string record_file_path;
-        if (Holovibes::instance().is_cli)
-            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string, "R");
-        else
-            record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);
-
-        static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
-                                                           {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
-                                                           {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
-        RecordedDataType data_type = m[API.record.get_record_mode()];
-
-        output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
-                                                                     record_queue_.load()->get_fd(),
-                                                                     nb_frames_to_record,
-                                                                     data_type);
-
-        LOG_DEBUG("output_frame_file = {}", output_frame_file->get_file_path());
-
+        output_frame_file = open_output_file(nb_frames_to_record.load());
         output_frame_file->write_header();
 
         std::optional<int> contiguous_frames = std::nullopt;
@@ -157,7 +146,7 @@ void FrameRecordWorker::run()
 
             wait_for_frames();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
@@ -196,9 +185,7 @@ void FrameRecordWorker::run()
             LOG_WARN("To prevent this lost, you might need to increase Input AND/OR Record buffer size.");
         }
         else
-        {
             LOG_INFO("Record is contiguous!");
-        }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
         // Change the fps according to the frame skip

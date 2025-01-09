@@ -11,6 +11,7 @@
 
 #include "enum_record_mode.hh"
 #include "logger.hh"
+#include "output_frame_file.hh"
 #include "queue.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
@@ -104,6 +105,8 @@ class FrameRecordWorker final : public Worker
     /*! \brief Wait for frames to be present in the record queue*/
     void wait_for_frames();
 
+    io_files::OutputFrameFile* open_output_file(const uint frame_count);
+
     /*! \brief Reset the record queue to free memory
      *
      * \param pipe The compute pipe used to perform the operations
@@ -112,6 +115,7 @@ class FrameRecordWorker final : public Worker
 
     /*! \brief Integrate Input Fps in fps_buffers if relevent */
     void integrate_fps_average();
+
     /*! \brief Compute fps_buffer_ average on the correct number of value */
     size_t compute_fps_average() const;
 

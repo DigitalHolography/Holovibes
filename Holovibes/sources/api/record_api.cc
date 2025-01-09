@@ -3,7 +3,6 @@
 #include <tuple>
 
 #include "API.hh"
-#include "notifier.hh"
 
 namespace holovibes::api
 {
@@ -82,6 +81,12 @@ bool RecordApi::start_record_preconditions() const
         return false;
     }
 
+    if (api_->transform.get_batch_size() > get_record_buffer_size())
+    {
+        LOG_ERROR("Batch size must be lower than record queue size");
+        return false;
+    }
+
     return true;
 }
 
@@ -92,13 +97,29 @@ void RecordApi::start_record(std::function<void()> callback) const
 
     RecordMode record_mode = GET_SETTING(RecordMode);
 
+    // Reset recording counter
+    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
+
+    std::get<0>(*fast_update_progress_entry) = 0; // Frames acquired
+    std::get<1>(*fast_update_progress_entry) = 0; // Frames recorded
+    nb_frames_to_record = static_cast<uint>(get_record_frame_count().value_or(0));
+
+    // Calculate the right number of frames to record
+    float pas = get_nb_frame_skip() + 1.0f;
+    nb_frames_to_record = static_cast<uint>(std::ceilf(static_cast<float>(nb_frames_to_record) / pas));
+    if (record_mode == RecordMode::MOMENTS)
+        nb_frames_to_record = nb_frames_to_record * 3;
+
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().start_chart_record(callback);
     else
+    {
         Holovibes::instance().start_frame_record(callback);
 
-    // Notify the changes
-    NotifierManager::notify<bool>("acquisition_started", true); // notifying MainWindow
+        set_frame_record_enabled(true);
+        api_->compute.pipe_refresh();
+    }
 }
 
 void RecordApi::stop_record() const

@@ -5,8 +5,6 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
-#include "notifier.hh"
-
 #include "filter2D.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
@@ -36,8 +34,18 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 
     bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
 
-    if (!unlimited_record && nb_frames_acquired_ >= setting<settings::RecordFrameCount>().value())
+    if (record_queue_.has_overwritten() || input_queue_.has_overwritten())
+    {
+        API.record.set_frame_record_enabled(false);
+        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
         return false;
+    }
+
+    if (!unlimited_record && nb_frames_acquired_ >= total_nb_frames_to_acquire_)
+    {
+        API.record.set_frame_record_enabled(false);
+        return false;
+    }
 
     // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
     // will stop
@@ -237,8 +245,6 @@ bool Pipe::make_requests()
         registration_->updade_cirular_mask();
         clear_request(ICS::UpdateRegistrationZone);
     }
-
-    HANDLE_REQUEST(ICS::FrameRecord, "Frame Record", api.record.set_frame_record_enabled(true));
 
     return success_allocation;
 }
