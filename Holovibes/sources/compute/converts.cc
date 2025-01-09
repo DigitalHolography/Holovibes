@@ -102,7 +102,7 @@ void Converts::insert_to_modulus(float* gpu_postprocess_frame)
             complex_to_modulus(gpu_postprocess_frame,
                                time_transformation_env_.gpu_p_acc_buffer,
                                pmin_,
-                               pmax_,
+                               pmax_ - 1,
                                fd_.get_frame_res(),
                                stream_);
         });
@@ -134,7 +134,7 @@ void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
             complex_to_squared_modulus(gpu_postprocess_frame,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        pmin_,
-                                       pmax_,
+                                       pmax_ - 1,
                                        fd_.get_frame_res(),
                                        stream_);
         });
@@ -205,7 +205,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
             complex_to_argument(gpu_postprocess_frame,
                                 time_transformation_env_.gpu_p_acc_buffer,
                                 pmin_,
-                                pmax_,
+                                pmax_ - 1,
                                 fd_.get_frame_res(),
                                 stream_);
         });
