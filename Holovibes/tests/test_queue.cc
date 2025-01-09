@@ -3,10 +3,10 @@
 #include <cuda.h>
 #include <string.h>
 
-#include "holovibes.hh"
 #include "queue.hh"
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
+#include "test_disable_log.hh"
 
 using camera::PixelDepth;
 
@@ -340,7 +340,7 @@ TEST(EmptyDequeue, QueueDequeue)
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED);
 
     // empty queue
-    CODE_WITH_NO_LOG(ASSERT_DEATH(q.dequeue(), ""););
+    ASSERT_DEATH(q.dequeue(), "");
 }
 
 TEST(DequeueOneFrame, QueueDequeue)
@@ -412,7 +412,7 @@ TEST(DequeueTooManyFrames, QueueDequeue)
     ASSERT_EQ(q.get_start_index(), 0);
 
     // Dequeue too many elements
-    CODE_WITH_NO_LOG(ASSERT_DEATH(q.dequeue(q.get_max_size()), ""););
+    ASSERT_DEATH(q.dequeue(q.get_max_size()), "");
 }
 
 TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
@@ -424,7 +424,7 @@ TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
-    CODE_WITH_NO_LOG(ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), ".*"););
+    ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), ".*");
 
     delete[] buff;
 }

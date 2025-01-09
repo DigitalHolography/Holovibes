@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "fast_updates_holder.hh"
+#include "test_disable_log.hh"
 
 TEST(FastUpdatesHolder, checkKeyTypeTrue) { ASSERT_TRUE(holovibes::is_fast_update_key_type<holovibes::ProgressType>); }
 
