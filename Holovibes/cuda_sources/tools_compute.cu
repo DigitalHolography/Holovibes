@@ -116,57 +116,6 @@ void tensor_multiply_vector(float* output,
                                                                                        m1);
     cudaCheckError();
 }
-static __global__ void kernel_remove_nyquist_freq(
-    float* input_output, const float* tensor, const float* vector, const size_t frame_res, const size_t nyquist_index)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index >= frame_res)
-        return;
-
-    const float* current_frame = tensor + nyquist_index * frame_res;
-    float val = current_frame[index] * vector[nyquist_index];
-    input_output[index] -= val;
-}
-
-void remove_nyquist_freq(float* input_output,
-                         const float* tensor,
-                         const float* vector,
-                         const size_t frame_res,
-                         const size_t nyquist_index,
-                         const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_remove_nyquist_freq<<<blocks, threads, 0, stream>>>(input_output, tensor, vector, frame_res, nyquist_index);
-    cudaCheckError();
-}
-
-static __global__ void kernel_add_nyquist_freq(
-    float* input_output, const float* tensor, const float* vector, const size_t frame_res, const size_t nyquist_index)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index >= frame_res)
-        return;
-
-    const float* current_frame = tensor + nyquist_index * frame_res;
-    float val = current_frame[index] * vector[nyquist_index];
-    input_output[index] += val;
-}
-
-void add_nyquist_freq(float* input_output,
-                      const float* tensor,
-                      const float* vector,
-                      const size_t frame_res,
-                      const size_t nyquist_index,
-                      const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_add_nyquist_freq<<<blocks, threads, 0, stream>>>(input_output, tensor, vector, frame_res, nyquist_index);
-    cudaCheckError();
-}
 
 void gpu_normalize(float* const input,
                    double* const result_reduce,
