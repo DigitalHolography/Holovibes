@@ -4,84 +4,70 @@
 #include <fstream>
 #include <iostream>
 
-#include "API.hh"
+#define RETURN_ERROR(...)                                                                                              \
+    {                                                                                                                  \
+        LOG_ERROR(__VA_ARGS__);                                                                                        \
+        fclose(f);                                                                                                     \
+        cache_image_.clear();                                                                                          \
+        return -1;                                                                                                     \
+    }
 
 namespace holovibes
 {
-void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
+
+int InputFilter::read_bmp(const char* path)
 {
     FILE* f = fopen(path, "rb");
     if (f == NULL)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error could not find file");
-        exit(0);
-    }
+        RETURN_ERROR("InputFilter::read_bmp: IO error could not find file");
+
     // Clear data if already holds information
-    cache_image.clear();
+    cache_image_.clear();
     bmp_identificator identificator;
     int e = static_cast<int>(fread(identificator.identificator, sizeof(identificator), 1, f));
     if (e < 0)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error file too short (identificator)");
-        exit(0);
-    }
+        RETURN_ERROR("InputFilter::read_bmp: IO error file too short (identificator)");
 
     // Check to make sure that the first two bytes of the file are the "BM"
     // identifier that identifies a bitmap image.
     if (identificator.identificator[0] != 'B' || identificator.identificator[1] != 'M')
-    {
-        LOG_ERROR("{} is not in proper BMP format.\n", path);
-        exit(0);
-    }
+        RETURN_ERROR("{} is not in proper BMP format.\n", path);
 
     bmp_header header;
     e = static_cast<int>(fread((char*)(&header), sizeof(header), 1, f));
     if (e < 0)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error file too short (header)");
-        exit(0);
-    }
+        RETURN_ERROR("InputFilter::read_bmp: IO error file too short (header)");
 
     bmp_device_independant_info di_info;
     e = static_cast<int>(fread((char*)(&di_info), sizeof(di_info), 1, f));
     if (e < 0)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error file too short (di_info)");
-        exit(0);
-    }
+        RETURN_ERROR("InputFilter::read_bmp: IO error file too short (di_info)");
 
     // Check for this here and so that we know later whether we need to insert
     // each row at the bottom or top of the image.
     if (di_info.height < 0)
-    {
         di_info.height = -di_info.height;
-    }
 
     // Extract image height and width from header
     this->width = di_info.width;
     this->height = di_info.height;
 
     // Reallocate the vector with the new size
-    cache_image.resize(width * height);
+    cache_image_.resize(width * height);
 
     // Only support for 24-bit images
     if (di_info.bits_per_pixel != 24)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} uses {}bits per pixel (bit depth). Bitmap only "
-                  "supports 24bit.)",
-                  path,
-                  std::to_string(di_info.bits_per_pixel));
-        exit(0);
-    }
+        RETURN_ERROR("InputFilter::read_bmp: IO error invalid file ({} uses {}bits per pixel (bit depth). Bitmap only "
+                     "supports 24bit.)",
+                     path,
+                     std::to_string(di_info.bits_per_pixel));
 
     // No support for compressed images
     if (di_info.compression != 0)
-    {
-        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} is compressed. Bitmap only supports uncompressed "
-                  "images.)",
-                  path);
-        exit(0);
-    }
+        RETURN_ERROR(
+            "InputFilter::read_bmp: IO error invalid file ({} is compressed. Bitmap only supports uncompressed "
+            "images.)",
+            path);
 
     // Skip to bytecode
     e = fseek(f, header.bmp_offset, 0);
@@ -100,24 +86,22 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
             // Read 3 bytes (b, g and r)
             e = static_cast<int>(fread(pixel, sizeof(unsigned char), 3, f));
             if (e < 0)
-            {
-                LOG_ERROR("InputFilter::read_bmp: IO error file too short (pixels)");
-                exit(0);
-            }
+                RETURN_ERROR("InputFilter::read_bmp: IO error file too short (pixels)");
 
             // Convert to shade of grey with magic numbers (channel-dependant luminance perception)
             color = pixel[0] * 0.0722f + pixel[1] * 0.7152f + pixel[2] * 0.2126f;
             // Flatten in [0,1]
             color /= 255.0f;
 
-            cache_image.at(index) = color;
+            cache_image_.at(index) = color;
         }
         // Rows are padded so that they're always a multiple of 4
         // bytes. This line skips the padding at the end of each row.
         e = fseek(f, width % 4, std::ios::cur);
     }
-    API.filter2d.set_input_filter(cache_image);
+
     fclose(f);
+    return 0;
 }
 
 void bilinear_interpolation(
@@ -150,24 +134,17 @@ void bilinear_interpolation(
             float q = 0.0f;
             if (ceil_x == floor_x)
             {
+                // Very special case where all the points coincide
                 if (ceil_y == floor_y)
-                {
-                    // Very special case where all the points coincide
                     q = v00;
-                }
-                else
-                {
-                    // we can interchange v00 with v01 and v10 with v11 as floor_x and ceil_x coincide
+                else // swap v00 with v01 and swap v10 with v11 as floor_x and ceil_x coincide
                     q = v00 * (ceil_y - input_y_float) + v10 * (input_y_float - floor_y);
-                }
             }
             else
             {
+                // swap v00 with v10 and swap v01 with v11 as floor_y and ceil_y coincide
                 if (ceil_y == floor_y)
-                {
-                    // we can interchange v00 with v10 and v01 with v11 as floor_y and ceil_y coincide
                     q = v00 * (ceil_x - input_x_float) + v01 * (input_x_float - floor_x);
-                }
                 else
                 {
                     // General case
@@ -185,15 +162,12 @@ void bilinear_interpolation(
 
 void InputFilter::interpolate_filter(size_t fd_width, size_t fd_height)
 {
-    auto cache_image = API.filter2d.get_input_filter();
-    std::vector<float> copy_filter(cache_image.begin(), cache_image.end());
+    std::vector<float> copy_filter(cache_image_.begin(), cache_image_.end());
 
-    cache_image.resize(fd_width * fd_height);
-    std::fill(cache_image.begin(), cache_image.end(), 0.0f);
+    cache_image_.resize(fd_width * fd_height);
+    std::fill(cache_image_.begin(), cache_image_.end(), 0.0f);
 
-    bilinear_interpolation(copy_filter.data(), cache_image.data(), width, height, fd_width, fd_height);
-
-    API.filter2d.set_input_filter(cache_image);
+    bilinear_interpolation(copy_filter.data(), cache_image_.data(), width, height, fd_width, fd_height);
 
     width = static_cast<unsigned int>(fd_width);
     height = static_cast<unsigned int>(fd_height);
