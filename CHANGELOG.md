@@ -2,7 +2,7 @@
 
 ### 14.4.0
 
-- Nb. frames now isn't reset when interacting with certain UI components
+- Nb. frames now isn't reset when interacting with certain UI components.
 - Removed boundaries to Nb. frames, but it is set to the maximum when a file is loaded
 - Rename UI elements:
   - "Registration" to "Image Registration"
