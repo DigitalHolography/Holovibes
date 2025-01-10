@@ -71,7 +71,7 @@ class ThreadWorkerController
 
     /*! \brief Request the worker to stop. If wait is true, wait for the thread to join.
      *
-     * \param[in] wait Whether the function should wait for the worker to stop
+     * \param wait Whether the function should wait for the worker to stop
      */
     void stop(bool wait = true);
 
