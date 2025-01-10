@@ -53,23 +53,6 @@ class FastUpdatesHolder
     }
 
     /*!
-     * \brief Get the entry object, create it if it does not exist
-     *
-     * \param key The key of an enum T from the fast_updates_types.hh
-     * \return std::shared_ptr<Value> The pointer returned to the entry in the map
-     */
-    Value get_or_create_entry(Key key)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (!map_.contains(key))
-            map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
-
-        LOG_DEBUG("New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_[key]);
-
-        return map_[key];
-    }
-
-    /*!
      * \brief Get the entry object
      *
      * \param key The key of an enum T from the fast_updates_types.hh

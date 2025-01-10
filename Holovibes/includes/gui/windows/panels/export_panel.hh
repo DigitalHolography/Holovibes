@@ -53,8 +53,11 @@ class ExportPanel : public Panel
     /*! \brief Stops the record */
     void stop_record();
 
-    /*! \brief Resets ui on record finished. */
-    void record_finished();
+    /*! \brief Resets ui on record finished
+     *
+     * \param[in] record_mode The current record mode
+     */
+    void record_finished(RecordMode record_mode);
 
     /*! \brief Starts recording */
     void start_record();
@@ -94,6 +97,7 @@ class ExportPanel : public Panel
 
   private:
     int record_frame_step_ = 512;
+    Subscriber<bool> start_record_subscriber_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;
 };

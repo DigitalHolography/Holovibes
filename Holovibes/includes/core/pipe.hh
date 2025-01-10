@@ -71,9 +71,6 @@ class Pipe : public ICompute
     Pipe(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, record, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
-        , record_updates_entry_(FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME))
-        , nb_frames_acquired_(std::get<0>(*record_updates_entry_))
-        , total_nb_frames_to_acquire_(std::get<2>(*record_updates_entry_))
     {
         fn_compute_vect_ = std::make_shared<FunctionVector>();
 
@@ -120,7 +117,6 @@ class Pipe : public ICompute
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
-        nb_frames_acquired_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
     }
 
@@ -239,16 +235,11 @@ class Pipe : public ICompute
      */
     void run_all();
 
-    /*! \brief Return false if we have written enough frames in the record queue or if the record queue is full. True
-     * otherwise.
-     *
-     * If this function returns true, it will also increment the number of frames acquired.
+    /*! \brief Force contiguity on record queue when cli is active.
      *
      * \param nb_elm_to_add the number of elements that might be added in the record queue
-     *
-     * \return true if we can insert in the record queue, false otherwise
      */
-    bool can_insert_to_record_queue(int nb_elm_to_add);
+    void keep_contiguous(int nb_elm_to_add) const;
 
     /*! \brief Enqueue a frame in an output queue
      *
@@ -287,15 +278,6 @@ class Pipe : public ICompute
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
-    /*! \brief Fast update holder entry for the number of frames acquired. */
-    FastUpdatesHolder<RecordType>::Value record_updates_entry_;
-
-    /*! \brief Current number of frames acquired (while recording) */
-    std::atomic<unsigned int>& nb_frames_acquired_;
-
-    /*! \brief The number of frames to acquire. */
-    std::atomic<unsigned int>& total_nb_frames_to_acquire_;
 };
 } // namespace holovibes
 

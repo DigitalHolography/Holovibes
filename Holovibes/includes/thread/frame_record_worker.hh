@@ -11,7 +11,6 @@
 
 #include "enum_record_mode.hh"
 #include "logger.hh"
-#include "output_frame_file.hh"
 #include "queue.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
@@ -20,13 +19,13 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS                    \
-  holovibes::settings::RecordFilePath,        \
-  holovibes::settings::RecordFrameCount,      \
-  holovibes::settings::RecordMode,            \
-  holovibes::settings::RecordFrameOffset,     \
-  holovibes::settings::OutputBufferSize,      \
-  holovibes::settings::FrameSkip,             \
+#define ONRESTART_SETTINGS                \
+  holovibes::settings::RecordFilePath,    \
+  holovibes::settings::RecordFrameCount,  \
+  holovibes::settings::RecordMode,        \
+  holovibes::settings::RecordFrameOffset, \
+  holovibes::settings::OutputBufferSize,  \
+  holovibes::settings::FrameSkip,         \
   holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
@@ -96,27 +95,24 @@ class FrameRecordWorker final : public Worker
             return onrestart_settings_.get<T>().value;
     }
 
-    /*! \brief Open the output file
+    /*! \brief Init the record queue
      *
-     * \param[in] frame_count The number of frames to record
-     *
-     * \return The output file
+     * \return The record queue
      */
-    io_files::OutputFrameFile* open_output_file(const uint frame_count);
+    // Queue& init_record_queue();
 
-    /*! \brief Reset the record queue to free memory. */
+    /*! \brief Wait for frames to be present in the record queue*/
+    void wait_for_frames();
+
+    /*! \brief Reset the record queue to free memory
+     *
+     * \param pipe The compute pipe used to perform the operations
+     */
     void reset_record_queue();
 
-    /*! \brief Integrate Input FPS in fps_buffers if relevant. */
+    /*! \brief Integrate Input Fps in fps_buffers if relevent */
     void integrate_fps_average();
-
-    /*! \brief Check if all frames are saved.
-     *
-     * \return True if all frames are saved (acquired + saved), false otherwise.
-     */
-    bool all_frames_saved(uint frames_saved, uint total) const;
-
-    /*! \brief Compute fps_buffer_ average on the correct number of value. */
+    /*! \brief Compute fps_buffer_ average on the correct number of value */
     size_t compute_fps_average() const;
 
   private:
