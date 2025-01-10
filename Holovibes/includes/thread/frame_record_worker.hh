@@ -107,7 +107,7 @@ class FrameRecordWorker final : public Worker
     /*! \brief Reset the record queue to free memory. */
     void reset_record_queue();
 
-    /*! \brief Integrate Input Fps in fps_buffers if relevent. */
+    /*! \brief Integrate Input FPS in fps_buffers if relevant. */
     void integrate_fps_average();
 
     /*! \brief Check if all frames are saved.

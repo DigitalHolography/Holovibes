@@ -64,6 +64,8 @@ class FastUpdatesHolder
         if (!map_.contains(key))
             map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
 
+        LOG_DEBUG("New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_[key]);
+
         return map_[key];
     }
 

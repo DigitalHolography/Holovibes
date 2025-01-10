@@ -103,7 +103,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
         {
             std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
             api_->settings.import_buffer(dest.string());
-            LOG_INFO("Preset loaded");
+            LOG_INFO("GPU Preset loaded");
         }
 
         return input;
@@ -147,7 +147,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     {
         std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
         api_->settings.import_buffer(dest.string());
-        LOG_INFO("Preset loaded");
+        LOG_INFO("GPU Preset loaded");
     }
 
     return input;

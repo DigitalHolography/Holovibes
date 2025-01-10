@@ -65,7 +65,7 @@ class RecordApi : public IApi
 
 #pragma region Frame Record
 
-    /*! \brief Return whether the frame are acquired or not.
+    /*! \brief Return whether the frame are being acquired or not.
      *
      * \return bool true if frame acquisition is enabled
      */
@@ -74,7 +74,7 @@ class RecordApi : public IApi
     /*! \brief Set whether the frame are acquired or not.
      *
      * \param[in] value true if frame acquisition is enabled
-     * \warning This function must not be cqlled outside of the backend
+     * \warning This function must not be called outside of the backend
      */
     inline void set_frame_acquisition_enabled(bool value) const { UPDATE_SETTING(FrameAcquisitionEnabled, value); }
 
