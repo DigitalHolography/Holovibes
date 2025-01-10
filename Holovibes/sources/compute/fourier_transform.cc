@@ -243,38 +243,50 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
+    auto time_transformation_size = setting<settings::TimeTransformationSize>();
+    size_t nyquist_index = time_transformation_size / 2;
+    bool even = time_transformation_size % 2 == 0;
     fn_compute_vect_->push_back(
         [=]()
         {
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
-            tensor_multiply_vector(moments_env_.moment0_buffer,
-                                   moments_env_.stft_res_buffer,
-                                   moments_env_.f0_buffer,
-                                   fd_.get_frame_res(),
-                                   moments_env_.f_start,
-                                   moments_env_.f_end,
-                                   stream_);
+            tensor_multiply_vector_nyquist_compensation(moments_env_.moment0_buffer,
+                                                        moments_env_.stft_res_buffer,
+                                                        moments_env_.f0_buffer,
+                                                        fd_.get_frame_res(),
+                                                        moments_env_.f_start,
+                                                        moments_env_.f_end,
+                                                        nyquist_index,
+                                                        even,
+                                                        false,
+                                                        stream_);
 
             // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
             // frequencies at order 1
-            tensor_multiply_vector(moments_env_.moment1_buffer,
-                                   moments_env_.stft_res_buffer,
-                                   moments_env_.f1_buffer,
-                                   fd_.get_frame_res(),
-                                   moments_env_.f_start,
-                                   moments_env_.f_end,
-                                   stream_);
+            tensor_multiply_vector_nyquist_compensation(moments_env_.moment1_buffer,
+                                                        moments_env_.stft_res_buffer,
+                                                        moments_env_.f1_buffer,
+                                                        fd_.get_frame_res(),
+                                                        moments_env_.f_start,
+                                                        moments_env_.f_end,
+                                                        nyquist_index,
+                                                        even,
+                                                        true,
+                                                        stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
             // frequencies at order 2
-            tensor_multiply_vector(moments_env_.moment2_buffer,
-                                   moments_env_.stft_res_buffer,
-                                   moments_env_.f2_buffer,
-                                   fd_.get_frame_res(),
-                                   moments_env_.f_start,
-                                   moments_env_.f_end,
-                                   stream_);
+            tensor_multiply_vector_nyquist_compensation(moments_env_.moment2_buffer,
+                                                        moments_env_.stft_res_buffer,
+                                                        moments_env_.f2_buffer,
+                                                        fd_.get_frame_res(),
+                                                        moments_env_.f_start,
+                                                        moments_env_.f_end,
+                                                        nyquist_index,
+                                                        even,
+                                                        false,
+                                                        stream_);
         });
 }
 
