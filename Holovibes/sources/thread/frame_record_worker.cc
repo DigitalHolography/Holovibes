@@ -107,8 +107,6 @@ void FrameRecordWorker::run()
     auto frame_count = setting<settings::RecordFrameCount>();
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
 
-    nb_frames_recorded += static_cast<uint>(nb_frames_to_skip);
-
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
 
