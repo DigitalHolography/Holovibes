@@ -106,6 +106,7 @@
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
     holovibes::settings::ReticleZone,                            \
+    holovibes::settings::FilterEnabled,                          \
     holovibes::settings::InputFilter,                            \
     holovibes::settings::TimeTransformationCutsOutputBufferSize, \
     holovibes::settings::CompositeKind,                          \
@@ -430,6 +431,7 @@ class Holovibes
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
                                              settings::ReticleZone{units::RectFd{}},
+                                             settings::FilterEnabled{false},
                                              settings::InputFilter{{}},
                                              settings::CompositeKind{CompositeKind::RGB},
                                              settings::CompositeAutoWeights{false},

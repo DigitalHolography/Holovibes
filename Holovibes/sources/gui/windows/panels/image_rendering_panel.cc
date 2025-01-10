@@ -100,12 +100,20 @@ void ImageRenderingPanel::on_notify()
     // Filter
     ui_->InputFilterLabel->setVisible(filter2D_enabled);
     ui_->InputFilterQuickSelectComboBox->setVisible(filter2D_enabled);
-    int index = 0;
-    if (!api_.filter2d.get_filter_file_name().empty())
-        index =
-            ui_->InputFilterQuickSelectComboBox->findText(QString::fromStdString(api_.filter2d.get_filter_file_name()));
+    if (!api_.filter2d.get_filter_enabled())
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(
+            ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+    }
+    else
+    {
+        int index = 0;
+        if (!api_.filter2d.get_filter_file_name().empty())
+            index = ui_->InputFilterQuickSelectComboBox->findText(
+                QString::fromStdString(api_.filter2d.get_filter_file_name()));
 
-    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
+    }
 
     // Convolution
     ui_->ConvoCheckBox->setVisible(api_.compute.get_compute_mode() == Computation::Hologram);
@@ -115,7 +123,7 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setChecked(api_.global_pp.get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api_.global_pp.get_convolution_enabled());
 
-    index = 0;
+    int index = 0;
     if (!api_.global_pp.get_convolution_file_name().empty())
         index = ui_->KernelQuickSelectComboBox->findText(
             QString::fromStdString(api_.global_pp.get_convolution_file_name()));
