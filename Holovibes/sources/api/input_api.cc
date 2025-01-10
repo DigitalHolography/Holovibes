@@ -5,6 +5,7 @@
 #include "camera_dll.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
+#include "notifier.hh"
 
 namespace holovibes::api
 {
@@ -100,11 +101,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
         }
 
         if (get_file_load_kind() != FileLoadKind::REGULAR)
-        {
-            std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
-            api_->settings.import_buffer(dest.string());
-            LOG_INFO("GPU Preset loaded");
-        }
+            NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
         return input;
     }
@@ -144,11 +141,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     api_->record.set_record_buffer_size(record_buffer_size);
 
     if (get_file_load_kind() != FileLoadKind::REGULAR)
-    {
-        std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
-        api_->settings.import_buffer(dest.string());
-        LOG_INFO("GPU Preset loaded");
-    }
+        NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     return input;
 }
