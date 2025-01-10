@@ -22,7 +22,7 @@ ApiCode RecordApi::set_record_mode(RecordMode value) const
     if (get_record_mode() == RecordMode::CHART)
         return ApiCode::OK;
 
-    // Be update the record queue only if an input source is available since otherwise input_fd is not set
+    // Update the record queue only if an input source is available since otherwise input_fd is not set
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();
 

@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <QTimer>
+
 #include "notifier.hh"
 #include "panel.hh"
 
@@ -43,6 +45,8 @@ class InfoPanel : public Panel
   private:
     int height_ = 0;
     int resize_again_ = 0;
+
+    QTimer timer_;
 
   private:
     void handle_progress_bar();

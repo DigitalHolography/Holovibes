@@ -217,7 +217,7 @@ void ExportPanel::record_finished()
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(true);
     ui_->InfoPanel->set_visible_record_progress(false);
 

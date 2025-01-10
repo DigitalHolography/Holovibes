@@ -12,6 +12,7 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
+    , timer_()
 {
 }
 
@@ -44,9 +45,8 @@ void InfoPanel::init()
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
 
-    QTimer* timer = new QTimer();
-    connect(timer, &QTimer::timeout, this, &InfoPanel::handle_progress_bar);
-    timer->start(50);
+    connect(&timer_, &QTimer::timeout, this, &InfoPanel::handle_progress_bar);
+    timer_.start(50);
 }
 
 void InfoPanel::handle_progress_bar()
