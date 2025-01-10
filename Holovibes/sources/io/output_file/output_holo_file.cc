@@ -34,9 +34,6 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     meta_data_ = json();
 }
 
-// Optimisation removed to avoid some values in memory to be set to 0 during compilation.
-#pragma optimize("", off)
-
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_FUNC(input_fps, contiguous);
@@ -62,8 +59,6 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         LOG_WARN("Exception: {}", e.what());
     }
 }
-
-#pragma optimize("", on)
 
 void OutputHoloFile::write_header()
 {
