@@ -245,6 +245,7 @@ void FourierTransform::insert_moments()
 
     auto time_transformation_size = setting<settings::TimeTransformationSize>();
     size_t nyquist_index = time_transformation_size / 2;
+    bool even = time_transformation_size % 2 == 0;
     fn_compute_vect_->push_back(
         [=]()
         {
@@ -257,7 +258,7 @@ void FourierTransform::insert_moments()
                                                         moments_env_.f_start,
                                                         moments_env_.f_end,
                                                         nyquist_index,
-                                                        time_transformation_size % 2 == 0,
+                                                        even,
                                                         false,
                                                         stream_);
 
@@ -270,7 +271,7 @@ void FourierTransform::insert_moments()
                                                         moments_env_.f_start,
                                                         moments_env_.f_end,
                                                         nyquist_index,
-                                                        time_transformation_size % 2 == 0,
+                                                        even,
                                                         true,
                                                         stream_);
 
@@ -283,7 +284,7 @@ void FourierTransform::insert_moments()
                                                         moments_env_.f_start,
                                                         moments_env_.f_end,
                                                         nyquist_index,
-                                                        time_transformation_size % 2 == 0,
+                                                        even,
                                                         false,
                                                         stream_);
         });
