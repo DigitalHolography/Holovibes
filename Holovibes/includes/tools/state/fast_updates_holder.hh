@@ -55,7 +55,7 @@ class FastUpdatesHolder
     /*!
      * \brief Get the entry object, create it if it does not exist
      *
-     * \param key The key of an enum T from the fast_updates_types.hh
+     * \param[in] key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
     Value get_or_create_entry(Key key)
