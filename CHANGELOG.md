@@ -1,5 +1,13 @@
 ## Changelog
 
+### 14.4.1
+
+- Fixed FFT frequencies computation and Nyquist frequency handling for moments computation
+- Index 0 for z frequency now allowed
+- Fixed Filter 2D 
+- Fixed recording and progress bar now shows frames being saved and being captured
+- Fixed optimization issue with internal settings
+
 ### 14.4.0
 
 - Nb. frames now isn't reset when interacting with certain UI components
