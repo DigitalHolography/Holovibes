@@ -35,15 +35,12 @@ kernel_divide_frames_float(float* output, const float* numerator, const float* d
     }
 }
 
-__global__ void kernel_tensor_multiply_vector_nyquist_compensation(float* output,
-                                                                   const float* tensor,
-                                                                   const float* vector,
-                                                                   const size_t frame_res,
-                                                                   const ushort f_start,
-                                                                   const ushort f_end,
-                                                                   const size_t nyquist_index,
-                                                                   const bool even,
-                                                                   const bool m1)
+__global__ void kernel_tensor_multiply_vector(float* output,
+                                              const float* tensor,
+                                              const float* vector,
+                                              const size_t frame_res,
+                                              const ushort f_start,
+                                              const ushort f_end)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -57,43 +54,7 @@ __global__ void kernel_tensor_multiply_vector_nyquist_compensation(float* output
         val += current_frame[index] * vector[i];
     }
 
-    // Nyquist frequency handling, when even time window must be doubled for M0/M2, zero for M1
-    // TODO: check if nyquist frequency should be counted double in other places of the code
-    if (even && nyquist_index >= f_start && nyquist_index <= f_end)
-    {
-        const float* current_frame = tensor + nyquist_index * frame_res;
-        if (m1)
-            val -= current_frame[index] * vector[nyquist_index];
-        else
-            val += current_frame[index] * vector[nyquist_index];
-    }
-
     output[index] = val;
-}
-
-void tensor_multiply_vector_nyquist_compensation(float* output,
-                                                 const float* tensor,
-                                                 const float* vector,
-                                                 const size_t frame_res,
-                                                 const ushort f_start,
-                                                 const ushort f_end,
-                                                 const size_t nyquist_freq,
-                                                 bool even,
-                                                 bool m1,
-                                                 const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_tensor_multiply_vector_nyquist_compensation<<<blocks, threads, 0, stream>>>(output,
-                                                                                       tensor,
-                                                                                       vector,
-                                                                                       frame_res,
-                                                                                       f_start,
-                                                                                       f_end,
-                                                                                       nyquist_freq,
-                                                                                       even,
-                                                                                       m1);
-    cudaCheckError();
 }
 
 void gpu_normalize(float* const input,
@@ -120,4 +81,18 @@ void gpu_normalize(float* const input,
     };
 
     map_generic(input, input, frame_res, map_function, stream);
+}
+
+void tensor_multiply_vector(float* output,
+                            const float* tensor,
+                            const float* vector,
+                            const size_t frame_res,
+                            const ushort f_start,
+                            const ushort f_end,
+                            const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
+    cudaCheckError();
 }
