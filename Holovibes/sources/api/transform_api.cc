@@ -150,7 +150,7 @@ void TransformApi::set_p_index(uint value) const
 
     if (value >= get_time_transformation_size())
     {
-        LOG_ERROR("p param has to be between 0 and #img");
+        LOG_ERROR("p param has to be between 0 and time window");
         return;
     }
 
