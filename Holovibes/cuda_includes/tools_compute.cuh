@@ -55,7 +55,7 @@ void gpu_normalize(float* const input,
  * \param[in]  vector     The vector
  * \param[in]  frame_res  The resolution of a single frame
  * \param[in]  f_start    The start index
- * \param[in]  f_end      The index of the nyquist frequency
+ * \param[in]  f_end      The end index
  * \param[in]  stream     The cuda stream
  */
 void tensor_multiply_vector(float* output,
@@ -86,7 +86,7 @@ void tensor_multiply_vector(float* output,
  * \param[in]  vector           The vector
  * \param[in]  frame_res        The resolution of a single frame
  * \param[in]  f_start          The start index
- * \param[in]  f_end            The end indexes
+ * \param[in]  f_end            The end index
  * \param[in]  nyquist_freq     The index of the Nyquist frequency in vector
  * \param[in]  even             Boolean true if time transform size is even
  * \param[in]  m1               Boolean true if we are calculating M1
