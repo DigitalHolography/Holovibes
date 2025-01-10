@@ -134,8 +134,8 @@ DECLARE_SETTING(InputFileStartIndex, size_t);
 DECLARE_SETTING(InputFileEndIndex, size_t);
 
 /*! \name Export Cache */
-/*! \brief Is holovibes currently recording */
-DECLARE_SETTING(FrameRecordEnabled, bool);
+/*! \brief Is acquisition (writing to the record_queue) of frames activated. */
+DECLARE_SETTING(FrameAcquisitionEnabled, bool);
 
 /*! \brief Enables the signal and noise chart record */
 DECLARE_SETTING(ChartRecordEnabled, bool);

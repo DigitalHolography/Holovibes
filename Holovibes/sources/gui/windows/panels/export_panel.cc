@@ -17,7 +17,6 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-    , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
     , set_output_file_path_subscriber_("set_output_file_name",
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
     , browse_record_output_file_subscriber_("browse_record_output_file",
@@ -195,16 +194,17 @@ void ExportPanel::set_record_mode(int index)
     if (api_.record.get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api_.record.set_record_mode_enum(static_cast<RecordMode>(index));
+    api_.record.set_record_mode(static_cast<RecordMode>(index));
 
     parent_->notify();
 }
 
 void ExportPanel::stop_record() { api_.record.stop_record(); }
 
-void ExportPanel::record_finished(RecordMode record_mode)
+void ExportPanel::record_finished()
 {
     std::string info;
+    RecordMode record_mode = api_.record.get_record_mode();
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
@@ -217,11 +217,11 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->InfoPanel->set_visible_record_progress(false);
 
-    // notify others panels (info panel & lightUI) that the record is finished
-    NotifierManager::notify<bool>("record_finished", true);
+    parent_->light_ui_->notify();
 }
 
 void ExportPanel::start_record()
@@ -239,16 +239,13 @@ void ExportPanel::start_record()
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
 
-    NotifierManager::notify<RecordBarColorData>("record_progress_bar_color", {QColor(209, 90, 25), "Recording"});
-
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api_.record.get_record_mode(), this]()
-    { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
+    auto callback = [this]() { parent_->synchronize_thread([=]() { record_finished(); }); };
 
     api_.record.start_record(callback);
 }
