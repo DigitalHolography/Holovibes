@@ -394,7 +394,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    bool stoped = api_.compute.get_is_computation_stopped();
+    bool stopped = api_.compute.get_is_computation_stopped();
     gui::stop();
 
     try
@@ -409,8 +409,8 @@ void MainWindow::reload_ini(const std::string& filename)
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Do not trigger the start of computation if notinh was running
-    if (stoped)
+    // Do not trigger the start of computation if nothing was running
+    if (stopped)
         return;
 
     ImportType it = api_.input.get_import_type();

@@ -31,7 +31,7 @@ int InputFilter::read_bmp(const char* path)
     // Check to make sure that the first two bytes of the file are the "BM"
     // identifier that identifies a bitmap image.
     if (identificator.identificator[0] != 'B' || identificator.identificator[1] != 'M')
-        RETURN_ERROR("{} is not in proper BMP format.\n", path);
+        RETURN_ERROR("{} is not in proper BMP format.", path);
 
     bmp_header header;
     e = static_cast<int>(fread((char*)(&header), sizeof(header), 1, f));
