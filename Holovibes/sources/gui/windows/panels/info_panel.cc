@@ -35,7 +35,7 @@ void InfoPanel::update_information()
     size_t waited_time = chrono_.get_milliseconds();
     if (waited_time >= 1000)
     {
-        ui_->InfoTextEdit->display_information_slow(waited_time);
+        // ui_->InfoTextEdit->display_information_slow(waited_time);
         chrono_.start();
     }
     ui_->InfoTextEdit->display_information();

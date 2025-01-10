@@ -52,31 +52,6 @@ class InfoTextEdit : public QTextEdit
     void display_information();
 
   private:
-    /*!
-     * \brief Performs some simple multiplications with the respective fps to get the queue throughputs
-     *
-     * \param output_frame_res The RESOLUTION of the output frames (doesn't include time_transformation_size)
-     * \param input_frame_size The size in memory of the input frames
-     * \param record_frame_size The size in memory of the recorded frames
-     */
-    void compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size);
-
-    /*!
-     * \brief Computes the average frames per second of the available streams (input, output, record)
-     *
-     * \param waited_time The time elapsed since the last function call
-     */
-    // void compute_fps(const long long waited_time);
-
-    /*! \brief Input throughput */
-    size_t input_throughput_ = 0;
-
-    /*! \brief Output throughput */
-    size_t output_throughput_ = 0;
-
-    /*! \brief Saving throughput */
-    size_t saving_throughput_ = 0;
-
     /*! \brief Structure that will be used to retrieve information from the API */
     Information information_;
 };

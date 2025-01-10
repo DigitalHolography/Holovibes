@@ -50,6 +50,9 @@ struct Information
     std::optional<size_t> output_fps;
     std::optional<size_t> saving_fps;
     std::optional<size_t> temperature;
+    size_t input_throughput;
+    size_t output_throughput;
+    size_t saving_throughput;
     std::shared_ptr<std::string> img_source;
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;

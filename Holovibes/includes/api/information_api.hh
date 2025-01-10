@@ -33,7 +33,16 @@ class InformationApi : public IApi
     size_t saving_fps_ = 0;
 
     /*! \brief Camera temperature */
-    unsigned int temperature_ = 0;
+    size_t temperature_ = 0;
+
+    /*! \brief Input throughput */
+    size_t input_throughput_ = 0;
+
+    /*! \brief Output throughput */
+    size_t output_throughput_ = 0;
+
+    /*! \brief Saving throughput */
+    size_t saving_throughput_ = 0;
 
 #pragma region Credits
 
@@ -194,7 +203,11 @@ class InformationApi : public IApi
      */
     void compute_fps(const long long waited_time);
 
-    void get_slow_information(Information& info, size_t elapsed_time);
+    /*!
+     * \brief Performs some simple multiplications with the respective fps to get the queue throughputs
+     * This requests resolution information to the available queues to do the computations
+     */
+    void compute_throughput();
 };
 
 #pragma endregion

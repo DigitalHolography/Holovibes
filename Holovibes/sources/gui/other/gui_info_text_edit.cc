@@ -27,35 +27,35 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     return ss.str();
 }
 
-void InfoTextEdit::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
-{
-    // input_throughput_ = input_fps_ * input_frame_size;
-    // output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
-    // saving_throughput_ = saving_fps_ * record_frame_size;
-}
+// void InfoTextEdit::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
+// {
+//     input_throughput_ = input_fps_ * input_frame_size;
+//     output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
+//     saving_throughput_ = saving_fps_ * record_frame_size;
+// }
 
-void InfoTextEdit::display_information_slow(size_t elapsed_time)
-{
-    // compute_fps(elapsed_time);
-    std::shared_ptr<Queue> gpu_output_queue = API.compute.get_gpu_output_queue();
-    std::shared_ptr<BatchInputQueue> input_queue = API.compute.get_input_queue();
-    std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
+// void InfoTextEdit::display_information_slow(size_t elapsed_time)
+// {
+//     // compute_fps(elapsed_time);
+//     std::shared_ptr<Queue> gpu_output_queue = API.compute.get_gpu_output_queue();
+//     std::shared_ptr<BatchInputQueue> input_queue = API.compute.get_input_queue();
+//     std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
 
-    unsigned int output_frame_res = 0;
-    unsigned int input_frame_size = 0;
-    unsigned int record_frame_size = 0;
+//     unsigned int output_frame_res = 0;
+//     unsigned int input_frame_size = 0;
+//     unsigned int record_frame_size = 0;
 
-    if (gpu_output_queue && input_queue)
-    {
-        output_frame_res = static_cast<unsigned int>(gpu_output_queue->get_fd().get_frame_res());
-        input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
-    }
+//     if (gpu_output_queue && input_queue)
+//     {
+//         output_frame_res = static_cast<unsigned int>(gpu_output_queue->get_fd().get_frame_res());
+//         input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
+//     }
 
-    if (frame_record_queue)
-        record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
+//     if (frame_record_queue)
+//         record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
 
-    compute_throughput(output_frame_res, input_frame_size, record_frame_size);
-}
+//     compute_throughput(output_frame_res, input_frame_size, record_frame_size);
+// }
 
 void InfoTextEdit::display_information()
 {
@@ -123,15 +123,15 @@ void InfoTextEdit::display_information()
 
     if (information_.output_fps)
     {
-        to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(input_throughput_, "B/s")
+        to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(information_.input_throughput, "B/s")
                    << "</td></tr>";
-        to_display << "<tr><td>Output Throughput</td><td>" << format_throughput(output_throughput_, "Voxels/s")
-                   << "</td></tr>";
+        to_display << "<tr><td>Output Throughput</td><td>"
+                   << format_throughput(information_.output_throughput, "Voxels/s") << "</td></tr>";
     }
 
     if (information_.saving_fps)
     {
-        to_display << "<tr><td>Saving Throughput</td><td>  " << format_throughput(saving_throughput_, "B/s")
+        to_display << "<tr><td>Saving Throughput</td><td>  " << format_throughput(information_.saving_throughput, "B/s")
                    << "</td></tr>";
     }
 
