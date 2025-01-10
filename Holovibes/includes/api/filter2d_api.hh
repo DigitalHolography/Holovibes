@@ -112,26 +112,35 @@ class Filter2dApi : public IApi
 
 #pragma region Filter File
 
+    /*! \brief Returns whether a file filter is loaded
+     *
+     * \return bool true if a file filter is loaded, false otherwise
+     */
+    inline bool get_filter_enabled() const { return GET_SETTING(FilterEnabled); };
+
     /*! \brief Gets the input filter
      *
      * \return std::vector<float> the input filter
      */
     inline std::vector<float> get_input_filter() const { return GET_SETTING(InputFilter); }
 
-    /*! \brief Enables the input filter mode
+    /*! \brief Sets the input filter
      *
-     * \param[in] file the file containing the filter's settings or empty string to disable the filter
-     * \return ApiCode the status of the operation: OK if successful, NOT_STARTED if the computation is not started
+     * \param[in] value the new value of the input filter
      */
-    ApiCode enable_filter(const std::string& file) const;
+    inline void set_input_filter(std::vector<float> value) const { UPDATE_SETTING(InputFilter, value); }
 
-  private:
     /*! \brief Loads the input filter
      *
      * \param[in] file the file path
-     * \return std::vector<float> the input filter or an empty vector in case of error
      */
-    std::vector<float> load_input_filter(const std::string& file) const;
+    void load_input_filter(const std::string& file) const;
+
+    /*! \brief Enables the input filter mode
+     *
+     * \param[in] file the file containing the filter's settings or empty string to disable the filter
+     */
+    void enable_filter(const std::string& file) const;
 
 #pragma endregion
 };

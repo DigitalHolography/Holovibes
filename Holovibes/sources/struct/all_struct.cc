@@ -62,7 +62,11 @@ void Rendering::Convolution::Update()
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
-void Rendering::Filter::Update() { this->type = API.filter2d.get_filter_file_name(); }
+void Rendering::Filter::Update()
+{
+    this->enabled = API.filter2d.get_filter_enabled();
+    this->type = API.filter2d.get_filter_file_name();
+}
 
 void Rendering::Filter2D::Update()
 {
@@ -226,7 +230,11 @@ void Rendering::Convolution::Load()
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 
-void Rendering::Filter::Load() { UPDATE_SETTING(FilterFileName, this->type); }
+void Rendering::Filter::Load()
+{
+    UPDATE_SETTING(FilterEnabled, this->enabled && !this->type.empty());
+    UPDATE_SETTING(FilterFileName, this->type);
+}
 
 void Rendering::Filter2D::Load()
 {

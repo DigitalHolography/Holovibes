@@ -45,11 +45,12 @@
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::SpaceTransformation
 
-#define PIPEREFRESH_SETTINGS                       \
-    holovibes::settings::BatchSize,                \
+#define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::BatchSize,                  \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter
+    holovibes::settings::InputFilter,                \
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 
