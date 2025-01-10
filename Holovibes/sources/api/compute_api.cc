@@ -49,7 +49,7 @@ ApiCode ComputeApi::start() const
 
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
-    if (api_->filter2d.get_filter2d_enabled())
+    if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
     else
         pipe_refresh();
