@@ -66,19 +66,7 @@ class InfoTextEdit : public QTextEdit
      *
      * \param waited_time The time elapsed since the last function call
      */
-    void compute_fps(const long long waited_time);
-
-    /*! \brief Input fps */
-    size_t input_fps_ = 0;
-
-    /*! \brief Output fps */
-    size_t output_fps_ = 0;
-
-    /*! \brief Saving fps */
-    size_t saving_fps_ = 0;
-
-    /*! \brief Camera temperature */
-    size_t temperature_ = 0;
+    // void compute_fps(const long long waited_time);
 
     /*! \brief Input throughput */
     size_t input_throughput_ = 0;

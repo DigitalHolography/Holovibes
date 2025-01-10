@@ -23,6 +23,17 @@ class InformationApi : public IApi
 
   private:
     Chrono elapsed_time_chrono_;
+    /*! \brief Input fps */
+    size_t input_fps_ = 0;
+
+    /*! \brief Output fps */
+    size_t output_fps_ = 0;
+
+    /*! \brief Saving fps */
+    size_t saving_fps_ = 0;
+
+    /*! \brief Camera temperature */
+    unsigned int temperature_ = 0;
 
 #pragma region Credits
 
@@ -166,12 +177,26 @@ class InformationApi : public IApi
     /*!
      * \brief Gather all the information available from the FastUpdatesHolder and return it
      *
-     * \param info The structure to update with new information. Every entry will have been adjusted,
-     * as the ones that are not present in the Holder will be reset (0, nullptr, ...)
+     * \return Information The structure to update with new information. Every entry
+     * not present in the Holder will be absent (empty optional, nullptr, ...)
      */
-    void get_information(Information* info);
+    Information get_information();
 
 #pragma endregion
+
+#pragma region Internals
+
+  private:
+    /*!
+     * \brief Computes the average frames per second of the available streams (input, output, record)
+     *
+     * \param waited_time The time elapsed since the last function call
+     */
+    void compute_fps(const long long waited_time);
+
+    void get_slow_information(Information& info, size_t elapsed_time);
 };
+
+#pragma endregion
 
 } // namespace holovibes::api

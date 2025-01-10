@@ -29,38 +29,14 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
 
 void InfoTextEdit::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
 {
-    input_throughput_ = input_fps_ * input_frame_size;
-    output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
-    saving_throughput_ = saving_fps_ * record_frame_size;
-}
-
-void InfoTextEdit::compute_fps(const long long waited_time)
-{
-    if (information_.temperature)
-        temperature_ = information_.temperature->load();
-
-    if (information_.input_fps)
-    {
-        input_fps_ = static_cast<size_t>(std::round(information_.input_fps->load() * (1000.f / waited_time)));
-        information_.input_fps.get()->store(0);
-    }
-
-    if (information_.output_fps)
-    {
-        output_fps_ = static_cast<size_t>(std::round(information_.output_fps->load() * (1000.f / waited_time)));
-        information_.output_fps->store(0); // TODO Remove
-    }
-
-    if (information_.saving_fps)
-    {
-        saving_fps_ = static_cast<size_t>(std::round(information_.saving_fps->load() * (1000.f / waited_time)));
-        information_.saving_fps->store(0); // TODO Remove
-    }
+    // input_throughput_ = input_fps_ * input_frame_size;
+    // output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
+    // saving_throughput_ = saving_fps_ * record_frame_size;
 }
 
 void InfoTextEdit::display_information_slow(size_t elapsed_time)
 {
-    compute_fps(elapsed_time);
+    // compute_fps(elapsed_time);
     std::shared_ptr<Queue> gpu_output_queue = API.compute.get_gpu_output_queue();
     std::shared_ptr<BatchInputQueue> input_queue = API.compute.get_input_queue();
     std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
@@ -83,7 +59,7 @@ void InfoTextEdit::display_information_slow(size_t elapsed_time)
 
 void InfoTextEdit::display_information()
 {
-    API.information.get_information(&information_);
+    information_ = API.information.get_information();
 
     std::string str;
     str.reserve(512);
@@ -94,8 +70,8 @@ void InfoTextEdit::display_information()
     if (information_.img_source)
     {
         to_display << "<tr><td>Image Source</td><td>" << *information_.img_source.get() << "</td></tr>";
-        if (information_.temperature && temperature_ != 0)
-            to_display << "<tr><td>Camera Temperature</td><td>" << temperature_ << "°C</td></tr>";
+        if (information_.temperature && *information_.temperature != 0)
+            to_display << "<tr><td>Camera Temperature</td><td>" << *information_.temperature << "°C</td></tr>";
     }
     if (information_.input_format)
         to_display << "<tr><td>Input Format</td><td>" << *information_.input_format.get() << "</td></tr>";
@@ -131,19 +107,19 @@ void InfoTextEdit::display_information()
     }
 
     if (information_.input_fps)
-        to_display << "<tr><td>Input FPS</td><td>" << input_fps_ << "</td></tr>";
+        to_display << "<tr><td>Input FPS</td><td>" << *information_.input_fps << "</td></tr>";
 
     if (information_.output_fps)
     {
         to_display << "<tr><td>Output FPS</td>";
-        if (output_fps_ == 0)
-            to_display << "<td style=\"color: red;\">" << output_fps_ << "</td></tr>";
+        if (*information_.output_fps == 0)
+            to_display << "<td style=\"color: red;\">" << *information_.output_fps << "</td></tr>";
         else
-            to_display << "<td>" << output_fps_ << "</td></tr>";
+            to_display << "<td>" << *information_.output_fps << "</td></tr>";
     }
 
     if (information_.saving_fps)
-        to_display << "<tr><td>Saving FPS</td><td>" << saving_fps_ << "</td></tr>";
+        to_display << "<tr><td>Saving FPS</td><td>" << *information_.saving_fps << "</td></tr>";
 
     if (information_.output_fps)
     {

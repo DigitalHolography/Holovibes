@@ -46,16 +46,15 @@ struct QueueInfo
  */
 struct Information
 {
-    std::shared_ptr<std::atomic<uint>> input_fps;
-    std::shared_ptr<std::atomic<uint>> output_fps;
-    std::shared_ptr<std::atomic<uint>> saving_fps;
-    std::shared_ptr<std::atomic<uint>> temperature;
+    std::optional<size_t> input_fps;
+    std::optional<size_t> output_fps;
+    std::optional<size_t> saving_fps;
+    std::optional<size_t> temperature;
     std::shared_ptr<std::string> img_source;
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;
     std::map<ProgressType, ProgressInfo> progresses;
     std::map<QueueType, QueueInfo> queues;
-    size_t elapsed_time;
 };
 
 } // namespace holovibes

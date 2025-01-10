@@ -40,8 +40,7 @@ void InfoPanel::update_information()
     }
     ui_->InfoTextEdit->display_information();
 
-    Information information;
-    API.information.get_information(&information);
+    Information information = API.information.get_information();
     for (auto const& [key, info] : information.progresses)
         update_progress(key, info.current_size, info.max_size);
 }
