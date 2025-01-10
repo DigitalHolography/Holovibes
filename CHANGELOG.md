@@ -1,5 +1,16 @@
 ## Changelog
 
+### 14.4.1
+
+- Fixed FFT frequencies computation
+- Index 0 for z frequency now allowed
+- Fixed Filter 2D crashing when no filter file provided
+- Fixed recording and progress bar now shows frames being saved and being captured
+- Fixed optimization issue with internal settings
+- Updated S711 ini file
+- Change batch_size from 64 to 32 in preset.json
+- Corrected footer data in .holo files
+
 ### 14.4.0
 
 - Nb. frames now isn't reset when interacting with certain UI components.
