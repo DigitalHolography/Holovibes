@@ -40,14 +40,14 @@ void ICompute::fft_freqs()
     cudaXMemcpy(moments_env_.f0_buffer, f0.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f1
-    // f1 = [0, 1, ...,   n / 2,     -(n - 1) / 2, ..., -1] * fs / n   if n is even
-    // Note: we keep the Nyquist frequency (n / 2) only for the positive, this means f1 is of length n instead of n + 1
+    // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    // Note: we keep the Nyquist frequency (n / 2) only for the negative, this means f1 is of length n instead of n + 1
     if (time_transformation_size % 2 == 0)
     {
-        for (uint i = 0; i <= time_transformation_size / 2; i++)
+        for (uint i = 0; i < time_transformation_size / 2; i++)
             f1[i] = i * d;
 
-        for (uint i = time_transformation_size / 2 + 1; i < time_transformation_size; i++)
+        for (uint i = time_transformation_size / 2; i < time_transformation_size; i++)
             f1[i] = -((float)time_transformation_size - i) * d;
     }
     // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
