@@ -114,7 +114,7 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
         api_->contrast.set_contrast_enabled(true);
     }
     else
-        api_->record.set_record_mode_enum(
+        api_->record.set_record_mode(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
     if (get_is_computation_stopped())

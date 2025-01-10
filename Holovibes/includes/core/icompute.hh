@@ -53,7 +53,7 @@
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::FrameRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
@@ -199,7 +199,6 @@ class ICompute
         UpdateTimeStride,
         UpdateRegistrationZone,
         DisableLensView,
-        FrameRecord,
         DisableFrameRecord,
         Convolution,
         DisableConvolution,
