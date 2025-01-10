@@ -189,7 +189,6 @@
         "time_transformation_stride": 1,
         "propagation_distance": 0.38499999046325684,
         "input_filter": {
-            "enabled": false,
             "type": "None"
         }
     }

@@ -44,7 +44,7 @@ void FourierTransform::insert_fft(const uint width, const uint height)
                                      setting<settings::Filter2dSmoothHigh>(),
                                      stream_);
 
-        if (setting<settings::FilterEnabled>())
+        if (!setting<settings::InputFilter>().empty())
         {
             apply_filter(buffers_.gpu_filter2d_mask,
                          buffers_.gpu_input_filter_mask,

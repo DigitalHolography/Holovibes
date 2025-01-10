@@ -169,7 +169,6 @@ DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint);
-DECLARE_SETTING(FilterEnabled, bool);
 DECLARE_SETTING(InputFilter, std::vector<float>);
 
 /*! \name ZoneCache */
