@@ -49,7 +49,7 @@ ApiCode ComputeApi::start() const
 
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
-    if (api_->filter2d.get_filter2d_enabled())
+    if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
     else
         pipe_refresh();
@@ -114,7 +114,7 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
         api_->contrast.set_contrast_enabled(true);
     }
     else
-        api_->record.set_record_mode_enum(
+        api_->record.set_record_mode(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
     if (get_is_computation_stopped())

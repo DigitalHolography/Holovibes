@@ -78,7 +78,7 @@
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::FilterFileName,                         \
-    holovibes::settings::FrameRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::DisplayRate,                            \
     holovibes::settings::InputBufferSize,                        \
@@ -106,7 +106,6 @@
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
     holovibes::settings::ReticleZone,                            \
-    holovibes::settings::FilterEnabled,                          \
     holovibes::settings::InputFilter,                            \
     holovibes::settings::TimeTransformationCutsOutputBufferSize, \
     holovibes::settings::CompositeKind,                          \
@@ -402,7 +401,7 @@ class Holovibes
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
                                              settings::FilterFileName{std::string("")},
-                                             settings::FrameRecordEnabled{false},
+                                             settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
                                              settings::DisplayRate{24},
                                              settings::InputBufferSize{512},
@@ -431,7 +430,6 @@ class Holovibes
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
                                              settings::ReticleZone{units::RectFd{}},
-                                             settings::FilterEnabled{false},
                                              settings::InputFilter{{}},
                                              settings::CompositeKind{CompositeKind::RGB},
                                              settings::CompositeAutoWeights{false},

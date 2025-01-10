@@ -71,19 +71,6 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
-    , acquisition_started_subscriber_("acquisition_started",
-                                      [this](bool success) { acquisition_finished_notification_received = false; })
-    , acquisition_finished_subscriber_("acquisition_finished",
-                                       [this](bool success)
-                                       {
-                                           if (acquisition_finished_notification_received)
-                                               return;
-                                           acquisition_finished_notification_received = true;
-                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236),
-                                                                                       "Saving: %v/%m");
-                                           light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
-                                       })
-    , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
     , api_(API)
     , notify_subscriber_("notify", [this](bool success) { notify(); })
 {
@@ -394,6 +381,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
+    bool stopped = api_.compute.get_is_computation_stopped();
     gui::stop();
 
     try
@@ -407,6 +395,10 @@ void MainWindow::reload_ini(const std::string& filename)
                  ::holovibes::settings::compute_settings_filepath);
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
+
+    // Do not trigger the start of computation if nothing was running
+    if (stopped)
+        return;
 
     ImportType it = api_.input.get_import_type();
     if (it == ImportType::File)
@@ -505,13 +497,6 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api_.input.set_camera_kind(camera);
-}
-
-void MainWindow::set_preset_file_on_gpu()
-{
-    std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
-    api_.settings.import_buffer(dest.string());
-    LOG_INFO("Preset loaded");
 }
 
 void MainWindow::save_gui()
@@ -694,6 +679,9 @@ void MainWindow::open_advanced_settings()
     gui::open_advanced_settings(this,
                                 [=]()
                                 {
+                                    if (api_.compute.get_is_computation_stopped())
+                                        return;
+
                                     ImportType it = api_.input.get_import_type();
 
                                     if (it == ImportType::File)

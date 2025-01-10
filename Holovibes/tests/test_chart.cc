@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 #include "point.hh"
 #include "rect.hh"
+#include "test_disable_log.hh"
 
 using holovibes::units::PointFd;
 using holovibes::units::RectFd;
