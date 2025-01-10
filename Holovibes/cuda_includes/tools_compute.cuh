@@ -77,6 +77,10 @@ void tensor_multiply_vector(float* output,
  * The function multiply each images in the tensor in the range [f_start, f_end] which the corresponding scalar in the
  * vector. Then it sums the resulting images in the same range and stores the result in output.
  *
+ * The Nyquist compensation is done when the even parameter is true as follow:
+ *   - for moment 0 and moment 2 (m1 == false): double the computation for Nyquist index
+ *   - for moment 1 (m1 == true): cancel the computation for Nyquist index
+ *
  * \param[out] output           The buffer in which to store the result (size: frame_res)
  * \param[in]  tensor           The tensor
  * \param[in]  vector           The vector
