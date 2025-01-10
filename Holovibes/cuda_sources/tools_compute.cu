@@ -61,7 +61,7 @@ __global__ void kernel_tensor_multiply_vector_nyquist_compensation(float* output
     // Nyquist frequency handling, when even time window must be doubled for M0/M2, zero for M1
     // Boolean arithmetic logic is used to avoid conditional in kernel
     const float* current_frame = tensor + nyquist_index * frame_res;
-    val += (i <= f_end) * (1.f + even) * current_frame[index] * vector[nyquist_index] * !(m1 && even);
+    val += (i <= f_end) * (1.f + even) * !(m1 && even) * current_frame[index] * vector[nyquist_index];
 
     for (i = nyquist_index + 1; i <= f_end; i++)
     {
