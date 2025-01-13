@@ -743,6 +743,14 @@ void MainWindow::set_preset()
     LOG_INFO("Preset loaded");
 }
 
+// Set default file read preset
+void MainWindow::set_file_read_preset()
+{
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "default_file_read.json"));
+    reload_ini(preset_directory_path.string());
+    LOG_INFO("Preset loaded");
+}
+
 // Set preset from a file (called on notify)
 void MainWindow::set_preset(std::filesystem::path file)
 {

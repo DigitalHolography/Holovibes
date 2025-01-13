@@ -148,6 +148,11 @@ class MainWindow : public QMainWindow
     void set_preset();
 
     /**
+     * @brief Sets default File read preset.
+     */
+    void set_file_read_preset();
+
+    /**
      * @brief Sets preset given a preset file.
      */
     void set_preset(std::filesystem::path file);
