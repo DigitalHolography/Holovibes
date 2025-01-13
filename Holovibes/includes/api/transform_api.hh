@@ -244,40 +244,24 @@ class TransformApi : public IApi
 
 #pragma region Time Tr.Cuts
 
-    /*! \brief Returns the start index for the x cut accumulation. Is in range [0, `time_transformation_size -
-     * get_x_accu_level - 1`].
+    /*! \brief Checks the limits of the x index and x accu level.
+     *
+     * The x index must be in range [0, `fd.width - get_x_accu_level - 1`].
+     * The x accu level must be in range [0, `fd.width - get_x_cuts - 1`].
+     */
+    void check_x_limits() const;
+
+    /*! \brief Returns the start index for the x cut accumulation. Is in range [0, `fd.width - get_x_accu_level - 1`].
      *
      * \return uint the x cut start index
      */
     inline uint get_x_cuts() const { return GET_SETTING(X).start; }
 
-    /*! \brief Sets the start index for the x cut accumulation. Must be in range [0, `time_transformation_size -
-     * get_x_accu_level - 1`].
+    /*! \brief Sets the start index for the x cut accumulation. Must be in range [0, `fd.width - get_x_accu_level - 1`].
      *
      * \param[in] x_value the new x cut start index
      */
     void set_x_cuts(uint x_value) const;
-
-    /*! \brief Returns the start index for the y cut accumulation. Is in range [0, `time_transformation_size -
-     * get_y_accu_level - 1`].
-     *
-     * \return uint the y cut start index
-     */
-    inline uint get_y_cuts() const { return GET_SETTING(Y).start; }
-
-    /*! \brief Sets the start index for the y cut accumulation. Must be in range [0, `time_transformation_size -
-     * get_y_accu_level - 1`].
-     *
-     * \param[in] y_value the new y cut start index
-     */
-    void set_y_cuts(uint y_value) const;
-
-    /*! \brief Modifies the start index for the x and y cuts accumulation.
-     *
-     * \param[in] x value to modify
-     * \param[in] y value to modify
-     */
-    void set_x_y(uint x, uint y) const;
 
     /*! \brief Returns the x cut accumulation level. Is in range [0, `time_transformation_size - get_x_cuts - 1`].
      *
@@ -290,6 +274,26 @@ class TransformApi : public IApi
      * \param[in] x_value the new x cut accumulation level
      */
     void set_x_accu_level(uint x_value) const;
+
+    /*! \brief Checks the limits of the y index and y accu level.
+     *
+     * The y index must be in range [0, `fd.height - get_y_accu_level - 1`].
+     * The y accu level must be in range [0, `fd.height - get_y_cuts - 1`].
+     */
+    void check_y_limits() const;
+
+    /*! \brief Returns the start index for the y cut accumulation. Is in range [0, `fd.height - get_y_accu_level - 1`].
+     *
+     * \return uint the y cut start index
+     */
+    inline uint get_y_cuts() const { return GET_SETTING(Y).start; }
+
+    /*! \brief Sets the start index for the y cut accumulation. Must be in range [0, `fd.height - get_y_accu_level -
+     * 1`].
+     *
+     * \param[in] y_value the new y cut start index
+     */
+    void set_y_cuts(uint y_value) const;
 
     /*! \brief Returns the y cut accumulation level. Is in range [0, `time_transformation_size - get_y_cuts - 1`].
      *

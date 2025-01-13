@@ -211,7 +211,10 @@ void ViewPanel::on_notify()
         max_height = api_.input.get_input_fd().height - 1;
     }
     else
-        api_.transform.set_x_y(0, 0);
+    {
+        api_.transform.set_x_cuts(0);
+        api_.transform.set_y_cuts(0);
+    }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
@@ -309,7 +312,8 @@ void ViewPanel::update_raw_view(bool checked)
 
 void ViewPanel::set_x_y()
 {
-    api_.transform.set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
+    api_.transform.set_x_cuts(ui_->XSpinBox->value());
+    api_.transform.set_y_cuts(ui_->YSpinBox->value());
     parent_->notify();
 }
 

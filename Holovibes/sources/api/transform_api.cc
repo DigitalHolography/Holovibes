@@ -263,6 +263,52 @@ ApiCode TransformApi::set_q_accu_level(uint value) const
 
 #pragma region Time Tr.Cuts
 
+void TransformApi::check_x_limits() const
+{
+    // No input frame descriptor
+    if (api_->input.get_import_type() == ImportType::None)
+        return;
+
+    int upper_bound = static_cast<int>(api_->input.get_input_fd().width) - 1;
+
+    if (std::cmp_greater(get_x_accu_level(), upper_bound))
+    {
+        LOG_WARN("x width is greater than the frame descriptor width, setting it: {}", upper_bound);
+        set_x_accu_level(upper_bound);
+    }
+
+    upper_bound -= get_x_accu_level();
+
+    if (get_x_cuts() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("x start + x width is greater than the frame descriptor width, setting x start to: {}", upper_bound);
+        set_x_cuts(upper_bound);
+    }
+}
+
+void TransformApi::check_y_limits() const
+{
+    // No input frame descriptor
+    if (api_->input.get_import_type() == ImportType::None)
+        return;
+
+    int upper_bound = static_cast<int>(api_->input.get_input_fd().height) - 1;
+
+    if (std::cmp_greater(get_y_accu_level(), upper_bound))
+    {
+        LOG_WARN("y width is greater than the frame descriptor height, setting it: {}", upper_bound);
+        set_x_accu_level(upper_bound);
+    }
+
+    upper_bound -= get_y_accu_level();
+
+    if (get_y_cuts() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("y start + y width is greater than the frame descriptor height, setting x start to: {}", upper_bound);
+        set_y_cuts(upper_bound);
+    }
+}
+
 void TransformApi::set_x_accu_level(uint x_value) const
 {
     SET_SETTING(X, width, x_value);
@@ -291,20 +337,6 @@ void TransformApi::set_y_cuts(uint value) const
         SET_SETTING(Y, start, value);
         api_->compute.pipe_refresh();
     }
-}
-
-void TransformApi::set_x_y(uint x, uint y) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
-        return;
-
-    if (x < api_->input.get_input_fd().width)
-        SET_SETTING(X, start, x);
-
-    if (y < api_->input.get_input_fd().height)
-        SET_SETTING(Y, start, y);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
