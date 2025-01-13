@@ -207,7 +207,7 @@ void LightUI::open_configuration_ui()
 
 void LightUI::set_preset()
 {
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json";
     main_window_->reload_ini(dest.string());
     LOG_INFO("Preset loaded");
 }
