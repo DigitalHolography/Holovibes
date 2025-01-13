@@ -7,94 +7,111 @@ namespace holovibes::api
 
 #pragma region Batch
 
-bool TransformApi::set_batch_size(uint value) const
+ApiCode TransformApi::set_batch_size(uint batch_size) const
 {
-    bool request_time_stride_update = false;
-    UPDATE_SETTING(BatchSize, value);
+    if (get_batch_size() == batch_size)
+        return ApiCode::NO_CHANGE;
 
-    if (value > api_->input.get_input_buffer_size())
-        value = api_->input.get_input_buffer_size();
-
-    uint time_stride = get_time_stride();
-    if (time_stride < value)
-    {
-        UPDATE_SETTING(TimeStride, value);
-        time_stride = value;
-        request_time_stride_update = true;
-    }
-
-    // Go to lower multiple
-    if (time_stride % value != 0)
-    {
-        request_time_stride_update = true;
-        set_time_stride(time_stride - time_stride % value);
-    }
-
-    return request_time_stride_update;
-}
-
-void TransformApi::update_batch_size(uint batch_size) const
-{
     if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
-        batch_size = 1;
+    {
+        LOG_WARN("File is in moments mode, batch size is fixed to 3");
+        batch_size = 3;
+    }
 
-    if (api_->compute.get_is_computation_stopped() || get_batch_size() == batch_size)
-        return;
+    if (batch_size > api_->input.get_input_buffer_size())
+    {
+        batch_size = api_->input.get_input_buffer_size();
+        LOG_WARN("Batch size cannot be greater than the input queue. Setting it to the input queue size: {}",
+                 batch_size);
+    }
 
-    if (set_batch_size(batch_size))
-        api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+    UPDATE_SETTING(BatchSize, batch_size);
+
+    // Adjust value of time stride if needed
+    set_time_stride(get_time_stride());
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Stride
 
-void TransformApi::set_time_stride(uint value) const
+ApiCode TransformApi::set_time_stride(uint time_stride) const
 {
-    UPDATE_SETTING(TimeStride, value);
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     uint batch_size = GET_SETTING(BatchSize);
 
-    if (batch_size > value)
-        UPDATE_SETTING(TimeStride, batch_size);
-    // Go to lower multiple
-    if (value % batch_size != 0)
-        UPDATE_SETTING(TimeStride, value - value % batch_size);
-}
+    if (batch_size > time_stride)
+    {
+        LOG_WARN("Time stride cannot be lower than the batch size. Setting it to the batch size: {}", batch_size);
+        time_stride = batch_size;
+    }
 
-void TransformApi::update_time_stride(const uint time_stride) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
-        return;
+    if (time_stride % batch_size != 0)
+    {
+        time_stride = time_stride - time_stride % batch_size;
+        LOG_WARN("Time stride has to be a multiple of the batch size. Setting it to the lower multiple: {}",
+                 time_stride);
+    }
 
+    // Check after adjustments that the time stride is different
     if (time_stride == get_time_stride())
-        return;
+        return ApiCode::NO_CHANGE;
 
-    set_time_stride(time_stride);
+    UPDATE_SETTING(TimeStride, time_stride);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Space Tr.
 
-void TransformApi::set_space_transformation(const SpaceTransformation value) const
+ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || get_space_transformation() == value)
-        return;
+    if (get_space_transformation() == value)
+        return ApiCode::NO_CHANGE;
+
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     UPDATE_SETTING(SpaceTransformation, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_lambda(float value) const
+ApiCode TransformApi::set_lambda(float value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    if (get_lambda() == value)
+        return ApiCode::NO_CHANGE;
 
-    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (value < 0)
+    {
+        LOG_WARN("Lambda cannot be negative. Setting it to 0");
+        value = 0;
+    }
+
+    UPDATE_SETTING(Lambda, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 void TransformApi::set_z_distance(float value) const

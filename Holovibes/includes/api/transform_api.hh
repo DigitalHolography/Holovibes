@@ -42,19 +42,11 @@ class TransformApi : public IApi
      *
      * The batch size must be greater than `time_stride`.
      *
-     * \param[in] value the new value
-     * \warning This function is not intended for realtime use.
-     *
-     * \return bool true if the time stride needs to be updated
-     */
-    bool set_batch_size(uint value) const;
-
-    /*! \brief Modifies the batch size. Updates time stride if needed.
-     *
      * \param[in] batch_size the new value
-     * \warning This function is intended for realtime use.
+     *
+     * \return ApiCode the status of the modification: OK or NO_CHANGE.
      */
-    void update_batch_size(uint batch_size) const;
+    ApiCode set_batch_size(uint batch_size) const;
 
 #pragma endregion
 
@@ -81,17 +73,10 @@ class TransformApi : public IApi
      * - `batch_size` = 10, `time_stride` = 60, 6 batch are skipped
      * - `batch_size` = 10, `time_stride` = 10, 0 batch are skipped
      *
-     * \param[in] value the new value
-     * \warning This function is not intended for realtime use.
-     */
-    void set_time_stride(uint value) const;
-
-    /*! \brief Modifies the time stride. Must be a multiple of `batch_size` and greater equal than `batch_size`.
-     *
      * \param[in] time_stride the new value
-     * \warning This function is intended for realtime use.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void update_time_stride(const uint time_stride) const;
+    ApiCode set_time_stride(uint time_stride) const;
 
 #pragma endregion
 
@@ -106,9 +91,9 @@ class TransformApi : public IApi
     /*! \brief Modifies the space transformation algorithm used (either Fresnel or Angular Spectrum).
      *
      * \param[in] value the new value
-     * \warning This function is intended for realtime use.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_space_transformation(const SpaceTransformation value) const;
+    ApiCode set_space_transformation(const SpaceTransformation value) const;
 
     /*! \brief Returns the wave length of the laser (in nm).
      *
@@ -117,11 +102,12 @@ class TransformApi : public IApi
     inline float get_lambda() const { return GET_SETTING(Lambda); }
 
     /*!
-     * \brief Sets the wave length of the laser (in nm).
+     * \brief Sets the wave length of the laser (in nm). Must be positive.
      *
      * \param[in] value the new value (in nm)
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_lambda(float value) const;
+    ApiCode set_lambda(float value) const;
 
     /*! \brief Returns the distance in meter for the z-coordinate (the focus).
      *
