@@ -205,6 +205,7 @@ DECLARE_SETTING(DiaphragmFactor, float);
 DECLARE_SETTING(DiaphragmPreviewEnabled, bool);
 DECLARE_SETTING(BarycenterFactor, float);
 DECLARE_SETTING(BarycenterPreviewEnabled, bool);
+DECLARE_SETTING(Threshold, float);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);

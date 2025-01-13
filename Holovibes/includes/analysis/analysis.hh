@@ -26,7 +26,8 @@
     holovibes::settings::MinMaskArea,              \
     holovibes::settings::DiaphragmFactor,          \
     holovibes::settings::BarycenterFactor,         \
-    holovibes::settings::ChoroidMaskEnabled
+    holovibes::settings::ChoroidMaskEnabled,       \
+    holovibes::settings::Threshold
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS

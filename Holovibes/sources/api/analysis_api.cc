@@ -52,4 +52,14 @@ void AnalysisApi::set_vesselness_sigma(double value)
     api_->compute.pipe_refresh();
 }
 
+/*!
+ * \name Threshold
+ *
+ */
+void AnalysisApi::set_threshold(float value)
+{
+    UPDATE_SETTING(Threshold, value);
+    api_->compute.pipe_refresh();
+}
+
 } // namespace holovibes::api

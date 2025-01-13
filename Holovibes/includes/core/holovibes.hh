@@ -128,7 +128,8 @@
     holovibes::settings::DiaphragmFactor,                        \
     holovibes::settings::DiaphragmPreviewEnabled,                \
     holovibes::settings::BarycenterFactor,                       \
-    holovibes::settings::BarycenterPreviewEnabled
+    holovibes::settings::BarycenterPreviewEnabled,               \
+    holovibes::settings::Threshold
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -461,7 +462,8 @@ class Holovibes
                                              settings::DiaphragmFactor{0.4f},
                                              settings::DiaphragmPreviewEnabled{false},
                                              settings::BarycenterFactor{0.07f},
-                                             settings::BarycenterPreviewEnabled{false}))
+                                             settings::BarycenterPreviewEnabled{false},
+                                             settings::Threshold{0.333f}))
     {
     }
 

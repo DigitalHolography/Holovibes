@@ -248,8 +248,10 @@ void Analysis::compute_segment_vessels()
                    fd_.height,
                    stream_);
 
-    float thresholds[3] = {0.207108953480839f, 0.334478400506137f, 0.458741275652768f}; // this is hardcoded, need to
-                                                                                        // call arthur function
+    float thresholds[3] = {0.207108953480839f,
+                           setting<settings::Threshold>(),
+                           0.458741275652768f}; // this is hardcoded, need to
+                                                // call arthur function
 
     // we now get are image only with the 5 values using the threshold :
     // quantizedVesselCorrelation = imquantize(R_VascularPulse - ~maskVesselnessClean * 2, firstThresholds);

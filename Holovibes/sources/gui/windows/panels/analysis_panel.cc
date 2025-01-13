@@ -56,6 +56,9 @@ void AnalysisPanel::on_notify()
     ui_->BarycenterFactorDoubleSpinBox->setValue(API.analysis.get_barycenter_factor());
     ui_->BarycenterFactorSlider->setValue(API.analysis.get_barycenter_factor() * 1000);
     ui_->BarycenterPreviewCheckBox->setChecked(API.analysis.get_barycenter_preview_enabled());
+
+    // Threshold slider
+    ui_->ThresholdSlider->setValue(API.analysis.get_threshold() * 1000);
 }
 
 void AnalysisPanel::set_artery_mask(bool enabled)
@@ -148,7 +151,9 @@ void AnalysisPanel::update_barycenter_factor_slider(int value)
 void AnalysisPanel::update_barycenter_preview(bool enabled) { API.analysis.set_barycenter_preview_enabled(enabled); }
 
 void AnalysisPanel::update_threshold_slider(int value)
-{ /* TODO */
+{
+    double new_value = value / 1000.f;
+    API.analysis.set_threshold(new_value);
 }
 
 } // namespace holovibes::gui

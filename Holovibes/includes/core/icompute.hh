@@ -84,7 +84,8 @@
     holovibes::settings::VesselnessSigma,                        \
     holovibes::settings::MinMaskArea,                            \
     holovibes::settings::DiaphragmFactor,                        \
-    holovibes::settings::BarycenterFactor
+    holovibes::settings::BarycenterFactor,                       \
+    holovibes::settings::Threshold
 
 
 #define ONRESTART_SETTINGS                                       \

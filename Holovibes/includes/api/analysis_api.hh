@@ -72,5 +72,8 @@ class AnalysisApi : public IApi
     }
     inline bool get_barycenter_preview_enabled() { return GET_SETTING(BarycenterPreviewEnabled); }
     inline void set_barycenter_preview_enabled(bool value) { return UPDATE_SETTING(BarycenterPreviewEnabled, value); }
+
+    inline float get_threshold() { return GET_SETTING(Threshold); }
+    void set_threshold(float value);
 };
 } // namespace holovibes::api
