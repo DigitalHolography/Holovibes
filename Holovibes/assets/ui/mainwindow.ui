@@ -2818,13 +2818,20 @@ The range of frequencies kept is [z, z + width]</string>
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
+           <item row="0" column="1">
             <widget class="QSlider" name="ThresholdSlider">
              <property name="maximum">
               <number>1000</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Threshold</string>
              </property>
             </widget>
            </item>
