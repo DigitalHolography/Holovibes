@@ -15,6 +15,7 @@ QMainWindow {
 
 /* Text color for disabled and enabld elements */
 QLabel:disabled,
+QMenu::item:disabled,
 QPushButton:disabled,
 QToolButton:disabled,
 QTextEdit:disabled,

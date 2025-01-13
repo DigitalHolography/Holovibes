@@ -579,7 +579,11 @@ void MainWindow::change_camera(CameraKind c)
         gui::start(window_max_size);
 }
 
-void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
+void MainWindow::camera_none()
+{
+    ui_->actionSettings->setEnabled(false);
+    change_camera(CameraKind::NONE);
+}
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
@@ -607,11 +611,6 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera()
-{
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api_.input.get_camera_ini_name())));
-}
-
 void open_file(const std::string& filename)
 {
     if (filename.empty())
@@ -620,6 +619,8 @@ void open_file(const std::string& filename)
     QDesktopServices::openUrl(QUrl::fromLocalFile(
         QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
 }
+
+void MainWindow::configure_camera() { open_file(api_.input.get_camera_ini_name()); }
 
 void MainWindow::camera_ids_settings() { open_file("ids.ini"); }
 
