@@ -241,14 +241,14 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
 
-    api_.transform.set_time_transformation(tt);
-    parent_->notify();
+    if (api_.transform.set_time_transformation(tt) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    api_.transform.update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
-    parent_->notify();
+    if (api_.transform.set_time_transformation_size(ui_->timeTransformationSizeSpinBox->value()) == ApiCode::OK)
+        parent_->notify();
 }
 
 // λ

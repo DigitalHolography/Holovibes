@@ -114,10 +114,13 @@ ApiCode TransformApi::set_lambda(float value) const
     return ApiCode::OK;
 }
 
-void TransformApi::set_z_distance(float value) const
+ApiCode TransformApi::set_z_distance(float value) const
 {
+    if (get_z_distance() == value)
+        return ApiCode::NO_CHANGE;
+
     if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+        return ApiCode::WRONG_COMP_MODE;
 
     // Avoid 0 for cuda kernel
     if (value == 0)
@@ -125,35 +128,57 @@ void TransformApi::set_z_distance(float value) const
 
     UPDATE_SETTING(ZDistance, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Tr.
 
-void TransformApi::update_time_transformation_size(uint time_transformation_size) const
+ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
-        return;
+    if (get_time_transformation_size() == time_transformation_size)
+        return ApiCode::NO_CHANGE;
 
-    if (time_transformation_size == get_time_transformation_size())
-        return;
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     if (time_transformation_size < 1)
+    {
+        LOG_WARN("Time transformation size has to be greater than 0, set to 1");
         time_transformation_size = 1;
+    }
 
-    set_time_transformation_size(time_transformation_size);
+    UPDATE_SETTING(TimeTransformationSize, time_transformation_size);
+
+    // Update p and q
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_time_transformation(const TimeTransformation value) const
+ApiCode TransformApi::set_time_transformation(const TimeTransformation value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || get_time_transformation() == value)
-        return;
+    if (get_time_transformation() == value)
+        return ApiCode::NO_CHANGE;
+
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     UPDATE_SETTING(TimeTransformation, value);
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

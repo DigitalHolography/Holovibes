@@ -119,8 +119,9 @@ class TransformApi : public IApi
      * \brief Sets the distance in meter for the z-coordinate (the focus).
      *
      * \param[in] value The new z-coordinate distance in meter.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_z_distance(float value) const;
+    ApiCode set_z_distance(float value) const;
 
 #pragma endregion
 
@@ -136,18 +137,10 @@ class TransformApi : public IApi
     /*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must
      * be greater than 0.
      *
-     * \param[in] value the new value
-     * \warning This function is not intended for realtime use.
+     * \param[in] time_transformation_size the new value
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    inline void set_time_transformation_size(uint value) const { UPDATE_SETTING(TimeTransformationSize, value); }
-
-    /*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must
-     * be greater than 0.
-     *
-     * \param[in] value the new value
-     * \warning This function is intended for realtime use.
-     */
-    void update_time_transformation_size(uint time_transformation_size) const;
+    ApiCode set_time_transformation_size(uint time_transformation_size) const;
 
     /*! \brief Returns the time transformation algorithm used (STFT, PAC, etc.).
      *
@@ -158,9 +151,9 @@ class TransformApi : public IApi
     /*! \brief Sets the time transformation algorithm used (STFT, PAC, etc.).
      *
      * \param[in] value the new value
-     * \warning This function is intended for realtime use.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_time_transformation(const TimeTransformation value) const;
+    ApiCode set_time_transformation(const TimeTransformation value) const;
 
 #pragma endregion
 
