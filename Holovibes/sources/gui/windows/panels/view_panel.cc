@@ -173,8 +173,6 @@ void ViewPanel::on_notify()
     ui_->PAccSpinBox->setVisible(is_data_not_moments);
     ui_->PAccLabel->setVisible(is_data_not_moments);
 
-    api_.transform.check_p_limits(); // FIXME: May be moved in setters
-
     // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_index() - 1);
@@ -196,8 +194,6 @@ void ViewPanel::on_notify()
 
     ui_->Q_AccSpinBox->setValue(api_.transform.get_q_accu_level());
     ui_->Q_SpinBox->setValue(api_.transform.get_q_index());
-
-    api_.transform.check_q_limits(); // FIXME: May be moved in setters
 
     // Enforce maximum value for p_index and p_accu_level
     ui_->Q_SpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_q_accu_level() - 1);

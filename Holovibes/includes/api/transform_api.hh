@@ -176,8 +176,9 @@ class TransformApi : public IApi
      * `get_p_index + get_p_accu_level`] will be accumulated into one image.
      *
      * \param[in] value the new min accumulation frequency
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_p_index(uint value) const;
+    ApiCode set_p_index(uint value) const;
 
     /*! \brief Returns the number of frequencies accumulated for the time transformation. Is in range [0,
      * `time_transformation_size - get_p_index - 1`].
@@ -196,8 +197,9 @@ class TransformApi : public IApi
      * `get_p_index + get_p_accu_level`] will be accumulated into one image.
      *
      * \param[in] p_value the new number of frequencies accumulated
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_p_accu_level(uint p_value) const;
+    ApiCode set_p_accu_level(uint p_value) const;
 
     /*! \brief Returns the min eigen value index kept by the SVD. Is in range [0, `time_transformation_size -
      * get_p_accu_level - 1`].
@@ -214,8 +216,9 @@ class TransformApi : public IApi
      * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
      *
      * \param[in] value the new min eigen value index kept
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_q_index(uint value) const;
+    ApiCode set_q_index(uint value) const;
 
     /*! \brief Returns the number of eigen values kept by the SVD. Is in range [0, `time_transformation_size -
      * get_q_index - 1`].
@@ -233,14 +236,9 @@ class TransformApi : public IApi
      * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
      *
      * \param[in] value the new number of eigen values kept
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_q_accu_level(uint value) const;
-
-    /*! \brief Adjust the value of `p_index` and `p_accu_level` according to `time_transformation_size` */
-    void check_p_limits() const;
-
-    /*! \brief Adjust the value of `q_index` and `q_accu_level` according to `time_transformation_size` */
-    void check_q_limits() const;
+    ApiCode set_q_accu_level(uint value) const;
 
 #pragma endregion
 
@@ -354,6 +352,13 @@ class TransformApi : public IApi
     void set_unwrapping_2d(const bool value) const;
 
 #pragma endregion
+
+  private:
+    /*! \brief Adjust the value of `p_index` and `p_accu_level` according to `time_transformation_size` */
+    void check_p_limits() const;
+
+    /*! \brief Adjust the value of `q_index` and `q_accu_level` according to `time_transformation_size` */
+    void check_q_limits() const;
 };
 
 } // namespace holovibes::api

@@ -142,7 +142,9 @@ ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size
 
     UPDATE_SETTING(TimeTransformationSize, time_transformation_size);
 
-    // Update p and q
+    // Updates p and q bounds
+    check_p_limits();
+    check_q_limits();
 
     if (api_->compute.get_is_computation_stopped())
         return ApiCode::OK;
@@ -171,50 +173,47 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
 
 #pragma region Time Tr.Freq.
 
-void TransformApi::set_p_index(uint value) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
-
-    if (value >= get_time_transformation_size())
-    {
-        LOG_ERROR("p param has to be between 0 and time window");
-        return;
-    }
-
-    SET_SETTING(P, start, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_p_accu_level(uint p_value) const
-{
-    SET_SETTING(P, width, p_value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_q_index(uint value) const
-{
-    SET_SETTING(Q, start, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_q_accu_level(uint value) const
-{
-    SET_SETTING(Q, width, value);
-    api_->compute.pipe_refresh();
-}
-
 void TransformApi::check_p_limits() const
 {
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
     if (std::cmp_greater(get_p_accu_level(), upper_bound))
+    {
+        LOG_WARN("z width is greater than the time window, setting it: {}", upper_bound);
         set_p_accu_level(upper_bound);
+    }
 
     upper_bound -= get_p_accu_level();
 
-    if (upper_bound >= 0 && get_p_index() > static_cast<uint>(upper_bound))
+    if (get_p_index() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("z start + z width is greater than the time window, setting z start to: {}", upper_bound);
         set_p_index(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_p_index(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_p_index(), value);
+
+    SET_SETTING(P, start, value);
+    check_p_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_p_accu_level(uint p_value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_p_accu_level(), p_value);
+
+    SET_SETTING(P, width, p_value);
+    check_p_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 void TransformApi::check_q_limits() const
@@ -222,12 +221,42 @@ void TransformApi::check_q_limits() const
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
     if (std::cmp_greater(get_q_accu_level(), upper_bound))
+    {
+        LOG_WARN("z2 width is greater than the time window, setting it: {}", upper_bound);
         set_q_accu_level(upper_bound);
+    }
 
     upper_bound -= get_q_accu_level();
 
-    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
+    if (get_q_index() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("z2 start + z2 width is greater than the time window, setting z2 start to: {}", upper_bound);
         set_q_index(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_q_index(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_q_index(), value);
+
+    SET_SETTING(Q, start, value);
+    check_q_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_q_accu_level(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_q_accu_level(), value);
+
+    SET_SETTING(Q, width, value);
+    check_q_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
