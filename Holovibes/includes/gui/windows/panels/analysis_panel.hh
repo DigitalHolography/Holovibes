@@ -66,6 +66,8 @@ class AnalysisPanel : public Panel
     void update_barycenter_factor(double value);
     void update_barycenter_factor_slider(int value);
     void update_barycenter_preview(bool enabled);
+
+    void update_threshold_slider(int value);
     // private:
 };
 } // namespace holovibes::gui

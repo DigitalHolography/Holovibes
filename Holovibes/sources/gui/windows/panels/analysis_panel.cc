@@ -147,4 +147,8 @@ void AnalysisPanel::update_barycenter_factor_slider(int value)
 
 void AnalysisPanel::update_barycenter_preview(bool enabled) { API.analysis.set_barycenter_preview_enabled(enabled); }
 
+void AnalysisPanel::update_threshold_slider(int value)
+{ /* TODO */
+}
+
 } // namespace holovibes::gui
