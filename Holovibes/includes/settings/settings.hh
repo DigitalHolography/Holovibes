@@ -45,7 +45,7 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
-DECLARE_SETTING(ImportedFileFd, camera::FrameDescriptor);
+DECLARE_SETTING(InputFd, camera::FrameDescriptor);
 
 DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);
@@ -135,8 +135,8 @@ DECLARE_SETTING(InputFileStartIndex, size_t);
 DECLARE_SETTING(InputFileEndIndex, size_t);
 
 /*! \name Export Cache */
-/*! \brief Is holovibes currently recording */
-DECLARE_SETTING(FrameRecordEnabled, bool);
+/*! \brief Is acquisition (writing to the record_queue) of frames activated. */
+DECLARE_SETTING(FrameAcquisitionEnabled, bool);
 
 /*! \brief Enables the signal and noise chart record */
 DECLARE_SETTING(ChartRecordEnabled, bool);
@@ -170,7 +170,6 @@ DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint);
-DECLARE_SETTING(FilterEnabled, bool);
 DECLARE_SETTING(InputFilter, std::vector<float>);
 
 /*! \name ZoneCache */

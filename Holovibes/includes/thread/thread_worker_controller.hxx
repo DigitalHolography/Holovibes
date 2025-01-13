@@ -55,7 +55,7 @@ void ThreadWorkerController<T>::start(Args&&... args)
 }
 
 template <WorkerDerived T>
-void ThreadWorkerController<T>::stop()
+void ThreadWorkerController<T>::stop(bool wait)
 {
     {
         MutexGuard m_guard(mutex_);
@@ -63,6 +63,9 @@ void ThreadWorkerController<T>::stop()
         if (worker_ != nullptr)
             worker_->stop();
     }
+
+    if (!wait)
+        return;
 
     if (thread_.joinable())
         thread_.join();

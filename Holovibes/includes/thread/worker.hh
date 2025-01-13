@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <atomic>
+
 /*!
  * \namespace holovibes::worker
  *

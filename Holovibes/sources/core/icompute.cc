@@ -26,9 +26,7 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-
-    float fs = setting<settings::CameraFps>();
-    float d = fs / time_transformation_size;
+    float d = static_cast<float>(setting<settings::CameraFps>()) / time_transformation_size;
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f0(new float[time_transformation_size]);
@@ -43,10 +41,11 @@ void ICompute::fft_freqs()
 
     // initialize f1
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    // Note: we keep the Nyquist frequency (n / 2) only for the negative, this means f1 is of length n instead of n + 1
     if (time_transformation_size % 2 == 0)
     {
-        for (uint i = 1; i <= time_transformation_size / 2; i++)
-            f1[i - 1] = i * d;
+        for (uint i = 0; i < time_transformation_size / 2; i++)
+            f1[i] = i * d;
 
         for (uint i = time_transformation_size / 2; i < time_transformation_size; i++)
             f1[i] = -((float)time_transformation_size - i) * d;
@@ -196,7 +195,7 @@ void ICompute::allocate_moments_buffers()
 
 void ICompute::init_cuts()
 {
-    camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+    camera::FrameDescriptor fd_xz = buffers_.gpu_output_queue->get_fd();
 
     fd_xz.depth = camera::PixelDepth::Bits16; // Size of ushort
     auto fd_yz = fd_xz;
@@ -228,6 +227,26 @@ void ICompute::dispose_cuts()
 
     time_transformation_env_.gpu_output_queue_xz.reset(nullptr);
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
+}
+
+void ICompute::init_output_queue()
+{
+    uint size = static_cast<uint>(setting<settings::OutputBufferSize>());
+
+    auto fd = input_queue_.get_fd();
+    if (setting<settings::ComputeMode>() == Computation::Hologram)
+    {
+        fd.depth = camera::PixelDepth::Bits16;
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            fd.depth = camera::PixelDepth::Bits48;
+    }
+
+    if (!buffers_.gpu_output_queue)
+        buffers_.gpu_output_queue = std::make_shared<Queue>(fd, size, QueueType::OUTPUT_QUEUE);
+    else
+        buffers_.gpu_output_queue->rebuild(fd, size, stream_, Device::GPU);
+
+    LOG_DEBUG("Output queue allocated");
 }
 
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)

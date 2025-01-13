@@ -42,6 +42,7 @@
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::RegistrationEnabled,                    \
+    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -53,7 +54,7 @@
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::FrameRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
@@ -102,8 +103,7 @@
     holovibes::settings::XY,                                     \
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
-    holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::InputFilter
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -123,9 +123,8 @@ class ICompute
 {
   public:
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ICompute(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
+    ICompute(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : input_queue_(input)
-        , gpu_output_queue_(output)
         , record_queue_(record)
         , stream_(stream)
         , realtime_settings_(settings)
@@ -145,6 +144,8 @@ class ICompute
 
         update_spatial_transformation_parameters();
         allocate_moments_buffers();
+
+        init_output_queue();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -189,6 +190,7 @@ class ICompute
     {
         Unwrap2D = 0,
         UpdateTimeTransformationAlgorithm,
+        OutputBuffer,
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -206,11 +208,9 @@ class ICompute
         UpdateTimeStride,
         UpdateRegistrationZone,
         DisableLensView,
-        FrameRecord,
         DisableFrameRecord,
         Convolution,
         DisableConvolution,
-        Filter,
 
         // Add other setting here
 
@@ -259,6 +259,8 @@ class ICompute
         return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
     }
 
+    std::shared_ptr<Queue> get_output_queue() { return buffers_.gpu_output_queue; }
+
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
     std::unique_ptr<Queue>& get_raw_view_queue() { return gpu_raw_view_queue_; };
@@ -272,6 +274,9 @@ class ICompute
 
   protected:
     virtual void refresh() = 0;
+
+    /*! \brief Allocate or rebuild the output queue */
+    void init_output_queue();
 
     /*!
      * \brief Returns the Discrete Fourier Transform sample frequencies.
@@ -359,9 +364,6 @@ class ICompute
     /*! \name Queues */
     /*! \brief Reference on the input queue */
     BatchInputQueue& input_queue_;
-
-    /*! \brief Reference on the output queue */
-    Queue& gpu_output_queue_;
 
     /*! \brief Reference on the record queue */
     Queue& record_queue_;

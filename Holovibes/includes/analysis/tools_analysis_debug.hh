@@ -4,7 +4,10 @@
  */
 #pragma once
 
+#include <filesystem>
 #include <cuda_runtime.h>
+
+using uint = unsigned int;
 
 float* load_CSV_to_float_array(const std::filesystem::path& path);
 

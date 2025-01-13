@@ -29,7 +29,7 @@ class CineFile
  *
  * Packed (aligned on 2 bytes) to be exactly 44 bytes, as in the file
  */
-#pragma pack(2)
+#pragma pack(push, 2)
     struct CineFileHeader
     {
         /*! \brief Marker of a cine file. It has to be "CI" in any cine file */
@@ -57,6 +57,7 @@ class CineFile
         /*! \brief Trigger time is a TIME64 structure having the seconds and fraction of second since Jan 1, 1970 */
         time_t trigger_time;
     };
+#pragma pack(pop)
 
 /*! \struct BitmapInfoHeader
  *
@@ -64,7 +65,7 @@ class CineFile
  *
  * Packed (aligned on 2 bytes) to be exactly 40 bytes, as in the file
  */
-#pragma pack(2)
+#pragma pack(push, 2)
     struct BitmapInfoHeader
     {
         /*! \brief It specifies the number of bytes required by the structure (without palette) */
@@ -94,6 +95,7 @@ class CineFile
         /*! \brief It specifies the number of color indexes that are required for displaying the bitmap */
         uint32_t bi_clr_important;
     };
+#pragma pack(pop)
 
     /*! \brief Default constructor */
     CineFile() = default;

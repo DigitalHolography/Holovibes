@@ -28,8 +28,6 @@ class ImportPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    std::string& get_file_input_directory();
-
   public slots:
     /*! \brief Sets the start stop buttons object accessibility
      *

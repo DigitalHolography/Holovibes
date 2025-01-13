@@ -10,7 +10,7 @@ namespace holovibes::api
 bool ViewApi::set_3d_cuts_view(bool enabled) const
 {
     // No 3d cuts in moments mode
-    if (api_->input.get_import_type() == ImportType::None || api_->input.get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->compute.get_is_computation_stopped() || api_->input.get_data_type() == RecordedDataType::MOMENTS)
         return false;
 
     if (enabled)
@@ -46,7 +46,7 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
 
         if (api_->record.get_record_mode() == RecordMode::CUTS_XZ ||
             api_->record.get_record_mode() == RecordMode::CUTS_YZ)
-            api_->record.set_record_mode_enum(RecordMode::HOLOGRAM);
+            api_->record.set_record_mode(RecordMode::HOLOGRAM);
 
         return true;
     }
@@ -60,7 +60,7 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
 
 void ViewApi::set_filter2d_view(bool enabled) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->input.get_import_type() == ImportType::None)
+    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
         return;
 
     auto pipe = api_->compute.get_compute_pipe();
@@ -111,7 +111,7 @@ void ViewApi::set_chart_display(bool enabled) const
 
 void ViewApi::set_lens_view(bool enabled) const
 {
-    if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
+    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw ||
         api_->input.get_data_type() == RecordedDataType::MOMENTS && enabled)
         return;
 
@@ -132,7 +132,7 @@ void ViewApi::set_lens_view(bool enabled) const
 
 void ViewApi::set_raw_view(bool enabled) const
 {
-    if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
+    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw ||
         api_->input.get_data_type() == RecordedDataType::MOMENTS)
         return;
 
@@ -169,7 +169,7 @@ void* ViewApi::get_raw_last_image() const
 void* ViewApi::get_hologram_last_image() const
 {
     if (api_->compute.get_gpu_output_queue())
-        return api_->compute.get_gpu_output_queue().get()->get_last_image();
+        return api_->compute.get_gpu_output_queue()->get_last_image();
 
     return nullptr;
 }

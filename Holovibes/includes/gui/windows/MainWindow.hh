@@ -70,13 +70,8 @@ class MainWindow : public QMainWindow
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
 
-    /*! \brief Stops critical compute */
-    void close_critical_compute();
-
     /*! \brief Start the import process */
     void start_import(QString filename);
-
-    void set_preset_file_on_gpu();
 
     Ui::MainWindow* get_ui();
 
@@ -140,26 +135,8 @@ class MainWindow : public QMainWindow
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
 
-    /*
-     * Lots of these methods stick to the following scheme:
-     *
-     * * Get pipe
-     * * Set visibility to false
-     * * Check if value is correct/into slot specific bounds
-     * * Update a value in FrameDescriptor of the holovibes object
-     * * Request a pipe refresh
-     * * Set visibility to true
-     */
-    /*! \brief Modifies view image type
-     *
-     * \param value The new image type
-     */
-    void set_view_image_type(const QString& value);
-
     /*! \brief Changes the focused windows */
     void change_window(int index);
-
-    void shift_screen();
 
     /**
      * @brief Open light ui panel and hide this one
@@ -224,10 +201,6 @@ class MainWindow : public QMainWindow
 
     bool notify_enabled_ = true;
 
-    Subscriber<bool> acquisition_started_subscriber_;
-    Subscriber<bool> acquisition_finished_subscriber_;
-    bool acquisition_finished_notification_received;
-    Subscriber<bool> set_preset_subscriber_;
     Subscriber<bool> notify_subscriber_;
 };
 } // namespace holovibes::gui

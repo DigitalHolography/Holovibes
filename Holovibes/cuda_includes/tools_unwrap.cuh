@@ -7,6 +7,7 @@
 #include "common.cuh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
+#include "frame_desc.hh"
 
 /*! \brief Convert complex values to floating-point angles in [-pi; pi].
  *

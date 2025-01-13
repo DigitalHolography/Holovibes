@@ -4,24 +4,29 @@
  */
 #pragma once
 
-#include "worker.hh"
+#include <array>
+#include <atomic>
+#include <cuda_runtime.h>
+#include <optional>
+
 #include "enum_record_mode.hh"
+#include "logger.hh"
+#include "output_frame_file.hh"
+#include "queue.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
-#include <optional>
-#include <array>
-#include "logger.hh"
+#include "worker.hh"
 
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS               \
-  holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount, \
-  holovibes::settings::RecordMode,       \
-  holovibes::settings::RecordFrameOffset,  \
-  holovibes::settings::OutputBufferSize, \
-  holovibes::settings::FrameSkip,        \
+#define ONRESTART_SETTINGS                    \
+  holovibes::settings::RecordFilePath,        \
+  holovibes::settings::RecordFrameCount,      \
+  holovibes::settings::RecordMode,            \
+  holovibes::settings::RecordFrameOffset,     \
+  holovibes::settings::OutputBufferSize,      \
+  holovibes::settings::FrameSkip,             \
   holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
@@ -91,24 +96,27 @@ class FrameRecordWorker final : public Worker
             return onrestart_settings_.get<T>().value;
     }
 
-    /*! \brief Init the record queue
+    /*! \brief Open the output file
      *
-     * \return The record queue
-     */
-    // Queue& init_record_queue();
-
-    /*! \brief Wait for frames to be present in the record queue*/
-    void wait_for_frames();
-
-    /*! \brief Reset the record queue to free memory
+     * \param[in] frame_count The number of frames to record
      *
-     * \param pipe The compute pipe used to perform the operations
+     * \return The output file
      */
+    io_files::OutputFrameFile* open_output_file(const uint frame_count);
+
+    /*! \brief Reset the record queue to free memory. */
     void reset_record_queue();
 
-    /*! \brief Integrate Input Fps in fps_buffers if relevent */
+    /*! \brief Integrate Input FPS in fps_buffers if relevant. */
     void integrate_fps_average();
-    /*! \brief Compute fps_buffer_ average on the correct number of value */
+
+    /*! \brief Check if all frames are saved.
+     *
+     * \return True if all frames are saved (acquired + saved), false otherwise.
+     */
+    bool all_frames_saved(uint frames_saved, uint total) const;
+
+    /*! \brief Compute fps_buffer_ average on the correct number of value. */
     size_t compute_fps_average() const;
 
   private:

@@ -40,7 +40,8 @@ void gpu_normalize(float* const input,
                    const cudaStream_t stream);
 
 /*!
- * \brief Performs tensor vector multiplication. Parallelisation is done along frame_res.
+ * \brief Performs tensor vector multiplication and taking account Nyquist frequency compensation. Parallelisation is
+ * done along frame_res.
  *
  * - The tensor is a cube of images of size `frame_res` and of depth `TimeTransformationSize`.
  * - The vector is a 1D array of scalar of size `TimeTransformationSize`.
@@ -49,21 +50,31 @@ void gpu_normalize(float* const input,
  * The function multiply each images in the tensor in the range [f_start, f_end] which the corresponding scalar in the
  * vector. Then it sums the resulting images in the same range and stores the result in output.
  *
- * \param[out] output     The buffer in which to store the result (size: frame_res)
- * \param[in]  tensor     The tensor
- * \param[in]  vector     The vector
- * \param[in]  frame_res  The resolution of a single frame
- * \param[in]  f_start    The start index
- * \param[in]  f_end      The end indexes
- * \param[in]  stream     The cuda stream
+ * The Nyquist compensation is done when the even parameter is true as follow:
+ *   - for moment 0 and moment 2 (m1 == false): double the computation for Nyquist index
+ *   - for moment 1 (m1 == true): cancel the computation for Nyquist index
+ *
+ * \param[out] output           The buffer in which to store the result (size: frame_res)
+ * \param[in]  tensor           The tensor
+ * \param[in]  vector           The vector
+ * \param[in]  frame_res        The resolution of a single frame
+ * \param[in]  f_start          The start index
+ * \param[in]  f_end            The end index
+ * \param[in]  nyquist_freq     The index of the Nyquist frequency in vector
+ * \param[in]  even             Boolean true if time transform size is even
+ * \param[in]  m1               Boolean true if we are calculating M1
+ * \param[in]  stream           The cuda stream
  */
-void tensor_multiply_vector(float* output,
-                            const float* tensor,
-                            const float* vector,
-                            const size_t frame_res,
-                            const ushort f_start,
-                            const ushort f_end,
-                            const cudaStream_t stream);
+void tensor_multiply_vector_nyquist_compensation(float* output,
+                                                 const float* tensor,
+                                                 const float* vector,
+                                                 const size_t frame_res,
+                                                 const ushort f_start,
+                                                 const ushort f_end,
+                                                 const size_t nyquist_freq,
+                                                 bool even,
+                                                 bool m1,
+                                                 const cudaStream_t stream);
 
 /*! \brief Pointwise multiplication of the pixels values of 2 float input images.
  *

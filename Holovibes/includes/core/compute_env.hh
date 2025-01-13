@@ -49,6 +49,9 @@ struct CoreBuffersEnv
     /*! \brief Unsigned Short YZ output buffer of 1 frame, inserted after all postprocessing on float_buffer_cut_yz */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame_yz = nullptr;
 
+    /*! \brief Output queue of `OutputBufferSize` frames. Contains the final frames of the Holographic pipeline. */
+    std::shared_ptr<Queue> gpu_output_queue = nullptr;
+
     /*! \brief Contains only one frame used only for convolution */
     cuda_tools::CudaUniquePtr<float> gpu_convolution_buffer = nullptr;
 

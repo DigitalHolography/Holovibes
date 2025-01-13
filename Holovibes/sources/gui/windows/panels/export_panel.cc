@@ -17,7 +17,6 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-    , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
     , set_output_file_path_subscriber_("set_output_file_name",
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
     , browse_record_output_file_subscriber_("browse_record_output_file",
@@ -117,16 +116,10 @@ void ExportPanel::on_notify()
     // Number of frames
     if (api_.record.get_record_frame_count().has_value())
     {
-        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
         ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api_.record.get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
-
-    if (api_.input.get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
 
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
@@ -201,16 +194,17 @@ void ExportPanel::set_record_mode(int index)
     if (api_.record.get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api_.record.set_record_mode_enum(static_cast<RecordMode>(index));
+    api_.record.set_record_mode(static_cast<RecordMode>(index));
 
     parent_->notify();
 }
 
 void ExportPanel::stop_record() { api_.record.stop_record(); }
 
-void ExportPanel::record_finished(RecordMode record_mode)
+void ExportPanel::record_finished()
 {
     std::string info;
+    RecordMode record_mode = api_.record.get_record_mode();
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
@@ -223,11 +217,11 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api_.compute.get_compute_mode() == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->InfoPanel->set_visible_record_progress(false);
 
-    // notify others panels (info panel & lightUI) that the record is finished
-    NotifierManager::notify<bool>("record_finished", true);
+    parent_->light_ui_->notify();
 }
 
 void ExportPanel::start_record()
@@ -245,16 +239,13 @@ void ExportPanel::start_record()
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
 
-    NotifierManager::notify<RecordBarColorData>("record_progress_bar_color", {QColor(209, 90, 25), "Recording"});
-
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api_.record.get_record_mode(), this]()
-    { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
+    auto callback = [this]() { parent_->synchronize_thread([=]() { record_finished(); }); };
 
     api_.record.start_record(callback);
 }
@@ -321,14 +312,8 @@ void ExportPanel::update_record_file_extension(const QString& value)
 
 void ExportPanel::update_recorded_eye()
 {
-    api_.record.set_recorded_eye(api_.record.get_recorded_eye() == RecordedEyeType::LEFT ? RecordedEyeType::RIGHT
-                                                                                         : RecordedEyeType::LEFT);
-    on_notify();
-}
-
-void ExportPanel::reset_recorded_eye()
-{
-    api_.record.set_recorded_eye(RecordedEyeType::NONE);
+    int next = (static_cast<int>(API.record.get_recorded_eye()) + 1) % 3;
+    API.record.set_recorded_eye(static_cast<RecordedEyeType>(next));
     on_notify();
 }
 

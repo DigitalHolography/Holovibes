@@ -5,8 +5,13 @@
 namespace holovibes::api
 {
 
-void ComputeApi::close_critical_compute() const
+#pragma region Compute
+
+ApiCode ComputeApi::stop() const
 {
+    if (get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
+
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.disable_convolution();
 
@@ -23,86 +28,85 @@ void ComputeApi::close_critical_compute() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
+    set_is_computation_stopped(true);
+
+    Holovibes::instance().stop_frame_read();
+
+    return ApiCode::OK;
 }
 
-void ComputeApi::stop_all_worker_controller() const { Holovibes::instance().stop_all_worker_controller(); }
-
-void ComputeApi::handle_update_exception() const
+ApiCode ComputeApi::start() const
 {
-    api_->transform.set_p_index(0);
-    api_->transform.set_time_transformation_size(1);
-    api_->global_pp.disable_convolution();
-    api_->filter2d.enable_filter("");
+    if (api_->input.get_import_type() == ImportType::None)
+        return ApiCode::NO_IN_DATA;
+
+    // Stop any computation currently running and file reading
+    stop();
+
+    // Create the pipe and start the pipe
+    Holovibes::instance().start_compute();
+    set_is_computation_stopped(false);
+
+    if (api_->global_pp.get_convolution_enabled())
+        api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
+    if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
+        api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
+    else
+        pipe_refresh();
+
+    if (api_->input.get_import_type() == ImportType::Camera)
+        Holovibes::instance().start_camera_frame_read();
+    else
+        Holovibes::instance().start_file_frame_read();
+
+    return ApiCode::OK;
 }
+
+#pragma endregion
 
 #pragma region Pipe
 
-void ComputeApi::disable_pipe_refresh() const
+ApiCode ComputeApi::disable_pipe_refresh() const
 {
-    try
-    {
-        get_compute_pipe()->clear_request(ICS::RefreshEnabled);
-    }
-    catch (const std::runtime_error&)
-    {
-        LOG_DEBUG("Pipe not initialized: {}", e.what());
-    }
+    if (get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
+
+    get_compute_pipe()->clear_request(ICS::RefreshEnabled);
+
+    return ApiCode::OK;
 }
 
-void ComputeApi::enable_pipe_refresh() const
+ApiCode ComputeApi::enable_pipe_refresh() const
 {
-    try
-    {
-        get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
-    }
-    catch (const std::runtime_error&)
-    {
-        LOG_DEBUG("Pipe not initialized: {}", e.what());
-    }
+    if (get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
+
+    get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
+
+    return ApiCode::OK;
 }
 
-void ComputeApi::pipe_refresh() const
+ApiCode ComputeApi::pipe_refresh() const
 {
-    if (api_->input.get_import_type() == ImportType::None)
-        return;
+    if (get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
 
-    try
-    {
-        LOG_TRACE("pipe_refresh");
-        get_compute_pipe()->request_refresh();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("{}", e.what());
-    }
-}
+    LOG_TRACE("pipe_refresh");
+    get_compute_pipe()->request_refresh();
 
-void ComputeApi::create_pipe() const
-{
-    LOG_FUNC();
-    try
-    {
-        Holovibes::instance().start_compute();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("cannot create Pipe: {}", e.what());
-    }
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Compute Mode
 
-void ComputeApi::set_computation_mode(Computation mode) const
+ApiCode ComputeApi::set_compute_mode(Computation mode) const
 {
-    if (api_->input.get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
-        return;
+    if (mode == get_compute_mode())
+        return ApiCode::NO_CHANGE;
 
-    close_critical_compute();
-
-    set_compute_mode(mode);
-    create_pipe();
+    UPDATE_SETTING(ComputeMode, mode);
 
     if (mode == Computation::Hologram)
     {
@@ -110,36 +114,46 @@ void ComputeApi::set_computation_mode(Computation mode) const
         api_->contrast.set_contrast_enabled(true);
     }
     else
-        api_->record.set_record_mode_enum(
+        api_->record.set_record_mode(
             RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
-    pipe_refresh();
+    if (get_is_computation_stopped())
+        return ApiCode::OK;
+
+    get_compute_pipe()->request(ICS::OutputBuffer);
+    while (get_compute_pipe()->is_requested(ICS::OutputBuffer))
+        continue;
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Img Type
 
-ApiCode ComputeApi::set_view_mode(const ImgType type) const
+ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
     if (type == get_img_type())
         return ApiCode::NO_CHANGE;
 
-    if (api_->input.get_import_type() == ImportType::None)
-        return ApiCode::NOT_STARTED;
-
     if (get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_MODE;
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (get_is_computation_stopped())
+    {
+        UPDATE_SETTING(ImageType, type);
+        return ApiCode::OK;
+    }
 
     try
     {
         bool composite = type == ImgType::Composite || get_img_type() == ImgType::Composite;
 
-        set_img_type(type);
+        UPDATE_SETTING(ImageType, type);
 
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
-            set_computation_mode(Computation::Hologram);
+            start();
         else
             pipe_refresh();
     }
@@ -149,13 +163,6 @@ ApiCode ComputeApi::set_view_mode(const ImgType type) const
     }
 
     return ApiCode::OK;
-}
-
-void ComputeApi::loaded_moments_data() const
-{
-    api_->transform.set_batch_size(3);  // Moments are read in batch of 3 (since there are three moments)
-    api_->transform.set_time_stride(3); // The user can change the time stride, but setting it to 3
-                                        // is a good basis to analyze moments
 }
 
 #pragma endregion

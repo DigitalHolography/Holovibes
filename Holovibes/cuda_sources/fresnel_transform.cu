@@ -1,11 +1,13 @@
 #include "fresnel_transform.cuh"
-#include "masks.cuh"
-#include "unique_ptr.hh"
-#include "common.cuh"
-#include "cuda_memory.cuh"
-#include "apply_mask.cuh"
 
 #include <cufftXt.h>
+
+#include "apply_mask.cuh"
+#include "common.cuh"
+#include "cuda_memory.cuh"
+#include "frame_desc.hh"
+#include "masks.cuh"
+#include "unique_ptr.hh"
 
 using camera::FrameDescriptor;
 

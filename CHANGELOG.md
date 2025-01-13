@@ -1,5 +1,32 @@
 ## Changelog
 
+### 14.4.1
+
+- Fixed FFT frequencies computation
+- Index 0 for z frequency now allowed
+- Fixed Filter 2D crashing when no filter file provided
+- Fixed recording and progress bar now shows frames being saved and being captured
+- Fixed optimization issue with internal settings
+- Updated S711 ini file
+- Change batch_size from 64 to 32 in preset.json
+- Corrected footer data in .holo files
+
+### 14.4.0
+
+- Nb. frames now isn't reset when interacting with certain UI components.
+- Removed boundaries to Nb. frames, but it is set to the maximum when a file is loaded
+- Rename UI elements:
+  - "Registration" to "Image Registration"
+  - "View" (next to Filter2D) to "Filter2D View"
+  - "Regular Access" to "Sequential File Read" for the drop down menu of file mode loading
+  - "Nb. img" to "Time Window"
+  - "Renormalize" to "Renormalize Image Levels"
+  - "Contrast" to "Brightness and Contrast"
+- Change eye recorded:
+  - Rename "Eye recorded" to "Tag"
+  - There is a single button that switch between left, right or none
+- Fixed image registration: Now working with anamorphic data (ex: 512x256).
+
 ### 14.3.0
 
 - Updated all preset:
@@ -10,7 +37,6 @@
 - Changed the UI option 'Load file in GPU' to a drop-down menu and renamed it to 'Load file in GPU VRAM'
 - Added an option 'Load file in CPU RAM' in that drop-down
 - Added UI buttons that specify which eye is recorded, which is reflected in the file name
-
 
 ### 14.2.0
 

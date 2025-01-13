@@ -4,12 +4,13 @@
 #include "HoloWindow.hh"
 #include "logger.hh"
 #include "tools.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
 Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : QOpenGLFunctions()
-    , zone_(units::ConversionData(parent))
+    , zone_()
     , kOverlay_(overlay)
     , verticesIndex_(0)
     , colorIndex_(0)
@@ -56,9 +57,9 @@ void Overlay::press(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
     {
-        auto pos = getMousePos(e->pos());
-        zone_.setSrc(pos);
-        zone_.setDst(zone_.src());
+        units::PointFd pos = getMousePos(e->pos());
+        zone_.set_src(pos);
+        zone_.set_dst(zone_.src());
     }
 }
 
@@ -72,10 +73,10 @@ void Overlay::initProgram()
     Program_ = std::make_unique<QOpenGLShaderProgram>();
     Program_->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.overlay.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.overlay.glsl").string()));
     Program_->addShaderFromSourceFile(
         QOpenGLShader::Fragment,
-        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.color.glsl").string()));
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.color.glsl").string()));
     Vao_.create();
     // if (!Program_->bind())
     //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());
@@ -110,11 +111,15 @@ void Overlay::endDraw()
     Vao_.release();
 }
 
-units::PointWindow Overlay::getMousePos(const QPoint& pos)
+units::PointFd Overlay::getMousePos(const QPoint& pos)
 {
-    auto x = pos.x();
-    auto y = pos.y();
-    units::PointWindow res(units::ConversionData(parent_), x, y);
+    float x = pos.x();
+    float y = pos.y();
+
+    x = (x / parent_->width()) * parent_->getFd().width;
+    y = (y / parent_->height()) * parent_->getFd().height;
+
+    units::PointFd res(x, y);
     return res;
 }
 

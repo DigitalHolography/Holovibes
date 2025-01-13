@@ -4,7 +4,8 @@
  */
 #pragma once
 
-#include "cuComplex.h"
+#include <cuda_runtime.h>
+#include <cuComplex.h>
 
 using uint = unsigned int;
 

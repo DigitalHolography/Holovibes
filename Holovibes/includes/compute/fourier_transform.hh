@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include <algorithm>
 #include <cufft.h>
 
 #include "frame_desc.hh"
@@ -16,6 +17,10 @@
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
+
+// Avoid conflict with std::max and std::min (min and max are defined in windows.h)
+#undef max
+#undef min
 
 #pragma region Settings configuration
 // clang-format off
@@ -44,8 +49,7 @@
     holovibes::settings::BatchSize,                \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter,              \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::InputFilter
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 

@@ -25,7 +25,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     holo_file_header_.bits_per_pixel = fd_.depth * camera::PixelDepth::Complex;
     holo_file_header_.img_width = fd_.width;
     holo_file_header_.img_height = fd_.height;
-    holo_file_header_.img_nb = img_nb;
+    holo_file_header_.img_nb = static_cast<uint32_t>(img_nb);
     holo_file_header_.endianness = camera::Endianness::LittleEndian;
     holo_file_header_.data_type = static_cast<uint8_t>(data_type);
 
@@ -34,6 +34,9 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     meta_data_ = json();
 }
 
+// Optimisation removed to avoid some values in memory to be set to 0 during compilation.
+#pragma optimize("", off)
+
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_FUNC(input_fps, contiguous);
@@ -41,13 +44,12 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
     try
     {
         auto& api = API;
-        auto j_fi = json{
-            {"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
-            {"input_fps", input_fps},
-            {"camera_fps", api.input.get_import_type() == ImportType::Camera ? input_fps : api.input.get_camera_fps()},
-            {"eye_type", api.record.get_recorded_eye()},
-            {"contiguous", contiguous},
-            {"holovibes_version", __HOLOVIBES_VERSION__}};
+        auto j_fi = json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
+                         {"input_fps", input_fps},
+                         {"camera_fps", api.input.get_camera_fps() == 0 ? input_fps : api.input.get_camera_fps()},
+                         {"eye_type", api.record.get_recorded_eye()},
+                         {"contiguous", contiguous},
+                         {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);
@@ -60,6 +62,8 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         LOG_WARN("Exception: {}", e.what());
     }
 }
+
+#pragma optimize("", on)
 
 void OutputHoloFile::write_header()
 {

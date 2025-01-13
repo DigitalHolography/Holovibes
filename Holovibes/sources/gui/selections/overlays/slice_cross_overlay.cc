@@ -44,11 +44,9 @@ void SliceCrossOverlay::setBuffer()
     uint pmin = API.transform.get_p_index();
     uint pmax = pmin + API.transform.get_p_accu_level() + 1;
 
-    units::ConversionData convert(parent_);
-
-    units::PointFd topLeft = slice_xz ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
-    units::PointFd bottomRight = slice_xz ? units::PointFd(convert, parent_->getFd().width, pmax)
-                                          : units::PointFd(convert, pmax, parent_->getFd().height);
+    units::PointFd topLeft = slice_xz ? units::PointFd(0, pmin) : units::PointFd(pmin, 0);
+    units::PointFd bottomRight =
+        slice_xz ? units::PointFd(parent_->getFd().width, pmax) : units::PointFd(pmax, parent_->getFd().height);
     zone_ = units::RectFd(topLeft, bottomRight);
 
     // Updating opengl buffer
