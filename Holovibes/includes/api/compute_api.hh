@@ -160,14 +160,13 @@ class ComputeApi : public IApi
     ApiCode set_compute_mode(Computation mode) const;
 
 #pragma endregion
-};
 
-private:
-/*! \brief Sets whether the computation is stopped or not.
- *
- * \param[in] value True to stop the computation, false otherwise
- */
-inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
+  private:
+    /*! \brief Sets whether the computation is stopped or not.
+     *
+     * \param[in] value True to stop the computation, false otherwise
+     */
+    inline void set_is_computation_stopped(bool value) const { UPDATE_SETTING(IsComputationStopped, value); }
 };
 
 } // namespace holovibes::api
