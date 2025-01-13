@@ -286,6 +286,30 @@ void TransformApi::check_x_limits() const
     }
 }
 
+ApiCode TransformApi::set_x_accu_level(uint x_value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_x_accu_level(), x_value);
+
+    SET_SETTING(X, width, x_value);
+    check_x_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_x_cuts(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_x_cuts(), value);
+
+    SET_SETTING(X, start, value);
+    check_x_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
 void TransformApi::check_y_limits() const
 {
     // No input frame descriptor
@@ -309,34 +333,28 @@ void TransformApi::check_y_limits() const
     }
 }
 
-void TransformApi::set_x_accu_level(uint x_value) const
+ApiCode TransformApi::set_y_accu_level(uint y_value) const
 {
-    SET_SETTING(X, width, x_value);
-    api_->compute.pipe_refresh();
-}
+    NOT_SAME_AND_NOT_RAW(get_y_accu_level(), y_value);
 
-void TransformApi::set_x_cuts(uint value) const
-{
-    if (value < api_->input.get_input_fd().width)
-    {
-        SET_SETTING(X, start, value);
-        api_->compute.pipe_refresh();
-    }
-}
-
-void TransformApi::set_y_accu_level(uint y_value) const
-{
     SET_SETTING(Y, width, y_value);
+    check_y_limits();
+
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_y_cuts(uint value) const
+ApiCode TransformApi::set_y_cuts(uint value) const
 {
-    if (value < api_->input.get_input_fd().height)
-    {
-        SET_SETTING(Y, start, value);
-        api_->compute.pipe_refresh();
-    }
+    NOT_SAME_AND_NOT_RAW(get_y_cuts(), value);
+
+    SET_SETTING(Y, start, value);
+    check_y_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

@@ -259,9 +259,10 @@ class TransformApi : public IApi
 
     /*! \brief Sets the start index for the x cut accumulation. Must be in range [0, `fd.width - get_x_accu_level - 1`].
      *
-     * \param[in] x_value the new x cut start index
+     * \param[in] x_value the new x cut start index.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_x_cuts(uint x_value) const;
+    ApiCode set_x_cuts(uint x_value) const;
 
     /*! \brief Returns the x cut accumulation level. Is in range [0, `time_transformation_size - get_x_cuts - 1`].
      *
@@ -272,8 +273,9 @@ class TransformApi : public IApi
     /*! \brief Sets the x cut accumulation level. Must be in range [0, `time_transformation_size - get_x_cuts - 1`].
      *
      * \param[in] x_value the new x cut accumulation level
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_x_accu_level(uint x_value) const;
+    ApiCode set_x_accu_level(uint x_value) const;
 
     /*! \brief Checks the limits of the y index and y accu level.
      *
@@ -292,8 +294,9 @@ class TransformApi : public IApi
      * 1`].
      *
      * \param[in] y_value the new y cut start index
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_y_cuts(uint y_value) const;
+    ApiCode set_y_cuts(uint y_value) const;
 
     /*! \brief Returns the y cut accumulation level. Is in range [0, `time_transformation_size - get_y_cuts - 1`].
      *
@@ -304,8 +307,9 @@ class TransformApi : public IApi
     /*! \brief Sets the y cut accumulation level. Must be in range [0, `time_transformation_size - get_y_cuts - 1`].
      *
      * \param[in] y_value the new y cut accumulation level
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_y_accu_level(uint y_value) const;
+    ApiCode set_y_accu_level(uint y_value) const;
 
     /*! \brief Returns the capacity (in number of frames) of the output buffers containing the result of the time
      * transformation cuts.
