@@ -1,12 +1,15 @@
 #include "gui_info_text_edit.hh"
 
+#include <cuda_runtime.h>
 #include <map>
 #include <memory>
+#include <nvml.h>
+#include <sstream>
+#include <string>
 
 #include "api.hh"
 #include "batch_input_queue.hh"
 #include "fast_updates_types.hh"
-#include "gpu_stats.hh"
 #include "queue.hh"
 
 namespace holovibes::gui
@@ -27,35 +30,76 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     return ss.str();
 }
 
-// void InfoTextEdit::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
-// {
-//     input_throughput_ = input_fps_ * input_frame_size;
-//     output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
-//     saving_throughput_ = saving_fps_ * record_frame_size;
-// }
+static std::string get_load_color(float load,
+                                  float max_load,
+                                  float orange_ratio = ORANGE_COLORATION_RATIO,
+                                  float red_ratio = RED_COLORATION_RATIO)
+{
+    const float ratio = (load / max_load);
+    if (ratio < orange_ratio)
+        return "white";
+    if (ratio < red_ratio)
+        return "orange";
+    return "red";
+}
 
-// void InfoTextEdit::display_information_slow(size_t elapsed_time)
-// {
-//     // compute_fps(elapsed_time);
-//     std::shared_ptr<Queue> gpu_output_queue = API.compute.get_gpu_output_queue();
-//     std::shared_ptr<BatchInputQueue> input_queue = API.compute.get_input_queue();
-//     std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
+static std::string get_percentage_color(float percentage) { return get_load_color(percentage, 100); }
 
-//     unsigned int output_frame_res = 0;
-//     unsigned int input_frame_size = 0;
-//     unsigned int record_frame_size = 0;
+std::string InfoTextEdit::gpu_load()
+{
+    std::stringstream ss;
+    ss << "<td>GPU load</td>";
 
-//     if (gpu_output_queue && input_queue)
-//     {
-//         output_frame_res = static_cast<unsigned int>(gpu_output_queue->get_fd().get_frame_res());
-//         input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
-//     }
+    if (!information_.gpu_info)
+    {
+        ss << "<td>Could not load GPU usage</td>";
+        return ss.str();
+    }
 
-//     if (frame_record_queue)
-//         record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
+    // Print GPU load
+    float load = static_cast<float>(information_.gpu_info->gpu);
+    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
-//     compute_throughput(output_frame_res, input_frame_size, record_frame_size);
-// }
+    return ss.str();
+}
+
+std::string InfoTextEdit::gpu_memory_controller_load()
+{
+    std::stringstream ss;
+    ss << "<td style=\"padding-right: 15px\">VRAM controller load</td>";
+
+    if (!information_.gpu_info)
+    {
+        ss << "<td>Could not load GPU usage</td>";
+        return ss.str();
+    }
+
+    // Print GPU memory load
+    float load = static_cast<float>(information_.gpu_info->memory);
+    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
+
+    return ss.str();
+}
+
+std::string InfoTextEdit::gpu_memory()
+{
+    std::stringstream ss;
+    ss << "<td>VRAM</td>";
+
+    if (!information_.gpu_info)
+    {
+        ss << "<td>Could not load VRAM info</td>";
+        return ss.str();
+    }
+
+    float free_f = static_cast<float>(information_.gpu_info->controller_memory);
+    float total_f = static_cast<float>(information_.gpu_info->controller_total);
+
+    ss << "<td style=\"color:" << get_load_color(total_f - free_f, total_f) << ";\">" << engineering_notation(free_f, 3)
+       << "B free/" << engineering_notation(total_f, 3) << "B</td>";
+
+    return ss.str();
+}
 
 void InfoTextEdit::display_information()
 {

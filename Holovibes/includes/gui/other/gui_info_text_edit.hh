@@ -20,6 +20,9 @@ namespace holovibes::gui
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
+#define RED_COLORATION_RATIO 0.9f
+#define ORANGE_COLORATION_RATIO 0.7f
+
 #define INPUT_Q_RED_COLORATION_RATIO 0.8f
 #define INPUT_Q_ORANGE_COLORATION_RATIO 0.3f
 
@@ -39,19 +42,33 @@ class InfoTextEdit : public QTextEdit
     }
 
     /*!
-     * \brief Does come calculations regarding the queues, throughputs and frames per second
-     *
-     * \param elapsed_time The time elapsed since the last function call
-     */
-    void display_information_slow(size_t elapsed_time);
-
-    /*!
      * \brief Formats all available information and displays it in the UI
      *
      */
     void display_information();
 
   private:
+    /**
+     * \brief Formats the GPU load into an html string
+     *
+     * \return std::string The formatted string
+     */
+    std::string gpu_load();
+
+    /**
+     * \brief Formats GPU memory controller data into an html string
+     *
+     * \return std::string The formatted string
+     */
+    std::string gpu_memory_controller_load();
+
+    /**
+     * \brief Formats the GPU memory percentage into an html string
+     *
+     * \return std::string The formatted string
+     */
+    std::string gpu_memory();
+
     /*! \brief Structure that will be used to retrieve information from the API */
     Information information_;
 };

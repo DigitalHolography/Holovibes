@@ -2,7 +2,6 @@
 #include "api.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
-#include "gpu_stats.hh"
 #include "tools.hh"
 #include "chrono.hh"
 #include <cuda_runtime.h>
@@ -43,6 +42,7 @@ void BenchmarkWorker::run()
 
     while (!stop_requested_)
     {
+        information_ = API.information.get_information();
         if (benchmark_mode)
         {
             if (!info_found)
@@ -114,8 +114,11 @@ void BenchmarkWorker::write_information(std::ofstream& csvFile)
     csvFile << free << ",";
     csvFile << total << ",";
 
-    csvFile << gpu_load_as_number() << ",";
-    csvFile << gpu_memory_controller_load_as_number() << ",";
+    if (information_.gpu_info)
+    {
+        csvFile << information_.gpu_info->gpu << ",";
+        csvFile << information_.gpu_info->memory << ",";
+    }
 
     // Exemple d'écriture dans le fichier CSV pour la limite z
     csvFile << API.information.get_boundary();

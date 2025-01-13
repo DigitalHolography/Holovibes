@@ -1,5 +1,7 @@
 #include "information_api.hh"
 
+#include <nvml.h>
+
 #include "API.hh"
 
 namespace holovibes::api
@@ -24,6 +26,46 @@ namespace holovibes::api
         target = {iterator->second->first, iterator->second->second};                                                  \
     else                                                                                                               \
         target.reset()
+
+int get_gpu_load(nvmlUtilization_t* gpuLoad)
+{
+    nvmlDevice_t device;
+
+    // Initialize NVML
+    if (nvmlInit() != NVML_SUCCESS)
+        return -1;
+
+    // Get the device handle (assuming only one GPU is present)
+    if (nvmlDeviceGetHandleByIndex(0, &device) != NVML_SUCCESS)
+    {
+        nvmlShutdown();
+        return -1;
+    }
+
+    // Query GPU load
+    if (nvmlDeviceGetUtilizationRates(device, gpuLoad) != NVML_SUCCESS)
+    {
+        nvmlShutdown();
+        return -1;
+    }
+
+    // Shutdown NVML
+    return nvmlShutdown();
+}
+
+std::optional<GpuInfo> get_gpu_info()
+{
+    nvmlUtilization_t gpu_load;
+
+    if (get_gpu_load(&gpu_load) != NVML_SUCCESS)
+        return std::nullopt;
+
+    size_t free, total;
+    cudaMemGetInfo(&free, &total);
+
+    GpuInfo info = {gpu_load.gpu, gpu_load.memory, free, total};
+    return info;
+}
 
 void InformationApi::compute_throughput()
 {
@@ -133,6 +175,8 @@ Information InformationApi::get_information()
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::IMG_SOURCE, info.img_source);
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::INPUT_FORMAT, info.input_format);
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::OUTPUT_FORMAT, info.output_format);
+
+    info.gpu_info = get_gpu_info();
 
     info.progresses.clear();
     for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)

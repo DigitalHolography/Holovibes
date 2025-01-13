@@ -21,7 +21,7 @@ namespace holovibes
 
 /*! \class ProgressInfo
  *
- * \brief TODO
+ * \brief Small structure for holding a value / max value pair used for progress data
  */
 struct ProgressInfo
 {
@@ -29,9 +29,21 @@ struct ProgressInfo
     uint max_size;
 };
 
+/*! \class GpuInfo
+ *
+ * \brief Small structure that holds the GPU and GPU memory controller loads
+ */
+struct GpuInfo
+{
+    uint gpu;
+    uint memory;
+    size_t controller_memory;
+    size_t controller_total;
+};
+
 /*! \class QueueInfo
  *
- * \brief TODO
+ * \brief Small structure that holds info regarding the state of a queue
  */
 struct QueueInfo
 {
@@ -56,6 +68,7 @@ struct Information
     std::shared_ptr<std::string> img_source;
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;
+    std::optional<GpuInfo> gpu_info;
     std::map<ProgressType, ProgressInfo> progresses;
     std::map<QueueType, QueueInfo> queues;
 };
