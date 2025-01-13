@@ -2,6 +2,12 @@
 
 #include "API.hh"
 
+#define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
+    if (old_val == new_val)                                                                                            \
+        return ApiCode::NO_CHANGE;                                                                                     \
+    if (api_->compute.get_compute_mode() == Computation::Raw)                                                          \
+        return ApiCode::WRONG_COMP_MODE;
+
 namespace holovibes::api
 {
 
@@ -82,11 +88,7 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
 
 ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) const
 {
-    if (get_space_transformation() == value)
-        return ApiCode::NO_CHANGE;
-
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
 
     UPDATE_SETTING(SpaceTransformation, value);
     api_->compute.pipe_refresh();
@@ -96,11 +98,7 @@ ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) 
 
 ApiCode TransformApi::set_lambda(float value) const
 {
-    if (get_lambda() == value)
-        return ApiCode::NO_CHANGE;
-
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_lambda(), value);
 
     if (value < 0)
     {
@@ -116,11 +114,7 @@ ApiCode TransformApi::set_lambda(float value) const
 
 ApiCode TransformApi::set_z_distance(float value) const
 {
-    if (get_z_distance() == value)
-        return ApiCode::NO_CHANGE;
-
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_z_distance(), value);
 
     // Avoid 0 for cuda kernel
     if (value == 0)
@@ -138,11 +132,7 @@ ApiCode TransformApi::set_z_distance(float value) const
 
 ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size) const
 {
-    if (get_time_transformation_size() == time_transformation_size)
-        return ApiCode::NO_CHANGE;
-
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_time_transformation_size(), time_transformation_size);
 
     if (time_transformation_size < 1)
     {
@@ -164,11 +154,7 @@ ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size
 
 ApiCode TransformApi::set_time_transformation(const TimeTransformation value) const
 {
-    if (get_time_transformation() == value)
-        return ApiCode::NO_CHANGE;
-
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_time_transformation(), value);
 
     UPDATE_SETTING(TimeTransformation, value);
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
