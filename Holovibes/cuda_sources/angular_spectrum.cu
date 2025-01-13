@@ -74,24 +74,20 @@ using camera::FrameDescriptor;
 
 __global__ void computeKernel(cuFloatComplex* kernel, int Nx, int Ny, float z, float lambda, float x_step, float y_step)
 {
-    // Compute indices
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x < Nx && y < Ny)
     {
-        // Compute frequency steps
         float u_step = 1.0f / (Nx * x_step);
         float v_step = 1.0f / (Ny * y_step);
 
-        // Calculate u and v coordinates
         float u = (x - (Nx / 2)) * u_step;
         float v = (y - (Ny / 2)) * v_step;
 
-        // Compute the kernel value
         float tmp = 1.0f - (lambda * lambda * (u * u + v * v));
-        // if (tmp < 0.0f)
-        //     tmp = 0.0f; // Ensure positivity under sqrt
+        if (tmp < 0.0f)
+            tmp = 0.0f; // Ensure positivity under sqrt
         float phase = 2.0f * M_PI * z / lambda * sqrtf(tmp);
 
         // Store result as complex exponential

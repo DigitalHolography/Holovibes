@@ -15,7 +15,7 @@ float InformationApi::get_boundary() const
 {
     camera::FrameDescriptor fd = api_->input.get_input_fd();
     const float d = api_->input.get_pixel_size() * 0.000001f;
-    const float n = static_cast<float>(fd.height);
+    const float n = static_cast<float>(std::max(fd.height, fd.width));
     return (n * d * d) / api_->transform.get_lambda();
 }
 
