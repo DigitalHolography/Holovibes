@@ -357,29 +357,56 @@ ApiCode TransformApi::set_y_cuts(uint value) const
     return ApiCode::OK;
 }
 
+ApiCode TransformApi::set_time_transformation_cuts_output_buffer_size(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_time_transformation_cuts_output_buffer_size(), value);
+
+    UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
+    api_->compute.get_compute_pipe()->request(ICS::TimeTransformationCuts);
+
+    return ApiCode::OK;
+}
+
 #pragma endregion
 
 #pragma region Specials
 
-void TransformApi::set_unwrapping_2d(const bool value) const
+ApiCode TransformApi::set_fft_shift_enabled(const bool value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
-
-    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_fft_shift_enabled(bool value) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_fft_shift_enabled(), value);
 
     UPDATE_SETTING(FftShiftEnabled, value);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     if (api_->global_pp.get_registration_enabled())
         api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_unwrapping_2d(const bool value) const
+{
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (!api_->compute.get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
+
+    if (api_->compute.get_compute_pipe()->is_requested(ICS::Unwrap2D) == value)
+        return ApiCode::NO_CHANGE;
+
+    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

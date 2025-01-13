@@ -325,11 +325,9 @@ class TransformApi : public IApi
      * transformation cuts.
      *
      * \param[in] value the new capacity
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    inline void set_time_transformation_cuts_output_buffer_size(uint value) const
-    {
-        UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
-    }
+    ApiCode set_time_transformation_cuts_output_buffer_size(uint value) const;
 
 #pragma endregion
 
@@ -350,14 +348,16 @@ class TransformApi : public IApi
      * reorder them to be from -N/2 to N/2. Where N is the number of frequencies (`time_transformation_size`).
      *
      * \param[in] value true: enable, false: disable
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_fft_shift_enabled(bool value) const;
+    ApiCode set_fft_shift_enabled(const bool value) const;
 
     /*! \brief Enables or Disables unwrapping 2d
      *
      * \param[in] value true: enable, false: disable
+     * \return ApiCode the status of the modification: OK, NO_CHANGE, NOT_STARTED or WRONG_COMP_MODE (if in raw mode).
      */
-    void set_unwrapping_2d(const bool value) const;
+    ApiCode set_unwrapping_2d(const bool value) const;
 
 #pragma endregion
 
