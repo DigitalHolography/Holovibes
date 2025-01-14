@@ -42,6 +42,7 @@
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::RegistrationEnabled,                    \
+    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -53,7 +54,7 @@
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::FrameRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
@@ -74,6 +75,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::FrameSkip,                              \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::CameraFps
 
@@ -94,8 +96,7 @@
     holovibes::settings::XY,                                     \
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
-    holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::InputFilter
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -200,7 +201,6 @@ class ICompute
         UpdateTimeStride,
         UpdateRegistrationZone,
         DisableLensView,
-        FrameRecord,
         DisableFrameRecord,
         Convolution,
         DisableConvolution,

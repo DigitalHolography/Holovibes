@@ -5,9 +5,20 @@
 - Fix:
   - Angular spectrum now working with a new lens. Allowing angular spectrum to work with anamorphic data.
 
+### 14.4.1
+
+- Fixed FFT frequencies computation
+- Index 0 for z frequency now allowed
+- Fixed Filter 2D crashing when no filter file provided
+- Fixed recording and progress bar now shows frames being saved and being captured
+- Fixed optimization issue with internal settings
+- Updated S711 ini file
+- Change batch_size from 64 to 32 in preset.json
+- Corrected footer data in .holo files
+
 ### 14.4.0
 
-- Nb. frames now isn't reset when interacting with certain UI components
+- Nb. frames now isn't reset when interacting with certain UI components.
 - Removed boundaries to Nb. frames, but it is set to the maximum when a file is loaded
 - Rename UI elements:
   - "Registration" to "Image Registration"

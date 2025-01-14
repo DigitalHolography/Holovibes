@@ -100,20 +100,12 @@ void ImageRenderingPanel::on_notify()
     // Filter
     ui_->InputFilterLabel->setVisible(filter2D_enabled);
     ui_->InputFilterQuickSelectComboBox->setVisible(filter2D_enabled);
-    if (!api_.filter2d.get_filter_enabled())
-    {
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(
-            ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
-    }
-    else
-    {
-        int index = 0;
-        if (!api_.filter2d.get_filter_file_name().empty())
-            index = ui_->InputFilterQuickSelectComboBox->findText(
-                QString::fromStdString(api_.filter2d.get_filter_file_name()));
+    int index = 0;
+    if (!api_.filter2d.get_filter_file_name().empty())
+        index =
+            ui_->InputFilterQuickSelectComboBox->findText(QString::fromStdString(api_.filter2d.get_filter_file_name()));
 
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
-    }
+    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
 
     // Convolution
     ui_->ConvoCheckBox->setVisible(api_.compute.get_compute_mode() == Computation::Hologram);
@@ -123,7 +115,7 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setChecked(api_.global_pp.get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api_.global_pp.get_convolution_enabled());
 
-    int index = 0;
+    index = 0;
     if (!api_.global_pp.get_convolution_file_name().empty())
         index = ui_->KernelQuickSelectComboBox->findText(
             QString::fromStdString(api_.global_pp.get_convolution_file_name()));
@@ -168,14 +160,14 @@ void ImageRenderingPanel::set_compute_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    api_.transform.update_batch_size(ui_->BatchSizeSpinBox->value());
-    parent_->notify();
+    if (api_.transform.set_batch_size(ui_->BatchSizeSpinBox->value()) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::update_time_stride()
 {
-    api_.transform.update_time_stride(ui_->TimeStrideSpinBox->value());
-    parent_->notify();
+    if (api_.transform.set_time_stride(ui_->TimeStrideSpinBox->value()) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)
@@ -240,8 +232,8 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
         throw;
     }
 
-    api_.transform.set_space_transformation(st);
-    parent_->notify();
+    if (api_.transform.set_space_transformation(st) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -249,21 +241,21 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
 
-    api_.transform.set_time_transformation(tt);
-    parent_->notify();
+    if (api_.transform.set_time_transformation(tt) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    api_.transform.update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
-    parent_->notify();
+    if (api_.transform.set_time_transformation_size(ui_->timeTransformationSizeSpinBox->value()) == ApiCode::OK)
+        parent_->notify();
 }
 
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
-    api_.transform.set_lambda(static_cast<float>(value) * 1.0e-9f);
-    ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
+    if (api_.transform.set_lambda(static_cast<float>(value) * 1.0e-9f) == ApiCode::OK)
+        ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)

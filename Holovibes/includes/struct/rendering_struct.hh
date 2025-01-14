@@ -49,10 +49,9 @@ struct Rendering
     struct Filter
     {
         std::string type;
-        bool enabled = false;
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-        SERIALIZE_JSON_STRUCT(Filter, type, enabled);
+        SERIALIZE_JSON_STRUCT(Filter, type);
 
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

@@ -173,8 +173,6 @@ void ViewPanel::on_notify()
     ui_->PAccSpinBox->setVisible(is_data_not_moments);
     ui_->PAccLabel->setVisible(is_data_not_moments);
 
-    api_.transform.check_p_limits(); // FIXME: May be moved in setters
-
     // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_index() - 1);
@@ -197,8 +195,6 @@ void ViewPanel::on_notify()
     ui_->Q_AccSpinBox->setValue(api_.transform.get_q_accu_level());
     ui_->Q_SpinBox->setValue(api_.transform.get_q_index());
 
-    api_.transform.check_q_limits(); // FIXME: May be moved in setters
-
     // Enforce maximum value for p_index and p_accu_level
     ui_->Q_SpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_q_accu_level() - 1);
     ui_->Q_AccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_q_index() - 1);
@@ -215,7 +211,10 @@ void ViewPanel::on_notify()
         max_height = api_.input.get_input_fd().height - 1;
     }
     else
-        api_.transform.set_x_y(0, 0);
+    {
+        api_.transform.set_x_cuts(0);
+        api_.transform.set_y_cuts(0);
+    }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
@@ -313,7 +312,8 @@ void ViewPanel::update_raw_view(bool checked)
 
 void ViewPanel::set_x_y()
 {
-    api_.transform.set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
+    api_.transform.set_x_cuts(ui_->XSpinBox->value());
+    api_.transform.set_y_cuts(ui_->YSpinBox->value());
     parent_->notify();
 }
 

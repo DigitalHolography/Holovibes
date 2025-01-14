@@ -24,6 +24,7 @@ set(INTERNAL_INCLUDES
     includes/enum/
     includes/struct/
     includes/gui/
+    includes/gui/notifier/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/
@@ -179,6 +180,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/registration.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/registration.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_384_27.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_384_27.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/default_file_read.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/default_file_read.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_256_25.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_256_25.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_512_40.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_1024_768_120.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_1024_768_120.json

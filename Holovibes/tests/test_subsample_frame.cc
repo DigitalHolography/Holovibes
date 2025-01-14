@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "frame_reshape.cuh"
 #include "cuda_memory.cuh"
+#include "test_disable_log.hh"
 
 TEST(SubSampleFrame, subsample_8x8_step_2)
 {

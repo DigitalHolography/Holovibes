@@ -24,18 +24,6 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , main_window_(main_window)
     , visible_(false)
     , notify_subscriber_("notify", std::bind(&LightUI::on_notify, this, std::placeholders::_1))
-    , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
-    , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
-    , record_progress_subscriber_("record_progress",
-                                  std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
-    , record_progress_bar_color_subscriber_(
-          "record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
-    , record_finished_subscriber_("record_finished",
-                                  [this](bool success)
-                                  {
-                                      reset_start_button();
-                                      reset_record_progress_bar();
-                                  })
 {
     ui_->setupUi(this);
 }
@@ -92,52 +80,23 @@ void LightUI::set_record_file_name()
 void LightUI::start_stop_recording(bool start)
 {
     if (start)
-        NotifierManager::notify<bool>("start_record_export_panel", true);
+    {
+        main_window_->ui_->ExportPanel->start_record();
+        LOG_INFO("Recording started");
+    }
     else
+    {
         API.record.stop_record();
-}
+        LOG_INFO("Recording stopped");
+    }
 
-void LightUI::on_record_start(RecordMode record)
-{
-    ui_->startButton->setText("Stop recording");
-    ui_->RecordedEyePushButton->setEnabled(false);
-    LOG_INFO("Recording started");
-}
-
-void LightUI::on_record_stop(RecordMode record)
-{
-    reset_start_button();
-
-    ui_->RecordedEyePushButton->setEnabled(true);
-
-    reset_record_progress_bar();
-
-    LOG_INFO("Recording stopped");
-}
-
-void LightUI::on_record_progress(const RecordProgressData& data) { actualise_record_progress(data.value, data.max); }
-
-void LightUI::on_record_progress_bar_color(const RecordBarColorData& data)
-{
-    set_recordProgressBar_color(data.color, data.text);
-}
-
-void LightUI::reset_start_button()
-{
-    ui_->startButton->setChecked(false);
-    ui_->startButton->setText("Start recording");
+    notify();
 }
 
 void LightUI::actualise_record_progress(const int value, const int max)
 {
     ui_->recordProgressBar->setMaximum(max);
     ui_->recordProgressBar->setValue(value);
-}
-
-void LightUI::reset_record_progress_bar()
-{
-    set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
-    actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 }
 
 void LightUI::notify()
@@ -150,7 +109,7 @@ void LightUI::notify()
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 
     // Filename
-    std::filesystem::path file_path{API.record.get_record_file_path()};
+    std::filesystem::path file_path{api.record.get_record_file_path()};
     ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path.parent_path().string()));
     // remove the extension from the filename
     ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
@@ -167,7 +126,27 @@ void LightUI::notify()
 
     ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
 
+    // Record
+    bool is_recording = api.record.is_recording();
+
+    ui_->RecordedEyePushButton->setEnabled(!is_recording);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
+
+    ui_->startButton->blockSignals(true);
+    ui_->startButton->setChecked(is_recording);
+    ui_->startButton->blockSignals(false);
+
+    if (is_recording)
+    {
+        ui_->startButton->setText("Stop recording");
+        set_recordProgressBar_color(QColor(209, 90, 25), "Acquisition...");
+    }
+    else
+    {
+        ui_->startButton->setText("Start recording");
+        set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
+        actualise_record_progress(0, 1); // So as to reset the progress of the bar.
+    }
 }
 
 void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }
@@ -218,12 +197,6 @@ void LightUI::set_window_size_position(int width, int height, int x, int y)
     this->move(x, y);
 }
 
-void LightUI::activate_start_button(bool activate) { ui_->startButton->setEnabled(activate); }
-
-void LightUI::set_progress_bar_value(int value) { ui_->recordProgressBar->setValue(value); }
-
-void LightUI::set_progress_bar_maximum(int maximum) { ui_->recordProgressBar->setMaximum(maximum); }
-
 void LightUI::open_configuration_ui()
 {
     main_window_->show();
@@ -234,7 +207,7 @@ void LightUI::open_configuration_ui()
 
 void LightUI::set_preset()
 {
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json";
     main_window_->reload_ini(dest.string());
     LOG_INFO("Preset loaded");
 }

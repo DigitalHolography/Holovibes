@@ -69,11 +69,11 @@ class ThreadWorkerController
     template <typename... Args>
     void start(Args&&... args);
 
-    /*! \brief Join the thread
+    /*! \brief Request the worker to stop. If wait is true, wait for the thread to join.
      *
-     * If the worker was running, stop it before joining the associated thread
+     * \param[in] wait Whether the function should wait for the worker to stop
      */
-    void stop();
+    void stop(bool wait = true);
 
     bool is_running() const { return worker_ != nullptr; }
 

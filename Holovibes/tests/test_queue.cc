@@ -3,10 +3,10 @@
 #include <cuda.h>
 #include <string.h>
 
-#include "holovibes.hh"
 #include "queue.hh"
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
+#include "test_disable_log.hh"
 
 using camera::PixelDepth;
 
@@ -424,7 +424,7 @@ TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
-    ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), "");
+    ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), ".*");
 
     delete[] buff;
 }
