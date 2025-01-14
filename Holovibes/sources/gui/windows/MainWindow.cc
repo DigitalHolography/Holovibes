@@ -92,9 +92,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
-    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
-    { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
-
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();
@@ -165,8 +162,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    api_.information.start_information_display();
-
     ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
@@ -190,7 +185,6 @@ MainWindow::~MainWindow()
 
     gui::close_windows();
     api_.compute.stop();
-    api_.information.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
@@ -579,7 +573,11 @@ void MainWindow::change_camera(CameraKind c)
         gui::start(window_max_size);
 }
 
-void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
+void MainWindow::camera_none()
+{
+    ui_->actionSettings->setEnabled(false);
+    change_camera(CameraKind::NONE);
+}
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
@@ -607,11 +605,6 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera()
-{
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api_.input.get_camera_ini_name())));
-}
-
 void open_file(const std::string& filename)
 {
     if (filename.empty())
@@ -620,6 +613,8 @@ void open_file(const std::string& filename)
     QDesktopServices::openUrl(QUrl::fromLocalFile(
         QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
 }
+
+void MainWindow::configure_camera() { open_file(api_.input.get_camera_ini_name()); }
 
 void MainWindow::camera_ids_settings() { open_file("ids.ini"); }
 
@@ -739,6 +734,14 @@ void MainWindow::open_light_ui()
 void MainWindow::set_preset()
 {
     std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
+    reload_ini(preset_directory_path.string());
+    LOG_INFO("Preset loaded");
+}
+
+// Set default file read preset
+void MainWindow::set_file_read_preset()
+{
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "default_file_read.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }

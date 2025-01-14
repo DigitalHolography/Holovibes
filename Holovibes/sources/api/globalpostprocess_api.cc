@@ -176,7 +176,7 @@ ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) co
     {
         auto pipe = api_->compute.get_compute_pipe();
         pipe->request(ICS::Convolution);
-        LOG_ERROR("Convolution requested: {}", get_convo_matrix().size());
+
         // Wait for the convolution to be enabled for notify
         while (pipe->is_requested(ICS::Convolution))
             continue;

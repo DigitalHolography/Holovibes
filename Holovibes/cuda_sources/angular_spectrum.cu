@@ -11,39 +11,23 @@
 
 using camera::FrameDescriptor;
 
-void angular_spectrum_lens(cuComplex* lens,
-                           const uint lens_side_size,
-                           const uint frame_height,
-                           const uint frame_width,
-                           const float lambda,
+void angular_spectrum_lens(cuFloatComplex* output,
+                           const int Nx,
+                           const int Ny,
                            const float z,
-                           const float pixel_size,
+                           const float lambda,
+                           const float x_step,
+                           const float y_step,
                            const cudaStream_t stream)
 {
-    const uint threads_2d = get_max_threads_2d();
-    const dim3 lthreads(threads_2d, threads_2d);
-    const dim3 lblocks(lens_side_size / threads_2d, lens_side_size / threads_2d);
 
-    cuComplex* square_lens;
-    // In anamorphic mode, the lens is initally a square, it's then cropped to
-    // be the same dimension as the frame
-    if (frame_height != frame_width)
-        cudaXMalloc(&square_lens, lens_side_size * lens_side_size * sizeof(cuComplex));
-    else
-        square_lens = lens;
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (Nx - 1) / threads_2d, 1 + (Ny - 1) / threads_2d);
 
-    kernel_spectral_lens<<<lblocks, lthreads, 0, stream>>>(square_lens, lens_side_size, lambda, z, pixel_size);
+    kernel_spectral_lens<<<lblocks, lthreads, 0, stream>>>(output, Nx, Ny, z, lambda, x_step, y_step);
+    cudaXStreamSynchronize(stream);
     cudaCheckError();
-
-    if (frame_height != frame_width)
-    {
-        cudaXMemcpyAsync(lens,
-                         square_lens + ((lens_side_size - frame_height) / 2) * frame_width,
-                         frame_width * frame_height * sizeof(cuComplex),
-                         cudaMemcpyDeviceToDevice,
-                         stream);
-        cudaXFree(square_lens);
-    }
 }
 
 void angular_spectrum(cuComplex* input,

@@ -2,9 +2,9 @@
     "advanced": {
         "buffer_size": {
             "file": 1024,
-            "input": 131072,
+            "input": 4096,
             "output": 1024,
-            "record": 131072,
+            "record": 4096,
             "time_transformation_cuts": 512
         },
         "contrast": {
@@ -87,7 +87,7 @@
         }
     },
     "image_rendering": {
-        "batch_size": 32,
+        "batch_size": 64,
         "convolution": {
             "divide": false,
             "enabled": false,

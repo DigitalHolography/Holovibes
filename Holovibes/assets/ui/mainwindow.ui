@@ -1424,7 +1424,7 @@ The range of frequencies kept is [z, z + width]</string>
            </item>
           </layout>
          </item>
-         <item row="15" column="0" colspan="2">
+         <item row="14" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <widget class="QCheckBox" name="DisplayReticleCheckBox">
@@ -1469,7 +1469,7 @@ The range of frequencies kept is [z, z + width]</string>
            </item>
           </layout>
          </item>
-         <item row="14" column="0" colspan="2">
+         <item row="15" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <widget class="QCheckBox" name="RenormalizeCheckBox">
@@ -3142,7 +3142,7 @@ The range of frequencies kept is [z, z + width]</string>
           <number>9</number>
          </property>
          <item>
-          <widget class="QTextEdit" name="InfoTextEdit">
+          <widget class="holovibes::gui::InfoTextEdit" name="InfoTextEdit">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -3166,7 +3166,7 @@ The range of frequencies kept is [z, z + width]</string>
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3254,6 +3254,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionExport_as"/>
     </widget>
     <addaction name="actionPreset"/>
+    <addaction name="actionReadPreset"/>
     <addaction name="menuSelect_preset"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
@@ -3644,12 +3645,25 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+P</string>
    </property>
   </action>
+  <action name="actionReadPreset">
+   <property name="text">
+    <string>File read preset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>holovibes::gui::Drag_drop_lineedit</class>
    <extends>QLineEdit</extends>
    <header>gui_drag_drop_lineedit.hh</header>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::InfoTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>gui_info_text_edit.hh</header>
   </customwidget>
   <customwidget>
    <class>holovibes::gui::Frame</class>
@@ -5901,6 +5915,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actionReadPreset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_file_read_preset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ZSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
@@ -6070,5 +6100,6 @@ p, li { white-space: pre-wrap; }
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
+  <slot>set_file_read_preset()</slot>
  </slots>
 </ui>
