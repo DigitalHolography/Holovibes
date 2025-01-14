@@ -13,25 +13,19 @@ namespace holovibes::api
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = {value1, value2};                                                                                     \
     else                                                                                                               \
-        target.reset()
-
-#define UPDATE_STRUCT_OPTIONAL(map, iterator, type, target, ...)                                                       \
-    if ((iterator = map.find(type)) != map.end())                                                                      \
-        target = {__VA_ARGS__};                                                                                        \
-    else                                                                                                               \
-        target.reset()
+        target.reset();
 
 #define UPDATE_SIMPLE_OPTIONAL(map, iterator, type, target, value)                                                     \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = value;                                                                                                \
     else                                                                                                               \
-        target.reset()
+        target.reset();
 
 #define UPDATE_STRING_OPTIONAL(map, iterator, type, target)                                                            \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = iterator->second;                                                                                     \
     else                                                                                                               \
-        target.reset()
+        target.reset();
 
 int get_gpu_load(nvmlUtilization_t* gpuLoad)
 {

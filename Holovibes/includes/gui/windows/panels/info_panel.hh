@@ -54,16 +54,16 @@ class InfoPanel : public Panel
     /*!
      * \brief Updates the progress bar depending of the progress type
      *
-     * \param type The progress type to set in the bar
-     * \param value The current state of the bar
-     * \param max_size The maximum boundary of the bar
+     * \param[in] type The progress type to set in the bar
+     * \param[in] value The current state of the bar
+     * \param[in] max_size The maximum boundary of the bar
      */
     void update_progress(ProgressType type, const size_t value, const size_t max_size);
 
     /**
      * \brief Sets the correct values in the progress bar when RECORDING.
      *
-     * \param information The information struct from which to extract the needed values
+     * \param[in] information The information struct from which to extract the needed values
      */
     void handle_progress_bar(Information& information);
 };

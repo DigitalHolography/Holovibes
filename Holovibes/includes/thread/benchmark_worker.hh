@@ -33,8 +33,8 @@ class BenchmarkWorker final : public Worker
 {
   public:
     /*!
-     * \param is_cli Whether the program is running in cli mode or not
-     * \param info Information container where the BenchmarkWorker periodicaly fetch data to display it
+     * \param[in] is_cli Whether the program is running in cli mode or not
+     * \param[in] info Information container where the BenchmarkWorker periodically fetches data to display it
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     BenchmarkWorker(InitSettings settings)
@@ -46,7 +46,7 @@ class BenchmarkWorker final : public Worker
     /**
      * \brief Writes a wave of benchmark data into the provided file
      *
-     * \param csvFile The file to write in (as a stream)
+     * \param[in] csvFile The file to write in (as a stream)
      */
     void write_information(std::ofstream& csvFile);
 
