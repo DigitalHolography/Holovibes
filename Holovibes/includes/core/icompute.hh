@@ -75,6 +75,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::FrameSkip,                              \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::CameraFps
 

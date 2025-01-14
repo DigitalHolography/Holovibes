@@ -43,6 +43,10 @@ ApiCode ComputeApi::start() const
     // Stop any computation currently running and file reading
     stop();
 
+    // Check some settings (now that we have the input frame descriptor)
+    api_->transform.check_x_limits();
+    api_->transform.check_y_limits();
+
     // Create the pipe and start the pipe
     Holovibes::instance().start_compute();
     set_is_computation_stopped(false);

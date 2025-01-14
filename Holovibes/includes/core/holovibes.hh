@@ -245,7 +245,12 @@ class Holovibes
      *
      * \return const char* the path of the camera INI file of the current camera.
      */
-    inline const char* get_camera_ini_name() const { return active_camera_->get_ini_name(); }
+    inline const char* get_camera_ini_name() const
+    {
+        if (!active_camera_)
+            return "";
+        return active_camera_->get_ini_name();
+    }
 
     /*! \brief Return whether the recording worker is running or not
      *

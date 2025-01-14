@@ -2,105 +2,115 @@
 
 #include "API.hh"
 
+#define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
+    if (old_val == new_val)                                                                                            \
+        return ApiCode::NO_CHANGE;                                                                                     \
+    if (api_->compute.get_compute_mode() == Computation::Raw)                                                          \
+        return ApiCode::WRONG_COMP_MODE;
+
 namespace holovibes::api
 {
 
 #pragma region Batch
 
-bool TransformApi::set_batch_size(uint value) const
+ApiCode TransformApi::set_batch_size(uint batch_size) const
 {
-    bool request_time_stride_update = false;
-    UPDATE_SETTING(BatchSize, value);
+    if (get_batch_size() == batch_size)
+        return ApiCode::NO_CHANGE;
 
-    if (value > api_->input.get_input_buffer_size())
-        value = api_->input.get_input_buffer_size();
-
-    uint time_stride = get_time_stride();
-    if (time_stride < value)
-    {
-        UPDATE_SETTING(TimeStride, value);
-        time_stride = value;
-        request_time_stride_update = true;
-    }
-
-    // Go to lower multiple
-    if (time_stride % value != 0)
-    {
-        request_time_stride_update = true;
-        set_time_stride(time_stride - time_stride % value);
-    }
-
-    return request_time_stride_update;
-}
-
-void TransformApi::update_batch_size(uint batch_size) const
-{
     if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
-        batch_size = 1;
+    {
+        LOG_WARN("File is in moments mode, batch size is fixed to 3");
+        batch_size = 3;
+    }
 
-    if (api_->compute.get_is_computation_stopped() || get_batch_size() == batch_size)
-        return;
+    if (batch_size > api_->input.get_input_buffer_size())
+    {
+        batch_size = api_->input.get_input_buffer_size();
+        LOG_WARN("Batch size cannot be greater than the input queue. Setting it to the input queue size: {}",
+                 batch_size);
+    }
 
-    if (set_batch_size(batch_size))
-        api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
-    api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
+    UPDATE_SETTING(BatchSize, batch_size);
+
+    // Adjust value of time stride if needed
+    set_time_stride(get_time_stride());
+
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Stride
 
-void TransformApi::set_time_stride(uint value) const
+ApiCode TransformApi::set_time_stride(uint time_stride) const
 {
-    UPDATE_SETTING(TimeStride, value);
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
 
     uint batch_size = GET_SETTING(BatchSize);
 
-    if (batch_size > value)
-        UPDATE_SETTING(TimeStride, batch_size);
-    // Go to lower multiple
-    if (value % batch_size != 0)
-        UPDATE_SETTING(TimeStride, value - value % batch_size);
-}
+    if (batch_size > time_stride)
+    {
+        LOG_WARN("Time stride cannot be lower than the batch size. Setting it to the batch size: {}", batch_size);
+        time_stride = batch_size;
+    }
 
-void TransformApi::update_time_stride(const uint time_stride) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
-        return;
+    if (time_stride % batch_size != 0)
+    {
+        time_stride = time_stride - time_stride % batch_size;
+        LOG_WARN("Time stride has to be a multiple of the batch size. Setting it to the lower multiple: {}",
+                 time_stride);
+    }
 
+    // Check after adjustments that the time stride is different
     if (time_stride == get_time_stride())
-        return;
+        return ApiCode::NO_CHANGE;
 
-    set_time_stride(time_stride);
-    api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+    UPDATE_SETTING(TimeStride, time_stride);
+
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Space Tr.
 
-void TransformApi::set_space_transformation(const SpaceTransformation value) const
+ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || get_space_transformation() == value)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
 
     UPDATE_SETTING(SpaceTransformation, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_lambda(float value) const
+ApiCode TransformApi::set_lambda(float value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_lambda(), value);
 
-    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
+    if (value < 0)
+    {
+        LOG_WARN("Lambda cannot be negative. Setting it to 0");
+        value = 0;
+    }
+
+    UPDATE_SETTING(Lambda, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_z_distance(float value) const
+ApiCode TransformApi::set_z_distance(float value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_z_distance(), value);
 
     // Avoid 0 for cuda kernel
     if (value == 0)
@@ -108,85 +118,98 @@ void TransformApi::set_z_distance(float value) const
 
     UPDATE_SETTING(ZDistance, value);
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Tr.
 
-void TransformApi::update_time_transformation_size(uint time_transformation_size) const
+ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
-        return;
-
-    if (time_transformation_size == get_time_transformation_size())
-        return;
+    NOT_SAME_AND_NOT_RAW(get_time_transformation_size(), time_transformation_size);
 
     if (time_transformation_size < 1)
+    {
+        LOG_WARN("Time transformation size has to be greater than 0, set to 1");
         time_transformation_size = 1;
+    }
 
-    set_time_transformation_size(time_transformation_size);
+    UPDATE_SETTING(TimeTransformationSize, time_transformation_size);
+
+    // Updates p and q bounds
+    check_p_limits();
+    check_q_limits();
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+
+    return ApiCode::OK;
 }
 
-void TransformApi::set_time_transformation(const TimeTransformation value) const
+ApiCode TransformApi::set_time_transformation(const TimeTransformation value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || get_time_transformation() == value)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_time_transformation(), value);
 
     UPDATE_SETTING(TimeTransformation, value);
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     api_->compute.get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Tr.Freq.
 
-void TransformApi::set_p_index(uint value) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
-
-    if (value >= get_time_transformation_size())
-    {
-        LOG_ERROR("p param has to be between 0 and time window");
-        return;
-    }
-
-    SET_SETTING(P, start, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_p_accu_level(uint p_value) const
-{
-    SET_SETTING(P, width, p_value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_q_index(uint value) const
-{
-    SET_SETTING(Q, start, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_q_accu_level(uint value) const
-{
-    SET_SETTING(Q, width, value);
-    api_->compute.pipe_refresh();
-}
-
 void TransformApi::check_p_limits() const
 {
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
     if (std::cmp_greater(get_p_accu_level(), upper_bound))
+    {
+        LOG_WARN("p width is greater than the time window, setting it: {}", upper_bound);
         set_p_accu_level(upper_bound);
+    }
 
     upper_bound -= get_p_accu_level();
 
-    if (upper_bound >= 0 && get_p_index() > static_cast<uint>(upper_bound))
+    if (get_p_index() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("p start + p width is greater than the time window, setting z start to: {}", upper_bound);
         set_p_index(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_p_index(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_p_index(), value);
+
+    SET_SETTING(P, start, value);
+    check_p_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_p_accu_level(uint p_value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_p_accu_level(), p_value);
+
+    SET_SETTING(P, width, p_value);
+    check_p_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 void TransformApi::check_q_limits() const
@@ -194,85 +217,192 @@ void TransformApi::check_q_limits() const
     int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
     if (std::cmp_greater(get_q_accu_level(), upper_bound))
+    {
+        LOG_WARN("q width is greater than the time window, setting it: {}", upper_bound);
         set_q_accu_level(upper_bound);
+    }
 
     upper_bound -= get_q_accu_level();
 
-    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
+    if (get_q_index() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("q start + q width is greater than the time window, setting z2 start to: {}", upper_bound);
         set_q_index(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_q_index(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_q_index(), value);
+
+    SET_SETTING(Q, start, value);
+    check_q_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_q_accu_level(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_q_accu_level(), value);
+
+    SET_SETTING(Q, width, value);
+    check_q_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Time Tr.Cuts
 
-void TransformApi::set_x_accu_level(uint x_value) const
+void TransformApi::check_x_limits() const
 {
-    SET_SETTING(X, width, x_value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_x_cuts(uint value) const
-{
-    if (value < api_->input.get_input_fd().width)
-    {
-        SET_SETTING(X, start, value);
-        api_->compute.pipe_refresh();
-    }
-}
-
-void TransformApi::set_y_accu_level(uint y_value) const
-{
-    SET_SETTING(Y, width, y_value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_y_cuts(uint value) const
-{
-    if (value < api_->input.get_input_fd().height)
-    {
-        SET_SETTING(Y, start, value);
-        api_->compute.pipe_refresh();
-    }
-}
-
-void TransformApi::set_x_y(uint x, uint y) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
+    // No input frame descriptor
+    if (api_->input.get_import_type() == ImportType::None)
         return;
 
-    if (x < api_->input.get_input_fd().width)
-        SET_SETTING(X, start, x);
+    int upper_bound = static_cast<int>(api_->input.get_input_fd().width) - 1;
 
-    if (y < api_->input.get_input_fd().height)
-        SET_SETTING(Y, start, y);
+    if (std::cmp_greater(get_x_accu_level(), upper_bound))
+    {
+        LOG_WARN("x width is greater than the frame descriptor width, setting it: {}", upper_bound);
+        set_x_accu_level(upper_bound);
+    }
+
+    upper_bound -= get_x_accu_level();
+
+    if (get_x_cuts() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("x start + x width is greater than the frame descriptor width, setting x start to: {}", upper_bound);
+        set_x_cuts(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_x_accu_level(uint x_value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_x_accu_level(), x_value);
+
+    SET_SETTING(X, width, x_value);
+    check_x_limits();
 
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_x_cuts(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_x_cuts(), value);
+
+    SET_SETTING(X, start, value);
+    check_x_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+void TransformApi::check_y_limits() const
+{
+    // No input frame descriptor
+    if (api_->input.get_import_type() == ImportType::None)
+        return;
+
+    int upper_bound = static_cast<int>(api_->input.get_input_fd().height) - 1;
+
+    if (std::cmp_greater(get_y_accu_level(), upper_bound))
+    {
+        LOG_WARN("y width is greater than the frame descriptor height, setting it: {}", upper_bound);
+        set_x_accu_level(upper_bound);
+    }
+
+    upper_bound -= get_y_accu_level();
+
+    if (get_y_cuts() > static_cast<uint>(upper_bound))
+    {
+        LOG_WARN("y start + y width is greater than the frame descriptor height, setting x start to: {}", upper_bound);
+        set_y_cuts(upper_bound);
+    }
+}
+
+ApiCode TransformApi::set_y_accu_level(uint y_value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_y_accu_level(), y_value);
+
+    SET_SETTING(Y, width, y_value);
+    check_y_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_y_cuts(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_y_cuts(), value);
+
+    SET_SETTING(Y, start, value);
+    check_y_limits();
+
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_time_transformation_cuts_output_buffer_size(uint value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_time_transformation_cuts_output_buffer_size(), value);
+
+    UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
+    api_->compute.get_compute_pipe()->request(ICS::TimeTransformationCuts);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Specials
 
-void TransformApi::set_unwrapping_2d(const bool value) const
+ApiCode TransformApi::set_fft_shift_enabled(const bool value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
-
-    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
-    api_->compute.pipe_refresh();
-}
-
-void TransformApi::set_fft_shift_enabled(bool value) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_fft_shift_enabled(), value);
 
     UPDATE_SETTING(FftShiftEnabled, value);
+
+    if (api_->compute.get_is_computation_stopped())
+        return ApiCode::OK;
+
     if (api_->global_pp.get_registration_enabled())
         api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
     api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_unwrapping_2d(const bool value) const
+{
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (!api_->compute.get_is_computation_stopped())
+        return ApiCode::NOT_STARTED;
+
+    if (api_->compute.get_compute_pipe()->is_requested(ICS::Unwrap2D) == value)
+        return ApiCode::NO_CHANGE;
+
+    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
