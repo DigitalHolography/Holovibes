@@ -206,7 +206,7 @@ void FourierTransform::insert_time_transform()
         insert_pca();
         break;
     case TimeTransformation::SSA_STFT:
-        insert_ssa_stft(setting<settings::Q>());
+        insert_ssa_stft();
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
@@ -374,7 +374,7 @@ void FourierTransform::insert_pca()
         });
 }
 
-void FourierTransform::insert_ssa_stft(ViewPQ view_q)
+void FourierTransform::insert_ssa_stft()
 {
     LOG_FUNC();
 
@@ -408,7 +408,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            ViewPQ q_struct = view_q;
+            ViewPQ q_struct = setting<settings::Q>();
             int q = q_struct.width != 0 ? q_struct.start : 0;
             int q_acc = q_struct.width != 0 ? q_struct.width : time_transformation_size;
             int q_index = q * time_transformation_size;

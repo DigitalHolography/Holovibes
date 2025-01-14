@@ -177,7 +177,7 @@ class FourierTransform
      */
     void insert_pca();
 
-    void insert_ssa_stft(ViewPQ view_q);
+    void insert_ssa_stft();
 
     /**
      * @brief Helper function to get a settings value.

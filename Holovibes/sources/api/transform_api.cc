@@ -164,17 +164,9 @@ void TransformApi::set_p_accu_level(uint p_value) const
     api_->compute.pipe_refresh();
 }
 
-void TransformApi::set_q_index(uint value) const
-{
-    SET_SETTING(Q, start, value);
-    api_->compute.pipe_refresh();
-}
+void TransformApi::set_q_index(uint value) const { SET_SETTING(Q, start, value); }
 
-void TransformApi::set_q_accu_level(uint value) const
-{
-    SET_SETTING(Q, width, value);
-    api_->compute.pipe_refresh();
-}
+void TransformApi::set_q_accu_level(uint value) const { SET_SETTING(Q, width, value); }
 
 void TransformApi::check_p_limits() const
 {
@@ -206,34 +198,20 @@ void TransformApi::check_q_limits() const
 
 #pragma region Time Tr.Cuts
 
-void TransformApi::set_x_accu_level(uint x_value) const
-{
-    SET_SETTING(X, width, x_value);
-    api_->compute.pipe_refresh();
-}
+void TransformApi::set_x_accu_level(uint x_value) const { SET_SETTING(X, width, x_value); }
 
 void TransformApi::set_x_cuts(uint value) const
 {
     if (value < api_->input.get_input_fd().width)
-    {
         SET_SETTING(X, start, value);
-        api_->compute.pipe_refresh();
-    }
 }
 
-void TransformApi::set_y_accu_level(uint y_value) const
-{
-    SET_SETTING(Y, width, y_value);
-    api_->compute.pipe_refresh();
-}
+void TransformApi::set_y_accu_level(uint y_value) const { SET_SETTING(Y, width, y_value); }
 
 void TransformApi::set_y_cuts(uint value) const
 {
     if (value < api_->input.get_input_fd().height)
-    {
         SET_SETTING(Y, start, value);
-        api_->compute.pipe_refresh();
-    }
 }
 
 void TransformApi::set_x_y(uint x, uint y) const
@@ -246,8 +224,6 @@ void TransformApi::set_x_y(uint x, uint y) const
 
     if (y < api_->input.get_input_fd().height)
         SET_SETTING(Y, start, y);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion

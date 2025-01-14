@@ -26,9 +26,12 @@
 
 #pragma region Settings configuration
 
+#define REAL_REALTIME_SETTINGS holovibes::settings::X, holovibes::settings::Y, holovibes::settings::Q
+
+#define REAL_PIPE_REFRESH_SETTINGS holovibes::settings::ImageType, holovibes::settings::P
+
 // clang-format off
 #define REALTIME_SETTINGS                                        \
-    holovibes::settings::InputFPS,                               \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
