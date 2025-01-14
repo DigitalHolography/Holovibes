@@ -13,7 +13,7 @@ QMainWindow {
     background-color: #101111;
 }
 
-/* Text color for disabled and enabld elements */
+/* Text color for disabled and enabled elements */
 QLabel:disabled,
 QMenu::item:disabled,
 QPushButton:disabled,

@@ -36,10 +36,8 @@ ApiCode TransformApi::set_batch_size(uint batch_size) const
     // Adjust value of time stride if needed
     set_time_stride(get_time_stride());
 
-    if (api_->compute.get_is_computation_stopped())
-        return ApiCode::OK;
-
-    api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateBatchSize);
 
     return ApiCode::OK;
 }
@@ -74,10 +72,8 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
 
     UPDATE_SETTING(TimeStride, time_stride);
 
-    if (api_->compute.get_is_computation_stopped())
-        return ApiCode::OK;
-
-    api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateTimeStride);
 
     return ApiCode::OK;
 }
@@ -179,7 +175,7 @@ void TransformApi::check_p_limits() const
 
     if (std::cmp_greater(get_p_accu_level(), upper_bound))
     {
-        LOG_WARN("z width is greater than the time window, setting it: {}", upper_bound);
+        LOG_WARN("p width is greater than the time window, setting it: {}", upper_bound);
         set_p_accu_level(upper_bound);
     }
 
@@ -187,7 +183,7 @@ void TransformApi::check_p_limits() const
 
     if (get_p_index() > static_cast<uint>(upper_bound))
     {
-        LOG_WARN("z start + z width is greater than the time window, setting z start to: {}", upper_bound);
+        LOG_WARN("p start + p width is greater than the time window, setting z start to: {}", upper_bound);
         set_p_index(upper_bound);
     }
 }
@@ -222,7 +218,7 @@ void TransformApi::check_q_limits() const
 
     if (std::cmp_greater(get_q_accu_level(), upper_bound))
     {
-        LOG_WARN("z2 width is greater than the time window, setting it: {}", upper_bound);
+        LOG_WARN("q width is greater than the time window, setting it: {}", upper_bound);
         set_q_accu_level(upper_bound);
     }
 
@@ -230,7 +226,7 @@ void TransformApi::check_q_limits() const
 
     if (get_q_index() > static_cast<uint>(upper_bound))
     {
-        LOG_WARN("z2 start + z2 width is greater than the time window, setting z2 start to: {}", upper_bound);
+        LOG_WARN("q start + q width is greater than the time window, setting z2 start to: {}", upper_bound);
         set_q_index(upper_bound);
     }
 }
