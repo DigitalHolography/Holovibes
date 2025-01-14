@@ -123,12 +123,12 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
     LOG_FUNC();
 
     angular_spectrum_lens(gpu_lens_.get(),
-                          lens_side_size_,
-                          fd_.height,
                           fd_.width,
-                          setting<settings::Lambda>(),
+                          fd_.height,
                           setting<settings::ZDistance>(),
-                          setting<settings::PixelSize>(),
+                          setting<settings::Lambda>(),
+                          setting<settings::PixelSize>() * 1e-6f,
+                          setting<settings::PixelSize>() * 1e-6f,
                           stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);

@@ -49,7 +49,6 @@ enum class IntType
 enum class ProgressType
 {
     FILE_READ,
-    FRAME_RECORD,
     CHART_RECORD,
 };
 

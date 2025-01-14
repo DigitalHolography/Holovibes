@@ -169,8 +169,13 @@ static void main_loop()
 {
     while (API.record.is_recording())
     {
-        holovibes::api::RecordProgress progress = API.record.get_record_progress();
-        progress_bar(static_cast<int>(progress.saved_frames), static_cast<int>(progress.total_frames), 40);
+        if (API.information.get_information().record_info)
+        {
+            holovibes::RecordProgressInfo progress = API.information.get_information().record_info.value();
+            progress_bar(static_cast<int>(progress.saved_frames), static_cast<int>(progress.total_frames), 40);
+        }
+        else
+            LOG_WARN("Unable to retrieve recording information, the progress bar will not be updated");
 
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -267,7 +272,6 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     API.compute.stop();
-    API.information.stop_information_display();
 
     return 0;
 }

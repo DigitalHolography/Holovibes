@@ -102,9 +102,12 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
     std::get<1>(*fast_update_progress_entry) = 0; // Frames recorded
     nb_frames_to_record = static_cast<uint>(get_record_frame_count().value_or(0));
 
+    if (nb_frames_to_record.load() > get_nb_frame_skip())
+        nb_frames_to_record -= get_nb_frame_skip();
+
     // Calculate the right number of frames to record
     float pas = get_nb_frame_skip() + 1.0f;
-    nb_frames_to_record = static_cast<uint>(std::ceilf(static_cast<float>(nb_frames_to_record) / pas));
+    nb_frames_to_record = static_cast<uint>(std::floorf(static_cast<float>(nb_frames_to_record) / pas));
     if (record_mode == RecordMode::MOMENTS)
         nb_frames_to_record = nb_frames_to_record * 3;
 

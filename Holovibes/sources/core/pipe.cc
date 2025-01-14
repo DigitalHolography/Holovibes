@@ -41,8 +41,10 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
         return false;
     }
 
-    if (!unlimited_record &&
-        nb_frames_acquired_ >= (total_nb_frames_to_acquire_ + setting<settings::RecordFrameOffset>()))
+    size_t total =
+        total_nb_frames_to_acquire_ * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
+
+    if (!unlimited_record && nb_frames_acquired_ >= total)
     {
         API.record.set_frame_acquisition_enabled(false);
         return false;

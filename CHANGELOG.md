@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.4.2
+
+- Fix:
+  - Angular spectrum now working with a new lens. Allowing angular spectrum to work with anamorphic data.
+
 ### 14.4.1
 
 - Fixed FFT frequencies computation

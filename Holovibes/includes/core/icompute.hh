@@ -40,6 +40,7 @@
     holovibes::settings::Q,                                      \
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::FrameSkip,                              \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::SignalZone,                             \

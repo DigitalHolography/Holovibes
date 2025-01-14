@@ -28,6 +28,7 @@ ApiCode ComputeApi::stop() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
+    API.information.stop_benchmark();
     set_is_computation_stopped(true);
 
     Holovibes::instance().stop_frame_read();
@@ -42,6 +43,10 @@ ApiCode ComputeApi::start() const
 
     // Stop any computation currently running and file reading
     stop();
+
+    // Check some settings (now that we have the input frame descriptor)
+    api_->transform.check_x_limits();
+    api_->transform.check_y_limits();
 
     // Create the pipe and start the pipe
     Holovibes::instance().start_compute();
@@ -58,6 +63,8 @@ ApiCode ComputeApi::start() const
         Holovibes::instance().start_camera_frame_read();
     else
         Holovibes::instance().start_file_frame_read();
+
+    API.information.start_benchmark();
 
     return ApiCode::OK;
 }
