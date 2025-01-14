@@ -18,7 +18,7 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define PIPE_REFRESH_SETTINGS                      \
     holovibes::settings::ImageType,                \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::XY,                       \
@@ -26,11 +26,7 @@
     holovibes::settings::XZ,                       \
     holovibes::settings::TimeTransformationSize
 
-#define PIPEREFRESH_SETTINGS                      \
-
-// TODO: Add views and TimeTransformationSize here, since they should be updated in refresh, and not in realtime. For unknown reasons, it does not compile when adding them here.
-
-#define ALL_SETTINGS REALTIME_SETTINGS PIPEREFRESH_SETTINGS
+#define ALL_SETTINGS PIPE_REFRESH_SETTINGS
 // clang-format on
 
 namespace holovibes
@@ -66,7 +62,6 @@ class ImageAccumulation
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
-        , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
     }
@@ -97,21 +92,14 @@ class ImageAccumulation
     template <typename T>
     inline void update_setting(T setting)
     {
-
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
-            LOG_TRACE("[ImageAccumulation] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
-        }
-
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
         {
             LOG_TRACE("[ImageAccumulation] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }
 
-    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
+    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Compute average on one view */
@@ -144,15 +132,8 @@ class ImageAccumulation
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
-            return realtime_settings_.get<T>().value;
-        }
-
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
 
   private:
@@ -170,8 +151,7 @@ class ImageAccumulation
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute
 

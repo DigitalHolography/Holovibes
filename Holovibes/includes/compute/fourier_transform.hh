@@ -26,31 +26,31 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::RecordMode,               \
-    holovibes::settings::ImageType,                \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
-    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Q
+
+#define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::RecordMode,               \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::P,                        \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
-    holovibes::settings::Filter2dN1,               \
-    holovibes::settings::Filter2dN2,               \
-    holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::SpaceTransformation
-
-#define PIPEREFRESH_SETTINGS                       \
-    holovibes::settings::BatchSize,                \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -142,19 +142,24 @@ class FourierTransform
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
         {
             LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
         {
             LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }
 
-    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
+    /*! \brief Update the realtime settings */
+    inline void apply_realtime_settings() { realtime_settings_.apply_updates(); }
+
+    /*! \brief Update the pipe refresh settings */
+    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Enqueue the call to filter2d cuda function. */
@@ -189,15 +194,11 @@ class FourierTransform
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
 
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Roi zone of Filter 2D */
@@ -231,7 +232,7 @@ class FourierTransform
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute

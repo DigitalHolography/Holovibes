@@ -661,15 +661,13 @@ void Pipe::exec()
 
         if (realtime_settings_.updated())
         {
-            realtime_settings_.apply_updates();
+            apply_realtime_settings();
+
             image_accumulation_->clear(); // Clear the accumulation queue
         }
 
         if (pipe_refresh_settings_.updated())
-        {
-            pipe_refresh_settings_.apply_updates();
             refresh(); // Rebuild the function vectors
-        }
     }
 }
 

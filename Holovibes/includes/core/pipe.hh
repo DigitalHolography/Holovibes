@@ -185,14 +185,25 @@ class Pipe : public ICompute
      */
     bool make_requests();
 
-    /**
-     * @brief Apply the updates of the settings on pipe refresh,
-     */
+    /*! \brief Apply the updates of the settings on pipe refresh */
     inline void pipe_refresh_apply_updates()
     {
-        fourier_transforms_->pipe_refresh_apply_updates();
-        image_accumulation_->pipe_refresh_apply_updates();
+        converts_->apply_pipe_refresh_settings();
+        fourier_transforms_->apply_pipe_refresh_settings();
+        image_accumulation_->apply_pipe_refresh_settings();
+        postprocess_->apply_pipe_refresh_settings();
+
         pipe_refresh_settings_.apply_updates();
+    }
+
+    /*! \brief Apply the updates of realtime settings at the end of a pipe cycle */
+    inline void apply_realtime_settings()
+    {
+        converts_->apply_realtime_settings();
+        fourier_transforms_->apply_realtime_settings();
+        postprocess_->apply_realtime_settings();
+
+        realtime_settings_.apply_updates();
     }
 
     /*! \name Insert computation functions in the pipe
