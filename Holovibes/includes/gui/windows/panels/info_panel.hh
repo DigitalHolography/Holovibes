@@ -6,6 +6,7 @@
 
 #include <QTimer>
 
+#include "gui_info_text_edit.hh"
 #include "notifier.hh"
 #include "panel.hh"
 
@@ -30,9 +31,6 @@ class InfoPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*! \brief Change the text in the text area */
-    void set_text(const char* text);
-
     /*! \brief Show or hide the file reader progress */
     void set_visible_file_reader_progress(bool visible);
 
@@ -42,13 +40,31 @@ class InfoPanel : public Panel
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
 
-  private:
-    int height_ = 0;
-    int resize_again_ = 0;
+  public slots:
+    /*!
+     * \brief Is triggered every 50ms to update the information text
+     *
+     */
+    void update_information();
 
+  private:
     QTimer timer_;
 
   private:
-    void handle_progress_bar();
+    /*!
+     * \brief Updates the progress bar depending of the progress type
+     *
+     * \param[in] type The progress type to set in the bar
+     * \param[in] value The current state of the bar
+     * \param[in] max_size The maximum boundary of the bar
+     */
+    void update_progress(ProgressType type, const size_t value, const size_t max_size);
+
+    /*!
+     * \brief Sets the correct values in the progress bar when RECORDING.
+     *
+     * \param[in] information The information struct from which to extract the needed values
+     */
+    void handle_progress_bar(Information& information);
 };
 } // namespace holovibes::gui

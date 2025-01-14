@@ -92,9 +92,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
-    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
-    { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
-
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();
@@ -165,8 +162,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    api_.information.start_information_display();
-
     ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
@@ -190,7 +185,6 @@ MainWindow::~MainWindow()
 
     gui::close_windows();
     api_.compute.stop();
-    api_.information.stop_information_display();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;

@@ -4,7 +4,10 @@
  */
 #pragma once
 
+#include "chrono.hh"
 #include "common_api.hh"
+#include "fast_updates_types.hh"
+#include "information_struct.hh"
 
 namespace holovibes::api
 {
@@ -19,6 +22,28 @@ class InformationApi : public IApi
     }
 
   private:
+    Chrono elapsed_time_chrono_;
+    /*! \brief Input fps */
+    size_t input_fps_ = 0;
+
+    /*! \brief Output fps */
+    size_t output_fps_ = 0;
+
+    /*! \brief Saving fps */
+    size_t saving_fps_ = 0;
+
+    /*! \brief Camera temperature */
+    size_t temperature_ = 0;
+
+    /*! \brief Input throughput */
+    size_t input_throughput_ = 0;
+
+    /*! \brief Output throughput */
+    size_t output_throughput_ = 0;
+
+    /*! \brief Saving throughput */
+    size_t saving_throughput_ = 0;
+
 #pragma region Credits
 
     /*! \brief Authors of the project */
@@ -125,6 +150,12 @@ class InformationApi : public IApi
      */
     inline void set_benchmark_mode(bool value) const { UPDATE_SETTING(BenchmarkMode, value); }
 
+    /*! \brief Starts the benchmark worker */
+    void start_benchmark() const;
+
+    /*! \brief Stops the benchmark worker */
+    void stop_benchmark() const;
+
 #pragma endregion
 
 #pragma region Information
@@ -146,13 +177,33 @@ class InformationApi : public IApi
      */
     const std::string get_documentation_url() const;
 
-    /*! \brief Displays information */
-    void start_information_display() const;
-
-    /*! \brief Stop the displays of information */
-    void stop_information_display() const;
+    /*!
+     * \brief Gather all the information available from the FastUpdatesHolder and return it
+     *
+     * \return Information The structure to update with new information. Every entry
+     * not present in the Holder will be absent (empty optional, nullptr, ...)
+     */
+    Information get_information();
 
 #pragma endregion
+
+#pragma region Internals
+
+  private:
+    /*!
+     * \brief Computes the average frames per second of the available streams (input, output, record)
+     *
+     * \param waited_time The time elapsed since the last function call
+     */
+    void compute_fps(const long long waited_time);
+
+    /*!
+     * \brief Performs some simple multiplications with the respective fps to get the queue throughputs
+     * This requests resolution information to the available queues to do the computations
+     */
+    void compute_throughput();
 };
+
+#pragma endregion
 
 } // namespace holovibes::api

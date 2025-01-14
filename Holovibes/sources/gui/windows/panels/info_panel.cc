@@ -1,11 +1,13 @@
-/*! \file
+/*!
+ * \file info_panel.cc
  *
+ * \brief Definitions for the InfoPanel
  */
 
 #include "API.hh"
 #include "info_panel.hh"
 #include "MainWindow.hh"
-#include "information_worker.hh"
+#include "benchmark_worker.hh"
 #include "logger.hh"
 
 namespace holovibes::gui
@@ -14,47 +16,29 @@ InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
     , timer_()
 {
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(update_information()));
+    timer_.start(50);
 }
 
 InfoPanel::~InfoPanel() {}
 
 void InfoPanel::init()
 {
-    ::holovibes::worker::InformationWorker::update_progress_function_ =
-        [=](ProgressType type, const size_t value, const size_t max_size)
-    {
-        parent_->synchronize_thread(
-            [=]()
-            {
-                switch (type)
-                {
-                case ProgressType::FILE_READ:
-                    ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
-                    ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
-                    break;
-                case ProgressType::CHART_RECORD:
-                    ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
-                    ui_->RecordProgressBar->setValue(static_cast<int>(value));
-
-                    break;
-                default:
-                    return;
-                };
-            });
-    };
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
-
-    connect(&timer_, &QTimer::timeout, this, &InfoPanel::handle_progress_bar);
-    timer_.start(50);
 }
 
-void InfoPanel::handle_progress_bar()
+void InfoPanel::handle_progress_bar(Information& information)
 {
     if (!api_.record.is_recording())
         return;
 
-    api::RecordProgress progress = api_.record.get_record_progress();
+    if (!information.record_info)
+    {
+        LOG_WARN("Unable to retrieve recording information, the progress bar will not be updated");
+        return;
+    }
+    holovibes::RecordProgressInfo progress = information.record_info.value();
 
     // When all frames are acquired, we switch the color and the progress bar now tracks the saving progress
     bool saving = !api_.record.get_frame_acquisition_enabled();
@@ -76,6 +60,36 @@ void InfoPanel::handle_progress_bar()
     parent_->light_ui_->actualise_record_progress(value, static_cast<int>(progress.total_frames));
 }
 
+void InfoPanel::update_information()
+{
+    ui_->InfoTextEdit->display_information();
+
+    Information information = API.information.get_information();
+
+    handle_progress_bar(information);
+
+    for (auto const& [key, info] : information.progresses)
+        update_progress(key, info.current_size, info.max_size);
+}
+
+void InfoPanel::update_progress(ProgressType type, const size_t value, const size_t max_size)
+{
+    switch (type)
+    {
+    case ProgressType::FILE_READ:
+        ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
+        ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
+        break;
+    case ProgressType::CHART_RECORD:
+        ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
+        ui_->RecordProgressBar->setValue(static_cast<int>(value));
+
+        break;
+    default:
+        return;
+    };
+}
+
 void InfoPanel::load_gui(const json& j_us)
 {
     bool h = json_get_or_default(j_us, isHidden(), "panels", "info hidden");
@@ -84,25 +98,6 @@ void InfoPanel::load_gui(const json& j_us)
 }
 
 void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
-
-void InfoPanel::set_text(const char* text)
-{
-    QTextEdit* text_edit = ui_->InfoTextEdit;
-
-    text_edit->setHtml(text);
-
-    // For some reason, the GUI needs multiple updates to return to its base layout
-    if (resize_again_-- > 0)
-        parent_->adjustSize();
-
-    if (text_edit->document()->size().height() != height_)
-    {
-        height_ = text_edit->document()->size().height();
-        text_edit->setMinimumSize(0, height_);
-        parent_->adjustSize();
-        resize_again_ = 3;
-    }
-}
 
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {
