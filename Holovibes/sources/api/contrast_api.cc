@@ -13,13 +13,47 @@ float ftruncate(const int precision, float value)
     return std::round(value * multiplier) / multiplier;
 }
 
+ContrastRange ContrastApi::get_contrast_range(WindowKind kind) const
+{
+    switch (kind)
+    {
+    case WindowKind::XYview:
+        return GET_SETTING(XYContrastRange);
+    case WindowKind::XZview:
+        return GET_SETTING(XZContrastRange);
+    case WindowKind::YZview:
+        return GET_SETTING(YZContrastRange);
+    default:
+        return GET_SETTING(Filter2dContrastRange);
+    }
+}
+
+void ContrastApi::set_contrast_range(ContrastRange range, WindowKind kind) const
+{
+    switch (kind)
+    {
+    case WindowKind::XYview:
+        UPDATE_SETTING(XYContrastRange, range);
+        break;
+    case WindowKind::XZview:
+        UPDATE_SETTING(XZContrastRange, range);
+        break;
+    case WindowKind::YZview:
+        UPDATE_SETTING(YZContrastRange, range);
+        break;
+    default:
+        UPDATE_SETTING(Filter2dContrastRange, range);
+        break;
+    }
+}
+
 #pragma endregion
 
 #pragma region Contrast
 
 float ContrastApi::get_contrast_min(WindowKind kind) const
 {
-    float min = get_window(kind).contrast.min;
+    float min = get_contrast_range(kind).min;
     return get_log_enabled(kind) ? min : log10(min);
 }
 
@@ -41,16 +75,16 @@ void ContrastApi::set_contrast_min(float value, WindowKind kind) const
         return;
     }
 
-    auto window = api_->window_pp.get_window_xyz(kind);
-    window.contrast.min = new_val;
-    api_->window_pp.set_window_xyz(kind, window);
+    auto contrast_range = get_contrast_range(kind);
+    contrast_range.min = new_val;
+    set_contrast_range(contrast_range, kind);
 
     api_->compute.pipe_refresh();
 }
 
 float ContrastApi::get_contrast_max(WindowKind kind) const
 {
-    float max = get_window(kind).contrast.max;
+    float max = get_contrast_range(kind).max;
     return get_log_enabled(kind) ? max : log10(max);
 }
 
@@ -72,9 +106,9 @@ void ContrastApi::set_contrast_max(float value, WindowKind kind) const
         return;
     }
 
-    auto window = api_->window_pp.get_window_xyz(kind);
-    window.contrast.max = new_val;
-    api_->window_pp.set_window_xyz(kind, window);
+    auto contrast_range = get_contrast_range(kind);
+    contrast_range.max = new_val;
+    set_contrast_range(contrast_range, kind);
 
     api_->compute.pipe_refresh();
 }
@@ -84,20 +118,10 @@ void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
     min = min > 1.0f ? min : 1.0f;
     max = max > 1.0f ? max : 1.0f;
 
-    if (kind == WindowKind::Filter2D)
-    {
-        auto window = GET_SETTING(Filter2d);
-        window.contrast.min = min;
-        window.contrast.max = max;
-        UPDATE_SETTING(Filter2d, window);
-
-        return;
-    }
-
-    auto window = api_->window_pp.get_window_xyz(kind);
-    window.contrast.min = min;
-    window.contrast.max = max;
-    api_->window_pp.set_window_xyz(kind, window);
+    auto contrast_range = get_contrast_range(kind);
+    contrast_range.min = min;
+    contrast_range.max = max;
+    set_contrast_range(contrast_range, kind);
 }
 
 #pragma endregion
@@ -148,20 +172,16 @@ void ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
 
 #pragma region Contrast Invert
 
+bool ContrastApi::get_contrast_invert(WindowKind kind) const { return get_contrast_range(kind).invert; }
+
 void ContrastApi::set_contrast_invert(bool value, WindowKind kind) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
         return;
 
-    if (kind == WindowKind::Filter2D)
-    {
-        SET_SETTING(Filter2d, contrast.invert, value);
-        return;
-    }
-
-    auto window = api_->window_pp.get_window_xyz(kind);
-    window.contrast.invert = value;
-    api_->window_pp.set_window_xyz(kind, window);
+    auto contrast_range = get_contrast_range(kind);
+    contrast_range.invert = value;
+    set_contrast_range(contrast_range, kind);
 
     api_->compute.pipe_refresh();
 }

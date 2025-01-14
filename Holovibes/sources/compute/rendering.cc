@@ -196,40 +196,40 @@ void Rendering::insert_apply_contrast(WindowKind view)
             float min = 0;
             float max = 0;
 
-            ViewWindow wind;
+            ContrastRange range;
             switch (view)
             {
             case WindowKind::XYview:
                 input = buffers_.gpu_postprocess_frame;
                 size = buffers_.gpu_postprocess_frame_size;
-                wind = setting<settings::XY>();
+                range = setting<settings::XYContrastRange>();
                 break;
             case WindowKind::YZview:
                 input = buffers_.gpu_postprocess_frame_yz.get();
                 size = fd_.height * setting<settings::TimeTransformationSize>();
-                wind = setting<settings::YZ>();
+                range = setting<settings::YZContrastRange>();
                 break;
             case WindowKind::XZview:
                 input = buffers_.gpu_postprocess_frame_xz.get();
                 size = fd_.width * setting<settings::TimeTransformationSize>();
-                wind = setting<settings::XZ>();
+                range = setting<settings::XZContrastRange>();
                 break;
             case WindowKind::Filter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = setting<settings::Filter2d>();
+                range = setting<settings::Filter2dContrastRange>();
                 break;
             }
 
-            if (wind.contrast.invert)
+            if (range.invert)
             {
-                min = wind.contrast.max;
-                max = wind.contrast.min;
+                min = range.max;
+                max = range.min;
             }
             else
             {
-                min = wind.contrast.min;
-                max = wind.contrast.max;
+                min = range.min;
+                max = range.max;
             }
 
             apply_contrast_correction(input, size, dynamic_range, min, max, stream_);
@@ -308,7 +308,6 @@ void Rendering::autocontrast_caller(
     const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
                                             setting<settings::ContrastUpperThreshold>()};
 
-    auto& api = API;
     switch (view)
     {
     case WindowKind::XYview:
@@ -325,8 +324,6 @@ void Rendering::autocontrast_caller(
                                    setting<settings::ReticleZone>(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-
-        API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -339,8 +336,9 @@ void Rendering::autocontrast_caller(
                                    setting<settings::ReticleZone>(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-        API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
         break;
     }
+
+    API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
 }
 } // namespace holovibes::compute

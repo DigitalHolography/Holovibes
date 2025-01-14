@@ -60,6 +60,10 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::Filter2d,                               \
+    holovibes::settings::XYContrastRange,                        \
+    holovibes::settings::XZContrastRange,                        \
+    holovibes::settings::YZContrastRange,                        \
+    holovibes::settings::Filter2dContrastRange,                  \
     holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
     holovibes::settings::ChartDisplayEnabled,                    \
@@ -383,6 +387,10 @@ class Holovibes
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
                                              settings::Filter2d{ViewWindow{}},
+                                             settings::XYContrastRange{ContrastRange{}},
+                                             settings::XZContrastRange{ContrastRange{}},
+                                             settings::YZContrastRange{ContrastRange{}},
+                                             settings::Filter2dContrastRange{ContrastRange{}},
                                              settings::CurrentWindow{WindowKind::XYview},
                                              settings::LensViewEnabled{false},
                                              settings::ChartDisplayEnabled{false},

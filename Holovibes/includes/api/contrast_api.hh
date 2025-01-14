@@ -51,6 +51,10 @@ class ContrastApi : public IApi
      */
     inline static WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
 
+    ContrastRange get_contrast_range(WindowKind kind) const;
+
+    void set_contrast_range(ContrastRange range, WindowKind kind) const;
+
 #pragma endregion
 
   public:
@@ -179,10 +183,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the contrast is inverted
      */
-    inline bool get_contrast_invert(WindowKind kind = get_current_window_type()) const
-    {
-        return get_window(kind).contrast.invert;
-    }
+    bool get_contrast_invert(WindowKind kind = get_current_window_type()) const;
 
     /*! \brief Enables or Disables the contrast invert on the specified window kind (or the current window
      * if not specified).

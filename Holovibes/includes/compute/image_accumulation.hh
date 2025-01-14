@@ -116,11 +116,8 @@ class ImageAccumulation
                                 float& gpu_postprocess_frame_yz);
 
     /*! \brief Insert the copy of the corrected buffer into the float buffer. */
-    void insert_copy_accumulation_result(const holovibes::ViewXYZ& const_view_xy,
-                                         float* gpu_postprocess_frame,
-                                         const holovibes::ViewXYZ& const_view_xz,
+    void insert_copy_accumulation_result(float* gpu_postprocess_frame,
                                          float* gpu_postprocess_frame_xz,
-                                         const holovibes::ViewXYZ& const_view_yz,
                                          float* gpu_postprocess_frame_yz);
 
     /*! \brief Handle the allocation of a accumulation queue and average frame */

@@ -656,9 +656,6 @@ void Pipe::exec()
         // Run the entire pipeline of calculation
         run_all();
 
-        if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
-            refresh();
-
         if (realtime_settings_.updated())
         {
             apply_realtime_settings();
@@ -666,8 +663,8 @@ void Pipe::exec()
             image_accumulation_->clear(); // Clear the accumulation queue
         }
 
-        if (pipe_refresh_settings_.updated())
-            refresh(); // Rebuild the function vectors
+        if ((is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled)))
+            refresh();
     }
 }
 

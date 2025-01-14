@@ -21,6 +21,12 @@
 #pragma region Settings configuration
 // clang-format off
 
+#define BYPASS_SETTINGS                         \
+    holovibes::settings::XYContrastRange,       \
+    holovibes::settings::XZContrastRange,       \
+    holovibes::settings::YZContrastRange,       \
+    holovibes::settings::Filter2dContrastRange
+
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
@@ -43,7 +49,7 @@
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::TimeTransformationSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_REFRESH_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_REFRESH_SETTINGS, BYPASS_SETTINGS
 
 // clang-format on
 
@@ -86,6 +92,7 @@ class Rendering
         , input_fd_(input_fd)
         , fd_(output_fd)
         , stream_(stream)
+        , bypass_settings_(settings)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
@@ -106,6 +113,12 @@ class Rendering
     template <typename T>
     inline void update_setting(T setting)
     {
+        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
+        {
+            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
+            bypass_settings_.update_setting(setting);
+        }
+
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
         {
             LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
@@ -172,6 +185,9 @@ class Rendering
     template <typename T>
     auto setting()
     {
+        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
+            return bypass_settings_.get<T>().value;
+
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
 
@@ -197,6 +213,8 @@ class Rendering
     const cudaStream_t& stream_;
 
     float* percent_min_max_;
+
+    RealtimeSettingsContainer<BYPASS_SETTINGS> bypass_settings_;
 
     DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;

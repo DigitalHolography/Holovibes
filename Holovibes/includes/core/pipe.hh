@@ -148,6 +148,9 @@ class Pipe : public ICompute
     {
         LOG_TRACE("[Pipe] [update_setting] {}", typeid(T).name());
 
+        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
+            bypass_settings_.update_setting(setting);
+
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
 

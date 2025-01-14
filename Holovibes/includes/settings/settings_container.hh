@@ -175,6 +175,7 @@ class DelayedSettingsContainer : public SettingsContainer<Settings...>
     template <TupleContainsTypes<Settings...> InitSettings>
     DelayedSettingsContainer(InitSettings settings)
         : SettingsContainer<Settings...>{settings}
+        , updated_{false}
     {
         buffer_ = this->settings_;
     }

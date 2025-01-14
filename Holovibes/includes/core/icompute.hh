@@ -28,6 +28,12 @@
 
 // clang-format off
 
+#define BYPASS_SETTINGS                         \
+    holovibes::settings::XYContrastRange,       \
+    holovibes::settings::XZContrastRange,       \
+    holovibes::settings::YZContrastRange,       \
+    holovibes::settings::Filter2dContrastRange
+
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
@@ -95,7 +101,7 @@
     holovibes::settings::RecordQueueLocation,                    \
     holovibes::settings::DataType
 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPE_REFRESH_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPE_REFRESH_SETTINGS, BYPASS_SETTINGS
 
 // clang-format on
 #pragma endregion
@@ -117,6 +123,7 @@ class ICompute
         : input_queue_(input)
         , record_queue_(record)
         , stream_(stream)
+        , bypass_settings_(settings)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
         , onrestart_settings_(settings)
@@ -333,6 +340,9 @@ class ICompute
     template <typename T>
     auto setting()
     {
+        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
+            return bypass_settings_.get<T>().value;
+
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
 
@@ -404,6 +414,9 @@ class ICompute
     /*! \name Settings containers
      * \{
      */
+    /*! \brief Container for settings that don't need to be cleared in the queue */
+    RealtimeSettingsContainer<BYPASS_SETTINGS> bypass_settings_;
+
     /*! \brief Container for the realtime settings. */
     DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
