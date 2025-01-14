@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <tuple>
 
-#include "notifier_struct.hh"
 #include "notifier.hh"
 #include "enum_record_mode.hh"
 #include "enum_camera_kind.hh"
@@ -61,41 +60,7 @@ class LightUI : public QMainWindow
      */
     void actualise_record_output_file_ui(const std::filesystem::path file_path);
 
-    /**
-     * @brief Resets the start button to its initial state.
-     */
-    void reset_start_button();
-
-    void activate_start_button(bool activate);
-    void set_progress_bar_value(int value);
-    void set_progress_bar_maximum(int value);
-
-    /**
-     * @brief Handles the start of a recording.
-     * @param record The recording mode.
-     */
-    void on_record_start(RecordMode record);
-
-    /**
-     * @brief Handles the stop of a recording.
-     * @param record The recording mode.
-     */
-    void on_record_stop(RecordMode record);
-
-    /**
-     * @brief Handles the updating of a recording ; used to update the progress bar.
-     * @param record Contains info about the progress bar : its value and its max value.
-     */
-    void on_record_progress(const RecordProgressData& data);
-
-    /**
-     * @brief Handles the changes to the progress bar color.
-     * @param data Contains the new color and text for the progress bar.
-     */
-    void on_record_progress_bar_color(const RecordBarColorData& data);
-
     void actualise_record_progress(const int value, const int max);
-    void reset_record_progress_bar();
 
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
@@ -214,16 +179,10 @@ class LightUI : public QMainWindow
     void closeEvent(QCloseEvent* event) override;
 
   private:
-    Ui::LightUI* ui_;                                // Pointer to the UI instance.
-    MainWindow* main_window_;                        // Pointer to the MainWindow instance.
-    bool visible_;                                   // Boolean to track the visibility state of the UI.
-    Subscriber<bool> notify_subscriber_;             // Subscriber that runs the notify function and updates the UI.
-    Subscriber<RecordMode> record_start_subscriber_; // Subscriber for record start events.
-    Subscriber<RecordMode> record_end_subscriber_;   // Subscriber for record end events.
-    Subscriber<bool> record_finished_subscriber_;    // Subscriber for record finished events.
-    Subscriber<RecordProgressData> record_progress_subscriber_; // Subscriber for record progress events.
-    Subscriber<RecordBarColorData>
-        record_progress_bar_color_subscriber_; // Subscriber for record progress bar color events.
+    Ui::LightUI* ui_;                    // Pointer to the UI instance.
+    MainWindow* main_window_;            // Pointer to the MainWindow instance.
+    bool visible_;                       // Boolean to track the visibility state of the UI.
+    Subscriber<bool> notify_subscriber_; // Subscriber that runs the notify function and updates the UI.
 };
 
 } // namespace holovibes::gui

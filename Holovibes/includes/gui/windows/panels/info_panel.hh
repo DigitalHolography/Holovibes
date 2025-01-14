@@ -4,7 +4,8 @@
  */
 #pragma once
 
-#include "chrono.hh"
+#include <QTimer>
+
 #include "gui_info_text_edit.hh"
 #include "notifier.hh"
 #include "panel.hh"
@@ -56,7 +57,9 @@ class InfoPanel : public Panel
     void update_information();
 
   private:
-    Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
     QTimer timer_;
+
+  private:
+    void handle_progress_bar(Information& information);
 };
 } // namespace holovibes::gui

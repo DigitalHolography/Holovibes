@@ -5,7 +5,6 @@
 #include "camera_dll.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
-#include "notifier.hh"
 
 namespace holovibes::api
 {
@@ -101,7 +100,11 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
         }
 
         if (get_file_load_kind() != FileLoadKind::REGULAR)
-            NotifierManager::notify<bool>("set_preset_file_gpu", true);
+        {
+            std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
+            api_->settings.import_buffer(dest.string());
+            LOG_INFO("GPU Preset loaded");
+        }
 
         return input;
     }
@@ -141,7 +144,11 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     api_->record.set_record_buffer_size(record_buffer_size);
 
     if (get_file_load_kind() != FileLoadKind::REGULAR)
-        NotifierManager::notify<bool>("set_preset_file_gpu", true);
+    {
+        std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
+        api_->settings.import_buffer(dest.string());
+        LOG_INFO("GPU Preset loaded");
+    }
 
     return input;
 }
@@ -196,6 +203,9 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         set_input_fd(active_camera->get_fd());
         set_camera_kind_enum(c);
         set_data_type(RecordedDataType::RAW);
+
+        if (active_camera->get_camera_fps() != -1)
+            api_->input.set_camera_fps(static_cast<uint>(active_camera->get_camera_fps()));
     }
     catch (const std::exception& e)
     {

@@ -40,6 +40,17 @@ struct ProgressInfo
     uint max_size;
 };
 
+/*! \class RecordProgressInfo
+ *
+ * \brief Small structure specially created to hold data for the recording
+ */
+struct RecordProgressInfo
+{
+    uint acquired_frames;
+    uint saved_frames;
+    uint total_frames;
+};
+
 /*! \class GpuInfo
  *
  * \brief Small structure that holds the GPU and GPU memory controller loads
@@ -77,6 +88,7 @@ struct Information
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;
     std::optional<GpuInfo> gpu_info;
+    std::optional<RecordProgressInfo> record_info;
     std::map<ProgressType, ProgressInfo> progresses;
     std::map<QueueType, QueueInfo> queues;
 };

@@ -46,7 +46,7 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
 
         if (api_->record.get_record_mode() == RecordMode::CUTS_XZ ||
             api_->record.get_record_mode() == RecordMode::CUTS_YZ)
-            api_->record.set_record_mode_enum(RecordMode::HOLOGRAM);
+            api_->record.set_record_mode(RecordMode::HOLOGRAM);
 
         return true;
     }

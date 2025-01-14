@@ -23,6 +23,13 @@
 
 #define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [%t] [%N] %$ %v"
 
+#define CODE_WITH_NO_LOG(statement)                                                                                    \
+    {                                                                                                                  \
+        auto _log_level = holovibes::Logger::logger().get()->level();                                                  \
+        holovibes::Logger::logger().get()->set_level(spdlog::level::off);                                              \
+        statement;                                                                                                     \
+        holovibes::Logger::logger().get()->set_level(_log_level);                                                      \
+    }
 #define LOG_TRACE(fmt, ...)                                                                                            \
     SPDLOG_LOGGER_TRACE(holovibes::Logger::logger(), "{}:{} " fmt, get_file_name(__FILE__), __LINE__, __VA_ARGS__)
 #define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::logger(), __VA_ARGS__)

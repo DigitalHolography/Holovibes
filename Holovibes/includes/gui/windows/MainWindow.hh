@@ -72,8 +72,6 @@ class MainWindow : public QMainWindow
     /*! \brief Start the import process */
     void start_import(QString filename);
 
-    void set_preset_file_on_gpu();
-
     Ui::MainWindow* get_ui();
 
     uint window_max_size = 768;
@@ -150,6 +148,11 @@ class MainWindow : public QMainWindow
     void set_preset();
 
     /**
+     * @brief Sets default File read preset.
+     */
+    void set_file_read_preset();
+
+    /**
      * @brief Sets preset given a preset file.
      */
     void set_preset(std::filesystem::path file);
@@ -202,10 +205,6 @@ class MainWindow : public QMainWindow
 
     bool notify_enabled_ = true;
 
-    Subscriber<bool> acquisition_started_subscriber_;
-    Subscriber<bool> acquisition_finished_subscriber_;
-    bool acquisition_finished_notification_received;
-    Subscriber<bool> set_preset_subscriber_;
     Subscriber<bool> notify_subscriber_;
 };
 } // namespace holovibes::gui

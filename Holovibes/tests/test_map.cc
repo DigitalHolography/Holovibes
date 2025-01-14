@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "map.cuh"
 #include "cuda_memory.cuh"
+#include "test_disable_log.hh"
 
 static constexpr cudaStream_t stream = 0;
 

@@ -15,6 +15,12 @@ namespace holovibes::api
     else                                                                                                               \
         target.reset()
 
+#define UPDATE_STRUCT_OPTIONAL(map, iterator, type, target, ...)                                                       \
+    if ((iterator = map.find(type)) != map.end())                                                                      \
+        target = {__VA_ARGS__};                                                                                        \
+    else                                                                                                               \
+        target.reset()
+
 #define UPDATE_SIMPLE_OPTIONAL(map, iterator, type, target, value)                                                     \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = value;                                                                                                \
@@ -65,6 +71,19 @@ std::optional<GpuInfo> get_gpu_info()
 
     GpuInfo info = {gpu_load.gpu, gpu_load.memory, free, total};
     return info;
+}
+
+std::optional<RecordProgressInfo> get_record_info()
+{
+    std::optional<RecordProgressInfo> record_info = std::nullopt;
+
+    auto& record_map = FastUpdatesMap::map<RecordType>;
+    FastUpdatesHolder<RecordType>::const_iterator record_it;
+    if ((record_it = record_map.find(RecordType::FRAME)) != record_map.end())
+        record_info = {std::get<0>(*record_it->second),
+                       std::get<1>(*record_it->second),
+                       std::get<2>(*record_it->second)};
+    return record_info;
 }
 
 void InformationApi::compute_throughput()
@@ -173,6 +192,8 @@ Information InformationApi::get_information()
     UPDATE_STRING_OPTIONAL(indication_map, indication_it, IndicationType::OUTPUT_FORMAT, info.output_format);
 
     info.gpu_info = get_gpu_info();
+
+    info.record_info = get_record_info();
 
     info.progresses.clear();
     for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)
