@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.X.X
+
+- Fix:
+  - Angular spectrum now working with a new lens. Allowing angular spectrum to work with anamorphic data.
+
 ### 14.4.0
 
 - Nb. frames now isn't reset when interacting with certain UI components
