@@ -192,6 +192,8 @@ class Pipe : public ICompute
         fourier_transforms_->apply_pipe_refresh_settings();
         image_accumulation_->apply_pipe_refresh_settings();
         postprocess_->apply_pipe_refresh_settings();
+        registration_->apply_pipe_refresh_settings();
+        rendering_->apply_pipe_refresh_settings();
 
         pipe_refresh_settings_.apply_updates();
     }
@@ -202,6 +204,7 @@ class Pipe : public ICompute
         converts_->apply_realtime_settings();
         fourier_transforms_->apply_realtime_settings();
         postprocess_->apply_realtime_settings();
+        rendering_->apply_realtime_settings();
 
         realtime_settings_.apply_updates();
     }

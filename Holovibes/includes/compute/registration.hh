@@ -30,13 +30,13 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                         \
+#define PIPE_REFRESH_SETTINGS                     \
     holovibes::settings::RegistrationEnabled,     \
     holovibes::settings::FftShiftEnabled,         \
     holovibes::settings::RegistrationZone,        \
     holovibes::settings::SpaceTransformation
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ALL_SETTINGS PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -79,7 +79,7 @@ class Registration
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
-        , realtime_settings_(settings)
+        , pipe_refresh_settings_(settings)
         , plan_2d_(fd_.height, fd_.width, CUFFT_R2C)
         , plan_2dinv_(fd_.height, fd_.width, CUFFT_C2R)
     {
@@ -126,20 +126,23 @@ class Registration
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
         {
             LOG_TRACE("[Registration] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
+            pipe_refresh_settings_.update_setting(setting);
         }
     }
+
+    /*! \brief Update the pipe refresh settings */
+    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-            return realtime_settings_.get<T>().value;
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
     }
 
     /*! \brief Preprocess the image and store it in `output` buffer.
@@ -230,7 +233,7 @@ class Registration
      */
     int shift_y_ = 0;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute
 
