@@ -43,7 +43,7 @@ class BenchmarkWorker final : public Worker
     {
     }
 
-    /**
+    /*!
      * \brief Writes a wave of benchmark data into the provided file
      *
      * \param[in] csvFile The file to write in (as a stream)

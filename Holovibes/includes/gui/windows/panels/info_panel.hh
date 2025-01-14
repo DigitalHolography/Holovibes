@@ -60,7 +60,7 @@ class InfoPanel : public Panel
      */
     void update_progress(ProgressType type, const size_t value, const size_t max_size);
 
-    /**
+    /*!
      * \brief Sets the correct values in the progress bar when RECORDING.
      *
      * \param[in] information The information struct from which to extract the needed values

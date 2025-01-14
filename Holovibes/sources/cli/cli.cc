@@ -272,7 +272,6 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     API.compute.stop();
-    API.information.stop_benchmark();
 
     return 0;
 }
