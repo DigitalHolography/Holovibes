@@ -1,6 +1,6 @@
 ## Changelog
 
-### 14.X.X
+### 14.4.2
 
 - Fix:
   - Angular spectrum now working with a new lens. Allowing angular spectrum to work with anamorphic data.
