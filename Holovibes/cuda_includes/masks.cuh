@@ -1,4 +1,4 @@
-/*! \file
+/*! \file masks.cuh
  *
  *  \brief Kernels functions to compute masks used in the pipe.
  *  The differents masks are :
@@ -23,16 +23,26 @@
 __global__ void kernel_quadratic_lens(
     cuComplex* output, const uint lens_side_size, const float lambda, const float dist, const float pixel_size);
 
-/*! \brief Compute a lens to apply to an image used by the Angular Spectrum (fft2)
+/*! \brief CUDA kernel to compute the lens to apply to the image during the angular spectrum process.
+ *  The `x_step` and `y_step` params ar equals for now since they are computed from pixel_size.
+ *  However, for the futur we may want them to be unequal.
+ *  This function is inspired by the matlab angular lens function in HoloDoppler.
  *
- * \param[out] output The lens computed by the function.
- * \param[in] fd File descriptor of the images on wich the lens will be applied.
- * \param[in] lambda Laser dependent wave lenght
- * \param[in] distance z choosen
- * \param[in] pixel_size size of pixels of the input
+ *  \param[out] output The buffer to store the lens.
+ *  \param[in] Nx The width of the buffer.
+ *  \param[in] Ny The height of the buffer.
+ *  \param[in] z The Z distance setting
+ *  \param[in] lambda The lambda setting
+ *  \param[in] x_step The pixel width.
+ *  \param[in] y_step The pixel height.
  */
-__global__ void kernel_spectral_lens(
-    cuComplex* output, const uint lens_side_size, const float lambda, const float distance, const float pixel_size);
+__global__ void kernel_spectral_lens(cuFloatComplex* output,
+                                     const int Nx,
+                                     const int Ny,
+                                     const float z,
+                                     const float lambda,
+                                     const float x_step,
+                                     const float y_step);
 
 /*! \brief The CUDA Kernel getting a circular mask with a given center and radius.
  *  Using euclidian distance and circle formula (x^2 +  y^2 = r^2)
