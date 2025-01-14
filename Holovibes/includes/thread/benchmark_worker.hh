@@ -43,14 +43,14 @@ class BenchmarkWorker final : public Worker
     {
     }
 
+    /**
+     * \brief Writes a wave of benchmark data into the provided file
+     *
+     * \param csvFile The file to write in (as a stream)
+     */
     void write_information(std::ofstream& csvFile);
 
     void run() override;
-
-    static inline std::function<void(const std::string&)> display_info_text_function_;
-
-    /*! \brief The function used to update the progress displayed */
-    static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
 
     template <typename T>
     inline void update_setting(T setting)
@@ -64,8 +64,8 @@ class BenchmarkWorker final : public Worker
     }
 
   private:
-    /**
-     * @brief Helper function to get a settings value.
+    /*!
+     * \brief Helper function to get a settings value.
      */
     template <typename T>
     auto setting()
@@ -82,12 +82,11 @@ class BenchmarkWorker final : public Worker
     /*! \brief Structure that will be used to retrieve information from the API */
     Information information_;
 
-    /**
-     * @brief Contains all the settings of the worker that should be updated
+    /*!
+     * \brief Contains all the settings of the worker that should be updated
      * on restart.
      */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    // DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::worker
 

@@ -18,7 +18,7 @@ namespace holovibes
 /*! \class FastUpdatesHolder
  *
  * \brief Holds a templated map which is used to regroup useful monitoring information
- * Is used by the InfoPanel to display useful data regarding the state of the software
+ * Is used by the information API to send to the user useful data regarding the state of the software
  */
 template <class T>
 class FastUpdatesHolder

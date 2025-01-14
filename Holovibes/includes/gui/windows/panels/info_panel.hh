@@ -31,15 +31,6 @@ class InfoPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*!
-     * \brief Updates the progress bar depending of the progress type
-     *
-     * \param type The progress type to set in the bar
-     * \param value The current state of the bar
-     * \param max_size The maximum boundary of the bar
-     */
-    void update_progress(ProgressType type, const size_t value, const size_t max_size);
-
     /*! \brief Show or hide the file reader progress */
     void set_visible_file_reader_progress(bool visible);
 
@@ -60,6 +51,20 @@ class InfoPanel : public Panel
     QTimer timer_;
 
   private:
+    /*!
+     * \brief Updates the progress bar depending of the progress type
+     *
+     * \param type The progress type to set in the bar
+     * \param value The current state of the bar
+     * \param max_size The maximum boundary of the bar
+     */
+    void update_progress(ProgressType type, const size_t value, const size_t max_size);
+
+    /**
+     * \brief Sets the correct values in the progress bar when RECORDING.
+     *
+     * \param information The information struct from which to extract the needed values
+     */
     void handle_progress_bar(Information& information);
 };
 } // namespace holovibes::gui

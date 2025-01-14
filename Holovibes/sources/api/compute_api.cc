@@ -28,6 +28,7 @@ ApiCode ComputeApi::stop() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
+    API.information.stop_benchmark();
     set_is_computation_stopped(true);
 
     Holovibes::instance().stop_frame_read();
@@ -58,6 +59,8 @@ ApiCode ComputeApi::start() const
         Holovibes::instance().start_camera_frame_read();
     else
         Holovibes::instance().start_file_frame_read();
+
+    API.information.start_benchmark();
 
     return ApiCode::OK;
 }

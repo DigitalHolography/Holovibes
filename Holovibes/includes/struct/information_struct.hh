@@ -76,7 +76,10 @@ struct QueueInfo
 
 /*! \class Information
  *
- * \brief TODO
+ * \brief Structure used to regroup and organise a bunch of information about
+ * the current state of the application
+ * Most of these fields are optional because the information they represent
+ * may not be available at all times
  */
 struct Information
 {

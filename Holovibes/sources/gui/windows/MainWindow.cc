@@ -162,8 +162,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    api_.information.start_benchmark();
-
     ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
@@ -187,7 +185,6 @@ MainWindow::~MainWindow()
 
     gui::close_windows();
     api_.compute.stop();
-    api_.information.stop_benchmark();
     api_.input.set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;

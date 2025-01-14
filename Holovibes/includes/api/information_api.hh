@@ -150,16 +150,10 @@ class InformationApi : public IApi
      */
     inline void set_benchmark_mode(bool value) const { UPDATE_SETTING(BenchmarkMode, value); }
 
-    /*!
-     * \brief Starts the benchmark worker
-     *
-     */
+    /*! \brief Starts the benchmark worker */
     void start_benchmark() const;
 
-    /*!
-     * \brief Stops the benchmark worker
-     *
-     */
+    /*! \brief Stops the benchmark worker */
     void stop_benchmark() const;
 
 #pragma endregion

@@ -122,32 +122,29 @@ void InfoTextEdit::display_information()
     if (information_.output_format)
         to_display << "<tr><td>Output Format</td><td>" << *information_.output_format.get() << "</td></tr>";
 
-    if (!API.compute.get_is_computation_stopped())
+    for (auto const& [key, info] : information_.queues)
     {
-        for (auto const& [key, info] : information_.queues)
-        {
-            if (key == QueueType::UNDEFINED)
-                continue;
-            float currentLoad = static_cast<float>(info.current_size);
-            float maxLoad = static_cast<float>(info.max_size);
+        if (key == QueueType::UNDEFINED)
+            continue;
+        float currentLoad = static_cast<float>(info.current_size);
+        float maxLoad = static_cast<float>(info.max_size);
 
-            to_display << "<tr style=\"color:";
-            if (key == QueueType::OUTPUT_QUEUE)
-                to_display << "white";
-            else if (key == QueueType::INPUT_QUEUE)
-                to_display << get_load_color(currentLoad,
-                                             maxLoad,
-                                             INPUT_Q_ORANGE_COLORATION_RATIO,
-                                             INPUT_Q_RED_COLORATION_RATIO);
-            else
-                to_display << get_load_color(currentLoad, maxLoad);
+        to_display << "<tr style=\"color:";
+        if (key == QueueType::OUTPUT_QUEUE)
+            to_display << "white";
+        else if (key == QueueType::INPUT_QUEUE)
+            to_display << get_load_color(currentLoad,
+                                         maxLoad,
+                                         INPUT_Q_ORANGE_COLORATION_RATIO,
+                                         INPUT_Q_RED_COLORATION_RATIO);
+        else
+            to_display << get_load_color(currentLoad, maxLoad);
 
-            to_display << ";\">";
+        to_display << ";\">";
 
-            to_display << "<td>" << (info.device == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
-                       << "</td>";
-            to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
-        }
+        to_display << "<td>" << (info.device == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
+                   << "</td>";
+        to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
     }
 
     if (information_.input)
