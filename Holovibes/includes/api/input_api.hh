@@ -210,6 +210,14 @@ class InputApi : public IApi
      */
     inline void set_camera_fps(uint value) const { UPDATE_SETTING(CameraFps, value); }
 
+    /**
+     * \brief Getter for if a camera is loaded and it can transmit camera fps.
+     *
+     * \return true Camera fps are available
+     * \return false No camera fps are available (either the camera is incompatible or no camera is loaded)
+     */
+    bool can_get_camera_fps() const;
+
     /*! \brief Return the physical pixel size of the camera sensor (the one in use or the one used when recording the
      * file) in µm.
      *

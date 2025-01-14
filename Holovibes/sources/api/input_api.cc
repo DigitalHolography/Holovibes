@@ -157,6 +157,17 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
 
 #pragma region Cameras
 
+bool InputApi::can_get_camera_fps() const
+{
+    static const std::vector<CameraKind> compatible_cameras = {CameraKind::Phantom,
+                                                               CameraKind::AutoDetectionPhantom,
+                                                               CameraKind::AmetekS711EuresysCoaxlinkQSFP,
+                                                               CameraKind::AmetekS991EuresysCoaxlinkQSFP,
+                                                               CameraKind::Ametek};
+    return (std::find(compatible_cameras.begin(), compatible_cameras.end(), api_->input.get_camera_kind()) !=
+            compatible_cameras.end());
+}
+
 bool InputApi::set_camera_kind(CameraKind c, bool save) const
 {
     camera_none();
