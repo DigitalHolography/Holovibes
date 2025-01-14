@@ -26,9 +26,75 @@
 
 #pragma region Settings configuration
 
-#define REAL_REALTIME_SETTINGS holovibes::settings::X, holovibes::settings::Y, holovibes::settings::Q
+// clang-format off
 
-#define REAL_PIPE_REFRESH_SETTINGS holovibes::settings::ImageType, holovibes::settings::P
+#define REAL_REALTIME_SETTINGS                                   \
+    holovibes::settings::X,                                      \
+    holovibes::settings::Y,                                      \
+    holovibes::settings::Q,                                      \
+    holovibes::settings::RecordFrameOffset,                      \
+    holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::ReticleDisplayEnabled,                  \
+    holovibes::settings::DivideConvolutionEnabled,               \
+    holovibes::settings::SignalZone,                             \
+    holovibes::settings::NoiseZone,                              \
+    holovibes::settings::CompositeZone,                          \
+    holovibes::settings::CompositeKind,                          \
+    holovibes::settings::CompositeAutoWeights,                   \
+    holovibes::settings::RGB,                                    \
+    holovibes::settings::HSV,                                    \
+    holovibes::settings::ZFFTShift,                              \
+    holovibes::settings::TimeStride,                             \
+    holovibes::settings::ContrastLowerThreshold,                 \
+    holovibes::settings::ContrastUpperThreshold,                 \
+    holovibes::settings::RenormConstant,                         \
+    holovibes::settings::ReticleZone,                            \
+    holovibes::settings::CutsContrastPOffset
+
+#define REAL_PIPE_REFRESH_SETTINGS                               \
+    holovibes::settings::ImageType,                              \
+    holovibes::settings::P,                                      \
+    holovibes::settings::Filter2d,                               \
+    holovibes::settings::LensViewEnabled,                        \
+    holovibes::settings::ChartDisplayEnabled,                    \
+    holovibes::settings::Filter2dEnabled,                        \
+    holovibes::settings::Filter2dViewEnabled,                    \
+    holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RegistrationEnabled,                    \
+    holovibes::settings::RawViewEnabled,                         \
+    holovibes::settings::CutsViewEnabled,                        \
+    holovibes::settings::RenormEnabled,                          \
+    holovibes::settings::RegistrationZone,                       \
+    holovibes::settings::Filter2dN1,                             \
+    holovibes::settings::Filter2dN2,                             \
+    holovibes::settings::Filter2dSmoothLow,                      \
+    holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::ChartRecordEnabled,                     \
+    holovibes::settings::FrameAcquisitionEnabled,                \
+    holovibes::settings::SpaceTransformation,                    \
+    holovibes::settings::TimeTransformation,                     \
+    holovibes::settings::Lambda,                                 \
+    holovibes::settings::ZDistance,                              \
+    holovibes::settings::ConvolutionEnabled,                     \
+    holovibes::settings::ConvolutionMatrix,                      \
+    holovibes::settings::ComputeMode,                            \
+    holovibes::settings::PixelSize,                              \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
+    holovibes::settings::RecordMode,                             \
+    holovibes::settings::BatchSize,                              \
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
+    holovibes::settings::CameraFps,                              \
+    holovibes::settings::InputFilter
+
+#define REAL_ONRESTART_SETTINGS                                  \
+    holovibes::settings::OutputBufferSize,                       \
+    holovibes::settings::RecordBufferSize,                       \
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::DataType
+
+// clang-format on
 
 // clang-format off
 #define REALTIME_SETTINGS                                        \
@@ -38,7 +104,6 @@
     holovibes::settings::P,                                      \
     holovibes::settings::Q,                                      \
     holovibes::settings::Filter2d,                               \
-    holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
     holovibes::settings::ChartDisplayEnabled,                    \
     holovibes::settings::Filter2dEnabled,                        \
@@ -49,7 +114,6 @@
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
-    holovibes::settings::ReticleScale,                           \
     holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
@@ -202,6 +266,7 @@ class ICompute
         UpdateBatchSize,
         UpdateTimeStride,
         UpdateRegistrationZone,
+        LensView,
         DisableLensView,
         DisableFrameRecord,
         Convolution,

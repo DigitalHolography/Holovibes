@@ -117,13 +117,12 @@ void ViewApi::set_lens_view(bool enabled) const
 
     set_lens_view_enabled(enabled);
 
-    if (!enabled)
-    {
-        auto pipe = api_->compute.get_compute_pipe();
-        pipe->request(ICS::DisableLensView);
-        while (pipe->is_requested(ICS::DisableLensView))
-            continue;
-    }
+    auto request = enabled ? ICS::LensView : ICS::DisableLensView;
+    auto pipe = api_->compute.get_compute_pipe();
+
+    pipe->request(request);
+    while (pipe->is_requested(request))
+        continue;
 }
 
 #pragma endregion

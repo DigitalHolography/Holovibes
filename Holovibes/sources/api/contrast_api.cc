@@ -199,7 +199,7 @@ void ContrastApi::set_reticle_display_enabled(bool value) const
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
 
-    api_->compute.pipe_refresh();
+    // api_->compute.pipe_refresh();
 }
 
 void ContrastApi::set_reticle_scale(float value) const

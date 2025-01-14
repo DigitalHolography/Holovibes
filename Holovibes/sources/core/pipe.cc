@@ -158,6 +158,8 @@ bool Pipe::make_requests()
         clear_request(ICS::OutputBuffer);
     }
 
+    HANDLE_REQUEST(ICS::LensView, "Allocate lens view", fourier_transforms_->init_lens_queue());
+
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
     // Updating number of images
@@ -302,7 +304,7 @@ void Pipe::refresh()
 
     insert_wait_time_stride();
 
-    if (API.input.get_data_type() == RecordedDataType::MOMENTS)
+    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
     {
         // Dequeuing the 3 moments in a temporary buffer
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
@@ -499,7 +501,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (API.view.get_cuts_view_enabled())
+            if (setting<settings::CutsViewEnabled>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -510,7 +512,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (API.view.get_filter2d_view_enabled())
+            if (setting<settings::Filter2dViewEnabled>())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -522,7 +524,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (API.filter2d.get_filter2d_enabled() && API.view.get_filter2d_view_enabled())
+    if (setting<settings::Filter2dEnabled>() && setting<settings::Filter2dViewEnabled>())
     {
         fn_compute_vect_->push_back(
             [this]()

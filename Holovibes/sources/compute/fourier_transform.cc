@@ -94,14 +94,12 @@ void FourierTransform::insert_fresnel_transform()
 {
     LOG_FUNC();
 
-    const float z = setting<settings::ZDistance>();
-
     fresnel_transform_lens(gpu_lens_.get(),
                            lens_side_size_,
                            fd_.height,
                            fd_.width,
                            setting<settings::Lambda>(),
-                           z,
+                           setting<settings::ZDistance>(),
                            setting<settings::PixelSize>(),
                            stream_);
 
@@ -124,14 +122,12 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 {
     LOG_FUNC();
 
-    const float z = setting<settings::ZDistance>();
-
     angular_spectrum_lens(gpu_lens_.get(),
                           lens_side_size_,
                           fd_.height,
                           fd_.width,
                           setting<settings::Lambda>(),
-                          z,
+                          setting<settings::ZDistance>(),
                           setting<settings::PixelSize>(),
                           stream_);
 
@@ -157,7 +153,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
         });
 }
 
-std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
+void FourierTransform::init_lens_queue()
 {
     LOG_FUNC();
 
@@ -167,6 +163,12 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
         fd.depth = camera::PixelDepth::Complex;
         gpu_lens_queue_ = std::make_unique<Queue>(fd, 16);
     }
+}
+
+std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
+{
+    LOG_FUNC();
+
     return gpu_lens_queue_;
 }
 
@@ -175,7 +177,7 @@ void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
 {
     // LOG-USELESS LOG_FUNC();
 
-    if (gpu_lens_queue_)
+    if (setting<settings::LensViewEnabled>())
     {
         // Getting the pointer in the location of the next enqueued element
         cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());

@@ -47,6 +47,7 @@
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::BatchSize,                \
+    holovibes::settings::LensViewEnabled,          \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
     holovibes::settings::InputFilter
@@ -107,6 +108,9 @@ class FourierTransform
 
     /*! \brief Get Lens Queue used to display the Fresnel lens. */
     std::unique_ptr<Queue>& get_lens_queue();
+
+    /*! \brief Initialize the Lens Queue. */
+    void init_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform();

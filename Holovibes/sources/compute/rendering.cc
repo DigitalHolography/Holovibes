@@ -307,6 +307,7 @@ void Rendering::autocontrast_caller(
 
     const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
                                             setting<settings::ContrastUpperThreshold>()};
+
     auto& api = API;
     switch (view)
     {
@@ -321,7 +322,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   API.contrast.get_reticle_zone(),
+                                   setting<settings::ReticleZone>(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
 
@@ -335,7 +336,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   API.contrast.get_reticle_zone(),
+                                   setting<settings::ReticleZone>(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
