@@ -170,9 +170,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(setting<settings::TimeTransformationSize>()))
         {
             success_allocation = false;
-            auto P = setting<settings::P>();
-            P.start = 0;
-            realtime_settings_.update_setting(settings::P{P});
+            api.transform.set_p_index(0);
             api.transform.set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
@@ -655,18 +653,22 @@ void Pipe::exec()
 
     while (!is_requested(ICS::Termination))
     {
-        try
-        {
-            // Run the entire pipeline of calculation
-            run_all();
+        // Run the entire pipeline of calculation
+        run_all();
 
-            if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
-                refresh();
-        }
-        catch (CustomException& e)
+        if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
+            refresh();
+
+        if (realtime_settings_.updated())
         {
-            LOG_ERROR("Pipe error: message: {}", e.what());
-            throw;
+            realtime_settings_.apply_updates();
+            image_accumulation_->clear(); // Clear the accumulation queue
+        }
+
+        if (pipe_refresh_settings_.updated())
+        {
+            pipe_refresh_settings_.apply_updates();
+            refresh(); // Rebuild the function vectors
         }
     }
 }

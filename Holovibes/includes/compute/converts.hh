@@ -22,12 +22,6 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::ImageType,                \
-    holovibes::settings::P,                        \
-    holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::TimeTransformation,       \
-    holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::RGB,                      \
     holovibes::settings::CompositeKind,            \
     holovibes::settings::CompositeAutoWeights,     \
@@ -35,7 +29,15 @@
     holovibes::settings::ZFFTShift,                \
     holovibes::settings::CompositeZone
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define PIPE_REFRESH_SETTINGS                      \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::P,                        \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::TimeTransformationSize
+
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -75,8 +77,15 @@ class Converts
         , fd_(input_fd)
         , stream_(stream)
         , realtime_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
     }
+
+    /*! \brief Update the realtime settings */
+    inline void apply_realtime_settings() { realtime_settings_.apply_updates(); }
+
+    /*! \brief Update the pipe refresh settings */
+    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_postprocess_frame);
@@ -104,10 +113,16 @@ class Converts
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
         {
             LOG_TRACE("[Converts] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+        {
+            LOG_TRACE("[Converts] [update_setting] {}", typeid(T).name());
+            pipe_refresh_settings_.update_setting(setting);
         }
     }
 
@@ -145,10 +160,11 @@ class Converts
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
     }
 
     /*! \brief p_index */
@@ -174,7 +190,9 @@ class Converts
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute
 
