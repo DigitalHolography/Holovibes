@@ -44,8 +44,8 @@ __global__ void kernel_spectral_lens(cuFloatComplex* output,
         float u_step = 1.0f / (Nx * x_step);
         float v_step = 1.0f / (Ny * y_step);
 
-        float u = (x - (Nx / 2)) * u_step;
-        float v = (y - (Ny / 2)) * v_step;
+        float u = (x - (Nx >> 1)) * u_step;
+        float v = (y - (Ny >> 1)) * v_step;
 
         float tmp = 1.0f - (lambda * lambda * (u * u + v * v));
         // Ensure positivity under sqrt.
