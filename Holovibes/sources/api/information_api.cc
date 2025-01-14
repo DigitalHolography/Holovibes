@@ -9,7 +9,13 @@ namespace holovibes::api
 
 #pragma region Internals
 
-#define UPDATE_INT_OPTIONAL(map, iterator, type, target, value)                                                        \
+#define UPDATE_IO_OPTIONAL(map, iterator, type, target, value1, value2)                                                \
+    if ((iterator = map.find(type)) != map.end())                                                                      \
+        target = {value1, value2};                                                                                     \
+    else                                                                                                               \
+        target.reset()
+
+#define UPDATE_SIMPLE_OPTIONAL(map, iterator, type, target, value)                                                     \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = value;                                                                                                \
     else                                                                                                               \
@@ -18,12 +24,6 @@ namespace holovibes::api
 #define UPDATE_STRING_OPTIONAL(map, iterator, type, target)                                                            \
     if ((iterator = map.find(type)) != map.end())                                                                      \
         target = iterator->second;                                                                                     \
-    else                                                                                                               \
-        target.reset()
-
-#define UPDATE_PAIR_OPTIONAL(map, iterator, type, target)                                                              \
-    if ((iterator = map.find(type)) != map.end())                                                                      \
-        target = {iterator->second->first, iterator->second->second};                                                  \
     else                                                                                                               \
         target.reset()
 
@@ -161,14 +161,10 @@ Information InformationApi::get_information()
 
     auto& int_map = FastUpdatesMap::map<IntType>;
     FastUpdatesHolder<IntType>::const_iterator int_it;
-    UPDATE_INT_OPTIONAL(int_map, int_it, IntType::INPUT_FPS, info.input_fps, input_fps_);
-    UPDATE_INT_OPTIONAL(int_map, int_it, IntType::OUTPUT_FPS, info.output_fps, output_fps_);
-    UPDATE_INT_OPTIONAL(int_map, int_it, IntType::SAVING_FPS, info.saving_fps, saving_fps_);
-    UPDATE_INT_OPTIONAL(int_map, int_it, IntType::TEMPERATURE, info.temperature, temperature_);
-
-    info.input_throughput = input_throughput_;
-    info.output_throughput = output_throughput_;
-    info.saving_throughput = saving_throughput_;
+    UPDATE_IO_OPTIONAL(int_map, int_it, IntType::INPUT_FPS, info.input, input_fps_, input_throughput_);
+    UPDATE_IO_OPTIONAL(int_map, int_it, IntType::OUTPUT_FPS, info.output, output_fps_, output_throughput_);
+    UPDATE_IO_OPTIONAL(int_map, int_it, IntType::SAVING_FPS, info.saving, saving_fps_, saving_throughput_);
+    UPDATE_SIMPLE_OPTIONAL(int_map, int_it, IntType::TEMPERATURE, info.temperature, temperature_);
 
     auto& indication_map = FastUpdatesMap::map<IndicationType>;
     FastUpdatesHolder<IndicationType>::const_iterator indication_it;

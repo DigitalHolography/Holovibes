@@ -19,6 +19,17 @@ typedef unsigned int uint;
 namespace holovibes
 {
 
+/*! \class IOInfo
+ *
+ * \brief Small structure that holds the frames per second and the throughput of an IO stream
+ * (such as input / output / saving)
+ */
+struct IOInfo
+{
+    size_t fps;
+    size_t throughput;
+};
+
 /*! \class ProgressInfo
  *
  * \brief Small structure for holding a value / max value pair used for progress data
@@ -58,13 +69,10 @@ struct QueueInfo
  */
 struct Information
 {
-    std::optional<size_t> input_fps;
-    std::optional<size_t> output_fps;
-    std::optional<size_t> saving_fps;
+    std::optional<IOInfo> input;
+    std::optional<IOInfo> output;
+    std::optional<IOInfo> saving;
     std::optional<size_t> temperature;
-    size_t input_throughput;
-    size_t output_throughput;
-    size_t saving_throughput;
     std::shared_ptr<std::string> img_source;
     std::shared_ptr<std::string> input_format;
     std::shared_ptr<std::string> output_format;

@@ -18,7 +18,6 @@ InfoPanel::InfoPanel(QWidget* parent)
 {
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update_information()));
     timer_.start(50);
-    chrono_.start();
 }
 
 InfoPanel::~InfoPanel() {}
@@ -31,13 +30,6 @@ void InfoPanel::init()
 
 void InfoPanel::update_information()
 {
-    chrono_.stop();
-    size_t waited_time = chrono_.get_milliseconds();
-    if (waited_time >= 1000)
-    {
-        // ui_->InfoTextEdit->display_information_slow(waited_time);
-        chrono_.start();
-    }
     ui_->InfoTextEdit->display_information();
 
     Information information = API.information.get_information();

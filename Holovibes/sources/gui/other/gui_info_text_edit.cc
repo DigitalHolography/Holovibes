@@ -150,34 +150,31 @@ void InfoTextEdit::display_information()
         }
     }
 
-    if (information_.input_fps)
-        to_display << "<tr><td>Input FPS</td><td>" << *information_.input_fps << "</td></tr>";
+    if (information_.input)
+        to_display << "<tr><td>Input FPS</td><td>" << information_.input->fps << "</td></tr>";
 
-    if (information_.output_fps)
+    if (information_.output)
     {
         to_display << "<tr><td>Output FPS</td>";
-        if (*information_.output_fps == 0)
-            to_display << "<td style=\"color: red;\">" << *information_.output_fps << "</td></tr>";
+        if (information_.output->fps == 0)
+            to_display << "<td style=\"color: red;\">" << information_.output->fps << "</td></tr>";
         else
-            to_display << "<td>" << *information_.output_fps << "</td></tr>";
+            to_display << "<td>" << information_.output->fps << "</td></tr>";
     }
 
-    if (information_.saving_fps)
-        to_display << "<tr><td>Saving FPS</td><td>" << *information_.saving_fps << "</td></tr>";
+    if (information_.saving)
+        to_display << "<tr><td>Saving FPS</td><td>" << information_.saving->fps << "</td></tr>";
 
-    if (information_.output_fps)
-    {
-        to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(information_.input_throughput, "B/s")
+    if (information_.input)
+        to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(information_.input->throughput, "B/s")
                    << "</td></tr>";
+    if (information_.output)
         to_display << "<tr><td>Output Throughput</td><td>"
-                   << format_throughput(information_.output_throughput, "Voxels/s") << "</td></tr>";
-    }
+                   << format_throughput(information_.output->throughput, "Voxels/s") << "</td></tr>";
 
-    if (information_.saving_fps)
-    {
-        to_display << "<tr><td>Saving Throughput</td><td>  " << format_throughput(information_.saving_throughput, "B/s")
-                   << "</td></tr>";
-    }
+    if (information_.saving)
+        to_display << "<tr><td>Saving Throughput</td><td>  "
+                   << format_throughput(information_.saving->throughput, "B/s") << "</td></tr>";
 
     size_t free, total;
     cudaMemGetInfo(&free, &total);

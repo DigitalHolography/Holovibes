@@ -43,7 +43,6 @@ class InfoTextEdit : public QTextEdit
 
     /*!
      * \brief Formats all available information and displays it in the UI
-     *
      */
     void display_information();
 

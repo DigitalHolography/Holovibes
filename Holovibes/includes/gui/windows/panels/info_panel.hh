@@ -58,6 +58,5 @@ class InfoPanel : public Panel
   private:
     Subscriber<bool> record_finished_subscriber_; ///< Subscriber for record finished events.
     QTimer timer_;
-    Chrono chrono_;
 };
 } // namespace holovibes::gui
