@@ -100,7 +100,6 @@
         },
         "image_mode": "HOLOGRAM",
         "input_filter": {
-            "enabled": false,
             "type": "None"
         },
         "lambda": 8.520000278622319e-07,

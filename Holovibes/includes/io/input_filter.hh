@@ -47,27 +47,51 @@ struct bmp_device_independant_info
 };
 class InputFilter
 {
+  private:
     unsigned int width;
     unsigned int height;
 
-    // Returns the pure normalised image in shades of grey as a char buffer AND sets the width and height of the object
-    void read_bmp(std::vector<float> cache_image, const char* path);
+    std::vector<float> cache_image_;
 
-    // Only for debug purposes
-    void write_bmp(std::vector<float> cache_image, const char* path);
+  private:
+    /*! \brief Read a BMP file and store it in cache_image_.
+     *
+     * The image will be normalised in greyscale as a char buffer.
+     *
+     * \param[in] path the path of the BMP file
+     * \return int 0 if the file was read successfully, -1 otherwise
+     */
+    int read_bmp(const char* path);
 
+    /*! \brief Interpolate the greyscaled image to the frame descriptor size.
+     *
+     * \param[in] fd_width the width of the frame descriptor
+     * \param[in] fd_height the height of the frame descriptor
+     */
     void interpolate_filter(size_t fd_width, size_t fd_height);
 
   public:
-    InputFilter(std::vector<float> cache_image, std::string path, size_t fd_width, size_t fd_height)
+    /*! \brief Read a BMP file interpolate it to the frame descriptor size and store it in cache_image_.
+     *
+     * \param[in] path the path of the BMP file
+     * \param[in] fd_width the width of the frame descriptor
+     * \param[in] fd_height the height of the frame descriptor
+     */
+    InputFilter(std::string path, size_t fd_width, size_t fd_height)
+        : cache_image_()
     {
-        read_bmp(cache_image, path.c_str());
-        interpolate_filter(fd_width, fd_height);
-        // write_bmp(cache_image, path.c_str());
+        if (read_bmp(path.c_str()) != -1)
+            interpolate_filter(fd_width, fd_height);
     }
 
     InputFilter(InputFilter& InputFilter) = default;
 
     ~InputFilter() = default;
+
+    /*! \brief Return the interpolated greyscaled image.
+     *
+     * \return std::vector<float> the interpolated greyscaled image
+     */
+    inline std::vector<float> get_input_filter() const { return cache_image_; }
 };
 } // namespace holovibes

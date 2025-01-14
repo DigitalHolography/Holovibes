@@ -2,9 +2,9 @@
     "advanced": {
         "buffer_size": {
             "file": 1024,
-            "input": 65536,
+            "input": 4096,
             "output": 1024,
-            "record": 65536,
+            "record": 4096,
             "time_transformation_cuts": 512
         },
         "contrast": {
@@ -16,7 +16,7 @@
             "high": 1,
             "low": 0
         },
-        "nb_frames_to_record": 65536,
+        "nb_frames_to_record": 131072,
         "raw_bitshift": 0,
         "renorm_constant": 5
     },
@@ -104,7 +104,7 @@
         },
         "lambda": 8.520000278622319e-07,
         "propagation_distance": 0.5,
-        "space_transformation": "FFT1",
+        "space_transformation": "FRESNELTR",
         "time_transformation": "PCA",
         "time_transformation_size": 32,
         "time_transformation_stride": 64

@@ -26,7 +26,7 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    float d = setting<settings::CameraFps>() / static_cast<float>(time_transformation_size);
+    float d = static_cast<float>(setting<settings::CameraFps>()) / time_transformation_size;
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f0(new float[time_transformation_size]);
@@ -41,12 +41,13 @@ void ICompute::fft_freqs()
 
     // initialize f1
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    // Note: we keep the Nyquist frequency (n / 2) only for the negative, this means f1 is of length n instead of n + 1
     if (time_transformation_size % 2 == 0)
     {
-        for (uint i = 0; i <= time_transformation_size / 2; i++)
+        for (uint i = 0; i < time_transformation_size / 2; i++)
             f1[i] = i * d;
 
-        for (uint i = time_transformation_size / 2; i < time_transformation_size - 1; i++)
+        for (uint i = time_transformation_size / 2; i < time_transformation_size; i++)
             f1[i] = -((float)time_transformation_size - i) * d;
     }
     // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd

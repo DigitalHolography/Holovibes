@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "test_disable_log.hh"
 
 TEST(BasicTest, MoreThanSimpleTestExample)
 {

@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "gtest/gtest.h"
 #include "test_reduce.cuh"
+#include "test_disable_log.hh"
 
 static constexpr cudaStream_t stream = 0;
 

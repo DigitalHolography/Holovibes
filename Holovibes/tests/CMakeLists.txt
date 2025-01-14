@@ -23,6 +23,7 @@ set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/includes/tools/state/"
     "${HOLO_DIR}/includes/tools/units/"
     "${CAMERA_DIR}/include/"
+    "${HOLO_DIR}/tests/includes"
 )
 
 set(UNIT_TEST_SOURCES
