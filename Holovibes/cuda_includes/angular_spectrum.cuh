@@ -1,41 +1,32 @@
-/*! \file
+/*! \file angular_spectrum.cuh
  *
- * \brief Declaration of angular spectrum compute functions
+ * \brief Declaration of angular spectrum compute functions.
  */
 #pragma once
 
 #include "common.cuh"
 #include "frame_desc.hh"
 
-/*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
+/*! \brief Compute the lens to apply to the image during the angular spectrum process.
+ *  The `x_step` and `y_step` params ar equals for now since they are computed from pixel_size.
+ *  However, for the futur we may want them to be unequal.
  *
- * The output pointer can be another complex buffer or the same as input buffer.
- *
- * \param lens The lens applied to the image
- * \param lens_side_size The size of the lens' both sides, as it is a square
- * \param frame_height Height of each frame
- * \param frame_width Width of each frame
- * \param lambda The lambda setting
- * \param z The Z distance setting
- * \param pixel_size Used by the kernel
- * \param stream The input (and output) stream ; the data
+ * \param[out] output The buffer to store the lens.
+ * \param[in] Nx The width of the buffer.
+ * \param[in] Ny The height of the buffer.
+ * \param[in] z The Z distance setting
+ * \param[in] lambda The lambda setting
+ * \param[in] x_step The pixel width.
+ * \param[in] y_step The pixel height.
+ * \param[in] stream The input (and output) stream
  */
-// void angular_spectrum_lens(cuComplex* lens,
-//                            const uint lens_side_size,
-//                            const uint frame_height,
-//                            const uint frame_width,
-//                            1const float lambda,
-//                            const float z,
-//                            const float pixel_size,
-//                            const cudaStream_t stream);
-
-void angular_spectrum_lens(cuFloatComplex* d_kernel,
-                           int Nx,
-                           int Ny,
-                           float z,
-                           float lambda,
-                           float x_step,
-                           float y_step,
+void angular_spectrum_lens(cuFloatComplex* output,
+                           const int Nx,
+                           const int Ny,
+                           const float z,
+                           const float lambda,
+                           const float x_step,
+                           const float y_step,
                            const cudaStream_t stream);
 
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.

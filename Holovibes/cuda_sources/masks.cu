@@ -25,31 +25,36 @@ __global__ void kernel_quadratic_lens(
         csquare = c * (x * x + y * y);
         output[index].x = cosf(csquare);
         output[index].y = sinf(csquare);
-        // output[index].x = ((float)i) / (float)lens_side_size * 2 - 1;
-        // output[index].y = ((float)j) / (float)lens_side_size * 2 - 1;
     }
 }
 
-__global__ void kernel_spectral_lens(
-    cuComplex* output, const uint lens_side_size, const float lambda, const float distance, const float pixel_size)
+__global__ void kernel_spectral_lens(cuFloatComplex* output,
+                                     const int Nx,
+                                     const int Ny,
+                                     const float z,
+                                     const float lambda,
+                                     const float x_step,
+                                     const float y_step)
 {
-    const uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    const uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    const uint index = j * blockDim.x * gridDim.x + i;
-    const float c = M_2PI * distance / lambda;
-    const float dx = pixel_size * 1.0e-6f;
-    const float dy = dx;
-    const float du = 1 / ((static_cast<float>(lens_side_size)) * dx);
-    const float dv = 1 / ((static_cast<float>(lens_side_size)) * dy);
-    const float u = (i - static_cast<float>(lrintf(static_cast<float>(lens_side_size >> 1)))) * du;
-    const float v = (j - static_cast<float>(lrintf(static_cast<float>(lens_side_size >> 1)))) * dv;
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (index < lens_side_size * lens_side_size)
+    if (x < Nx && y < Ny)
     {
-        const float lambda2 = lambda * lambda;
-        const float csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
-        output[index].x = cosf(csquare);
-        output[index].y = sinf(csquare);
+        float u_step = 1.0f / (Nx * x_step);
+        float v_step = 1.0f / (Ny * y_step);
+
+        float u = (x - (Nx / 2)) * u_step;
+        float v = (y - (Ny / 2)) * v_step;
+
+        float tmp = 1.0f - (lambda * lambda * (u * u + v * v));
+        // Ensure positivity under sqrt.
+        if (tmp < 0.0f)
+            tmp = 0.0f;
+        float phase = 2.0f * M_PI * z / lambda * sqrtf(tmp);
+
+        // Store result as complex exponential.
+        output[y * Nx + x] = make_cuFloatComplex(cosf(phase), sinf(phase));
     }
 }
 
