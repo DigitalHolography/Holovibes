@@ -187,6 +187,7 @@ class ICompute
     enum class Setting
     {
         UpdateTimeTransformationAlgorithm = 0,
+        Start,
         OutputBuffer,
         Refresh,
         UpdateTimeTransformationSize,

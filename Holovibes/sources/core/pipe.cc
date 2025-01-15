@@ -656,6 +656,9 @@ void Pipe::exec()
 
     while (!is_requested(ICS::Termination))
     {
+        if (!is_requested(ICS::Start))
+            continue;
+
         // Run the entire pipeline of calculation
         run_all();
 

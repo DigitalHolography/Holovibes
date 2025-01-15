@@ -28,7 +28,7 @@ ApiCode ComputeApi::stop() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
-    API.information.stop_benchmark();
+    api_->information.stop_benchmark();
     set_is_computation_stopped(true);
 
     Holovibes::instance().stop_frame_read();
@@ -44,27 +44,32 @@ ApiCode ComputeApi::start() const
     // Stop any computation currently running and file reading
     stop();
 
-    // Check some settings (now that we have the input frame descriptor)
-    api_->transform.check_x_limits();
-    api_->transform.check_y_limits();
-
-    // Create the pipe and start the pipe
+    // Create the pipe
     Holovibes::instance().start_compute();
     set_is_computation_stopped(false);
 
+    // Add here settings that need to be loaded before the pipe is started (they can't be done before since they needs
+    // data inside the pipe).
+    api_->transform.check_x_limits();
+    api_->transform.check_y_limits();
+
     if (api_->global_pp.get_convolution_enabled())
         api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
+
     if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
-    else
-        get_compute_pipe()->request_refresh(); // Build the pipe
 
+    // Start the pipe
+    get_compute_pipe()->request(ICS::Start);
+
+    // Start input reading
     if (api_->input.get_import_type() == ImportType::Camera)
         Holovibes::instance().start_camera_frame_read();
     else
         Holovibes::instance().start_file_frame_read();
 
-    API.information.start_benchmark();
+    // Start benchmark
+    api_->information.start_benchmark();
 
     return ApiCode::OK;
 }
