@@ -29,11 +29,7 @@ void GlobalPostProcessApi::set_registration_enabled(bool value) const
 
 #pragma region Renormalization
 
-void GlobalPostProcessApi::set_renorm_enabled(bool value) const
-{
-    UPDATE_SETTING(RenormEnabled, value);
-    api_->compute.pipe_refresh();
-}
+void GlobalPostProcessApi::set_renorm_enabled(bool value) const { UPDATE_SETTING(RenormEnabled, value); }
 
 #pragma endregion
 
@@ -147,7 +143,6 @@ void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) cons
         return;
 
     UPDATE_SETTING(DivideConvolutionEnabled, value);
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -167,10 +162,7 @@ ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) co
     load_convolution_matrix(filename);
 
     if (filename.empty())
-    {
-        api_->compute.pipe_refresh();
         return ApiCode::OK;
-    }
 
     try
     {
