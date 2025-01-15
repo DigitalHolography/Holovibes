@@ -87,7 +87,6 @@ ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) 
     NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
 
     UPDATE_SETTING(SpaceTransformation, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -103,7 +102,6 @@ ApiCode TransformApi::set_lambda(float value) const
     }
 
     UPDATE_SETTING(Lambda, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -117,7 +115,6 @@ ApiCode TransformApi::set_z_distance(float value) const
         value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -195,8 +192,6 @@ ApiCode TransformApi::set_p_index(uint value) const
     SET_SETTING(P, start, value);
     check_p_limits();
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -206,8 +201,6 @@ ApiCode TransformApi::set_p_accu_level(uint p_value) const
 
     SET_SETTING(P, width, p_value);
     check_p_limits();
-
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }

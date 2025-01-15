@@ -22,8 +22,6 @@ void WindowPostProcessApi::set_rotation(float value, WindowKind kind) const
     auto window = get_window_xyz(kind);
     window.rotation = value;
     set_window_xyz(kind, window);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -40,8 +38,6 @@ void WindowPostProcessApi::set_accumulation_level(uint value, WindowKind kind) c
     auto window = get_window_xyz(kind);
     window.output_image_accumulation = value;
     set_window_xyz(kind, window);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
