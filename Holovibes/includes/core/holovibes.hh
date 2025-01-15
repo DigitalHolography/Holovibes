@@ -49,6 +49,7 @@
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordedEye,                            \
+    holovibes::settings::IsEyeSelected,                          \
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
@@ -377,6 +378,7 @@ class Holovibes
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordedEye{RecordedEyeType::NONE},
+                                             settings::IsEyeSelected{false},
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},

@@ -222,8 +222,25 @@ class RecordApi : public IApi
      *
      * \param[in] value Which eye to record
      * \note If a recording is already in progress, the new eye will be used for the next record.
+     * \warning If the eye is marked as selected (there was eye data in the footer of the loaded file),
+     * this function will do nothing
      */
-    void set_recorded_eye(RecordedEyeType value) const;
+    ApiCode set_recorded_eye(RecordedEyeType value) const;
+
+    /*!
+     * \brief Gets whether or not an eye had been specified in a previous recording for the current data
+     *
+     * \return bool true if the eye is specified, false if not
+     */
+    inline bool get_is_eye_selected() const { return GET_SETTING(IsEyeSelected); }
+
+    /*!
+     * \brief Sets whether or not the recorded eye had been specified in the header of the loaded file
+     * Should not be used by the user, but is still available for conveniency
+     *
+     * \param selected Whether to mark the recorded eye as selected or not
+     */
+    inline void set_is_eye_selected(bool selected) const { UPDATE_SETTING(IsEyeSelected, selected); }
 
 #pragma endregion
 

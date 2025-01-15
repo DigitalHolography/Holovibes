@@ -59,7 +59,8 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
     static std::map<RecordedEyeType, std::string> eye_map{{RecordedEyeType::LEFT, "_L"},
                                                           {RecordedEyeType::NONE, ""},
                                                           {RecordedEyeType::RIGHT, "_R"}};
-    std::string eye_string = eye_map[API.record.get_recorded_eye()];
+    // Only add the eye extension if it is the first time recording with it
+    std::string eye_string = API.record.get_is_eye_selected() ? "" : eye_map[API.record.get_recorded_eye()];
 
     std::string record_file_path;
     if (Holovibes::instance().is_cli)
