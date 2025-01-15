@@ -650,7 +650,7 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
+    if (is_requested(ICS::Refresh))
         refresh();
 
     while (!is_requested(ICS::Termination))
@@ -666,7 +666,7 @@ void Pipe::exec()
             rendering_->request_autocontrast();
         }
 
-        if ((is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled)) || pipe_refresh_settings_.updated())
+        if (is_requested(ICS::Refresh) || pipe_refresh_settings_.updated())
             refresh();
     }
 }

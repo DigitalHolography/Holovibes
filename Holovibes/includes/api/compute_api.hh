@@ -106,19 +106,6 @@ class ComputeApi : public IApi
      */
     ApiCode pipe_refresh() const;
 
-    /*! \brief Enables the pipe refresh.
-     *
-     * \return ApiCode OK if the pipe refresh was enabled or NOT_STARTED if no computation.
-     */
-    ApiCode enable_pipe_refresh() const;
-
-    /*! \brief Disables the pipe refresh. You must enable pipe refresh after otherwise computations will be weird. Use
-     * with caution.
-     *
-     * \return ApiCode OK if the pipe refresh was disabled or NOT_STARTED if no computation.
-     */
-    ApiCode disable_pipe_refresh() const;
-
 #pragma endregion
 
 #pragma region Img Type

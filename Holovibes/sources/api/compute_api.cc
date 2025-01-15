@@ -73,26 +73,6 @@ ApiCode ComputeApi::start() const
 
 #pragma region Pipe
 
-ApiCode ComputeApi::disable_pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    get_compute_pipe()->clear_request(ICS::RefreshEnabled);
-
-    return ApiCode::OK;
-}
-
-ApiCode ComputeApi::enable_pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
-
-    return ApiCode::OK;
-}
-
 ApiCode ComputeApi::pipe_refresh() const
 {
     if (get_is_computation_stopped())

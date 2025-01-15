@@ -133,7 +133,6 @@ class ICompute
         // Initialize the array of settings to false except for the refresh
         for (auto& setting : settings_requests_)
             setting.store(false, std::memory_order_relaxed);
-        settings_requests_[static_cast<int>(ICS::RefreshEnabled)] = true;
 
         camera::FrameDescriptor fd = input_queue_.get_fd();
         int inembed[1] = {static_cast<int>(setting<settings::TimeTransformationSize>())};
@@ -190,7 +189,6 @@ class ICompute
         UpdateTimeTransformationAlgorithm = 0,
         OutputBuffer,
         Refresh,
-        RefreshEnabled,
         UpdateTimeTransformationSize,
         ChartDisplay,
         DisableChartDisplay,
