@@ -60,6 +60,7 @@
 
 #define PIPE_REFRESH_SETTINGS                                    \
     holovibes::settings::ImageType,                              \
+    holovibes::settings::Unwrap2d,                               \
     holovibes::settings::P,                                      \
     holovibes::settings::Filter2d,                               \
     holovibes::settings::LensViewEnabled,                        \
@@ -186,8 +187,7 @@ class ICompute
     /*! \brief enum class for the settings that can be requested: settings that change the pipeline. */
     enum class Setting
     {
-        Unwrap2D = 0,
-        UpdateTimeTransformationAlgorithm,
+        UpdateTimeTransformationAlgorithm = 0,
         OutputBuffer,
         Refresh,
         RefreshEnabled,

@@ -52,6 +52,7 @@
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
+    holovibes::settings::Unwrap2d,                               \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
     holovibes::settings::P,                                      \
@@ -384,6 +385,7 @@ class Holovibes
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},
+                                             settings::Unwrap2d{false},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
                                              settings::P{ViewPQ{}},

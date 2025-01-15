@@ -89,6 +89,7 @@ DECLARE_SETTING(OutputBufferSize, size_t);
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
 DECLARE_SETTING(ImageType, ImgType);
+DECLARE_SETTING(Unwrap2d, bool);
 
 DECLARE_SETTING(X, ViewXY);
 DECLARE_SETTING(Y, ViewXY);

@@ -340,7 +340,7 @@ void Pipe::refresh()
         // Used for phase increase
         fourier_transforms_->insert_store_p_frame();
 
-        converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
+        converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
 
         insert_moments();
         insert_moments_record();
