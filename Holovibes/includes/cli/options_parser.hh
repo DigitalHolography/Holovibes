@@ -35,6 +35,7 @@ struct OptionsDescriptor
     std::optional<unsigned int> frame_skip;
     std::optional<unsigned int> mp4_fps;
     bool moments_record;
+    bool benchmark;
 };
 
 /*! \class OptionsParser
