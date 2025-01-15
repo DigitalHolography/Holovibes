@@ -37,7 +37,10 @@ void BenchmarkWorker::run()
     std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
     benchmark_file.open(benchmark_file_path);
     if (!benchmark_file.is_open())
+    {
         LOG_ERROR("Could not open benchmark file at " + benchmark_file_path + ", you may need to create the folder");
+        return;
+    }
 
     while (!stop_requested_)
     {
@@ -56,10 +59,13 @@ void BenchmarkWorker::run()
                 if (information_.output_format)
                     benchmark_file << ",Output Format: " << *information_.output_format.get();
 
-                for (auto const& [key, info] :
-                     information_.queues) //! FIXME causes a crash on start when camera pre-selected
+                for (auto [key, info] : information_.queues)
+                {
+                    if (key == QueueType::UNDEFINED)
+                        continue;
                     benchmark_file << "," << (info.device == Device::GPU ? "GPU " : "CPU ")
                                    << queue_type_to_string_.at(key) << " size: " << info.max_size;
+                }
                 benchmark_file << "\n";
                 // 11 headers
                 benchmark_file << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output "

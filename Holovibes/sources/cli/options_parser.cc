@@ -189,6 +189,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             }
         }
         options_.moments_record = vm_["moments_record"].as<bool>();
+        options_.benchmark = vm_["benchmark"].as<bool>();
     }
     catch (std::exception& e)
     {
