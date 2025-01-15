@@ -28,13 +28,13 @@
 
 // clang-format off
 
-#define BYPASS_SETTINGS                         \
+#define REALTIME_SETTINGS                       \
     holovibes::settings::XYContrastRange,       \
     holovibes::settings::XZContrastRange,       \
     holovibes::settings::YZContrastRange,       \
     holovibes::settings::Filter2dContrastRange
 
-#define REALTIME_SETTINGS                                        \
+#define PIPE_CYCLE_SETTINGS                                      \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
     holovibes::settings::Q,                                      \
@@ -103,7 +103,7 @@
     holovibes::settings::RecordQueueLocation,                    \
     holovibes::settings::DataType
 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPE_REFRESH_SETTINGS, BYPASS_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 #pragma endregion
@@ -125,8 +125,8 @@ class ICompute
         : input_queue_(input)
         , record_queue_(record)
         , stream_(stream)
-        , bypass_settings_(settings)
         , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
         , onrestart_settings_(settings)
     {
@@ -339,11 +339,11 @@ class ICompute
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
-            return bypass_settings_.get<T>().value;
-
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
         if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
@@ -414,10 +414,10 @@ class ICompute
      * \{
      */
     /*! \brief Container for settings that don't need to be cleared in the queue */
-    RealtimeSettingsContainer<BYPASS_SETTINGS> bypass_settings_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
     /*! \brief Container for the realtime settings. */
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
 
     /*! \brief Container for the pipe refresh settings. */
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;

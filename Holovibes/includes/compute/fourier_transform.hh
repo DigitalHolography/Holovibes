@@ -25,7 +25,7 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
     holovibes::settings::Q
@@ -52,7 +52,7 @@
     holovibes::settings::PixelSize,                \
     holovibes::settings::SpaceTransformation
 
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
+#define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
 
@@ -94,7 +94,7 @@ class FourierTransform
         , time_transformation_env_(time_transformation_env)
         , moments_env_(moments_env)
         , stream_(stream)
-        , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
         gpu_lens_.resize(fd_.get_frame_res());
@@ -142,10 +142,10 @@ class FourierTransform
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
         {
             LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
+            pipe_cycle_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
@@ -156,10 +156,10 @@ class FourierTransform
     }
 
     /*! \brief Update the realtime settings */
-    inline void apply_realtime_settings() { realtime_settings_.apply_updates(); }
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
 
     /*! \brief Update the pipe refresh settings */
-    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Enqueue the call to filter2d cuda function. */
@@ -194,8 +194,8 @@ class FourierTransform
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            return realtime_settings_.get<T>().value;
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
@@ -232,7 +232,7 @@ class FourierTransform
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute

@@ -134,7 +134,7 @@ class Registration
     }
 
     /*! \brief Update the pipe refresh settings */
-    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Helper function to get a settings value. */

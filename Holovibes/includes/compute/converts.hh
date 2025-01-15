@@ -21,7 +21,7 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::RGB,                      \
     holovibes::settings::CompositeKind,            \
     holovibes::settings::CompositeAutoWeights,     \
@@ -38,7 +38,7 @@
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::TimeTransformationSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_REFRESH_SETTINGS
+#define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -77,16 +77,16 @@ class Converts
         , plan_unwrap_2d_(plan_unwrap_2d)
         , fd_(input_fd)
         , stream_(stream)
-        , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
     }
 
     /*! \brief Update the realtime settings */
-    inline void apply_realtime_settings() { realtime_settings_.apply_updates(); }
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
 
     /*! \brief Update the pipe refresh settings */
-    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(float* buffers_gpu_postprocess_frame);
@@ -114,10 +114,10 @@ class Converts
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
         {
             LOG_TRACE("[Converts] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
+            pipe_cycle_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
@@ -161,8 +161,8 @@ class Converts
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            return realtime_settings_.get<T>().value;
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
@@ -191,7 +191,7 @@ class Converts
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
 
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 };

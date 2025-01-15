@@ -266,7 +266,7 @@ void Pipe::refresh()
         return;
     }
 
-    apply_realtime_settings();
+    pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
 
     /*
@@ -659,9 +659,9 @@ void Pipe::exec()
         // Run the entire pipeline of calculation
         run_all();
 
-        if (realtime_settings_.updated())
+        if (pipe_cycle_settings_.updated())
         {
-            apply_realtime_settings();
+            pipe_cycle_apply_updates();
 
             image_accumulation_->clear(); // Clear the accumulation queue
             rendering_->request_autocontrast();

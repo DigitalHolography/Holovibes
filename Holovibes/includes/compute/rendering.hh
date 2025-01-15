@@ -21,13 +21,13 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define BYPASS_SETTINGS                         \
+#define REALTIME_SETTINGS                       \
     holovibes::settings::XYContrastRange,       \
     holovibes::settings::XZContrastRange,       \
     holovibes::settings::YZContrastRange,       \
     holovibes::settings::Filter2dContrastRange
 
-#define REALTIME_SETTINGS                          \
+#define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::SignalZone,               \
@@ -49,7 +49,7 @@
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::TimeTransformationSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_REFRESH_SETTINGS, BYPASS_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -92,8 +92,8 @@ class Rendering
         , input_fd_(input_fd)
         , fd_(output_fd)
         , stream_(stream)
-        , bypass_settings_(settings)
         , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
         // Hold 2 float values (min and max)
@@ -113,16 +113,16 @@ class Rendering
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
-        {
-            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
-            bypass_settings_.update_setting(setting);
-        }
-
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
         {
             LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+        {
+            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
+            pipe_cycle_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
@@ -133,10 +133,10 @@ class Rendering
     }
 
     /*! \brief Update the realtime settings */
-    inline void apply_realtime_settings() { realtime_settings_.apply_updates(); }
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
 
     /*! \brief Update the pipe refresh settings */
-    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
     /*! \brief Check whether autocontrast should be applied or not for each view */
     void request_autocontrast();
@@ -185,11 +185,11 @@ class Rendering
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting_v<T, decltype(bypass_settings_)>)
-            return bypass_settings_.get<T>().value;
-
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
@@ -214,9 +214,9 @@ class Rendering
 
     float* percent_min_max_;
 
-    RealtimeSettingsContainer<BYPASS_SETTINGS> bypass_settings_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 
     bool autocontrast_xy_ = false;

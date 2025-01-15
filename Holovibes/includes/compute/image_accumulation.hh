@@ -99,7 +99,7 @@ class ImageAccumulation
         }
     }
 
-    inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Compute average on one view */
