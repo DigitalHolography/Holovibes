@@ -100,12 +100,6 @@ class ComputeApi : public IApi
         return Holovibes::instance().get_compute_pipe_no_throw();
     };
 
-    /*! \brief Triggers the pipe to make it refresh.
-     *
-     * \return ApiCode OK if the pipe was refreshed or NOT_STARTED if no computation.
-     */
-    ApiCode pipe_refresh() const;
-
 #pragma endregion
 
 #pragma region Img Type

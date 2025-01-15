@@ -57,7 +57,7 @@ ApiCode ComputeApi::start() const
     if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
     else
-        pipe_refresh();
+        get_compute_pipe()->request_refresh(); // Build the pipe
 
     if (api_->input.get_import_type() == ImportType::Camera)
         Holovibes::instance().start_camera_frame_read();
@@ -65,21 +65,6 @@ ApiCode ComputeApi::start() const
         Holovibes::instance().start_file_frame_read();
 
     API.information.start_benchmark();
-
-    return ApiCode::OK;
-}
-
-#pragma endregion
-
-#pragma region Pipe
-
-ApiCode ComputeApi::pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    LOG_TRACE("pipe_refresh");
-    get_compute_pipe()->request_refresh();
 
     return ApiCode::OK;
 }

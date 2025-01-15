@@ -25,8 +25,6 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
             api_->window_pp.set_enabled(true, WindowKind::XZview);
             set_cuts_view_enabled(true);
 
-            api_->compute.pipe_refresh();
-
             return true;
         }
         catch (const std::logic_error& e)

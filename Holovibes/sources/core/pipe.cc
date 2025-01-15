@@ -266,6 +266,7 @@ void Pipe::refresh()
         return;
     }
 
+    apply_realtime_settings();
     pipe_refresh_apply_updates();
 
     /*
