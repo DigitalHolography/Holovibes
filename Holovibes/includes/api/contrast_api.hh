@@ -276,8 +276,9 @@ class ContrastApi : public IApi
      * calculated on.
      *
      * \param[in] value true: enable, false: disable
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    void set_reticle_display_enabled(bool value) const;
+    ApiCode set_reticle_display_enabled(bool value) const;
 
     /*! \brief Returns the reticle scale. The reticle scale is the size of the reticle display.
      *
@@ -288,8 +289,10 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle scale. The reticle scale is the size of the reticle display.
      *
      * \param[in] value the new reticle scale
+     * \return ApiCode OK if the value is in range [0, 1], NO_CHANGE if the value is the same, INVALID_VALUE if the
+     * value is not in range [0, 1]
      */
-    void set_reticle_scale(float value) const;
+    ApiCode set_reticle_scale(float value) const;
 
     /*! \brief Returns the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
@@ -300,8 +303,9 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
      * \param[in] rect the new reticle zone
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    inline void set_reticle_zone(const units::RectFd& rect) const { UPDATE_SETTING(ReticleZone, rect); };
+    ApiCode set_reticle_zone(const units::RectFd& rect) const;
 
 #pragma endregion
 };

@@ -663,9 +663,10 @@ void Pipe::exec()
             apply_realtime_settings();
 
             image_accumulation_->clear(); // Clear the accumulation queue
+            rendering_->request_autocontrast();
         }
 
-        if ((is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled)))
+        if ((is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled)) || pipe_refresh_settings_.updated())
             refresh();
     }
 }

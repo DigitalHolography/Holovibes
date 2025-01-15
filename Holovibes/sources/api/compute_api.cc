@@ -161,8 +161,6 @@ ApiCode ComputeApi::set_img_type(const ImgType type) const
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
             start();
-        else
-            pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
     {

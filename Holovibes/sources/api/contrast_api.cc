@@ -78,8 +78,6 @@ void ContrastApi::set_contrast_min(float value, WindowKind kind) const
     auto contrast_range = get_contrast_range(kind);
     contrast_range.min = new_val;
     set_contrast_range(contrast_range, kind);
-
-    api_->compute.pipe_refresh();
 }
 
 float ContrastApi::get_contrast_max(WindowKind kind) const
@@ -109,8 +107,6 @@ void ContrastApi::set_contrast_max(float value, WindowKind kind) const
     auto contrast_range = get_contrast_range(kind);
     contrast_range.max = new_val;
     set_contrast_range(contrast_range, kind);
-
-    api_->compute.pipe_refresh();
 }
 
 void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
@@ -142,8 +138,6 @@ void ContrastApi::set_contrast_enabled(bool value, WindowKind kind) const
     auto window = api_->window_pp.get_window_xyz(kind);
     window.contrast.enabled = value;
     api_->window_pp.set_window_xyz(kind, window);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -164,8 +158,6 @@ void ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
     auto window = api_->window_pp.get_window_xyz(kind);
     window.contrast.auto_refresh = value;
     api_->window_pp.set_window_xyz(kind, window);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -182,8 +174,6 @@ void ContrastApi::set_contrast_invert(bool value, WindowKind kind) const
     auto contrast_range = get_contrast_range(kind);
     contrast_range.invert = value;
     set_contrast_range(contrast_range, kind);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -204,33 +194,47 @@ void ContrastApi::set_log_enabled(const bool value, WindowKind kind) const
     auto window = api_->window_pp.get_window_xyz(kind);
     window.log_enabled = value;
     api_->window_pp.set_window_xyz(kind, window);
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region Reticle
 
-void ContrastApi::set_reticle_display_enabled(bool value) const
+ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 {
     if (get_reticle_display_enabled() == value)
-        return;
+        return ApiCode::NO_CHANGE;
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
 
-    // api_->compute.pipe_refresh();
+    return ApiCode::OK;
 }
 
-void ContrastApi::set_reticle_scale(float value) const
+ApiCode ContrastApi::set_reticle_scale(float value) const
 {
     if (!is_between(value, 0.f, 1.f))
-        return;
+    {
+        LOG_WARN("Reticle scale must be in range [0., 1.]");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    if (get_reticle_scale() == value)
+        return ApiCode::NO_CHANGE;
 
     UPDATE_SETTING(ReticleScale, value);
 
-    api_->compute.pipe_refresh();
+    return ApiCode::OK;
 }
+
+ApiCode ContrastApi::set_reticle_zone(const units::RectFd& rect) const
+{
+    if (get_reticle_zone() == rect)
+        return ApiCode::NO_CHANGE;
+
+    UPDATE_SETTING(ReticleZone, rect);
+
+    return ApiCode::OK;
+};
 
 #pragma endregion
 

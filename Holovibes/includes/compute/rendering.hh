@@ -138,6 +138,9 @@ class Rendering
     /*! \brief Update the pipe refresh settings */
     inline void apply_pipe_refresh_settings() { pipe_refresh_settings_.apply_updates(); }
 
+    /*! \brief Check whether autocontrast should be applied or not for each view */
+    void request_autocontrast();
+
   private:
     /*! \brief insert the log10 on the XY window */
     void insert_main_log();
@@ -148,9 +151,6 @@ class Rendering
 
     /*! \brief insert the autocontrast computation */
     void insert_compute_autocontrast();
-
-    /*! \brief Check whether autocontrast should be applied or not for each view */
-    void request_autocontrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
