@@ -157,6 +157,8 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         api.record.set_record_mode(holovibes::RecordMode::HOLOGRAM);
     }
 
+    api.information.set_benchmark_mode(opts.benchmark);
+
     if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
         return ret; // error 31, 32
 
