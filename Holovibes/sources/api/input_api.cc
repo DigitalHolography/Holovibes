@@ -215,8 +215,6 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         set_camera_kind_enum(c);
         set_data_type(RecordedDataType::RAW);
 
-        api_->record.set_is_eye_selected(false); // The recorded eye is not selected in camera mode
-
         if (active_camera->get_camera_fps() != -1)
             api_->input.set_camera_fps(static_cast<uint>(active_camera->get_camera_fps()));
     }

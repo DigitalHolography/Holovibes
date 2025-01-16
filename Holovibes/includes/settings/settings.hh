@@ -78,12 +78,6 @@ DECLARE_SETTING(RecordMode, holovibes::RecordMode);
 DECLARE_SETTING(RecordedEye, RecordedEyeType);
 
 /*!
- * \brief Whether or not the eye had already been selected in a previous recording
- * In other words, whether an eye has been specified in the header of the loaded file
- */
-DECLARE_SETTING(IsEyeSelected, bool);
-
-/*!
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */

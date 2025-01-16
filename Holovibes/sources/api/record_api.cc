@@ -11,6 +11,9 @@ namespace holovibes::api
 
 ApiCode RecordApi::set_record_mode(RecordMode value) const
 {
+    if (value != RecordMode::RAW && api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
     if (value == get_record_mode())
         return ApiCode::NO_CHANGE;
 
@@ -52,17 +55,15 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
 
 ApiCode RecordApi::set_recorded_eye(RecordedEyeType value) const
 {
-    if (get_is_eye_selected())
+    if (API.input.get_import_type() != ImportType::Camera || value == GET_SETTING(RecordedEye))
         return ApiCode::NO_CHANGE;
 
     if (is_recording())
         return ApiCode::NOT_STARTED;
 
-    ApiCode res = value == GET_SETTING(RecordedEye) ? ApiCode::NO_CHANGE : ApiCode::OK;
-
     UPDATE_SETTING(RecordedEye, value);
 
-    return res;
+    return ApiCode::OK;
 }
 
 #pragma endregion
