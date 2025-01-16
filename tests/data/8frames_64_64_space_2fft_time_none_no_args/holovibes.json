@@ -172,7 +172,6 @@
     "image_rendering": {
         "convolution": {
             "divide": false,
-            "enabled": false,
             "type": "None"
         },
         "filter2d": {
