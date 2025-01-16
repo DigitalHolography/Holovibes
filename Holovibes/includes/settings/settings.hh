@@ -160,7 +160,6 @@ DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
 
-DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionFileName, std::string);

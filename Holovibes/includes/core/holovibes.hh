@@ -95,7 +95,6 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
-    holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ConvolutionFileName,                    \
@@ -423,7 +422,6 @@ class Holovibes
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
                                              settings::ZDistance{0.0f},
-                                             settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ConvolutionFileName{std::string("")},

@@ -67,12 +67,11 @@ struct Rendering
      */
     struct Convolution
     {
-        bool enabled = false;
         std::string type;
         bool divide = false;
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-        SERIALIZE_JSON_STRUCT(Convolution, enabled, type, divide);
+        SERIALIZE_JSON_STRUCT(Convolution, type, divide);
 
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

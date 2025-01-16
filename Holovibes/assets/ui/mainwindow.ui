@@ -546,19 +546,16 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="ConvoCheckBox">
-           <property name="toolTip">
-            <string>Add a convolution step in the post-processing stage</string>
-           </property>
-           <property name="title">
-            <string>Convolve</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
+            <widget class="QLabel" name="ConvolutionLabel">
+             <property name="text">
+              <string>Convolution</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+         <item>
            <layout class="QHBoxLayout" name="kernelSelectLayout">
             <item>
              <widget class="QComboBox" name="KernelQuickSelectComboBox">
@@ -581,7 +578,6 @@
              </widget>
             </item>
            </layout>
-          </widget>
          </item>
          <item>
           <spacer name="BottomViewSpacer">
@@ -4747,22 +4743,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ConvoCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>ImageRenderingPanel</receiver>
-   <slot>set_convolution_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>702</x>
-     <y>69</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>681</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ViewPanel</receiver>
@@ -6036,7 +6016,6 @@ p, li { white-space: pre-wrap; }
   <slot>update_input_file_end_index(int)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
-  <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>

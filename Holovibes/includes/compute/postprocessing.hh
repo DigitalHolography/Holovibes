@@ -22,7 +22,6 @@
     holovibes::settings::ImageType,                     \
     holovibes::settings::RenormEnabled,                 \
     holovibes::settings::ConvolutionMatrix,             \
-    settings::ConvolutionEnabled,                       \
     settings::DivideConvolutionEnabled
 
 

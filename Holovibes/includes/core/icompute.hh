@@ -60,7 +60,6 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
-    holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \

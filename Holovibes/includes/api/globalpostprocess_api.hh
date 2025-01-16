@@ -107,18 +107,6 @@ class GlobalPostProcessApi : public IApi
      */
     inline std::vector<float> get_convo_matrix() const { return GET_SETTING(ConvolutionMatrix); };
 
-    /*! \brief Sets the convolution matrix/kernel used for the convolution post-processing step.
-     *
-     * \param[in] value The new convolution matrix/kernel
-     */
-    inline void set_convo_matrix(std::vector<float> value) const { UPDATE_SETTING(ConvolutionMatrix, value); }
-
-    /*! \brief Loads a convolution matrix from a given file
-     *
-     * \param[in] file the file containing the convolution's settings
-     */
-    void load_convolution_matrix(std::string filename) const;
-
 #pragma endregion
 
 #pragma region Conv Divide
@@ -143,12 +131,6 @@ class GlobalPostProcessApi : public IApi
 
 #pragma region Convolution
 
-    /*! \brief Returns whether the convolution is enabled or not.
-     *
-     * \return bool true if enabled, false otherwise
-     */
-    inline bool get_convolution_enabled() const { return GET_SETTING(ConvolutionEnabled); }
-
     /*! \brief Enables the convolution and loads the convolution matrix/kernel from the given file
      *
      * \param[in] file The file containing the convolution matrix/kernel
@@ -158,41 +140,25 @@ class GlobalPostProcessApi : public IApi
      */
     ApiCode enable_convolution(const std::string& file) const;
 
-    /*! \brief Disables the convolution */
-    void disable_convolution() const;
-
     /*! \brief Returns the path of the file containing the convolution matrix/kernel
      *
      * \return std::string The path of the file
      */
     inline std::string get_convolution_file_name() const { return GET_SETTING(ConvolutionFileName); }
 
-    /*! \brief Sets the path of the file containing the convolution matrix/kernel
-     *
-     * \param[in] value The path of the file
-     */
-    inline void set_convolution_file_name(std::string value) const { UPDATE_SETTING(ConvolutionFileName, value); }
-
 #pragma endregion
 
   private:
-    /*! \brief Sets the convolution enabled or not.
-     *
-     * \param[in] value true: enable, false: disable
-     */
-    inline void set_convolution_enabled(bool value) const { UPDATE_SETTING(ConvolutionEnabled, value); }
-
     /*!
      * \brief Loads a convolution matrix from a file
      *
      * This function is a tool / util supposed to be called by other functions
      *
      * \param[in] file The name of the file to load the matrix from. NOT A FULL PATH
-     * \param[in] convo_matrix Where to store the read matrix
      *
-     * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+     * \return std::vector<float> The convolution matrix or an empty vector in case of error.
      */
-    void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const;
+    std::vector<float> load_convolution_matrix(const std::string& file) const;
 };
 
 } // namespace holovibes::api
