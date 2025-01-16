@@ -50,10 +50,14 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
 
 #pragma region Eye
 
-void RecordApi::set_recorded_eye(RecordedEyeType value) const
+ApiCode RecordApi::set_recorded_eye(RecordedEyeType value) const
 {
-    if (!is_recording())
-        UPDATE_SETTING(RecordedEye, value);
+    if (API.input.get_import_type() != ImportType::Camera || value == GET_SETTING(RecordedEye))
+        return ApiCode::NO_CHANGE;
+
+    UPDATE_SETTING(RecordedEye, value);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

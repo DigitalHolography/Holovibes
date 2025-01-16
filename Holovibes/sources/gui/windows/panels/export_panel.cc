@@ -121,6 +121,9 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
+    bool is_eye_modifiable = API.input.get_import_type() == ImportType::Camera;
+    ui_->RecordedEyePushButton->setEnabled(is_eye_modifiable);
+    ui_->RecordedEyeLabel->setEnabled(is_eye_modifiable);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
