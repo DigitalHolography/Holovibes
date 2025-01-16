@@ -61,7 +61,7 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
                                                           {RecordedEyeType::RIGHT, "_R"}};
     // Only add the eye extension if it is the first time recording with it
     std::string eye_string =
-        API.input.get_import_type() == ImportType::Camera ? eye_map[API.record.get_recorded_eye()] : "";
+        API.input.get_import_type() == ImportType::Camera ? eye_map[setting<settings::RecordedEye>()] : "";
 
     std::string record_file_path;
     if (Holovibes::instance().is_cli)

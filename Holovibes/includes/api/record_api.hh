@@ -223,6 +223,8 @@ class RecordApi : public IApi
      *
      * \param[in] value Which eye to record
      * \note If a recording is already in progress, the new eye will be used for the next record.
+     *
+     * \return ApiCode NoChange if the old value is the same of if there isn't a camera loaded, OK otherwise
      */
     ApiCode set_recorded_eye(RecordedEyeType value) const;
 
