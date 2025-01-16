@@ -12,8 +12,8 @@ ApiCode ComputeApi::stop() const
     if (get_is_computation_stopped())
         return ApiCode::NOT_STARTED;
 
-    if (api_->global_pp.get_convolution_enabled())
-        api_->global_pp.disable_convolution();
+    if (!api_->global_pp.get_convo_matrix().empty())
+        api_->global_pp.enable_convolution("");
 
     if (api_->view.get_cuts_view_enabled())
         api_->view.set_3d_cuts_view(false);
@@ -53,7 +53,7 @@ ApiCode ComputeApi::start() const
     api_->transform.check_x_limits();
     api_->transform.check_y_limits();
 
-    if (api_->global_pp.get_convolution_enabled())
+    if (!api_->global_pp.get_convolution_file_name().empty())
         api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
 
     if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())

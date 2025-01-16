@@ -102,7 +102,7 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
 {
     LOG_FUNC();
 
-    if (!setting<settings::ConvolutionEnabled>() || setting<settings::ConvolutionMatrix>().empty())
+    if (setting<settings::ConvolutionMatrix>().empty())
         return;
 
     if (setting<settings::ImageType>() != ImgType::Composite)

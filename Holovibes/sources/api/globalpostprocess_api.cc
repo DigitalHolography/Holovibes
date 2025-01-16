@@ -37,11 +37,21 @@ void GlobalPostProcessApi::set_renorm_enabled(bool value) const { UPDATE_SETTING
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
-void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const
+std::vector<float> GlobalPostProcessApi::load_convolution_matrix(const std::string& file) const
 {
+    if (file.empty())
+        return {};
+
     auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file;
+    if (!std::filesystem::exists(path_file))
+    {
+        LOG_WARN("[Convolution: File not found : {}. Convolution deactivated", path_file.string());
+        return {};
+    }
+
     std::string path = path_file.string();
 
+    std::vector<float> convo_matrix = get_convo_matrix();
     std::vector<float> matrix;
     uint matrix_width = 0;
     uint matrix_height = 0;
@@ -54,14 +64,16 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
     if (c_file == nullptr)
     {
         fclose(c_file);
-        throw std::runtime_error("Invalid file path");
+        LOG_ERROR("[Convolution]: Couldn't open file {}", path);
+        return {};
     }
 
     // Read kernel dimensions
     if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
     {
         fclose(c_file);
-        throw std::runtime_error("Invalid kernel dimensions");
+        LOG_ERROR("[Convolution]: Invalid kernel dimensions");
+        return {};
     }
 
     size_t matrix_size = matrix_width * matrix_height * matrix_z;
@@ -73,7 +85,8 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
         if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
         {
             fclose(c_file);
-            throw std::runtime_error("Missing values");
+            LOG_ERROR("[Convolution]: Missing values in kernel");
+            return {};
         }
     }
 
@@ -107,29 +120,8 @@ void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file,
             kernel_indice++;
         }
     }
-}
 
-void GlobalPostProcessApi::load_convolution_matrix(std::string filename) const
-{
-    set_convolution_enabled(true);
-    set_convo_matrix({});
-
-    // There is no file None.txt for convolution
-    if (filename.empty())
-        return;
-
-    std::vector<float> convo_matrix = get_convo_matrix();
-
-    try
-    {
-        load_convolution_matrix_file(filename, convo_matrix);
-        set_convo_matrix(convo_matrix);
-    }
-    catch (std::exception& e)
-    {
-        set_convo_matrix({});
-        LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
-    }
+    return convo_matrix;
 }
 
 #pragma endregion
@@ -139,7 +131,7 @@ void GlobalPostProcessApi::load_convolution_matrix(std::string filename) const
 void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
 {
     if (api_->compute.get_is_computation_stopped() || get_divide_convolution_enabled() == value ||
-        !get_convolution_enabled())
+        get_convolution_file_name().empty())
         return;
 
     UPDATE_SETTING(DivideConvolutionEnabled, value);
@@ -154,47 +146,19 @@ ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) co
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return ApiCode::WRONG_COMP_MODE;
 
-    set_convolution_file_name(filename);
+    UPDATE_SETTING(ConvolutionFileName, filename);
 
     if (api_->compute.get_is_computation_stopped())
         return ApiCode::OK;
 
-    load_convolution_matrix(filename);
+    UPDATE_SETTING(ConvolutionMatrix, {});
+    std::vector<float> convo_matrix = load_convolution_matrix(filename);
+    UPDATE_SETTING(ConvolutionMatrix, convo_matrix);
 
-    if (filename.empty())
-        return ApiCode::OK;
-
-    try
-    {
-        auto pipe = api_->compute.get_compute_pipe();
-        pipe->request(ICS::Convolution);
-    }
-    catch (const std::exception& e)
-    {
-        disable_convolution();
-        LOG_ERROR("Catch {}", e.what());
-
-        return ApiCode::FAILURE;
-    }
+    auto request = convo_matrix.empty() ? ICS::DisableConvolution : ICS::Convolution;
+    api_->compute.get_compute_pipe()->request(request);
 
     return ApiCode::OK;
-}
-
-void GlobalPostProcessApi::disable_convolution() const
-{
-    set_convo_matrix({});
-    set_convolution_enabled(false);
-    try
-    {
-        auto pipe = api_->compute.get_compute_pipe();
-        pipe->request(ICS::DisableConvolution);
-        while (pipe->is_requested(ICS::DisableConvolution))
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
 }
 
 #pragma endregion

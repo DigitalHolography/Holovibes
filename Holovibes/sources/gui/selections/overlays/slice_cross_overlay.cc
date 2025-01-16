@@ -1,7 +1,8 @@
-#include "API.hh"
 #include "slice_cross_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+
 #include "API.hh"
+#include "BasicOpenGLWindow.hh"
+#include "notifier.hh"
 
 namespace holovibes::gui
 {
@@ -32,6 +33,7 @@ void SliceCrossOverlay::move(QMouseEvent* e)
         pIndex_ = getMousePos(e->pos());
 
         API.transform.set_p_index(slice_xz ? pIndex_.y() : pIndex_.x());
+        NotifierManager::notify("notify", true);
     }
 }
 

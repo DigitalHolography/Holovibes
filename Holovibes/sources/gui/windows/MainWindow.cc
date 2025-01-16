@@ -142,9 +142,6 @@ MainWindow::MainWindow(QWidget* parent)
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Store the value because when the camera is initialised it is reset
-    bool is_conv_enabled = api_.global_pp.get_convolution_enabled();
-
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
@@ -161,13 +158,6 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
-    ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
-    // Add the convolution after the initialisation of the panel
-    // if the value is enabled in the compute settings.
-
-    if (api_.window_pp.get_enabled(WindowKind::YZview) && api_.window_pp.get_enabled(WindowKind::XZview))
-        ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
 

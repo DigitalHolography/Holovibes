@@ -172,7 +172,6 @@
     "image_rendering": {
         "convolution": {
             "divide": true,
-            "enabled": true,
             "type": "sobel_x_5.txt"
         },
         "filter2d": {

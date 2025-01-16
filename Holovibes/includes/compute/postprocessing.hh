@@ -25,8 +25,7 @@
 #define PIPE_REFRESH_SETTINGS                      \
     holovibes::settings::ImageType,                \
     holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ConvolutionMatrix,        \
-    holovibes::settings::ConvolutionEnabled
+    holovibes::settings::ConvolutionMatrix
 
 #define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 

@@ -5,6 +5,7 @@
 #include "API.hh"
 #include "BasicOpenGLWindow.hh"
 #include "holovibes.hh"
+#include "notifier.hh"
 #include "rect_gl.hh"
 
 namespace holovibes::gui
@@ -155,6 +156,8 @@ void CrossOverlay::move(QMouseEvent* e)
 
         API.transform.set_x_cuts(mouse_position_.x());
         API.transform.set_y_cuts(mouse_position_.y());
+
+        NotifierManager::notify("notify", true);
     }
 }
 
