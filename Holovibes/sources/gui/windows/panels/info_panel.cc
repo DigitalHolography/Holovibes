@@ -99,23 +99,14 @@ void InfoPanel::load_gui(const json& j_us)
 
 void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 
-void InfoPanel::set_visible_file_reader_progress(bool visible)
-{
-    if (visible)
-        ui_->FileReaderProgressBar->show();
-    else
-        ui_->FileReaderProgressBar->hide();
-}
+void InfoPanel::set_visible_file_reader_progress(bool visible) { ui_->FileReaderProgressBar->setVisible(visible); }
 
 void InfoPanel::set_visible_record_progress(bool visible)
 {
     if (visible)
-    {
         ui_->RecordProgressBar->reset();
-        ui_->RecordProgressBar->show();
-    }
-    else
-        ui_->RecordProgressBar->hide();
+
+    ui_->RecordProgressBar->setVisible(visible);
 }
 
 void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)
