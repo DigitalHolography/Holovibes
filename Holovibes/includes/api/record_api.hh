@@ -194,7 +194,8 @@ class RecordApi : public IApi
      *
      * \param[in] value The new record mode
      *
-     * \return ApiCode the status of the operation. NO_CHANGE if the mode is already set to the new value, OK otherwise.
+     * \return ApiCode the status of the operation. NO_CHANGE if the mode is already set to the new value,
+     * WRONG_COMP_MODE if the value is incompatible with the current computation mode, OK otherwise.
      */
     ApiCode set_record_mode(RecordMode value) const;
 
@@ -222,8 +223,10 @@ class RecordApi : public IApi
      *
      * \param[in] value Which eye to record
      * \note If a recording is already in progress, the new eye will be used for the next record.
+     *
+     * \return ApiCode NO_CHANGE if the old value is the same or if there is no camera loaded, OK otherwise
      */
-    void set_recorded_eye(RecordedEyeType value) const;
+    ApiCode set_recorded_eye(RecordedEyeType value) const;
 
 #pragma endregion
 

@@ -21,7 +21,22 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define REALTIME_SETTINGS                       \
+    holovibes::settings::XYContrastRange,       \
+    holovibes::settings::XZContrastRange,       \
+    holovibes::settings::YZContrastRange,       \
+    holovibes::settings::Filter2dContrastRange
+
+#define PIPE_CYCLE_SETTINGS                        \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::SignalZone,               \
+    holovibes::settings::NoiseZone,                \
+    holovibes::settings::CutsContrastPOffset,      \
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::ReticleZone
+
+#define PIPE_REFRESH_SETTINGS                      \
     holovibes::settings::ImageType,                \
     holovibes::settings::XY,                       \
     holovibes::settings::XZ,                       \
@@ -31,19 +46,10 @@
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize,   \
-    holovibes::settings::SignalZone,               \
-    holovibes::settings::NoiseZone,                \
-    holovibes::settings::ReticleZone
+    holovibes::settings::TimeTransformationSize
 
-#define ONRESTART_SETTINGS                         \
-    holovibes::settings::ContrastLowerThreshold,   \
-    holovibes::settings::ContrastUpperThreshold,   \
-    holovibes::settings::CutsContrastPOffset
-
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -87,7 +93,8 @@ class Rendering
         , fd_(output_fd)
         , stream_(stream)
         , realtime_settings_(settings)
-        , onrestart_settings_(settings)
+        , pipe_cycle_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
         // Hold 2 float values (min and max)
         cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -106,18 +113,33 @@ class Rendering
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
         {
             LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
         {
             LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
-            onrestart_settings_.update_setting(setting);
+            pipe_cycle_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+        {
+            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
+            pipe_refresh_settings_.update_setting(setting);
         }
     }
+
+    /*! \brief Update the realtime settings */
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
+
+    /*! \brief Update the pipe refresh settings */
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
+
+    /*! \brief Check whether autocontrast should be applied or not for each view */
+    void request_autocontrast();
 
   private:
     /*! \brief insert the log10 on the XY window */
@@ -129,9 +151,6 @@ class Rendering
 
     /*! \brief insert the autocontrast computation */
     void insert_compute_autocontrast();
-
-    /*! \brief Check whether autocontrast should be applied or not for each view */
-    void request_autocontrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
@@ -166,15 +185,14 @@ class Rendering
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
-            return onrestart_settings_.get<T>().value;
-        }
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
     }
 
     /*! \brief Vector function in which we insert the processing */
@@ -197,7 +215,9 @@ class Rendering
     float* percent_min_max_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 
     bool autocontrast_xy_ = false;
     bool autocontrast_xz_ = false;

@@ -90,6 +90,11 @@ OptionsParser::OptionsParser()
         po::bool_switch()->default_value(false),
         "Record moments (default = false)"
     )
+    (
+        "benchmark,b",
+        po::bool_switch()->default_value(false),
+        "Benchmark: record application data into a file at runtime (default = false)"
+    )
     ;
     // clang-format on
 
@@ -184,6 +189,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             }
         }
         options_.moments_record = vm_["moments_record"].as<bool>();
+        options_.benchmark = vm_["benchmark"].as<bool>();
     }
     catch (std::exception& e)
     {

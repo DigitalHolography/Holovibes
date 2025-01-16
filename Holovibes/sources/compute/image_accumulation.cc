@@ -31,12 +31,7 @@ void ImageAccumulation::insert_image_accumulation(float& gpu_postprocess_frame,
                            gpu_postprocess_frame_xz,
                            gpu_postprocess_frame_yz);
 
-    insert_copy_accumulation_result(setting<settings::XY>(),
-                                    &gpu_postprocess_frame,
-                                    setting<settings::XZ>(),
-                                    &gpu_postprocess_frame_xz,
-                                    setting<settings::YZ>(),
-                                    &gpu_postprocess_frame_yz);
+    insert_copy_accumulation_result(&gpu_postprocess_frame, &gpu_postprocess_frame_xz, &gpu_postprocess_frame_yz);
 }
 
 void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
@@ -211,11 +206,8 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
     }
 }
 
-void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ& const_view_xy,
-                                                        float* gpu_postprocess_frame,
-                                                        const holovibes::ViewXYZ& const_view_xz,
+void ImageAccumulation::insert_copy_accumulation_result(float* gpu_postprocess_frame,
                                                         float* gpu_postprocess_frame_xz,
-                                                        const holovibes::ViewXYZ& const_view_yz,
                                                         float* gpu_postprocess_frame_yz)
 {
     LOG_FUNC();

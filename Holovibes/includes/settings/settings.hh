@@ -89,15 +89,23 @@ DECLARE_SETTING(OutputBufferSize, size_t);
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
 DECLARE_SETTING(ImageType, ImgType);
+DECLARE_SETTING(Unwrap2d, bool);
 
 DECLARE_SETTING(X, ViewXY);
 DECLARE_SETTING(Y, ViewXY);
 DECLARE_SETTING(P, ViewPQ);
 DECLARE_SETTING(Q, ViewPQ);
+
 DECLARE_SETTING(XY, ViewXYZ);
 DECLARE_SETTING(XZ, ViewXYZ);
 DECLARE_SETTING(YZ, ViewXYZ);
 DECLARE_SETTING(Filter2d, ViewWindow);
+
+DECLARE_SETTING(XYContrastRange, ContrastRange);
+DECLARE_SETTING(XZContrastRange, ContrastRange);
+DECLARE_SETTING(YZContrastRange, ContrastRange);
+DECLARE_SETTING(Filter2dContrastRange, ContrastRange);
+
 DECLARE_SETTING(CurrentWindow, holovibes::WindowKind);
 DECLARE_SETTING(LensViewEnabled, bool);
 DECLARE_SETTING(ChartDisplayEnabled, bool);

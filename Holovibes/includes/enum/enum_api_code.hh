@@ -14,6 +14,7 @@ enum class ApiCode
 {
     OK = 0,          /*!< Everything went well */
     NO_CHANGE,       /*!< No change was made (set with same value) */
+    INVALID_VALUE,   /*!< The value is invalid */
     NO_IN_DATA,      /*!< Can't start because their is no source (file/camera) */
     NOT_STARTED,     /*!< The operation could not be performed because the computation has not started */
     WRONG_COMP_MODE, /*!< The operation could not be performed on this computation mode */

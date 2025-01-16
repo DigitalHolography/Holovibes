@@ -204,10 +204,7 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
-    // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
-    api_.compute.disable_pipe_refresh();
-
-    // Disable the notify for the same reason
+    // Disable the notify to avoid notify loop in the panels
     disable_notify();
 
     // Notify all panels
@@ -215,8 +212,6 @@ void MainWindow::on_notify()
         panel->on_notify();
 
     enable_notify();
-
-    api_.compute.enable_pipe_refresh();
 
     QSpinBox* fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
     fps_number_sb->setValue(api_.input.get_input_fps());

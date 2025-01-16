@@ -14,6 +14,26 @@ typedef unsigned int uint;
 
 namespace holovibes
 {
+
+/*! \class ContrastRange
+ *
+ * \brief Class that represents contrast range
+ */
+struct ContrastRange
+{
+    bool invert = false;
+    float min = 1.f;
+    float max = 65535.f;
+
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ContrastRange, invert, min, max);
+
+    bool operator==(const ContrastRange& other) const
+    {
+        return (invert == other.invert && min == other.min && max == other.max);
+    }
+};
+
 /*! \class ViewContrast
  *
  * \brief Class that represents ViewContrast

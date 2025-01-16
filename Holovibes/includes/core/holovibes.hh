@@ -52,6 +52,7 @@
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
+    holovibes::settings::Unwrap2d,                               \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
     holovibes::settings::P,                                      \
@@ -60,6 +61,10 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::Filter2d,                               \
+    holovibes::settings::XYContrastRange,                        \
+    holovibes::settings::XZContrastRange,                        \
+    holovibes::settings::YZContrastRange,                        \
+    holovibes::settings::Filter2dContrastRange,                  \
     holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
     holovibes::settings::ChartDisplayEnabled,                    \
@@ -379,6 +384,7 @@ class Holovibes
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},
+                                             settings::Unwrap2d{false},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
                                              settings::P{ViewPQ{}},
@@ -387,6 +393,10 @@ class Holovibes
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
                                              settings::Filter2d{ViewWindow{}},
+                                             settings::XYContrastRange{ContrastRange{}},
+                                             settings::XZContrastRange{ContrastRange{}},
+                                             settings::YZContrastRange{ContrastRange{}},
+                                             settings::Filter2dContrastRange{ContrastRange{}},
                                              settings::CurrentWindow{WindowKind::XYview},
                                              settings::LensViewEnabled{false},
                                              settings::ChartDisplayEnabled{false},
