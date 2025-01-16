@@ -18,18 +18,17 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                               \
-    holovibes::settings::ImageType,                     \
-    holovibes::settings::RenormEnabled,                 \
-    holovibes::settings::ConvolutionMatrix,             \
-    settings::ConvolutionEnabled,                       \
-    settings::DivideConvolutionEnabled
+#define PIPE_CYCLE_SETTINGS                        \
+    holovibes::settings::RenormConstant,           \
+    holovibes::settings::DivideConvolutionEnabled
 
+#define PIPE_REFRESH_SETTINGS                      \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ConvolutionMatrix,        \
+    holovibes::settings::ConvolutionEnabled
 
-#define ONRESTART_SETTINGS                          \
-    holovibes::settings::RenormConstant
-
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+#define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 
 // clang-format on
 
@@ -65,8 +64,8 @@ class Postprocessing
         , fd_(input_fd)
         , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
-        , realtime_settings_(settings)
-        , onrestart_settings_(settings)
+        , pipe_cycle_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
     }
 
@@ -85,17 +84,24 @@ class Postprocessing
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
         {
             LOG_TRACE("[PostProcessing] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
+            pipe_cycle_settings_.update_setting(setting);
         }
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
         {
             LOG_TRACE("[PostProcessing] [update_setting] {}", typeid(T).name());
-            onrestart_settings_.update_setting(setting);
+            pipe_refresh_settings_.update_setting(setting);
         }
     }
+
+    /*! \brief Update the realtime settings */
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
+
+    /*! \brief Update the pipe refresh settings */
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Used only when the image is composite convolution to do a convolution on each component */
@@ -108,15 +114,11 @@ class Postprocessing
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
-            return realtime_settings_.get<T>().value;
-        }
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
-            return onrestart_settings_.get<T>().value;
-        }
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
     }
 
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
@@ -141,8 +143,8 @@ class Postprocessing
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute
 

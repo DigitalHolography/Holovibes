@@ -51,6 +51,10 @@ class ContrastApi : public IApi
      */
     inline static WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
 
+    ContrastRange get_contrast_range(WindowKind kind) const;
+
+    void set_contrast_range(ContrastRange range, WindowKind kind) const;
+
 #pragma endregion
 
   public:
@@ -179,10 +183,7 @@ class ContrastApi : public IApi
      * \param[in] kind the window kind or the current window if not specified
      * \return bool true if the contrast is inverted
      */
-    inline bool get_contrast_invert(WindowKind kind = get_current_window_type()) const
-    {
-        return get_window(kind).contrast.invert;
-    }
+    bool get_contrast_invert(WindowKind kind = get_current_window_type()) const;
 
     /*! \brief Enables or Disables the contrast invert on the specified window kind (or the current window
      * if not specified).
@@ -275,8 +276,9 @@ class ContrastApi : public IApi
      * calculated on.
      *
      * \param[in] value true: enable, false: disable
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    void set_reticle_display_enabled(bool value) const;
+    ApiCode set_reticle_display_enabled(bool value) const;
 
     /*! \brief Returns the reticle scale. The reticle scale is the size of the reticle display.
      *
@@ -287,8 +289,10 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle scale. The reticle scale is the size of the reticle display.
      *
      * \param[in] value the new reticle scale
+     * \return ApiCode OK if the value is in range [0, 1], NO_CHANGE if the value is the same, INVALID_VALUE if the
+     * value is not in range [0, 1]
      */
-    void set_reticle_scale(float value) const;
+    ApiCode set_reticle_scale(float value) const;
 
     /*! \brief Returns the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
@@ -299,8 +303,9 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
      * \param[in] rect the new reticle zone
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    inline void set_reticle_zone(const units::RectFd& rect) const { UPDATE_SETTING(ReticleZone, rect); };
+    ApiCode set_reticle_zone(const units::RectFd& rect) const;
 
 #pragma endregion
 };

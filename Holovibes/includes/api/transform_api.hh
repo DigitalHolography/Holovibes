@@ -352,6 +352,12 @@ class TransformApi : public IApi
      */
     ApiCode set_fft_shift_enabled(const bool value) const;
 
+    /*! \brief Returns the unwrapping 2d status.
+     *
+     * \return bool true: enabled, false: disabled
+     */
+    inline bool get_unwrapping_2d() const { return GET_SETTING(Unwrap2d); }
+
     /*! \brief Enables or Disables unwrapping 2d
      *
      * \param[in] value true: enable, false: disable

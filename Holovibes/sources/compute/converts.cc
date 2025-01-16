@@ -19,9 +19,10 @@
 namespace holovibes::compute
 {
 
-void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_postprocess_frame)
+void Converts::insert_to_float(float* buffers_gpu_postprocess_frame)
 {
-    LOG_FUNC(unwrap_2d_requested);
+    LOG_FUNC();
+
     ImgType img_type = setting<settings::ImageType>();
     insert_compute_p_accu();
 
@@ -37,10 +38,10 @@ void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_post
         insert_to_squaredmodulus(buffers_gpu_postprocess_frame);
         break;
     case ImgType::Argument:
-        insert_to_argument(unwrap_2d_requested, buffers_gpu_postprocess_frame);
+        insert_to_argument(buffers_gpu_postprocess_frame);
         break;
     case ImgType::PhaseIncrease:
-        insert_to_phase_increase(unwrap_2d_requested, buffers_gpu_postprocess_frame);
+        insert_to_phase_increase(buffers_gpu_postprocess_frame);
         break;
     default:
         break;
@@ -195,9 +196,9 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
         });
 }
 
-void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame)
+void Converts::insert_to_argument(float* gpu_postprocess_frame)
 {
-    LOG_FUNC(unwrap_2d_requested);
+    LOG_FUNC();
 
     fn_compute_vect_->push_back(
         [=]()
@@ -210,7 +211,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
                                 stream_);
         });
 
-    if (unwrap_2d_requested)
+    if (setting<settings::Unwrap2d>())
     {
         try
         {
@@ -247,9 +248,9 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
     }
 }
 
-void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame)
+void Converts::insert_to_phase_increase(float* gpu_postprocess_frame)
 {
-    LOG_FUNC(unwrap_2d_requested);
+    LOG_FUNC();
 
     try
     {
@@ -261,7 +262,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
             [=]()
             { phase_increase(time_transformation_env_.gpu_p_frame, unwrap_res_.get(), fd_.get_frame_res(), stream_); });
 
-        if (unwrap_2d_requested)
+        if (setting<settings::Unwrap2d>())
         {
             if (!unwrap_res_2d_)
                 unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.get_frame_res(), stream_));

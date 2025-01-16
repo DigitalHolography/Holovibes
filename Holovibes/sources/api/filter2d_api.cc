@@ -4,30 +4,72 @@
 #include "input_filter.hh"
 #include "tools.hh"
 
+#define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
+    if (old_val == new_val)                                                                                            \
+        return ApiCode::NO_CHANGE;                                                                                     \
+    if (api_->compute.get_compute_mode() == Computation::Raw)                                                          \
+        return ApiCode::WRONG_COMP_MODE;
+
 namespace holovibes::api
 {
 
 #pragma region Filter
 
-void Filter2dApi::set_filter2d_enabled(bool checked) const
+ApiCode Filter2dApi::set_filter2d_enabled(bool checked) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_filter2d_enabled(), checked);
 
     UPDATE_SETTING(Filter2dEnabled, checked);
-    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void Filter2dApi::set_filter2d_n1(int value) const
+ApiCode Filter2dApi::set_filter2d_n1(int value) const
 {
+    NOT_SAME_AND_NOT_RAW(get_filter2d_n1(), value);
+
+    if (value >= get_filter2d_n2() || value < 0)
+    {
+        LOG_WARN("Filter2dN1 must be in range [0, Filter2dN2[");
+        return ApiCode::INVALID_VALUE;
+    }
+
     UPDATE_SETTING(Filter2dN1, value);
-    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
 }
 
-void Filter2dApi::set_filter2d_n2(int value) const
+ApiCode Filter2dApi::set_filter2d_smooth_high(int value) const
 {
+    NOT_SAME_AND_NOT_RAW(get_filter2d_smooth_high(), value);
+
+    UPDATE_SETTING(Filter2dSmoothHigh, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_n2(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_n2(), value);
+
+    if (value <= get_filter2d_n1())
+    {
+        LOG_WARN("Filter2dN2 must be in range ]Filter2dN1, +inf[");
+        return ApiCode::INVALID_VALUE;
+    }
+
     UPDATE_SETTING(Filter2dN2, value);
-    api_->compute.pipe_refresh();
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_smooth_low(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_smooth_low(), value);
+
+    UPDATE_SETTING(Filter2dSmoothLow, value);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
@@ -64,9 +106,7 @@ ApiCode Filter2dApi::enable_filter(const std::string& filename) const
     std::vector<float> input_filter = load_input_filter(filename);
 
     UPDATE_SETTING(InputFilter, input_filter);
-    set_filter_file_name(input_filter.empty() ? "" : filename);
-
-    api_->compute.pipe_refresh();
+    UPDATE_SETTING(FilterFileName, input_filter.empty() ? "" : filename);
 
     return ApiCode::OK;
 }

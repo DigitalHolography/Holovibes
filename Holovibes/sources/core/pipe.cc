@@ -160,6 +160,8 @@ bool Pipe::make_requests()
         clear_request(ICS::OutputBuffer);
     }
 
+    HANDLE_REQUEST(ICS::LensView, "Allocate lens view", fourier_transforms_->init_lens_queue());
+
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
     // Updating number of images
@@ -170,9 +172,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(setting<settings::TimeTransformationSize>()))
         {
             success_allocation = false;
-            auto P = setting<settings::P>();
-            P.start = 0;
-            realtime_settings_.update_setting(settings::P{P});
+            api.transform.set_p_index(0);
             api.transform.set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
@@ -266,6 +266,7 @@ void Pipe::refresh()
         return;
     }
 
+    pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
 
     /*
@@ -304,7 +305,7 @@ void Pipe::refresh()
 
     insert_wait_time_stride();
 
-    if (API.input.get_data_type() == RecordedDataType::MOMENTS)
+    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
     {
         // Dequeuing the 3 moments in a temporary buffer
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
@@ -340,7 +341,7 @@ void Pipe::refresh()
         // Used for phase increase
         fourier_transforms_->insert_store_p_frame();
 
-        converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
+        converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
 
         insert_moments();
         insert_moments_record();
@@ -501,7 +502,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (API.view.get_cuts_view_enabled())
+            if (setting<settings::CutsViewEnabled>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -512,7 +513,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (API.view.get_filter2d_view_enabled())
+            if (setting<settings::Filter2dViewEnabled>())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -524,7 +525,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (API.filter2d.get_filter2d_enabled() && API.view.get_filter2d_view_enabled())
+    if (setting<settings::Filter2dEnabled>() && setting<settings::Filter2dViewEnabled>())
     {
         fn_compute_vect_->push_back(
             [this]()
@@ -650,24 +651,27 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
+    if (is_requested(ICS::Refresh))
         refresh();
 
     while (!is_requested(ICS::Termination))
     {
-        try
-        {
-            // Run the entire pipeline of calculation
-            run_all();
+        if (!is_requested(ICS::Start))
+            continue;
 
-            if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
-                refresh();
-        }
-        catch (CustomException& e)
+        // Run the entire pipeline of calculation
+        run_all();
+
+        if (pipe_cycle_settings_.updated())
         {
-            LOG_ERROR("Pipe error: message: {}", e.what());
-            throw;
+            pipe_cycle_apply_updates();
+
+            image_accumulation_->clear(); // Clear the accumulation queue
+            rendering_->request_autocontrast();
         }
+
+        if (is_requested(ICS::Refresh) || pipe_refresh_settings_.updated())
+            refresh();
     }
 }
 

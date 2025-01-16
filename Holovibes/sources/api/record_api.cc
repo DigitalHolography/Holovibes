@@ -26,9 +26,6 @@ ApiCode RecordApi::set_record_mode(RecordMode value) const
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();
 
-    // Apply the change
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -123,7 +120,6 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
         Holovibes::instance().start_frame_record(callback);
 
         set_frame_acquisition_enabled(true);
-        api_->compute.pipe_refresh();
     }
 
     return ApiCode::OK;
@@ -167,8 +163,6 @@ ApiCode RecordApi::set_record_queue_location(Device device) const
 
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();
-
-    api_->compute.pipe_refresh(); // Used to know where to enqueue frames
 
     return ApiCode::OK;
 }

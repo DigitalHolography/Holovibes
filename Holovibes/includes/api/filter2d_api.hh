@@ -29,8 +29,10 @@ class Filter2dApi : public IApi
     /*! \brief Enables or disables the filter 2D
      *
      * \param[in] value true to enable the filter 2D, false to disable it
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, OK otherwise
      */
-    void set_filter2d_enabled(bool value) const;
+    ApiCode set_filter2d_enabled(bool value) const;
 
 #pragma endregion
 
@@ -39,16 +41,19 @@ class Filter2dApi : public IApi
     /*! \brief Returns the radius of the first circle used to construct the mask for the filter 2D. THe filter2D is a
      * bandpass filter done before the Spatial Transformation.
      *
-     * \return int the radius of the first circle
+     * \return int the radius of the first circle.
      */
     inline int get_filter2d_n1() const { return GET_SETTING(Filter2dN1); }
 
     /*! \brief Sets the radius of the first circle used to construct the mask for the filter 2D. THe filter2D is a
      * bandpass filter done before the Spatial Transformation.
      *
-     * \param[in] value the new value of the radius
+     * \param[in] value the new value of the radius. In range [0, Filter2dN2[
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, INVALID_VALUE if the value is
+     * not in range [0, Filter2dN2[, OK otherwise
      */
-    void set_filter2d_n1(int value) const;
+    ApiCode set_filter2d_n1(int value) const;
 
     /*! \brief Returns the smooth size of the second circle used to construct the mask for the filter 2D.
      *
@@ -58,9 +63,11 @@ class Filter2dApi : public IApi
 
     /*! \brief Sets the smooth size of the second circle used to construct the mask for the filter 2D.
      *
-     * \param[in] value the new value of the smooth size
+     * \param[in] value the new value of the smooth size.
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, OK otherwise
      */
-    inline void set_filter2d_smooth_high(int value) const { UPDATE_SETTING(Filter2dSmoothHigh, value); }
+    ApiCode set_filter2d_smooth_high(int value) const;
 
 #pragma endregion
 
@@ -76,9 +83,12 @@ class Filter2dApi : public IApi
     /*! \brief Sets the radius of the second circle used to construct the mask for the filter 2D. THe filter2D is a
      * bandpass filter done before the Spatial Transformation.
      *
-     * \param[in] value the new value of the radius
+     * \param[in] value the new value of the radius. In range ]Filter2dN1, +inf[
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, INVALID_VALUE if the value is
+     * not in range ]Filter2dN1, +inf[, OK otherwise
      */
-    void set_filter2d_n2(int value) const;
+    ApiCode set_filter2d_n2(int value) const;
 
     /*! \brief Returns the smooth size of the first circle used to construct the mask for the filter 2D.
      *
@@ -89,8 +99,10 @@ class Filter2dApi : public IApi
     /*! \brief Sets the smooth size of the first circle used to construct the mask for the filter 2D.
      *
      * \param[in] value the new value of the smooth size
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, OK otherwise
      */
-    inline void set_filter2d_smooth_low(int value) const { UPDATE_SETTING(Filter2dSmoothLow, value); }
+    ApiCode set_filter2d_smooth_low(int value) const;
 
 #pragma endregion
 
@@ -101,12 +113,6 @@ class Filter2dApi : public IApi
      * \return std::string the path of the file
      */
     inline std::string get_filter_file_name() const { return GET_SETTING(FilterFileName); }
-
-    /*! \brief Sets the file that will be used as a filter
-     *
-     * \param[in] value the path of the file
-     */
-    inline void set_filter_file_name(std::string value) const { UPDATE_SETTING(FilterFileName, value); }
 
 #pragma endregion
 
@@ -121,6 +127,7 @@ class Filter2dApi : public IApi
     /*! \brief Enables the input filter mode
      *
      * \param[in] file the file containing the filter's settings or empty string to disable the filter
+     *
      * \return ApiCode the status of the operation: OK if successful, NOT_STARTED if the computation is not started
      */
     ApiCode enable_filter(const std::string& file) const;

@@ -87,7 +87,6 @@ ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) 
     NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
 
     UPDATE_SETTING(SpaceTransformation, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -103,7 +102,6 @@ ApiCode TransformApi::set_lambda(float value) const
     }
 
     UPDATE_SETTING(Lambda, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -117,7 +115,6 @@ ApiCode TransformApi::set_z_distance(float value) const
         value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -195,8 +192,6 @@ ApiCode TransformApi::set_p_index(uint value) const
     SET_SETTING(P, start, value);
     check_p_limits();
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -206,8 +201,6 @@ ApiCode TransformApi::set_p_accu_level(uint p_value) const
 
     SET_SETTING(P, width, p_value);
     check_p_limits();
-
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -238,8 +231,6 @@ ApiCode TransformApi::set_q_index(uint value) const
     SET_SETTING(Q, start, value);
     check_q_limits();
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -249,8 +240,6 @@ ApiCode TransformApi::set_q_accu_level(uint value) const
 
     SET_SETTING(Q, width, value);
     check_q_limits();
-
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -289,8 +278,6 @@ ApiCode TransformApi::set_x_accu_level(uint x_value) const
     SET_SETTING(X, width, x_value);
     check_x_limits();
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -300,8 +287,6 @@ ApiCode TransformApi::set_x_cuts(uint value) const
 
     SET_SETTING(X, start, value);
     check_x_limits();
-
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -336,8 +321,6 @@ ApiCode TransformApi::set_y_accu_level(uint y_value) const
     SET_SETTING(Y, width, y_value);
     check_y_limits();
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
@@ -347,8 +330,6 @@ ApiCode TransformApi::set_y_cuts(uint value) const
 
     SET_SETTING(Y, start, value);
     check_y_limits();
-
-    api_->compute.pipe_refresh();
 
     return ApiCode::OK;
 }
@@ -383,24 +364,14 @@ ApiCode TransformApi::set_fft_shift_enabled(const bool value) const
     if (api_->global_pp.get_registration_enabled())
         api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
-    api_->compute.pipe_refresh();
-
     return ApiCode::OK;
 }
 
 ApiCode TransformApi::set_unwrapping_2d(const bool value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return ApiCode::WRONG_COMP_MODE;
+    NOT_SAME_AND_NOT_RAW(get_unwrapping_2d(), value);
 
-    if (!api_->compute.get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    if (api_->compute.get_compute_pipe()->is_requested(ICS::Unwrap2D) == value)
-        return ApiCode::NO_CHANGE;
-
-    api_->compute.get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
-    api_->compute.pipe_refresh();
+    UPDATE_SETTING(Unwrap2d, value);
 
     return ApiCode::OK;
 }

@@ -27,78 +27,83 @@
 #pragma region Settings configuration
 
 // clang-format off
-#define REALTIME_SETTINGS                                        \
-    holovibes::settings::InputFPS,                               \
-    holovibes::settings::ImageType,                              \
+
+#define REALTIME_SETTINGS                       \
+    holovibes::settings::XYContrastRange,       \
+    holovibes::settings::XZContrastRange,       \
+    holovibes::settings::YZContrastRange,       \
+    holovibes::settings::Filter2dContrastRange
+
+#define PIPE_CYCLE_SETTINGS                                      \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
-    holovibes::settings::P,                                      \
     holovibes::settings::Q,                                      \
+    holovibes::settings::RecordFrameOffset,                      \
+    holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::ReticleDisplayEnabled,                  \
+    holovibes::settings::DivideConvolutionEnabled,               \
+    holovibes::settings::SignalZone,                             \
+    holovibes::settings::NoiseZone,                              \
+    holovibes::settings::CompositeZone,                          \
+    holovibes::settings::CompositeKind,                          \
+    holovibes::settings::CompositeAutoWeights,                   \
+    holovibes::settings::RGB,                                    \
+    holovibes::settings::HSV,                                    \
+    holovibes::settings::ZFFTShift,                              \
+    holovibes::settings::TimeStride,                             \
+    holovibes::settings::ContrastLowerThreshold,                 \
+    holovibes::settings::ContrastUpperThreshold,                 \
+    holovibes::settings::RenormConstant,                         \
+    holovibes::settings::ReticleZone,                            \
+    holovibes::settings::CutsContrastPOffset
+
+#define PIPE_REFRESH_SETTINGS                                    \
+    holovibes::settings::ImageType,                              \
+    holovibes::settings::Unwrap2d,                               \
+    holovibes::settings::P,                                      \
     holovibes::settings::Filter2d,                               \
-    holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
     holovibes::settings::ChartDisplayEnabled,                    \
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::RegistrationEnabled,                    \
-    holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
-    holovibes::settings::ReticleScale,                           \
     holovibes::settings::RegistrationZone,                       \
-    holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::FrameAcquisitionEnabled,                \
-    holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
-    holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
-    holovibes::settings::SignalZone,                             \
-    holovibes::settings::NoiseZone,                              \
-    holovibes::settings::CompositeZone,                          \
     holovibes::settings::TimeTransformationCutsOutputBufferSize, \
-    holovibes::settings::CompositeKind,                          \
-    holovibes::settings::CompositeAutoWeights,                   \
-    holovibes::settings::RGB,                                    \
-    holovibes::settings::HSV,                                    \
-    holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::FrameSkip,                              \
     holovibes::settings::RecordMode,                             \
-    holovibes::settings::CameraFps
-
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
+    holovibes::settings::CameraFps,                              \
+    holovibes::settings::BatchSize,                              \
+    holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::InputFilter
 
 #define ONRESTART_SETTINGS                                       \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::RecordBufferSize,                       \
-    holovibes::settings::ContrastLowerThreshold,                 \
-    holovibes::settings::ContrastUpperThreshold,                 \
-    holovibes::settings::RenormConstant,                         \
-    holovibes::settings::CutsContrastPOffset,                    \
     holovibes::settings::RecordQueueLocation,                    \
     holovibes::settings::DataType
 
-#define PIPEREFRESH_SETTINGS                                     \
-    holovibes::settings::TimeStride,                             \
-    holovibes::settings::BatchSize,                              \
-    holovibes::settings::XY,                                     \
-    holovibes::settings::XZ,                                     \
-    holovibes::settings::YZ,                                     \
-    holovibes::settings::InputFilter
-
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 #pragma endregion
@@ -121,13 +126,13 @@ class ICompute
         , record_queue_(record)
         , stream_(stream)
         , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
         , onrestart_settings_(settings)
     {
         // Initialize the array of settings to false except for the refresh
         for (auto& setting : settings_requests_)
             setting.store(false, std::memory_order_relaxed);
-        settings_requests_[static_cast<int>(ICS::RefreshEnabled)] = true;
 
         camera::FrameDescriptor fd = input_queue_.get_fd();
         int inembed[1] = {static_cast<int>(setting<settings::TimeTransformationSize>())};
@@ -181,11 +186,10 @@ class ICompute
     /*! \brief enum class for the settings that can be requested: settings that change the pipeline. */
     enum class Setting
     {
-        Unwrap2D = 0,
-        UpdateTimeTransformationAlgorithm,
+        UpdateTimeTransformationAlgorithm = 0,
+        Start,
         OutputBuffer,
         Refresh,
-        RefreshEnabled,
         UpdateTimeTransformationSize,
         ChartDisplay,
         DisableChartDisplay,
@@ -200,6 +204,7 @@ class ICompute
         UpdateBatchSize,
         UpdateTimeStride,
         UpdateRegistrationZone,
+        LensView,
         DisableLensView,
         DisableFrameRecord,
         Convolution,
@@ -338,6 +343,9 @@ class ICompute
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
 
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
+
         if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
 
@@ -406,11 +414,14 @@ class ICompute
     /*! \name Settings containers
      * \{
      */
-    /*! \brief Container for the realtime settings. */
+    /*! \brief Container for settings that don't need to be cleared in the queue */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
+    /*! \brief Container for the realtime settings. */
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
+
     /*! \brief Container for the pipe refresh settings. */
-    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+    DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 
     /**
      * @brief Contains all the settings of the worker that should be updated

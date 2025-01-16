@@ -94,14 +94,12 @@ void FourierTransform::insert_fresnel_transform()
 {
     LOG_FUNC();
 
-    const float z = setting<settings::ZDistance>();
-
     fresnel_transform_lens(gpu_lens_.get(),
                            lens_side_size_,
                            fd_.height,
                            fd_.width,
                            setting<settings::Lambda>(),
-                           z,
+                           setting<settings::ZDistance>(),
                            setting<settings::PixelSize>(),
                            stream_);
 
@@ -124,12 +122,10 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 {
     LOG_FUNC();
 
-    const float z = setting<settings::ZDistance>();
-
     angular_spectrum_lens(gpu_lens_.get(),
                           fd_.width,
                           fd_.height,
-                          z,
+                          setting<settings::ZDistance>(),
                           setting<settings::Lambda>(),
                           setting<settings::PixelSize>() * 1e-6f,
                           setting<settings::PixelSize>() * 1e-6f,
@@ -157,7 +153,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
         });
 }
 
-std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
+void FourierTransform::init_lens_queue()
 {
     LOG_FUNC();
 
@@ -167,6 +163,12 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
         fd.depth = camera::PixelDepth::Complex;
         gpu_lens_queue_ = std::make_unique<Queue>(fd, 16);
     }
+}
+
+std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
+{
+    LOG_FUNC();
+
     return gpu_lens_queue_;
 }
 
@@ -175,7 +177,7 @@ void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
 {
     // LOG-USELESS LOG_FUNC();
 
-    if (gpu_lens_queue_)
+    if (setting<settings::LensViewEnabled>())
     {
         // Getting the pointer in the location of the next enqueued element
         cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());
@@ -206,7 +208,7 @@ void FourierTransform::insert_time_transform()
         insert_pca();
         break;
     case TimeTransformation::SSA_STFT:
-        insert_ssa_stft(setting<settings::Q>());
+        insert_ssa_stft();
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
@@ -374,7 +376,7 @@ void FourierTransform::insert_pca()
         });
 }
 
-void FourierTransform::insert_ssa_stft(ViewPQ view_q)
+void FourierTransform::insert_ssa_stft()
 {
     LOG_FUNC();
 
@@ -408,7 +410,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            ViewPQ q_struct = view_q;
+            ViewPQ q_struct = setting<settings::Q>();
             int q = q_struct.width != 0 ? q_struct.start : 0;
             int q_acc = q_struct.width != 0 ? q_struct.width : time_transformation_size;
             int q_index = q * time_transformation_size;
