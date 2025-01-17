@@ -138,6 +138,23 @@ void InformationApi::compute_fps(const long long waited_time)
 
 #pragma region Information
 
+bool InformationApi::has_right_cuda_version() const
+{
+    int nDevices;
+    if (cudaGetDeviceCount(&nDevices) == cudaSuccess)
+    {
+        cudaDeviceProp props;
+        int device;
+
+        cudaGetDevice(&device);
+        cudaGetDeviceProperties(&props, device);
+
+        return props.major * 10 + props.minor >= MIN_CUDA_VERSION;
+    }
+
+    return false;
+}
+
 void InformationApi::start_benchmark() const
 {
     if (get_benchmark_mode())

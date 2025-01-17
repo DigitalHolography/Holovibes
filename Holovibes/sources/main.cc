@@ -27,30 +27,14 @@
 
 #define MIN_CUDA_VERSION 35
 
-static void check_cuda_graphic_card(bool gui)
+static void check_cuda_graphic_card(holovibes::api::Api& api, bool gui)
 {
-    std::string error_message;
-    int nDevices;
+    if (API.information.has_right_cuda_version())
+        return;
 
-    /* Checking for Compute Capability */
-    if (cudaGetDeviceCount(&nDevices) == cudaSuccess)
-    {
-        cudaDeviceProp props;
-        int device;
-
-        cudaGetDevice(&device);
-        cudaGetDeviceProperties(&props, device);
-
-        // Check cuda version
-        if (props.major * 10 + props.minor >= MIN_CUDA_VERSION)
-            return;
-        else
-            error_message = "CUDA graphic card not supported.\n";
-    }
-    else
-        error_message = "No CUDA graphic card detected.\n"
-                        "You will not be able to run Holovibes.\n\n"
-                        "Try to update your graphic drivers.";
+    std::string error_message = "No CUDA graphic card detected or the graphic card is not supported.\n"
+                                "You will not be able to run Holovibes.\n\n"
+                                "Try to update your graphic drivers.";
 
     if (gui)
     {
@@ -64,9 +48,10 @@ static void check_cuda_graphic_card(bool gui)
     std::exit(11);
 }
 
-static int start_gui(int argc, char** argv, const std::string filename = "")
+static int start_gui(holovibes::api::Api& api, int argc, char** argv, const std::string filename = "")
 {
-    API.information.set_is_cli(false);
+    api.information.set_is_cli(false);
+
     LOG_TRACE(" ");
 
     QLocale::setDefault(QLocale("en_US"));
@@ -75,7 +60,7 @@ static int start_gui(int argc, char** argv, const std::string filename = "")
     app.setWindowIcon(QIcon(":/assets/icons/Holovibes.ico"));
 
     LOG_TRACE(" ");
-    check_cuda_graphic_card(true);
+    check_cuda_graphic_card(api, true);
     QSplashScreen splash(QPixmap(":/assets/icons/holovibes_logo.png"));
     splash.show();
 
@@ -97,9 +82,6 @@ static int start_gui(int argc, char** argv, const std::string filename = "")
         window.show();
     LOG_TRACE(" ");
     splash.finish(&window);
-
-    // Set callbacks
-    holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
     if (!filename.empty())
     {
@@ -162,6 +144,8 @@ int main(int argc, char* argv[])
         std::exit(0);
     }
 
+    holovibes::api::Api& api = API;
+
     int ret = 0;
     try
     {
@@ -182,16 +166,15 @@ int main(int argc, char* argv[])
         copy_files(RELATIVE_PATH(__SHADER_REFERENCE__), RELATIVE_PATH(__SHADER_FOLDER_PATH__));
 
 #endif
-
         if (opts.input_path && opts.output_path)
         {
-            check_cuda_graphic_card(false);
+            check_cuda_graphic_card(api, false);
             ret = cli::start_cli(opts);
         }
         else if (opts.input_path)
-            ret = start_gui(argc, argv, opts.input_path.value());
+            ret = start_gui(api, argc, argv, opts.input_path.value());
         else
-            ret = start_gui(argc, argv);
+            ret = start_gui(api, argc, argv);
     }
     catch (const std::exception& e)
     {

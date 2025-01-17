@@ -9,6 +9,8 @@
 #include "fast_updates_types.hh"
 #include "information_struct.hh"
 
+#define MIN_CUDA_VERSION 35
+
 namespace holovibes::api
 {
 
@@ -175,6 +177,13 @@ class InformationApi : public IApi
 #pragma endregion
 
 #pragma region Information
+
+    /*! \brief Check the cuda version of the graphic card. It must be greater equal to 3.5.
+     *
+     * \return bool true if the cuda version is greater equal to 3.5, false otherwise (or if no cuda graphic card is
+     * detected)
+     */
+    bool has_right_cuda_version() const;
 
     /*! \brief Get the boundary of the frame descriptor. It's used to choose the space transformation algorithm.
      * The formula of the boundary is: boundary = N * d^2 / lambda
