@@ -34,6 +34,9 @@
 
 namespace holovibes::settings
 {
+
+DECLARE_SETTING(IsCli, bool);
+
 /*!
  * \brief The number of frames per seconds to load from a file
  * or a camera to the GPU input buffer.

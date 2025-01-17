@@ -158,6 +158,22 @@ class InformationApi : public IApi
 
 #pragma endregion
 
+#pragma region IsCli
+
+    /*! \brief Return whether the application is in CLI mode or not
+     *
+     * \return bool is cli
+     */
+    inline bool is_cli() const { return GET_SETTING(IsCli); }
+
+    /*! \brief Set the application in CLI mode or not
+     *
+     * \param[in] value the new value
+     */
+    inline void set_is_cli(bool value) const { UPDATE_SETTING(IsCli, value); }
+
+#pragma endregion
+
 #pragma region Information
 
     /*! \brief Get the boundary of the frame descriptor. It's used to choose the space transformation algorithm.

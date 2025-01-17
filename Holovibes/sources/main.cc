@@ -64,9 +64,9 @@ static void check_cuda_graphic_card(bool gui)
     std::exit(11);
 }
 
-static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
+static int start_gui(int argc, char** argv, const std::string filename = "")
 {
-    holovibes.is_cli = false;
+    API.information.set_is_cli(false);
     LOG_TRACE(" ");
 
     QLocale::setDefault(QLocale("en_US"));
@@ -162,8 +162,6 @@ int main(int argc, char* argv[])
         std::exit(0);
     }
 
-    holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
-
     int ret = 0;
     try
     {
@@ -188,12 +186,12 @@ int main(int argc, char* argv[])
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(false);
-            ret = cli::start_cli(holovibes, opts);
+            ret = cli::start_cli(opts);
         }
         else if (opts.input_path)
-            ret = start_gui(holovibes, argc, argv, opts.input_path.value());
+            ret = start_gui(argc, argv, opts.input_path.value());
         else
-            ret = start_gui(holovibes, argc, argv);
+            ret = start_gui(argc, argv);
     }
     catch (const std::exception& e)
     {

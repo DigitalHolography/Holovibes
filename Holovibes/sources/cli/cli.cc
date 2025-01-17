@@ -249,11 +249,12 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     return 0;
 }
 
-int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+int start_cli(const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI");
 
-    holovibes.is_cli = true;
+    API.information.set_is_cli(true);
+
     if (int ret = set_parameters(opts))
         return ret;
 

@@ -36,6 +36,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::IsCli,                                  \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::InputFd,                                \
@@ -318,10 +319,6 @@ class Holovibes
 
     void stop_compute();
 
-    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
-     * used to know if queues have to keep contiguity or not. */
-    bool is_cli;
-
     /*! \brief function called when some thread throws an exception */
     std::function<void(const std::exception&)> error_callback_;
 
@@ -368,7 +365,8 @@ class Holovibes
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
+        : realtime_settings_(std::make_tuple(settings::IsCli{false},
+                                             settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
                                              settings::InputFd{camera::FrameDescriptor{}},

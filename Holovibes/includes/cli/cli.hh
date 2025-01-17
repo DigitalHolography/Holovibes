@@ -13,9 +13,8 @@ namespace cli
 
 /*! \brief Start the command-line interface.
  *
- * \param[in] holovibes The holovibes object.
  * \param[in] opts The options descriptor.
  * \return The exit code.
  */
-int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts);
+int start_cli(const holovibes::OptionsDescriptor& opts);
 } // namespace cli

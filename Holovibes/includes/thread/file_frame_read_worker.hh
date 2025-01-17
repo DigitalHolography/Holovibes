@@ -12,6 +12,7 @@
     holovibes::settings::BatchSize
 
 #define ONRESTART_SETTINGS                         \
+    holovibes::settings::IsCli,                    \
     holovibes::settings::InputFilePath,            \
     holovibes::settings::FileBufferSize,           \
     holovibes::settings::FileLoadKind,             \
