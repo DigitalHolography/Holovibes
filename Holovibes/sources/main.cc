@@ -29,7 +29,7 @@
 
 static void check_cuda_graphic_card(holovibes::api::Api& api, bool gui)
 {
-    if (API.information.has_right_cuda_version())
+    if (api.information.has_right_cuda_version())
         return;
 
     std::string error_message = "No CUDA graphic card detected or the graphic card is not supported.\n"
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(api, false);
-            ret = cli::start_cli(opts);
+            ret = cli::start_cli(api, opts);
         }
         else if (opts.input_path)
             ret = start_gui(api, argc, argv, opts.input_path.value());

@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "holovibes.hh"
+#include "API.hh"
 #include "options_parser.hh"
 
 namespace cli
@@ -13,8 +13,10 @@ namespace cli
 
 /*! \brief Start the command-line interface.
  *
+ * \param[in] api The holovibes API.
  * \param[in] opts The options descriptor.
  * \return The exit code.
  */
-int start_cli(const holovibes::OptionsDescriptor& opts);
+int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts);
+
 } // namespace cli
