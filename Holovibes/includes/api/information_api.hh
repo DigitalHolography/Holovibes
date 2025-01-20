@@ -185,6 +185,12 @@ class InformationApi : public IApi
      */
     bool has_right_cuda_version() const;
 
+    /*! \brief Set the name of this thread in the logger
+     *
+     * \param[in] thread_name the name of the thread
+     */
+    void register_logger_thread(const std::string& thread_name) const;
+
     /*! \brief Get the boundary of the frame descriptor. It's used to choose the space transformation algorithm.
      * The formula of the boundary is: boundary = N * d^2 / lambda
      * Where:

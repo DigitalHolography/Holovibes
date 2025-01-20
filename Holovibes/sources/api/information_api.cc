@@ -155,6 +155,12 @@ bool InformationApi::has_right_cuda_version() const
     return false;
 }
 
+void InformationApi::register_logger_thread(const std::string& thread_name) const
+{
+    std::unique_lock lock(holovibes::Logger::map_mutex_);
+    holovibes::Logger::add_thread(std::this_thread::get_id(), ":" + thread_name);
+}
+
 void InformationApi::start_benchmark() const
 {
     if (get_benchmark_mode())

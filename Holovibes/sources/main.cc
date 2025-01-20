@@ -121,10 +121,9 @@ static void copy_files(const std::filesystem::path src, std::filesystem::path de
 
 int main(int argc, char* argv[])
 {
-    {
-        std::unique_lock lock(holovibes::Logger::map_mutex_);
-        holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
-    }
+    holovibes::api::Api& api = API;
+
+    api.information.register_logger_thread("main");
 
     LOG_INFO("Start Holovibes");
     LOG_TRACE("hello");
@@ -143,8 +142,6 @@ int main(int argc, char* argv[])
         print_version();
         std::exit(0);
     }
-
-    holovibes::api::Api& api = API;
 
     int ret = 0;
     try
