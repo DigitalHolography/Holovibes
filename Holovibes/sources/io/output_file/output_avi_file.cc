@@ -1,5 +1,7 @@
 #include "output_avi_file.hh"
 #include "file_exception.hh"
+#include <algorithm>
+#include <cmath>
 
 namespace holovibes::io_files
 {
@@ -34,26 +36,41 @@ void OutputAviFile::write_header()
         throw FileException("An error was encountered while trying to create avi file", false);
     }
 }
-
-static void move_frame(uchar* output, const char* frame, const ushort width, const ushort height, const int byte_type)
+// Bi-linear interpolation
+static void
+move_frame(uchar* output, const char* frame, const ushort input_width, const ushort input_height, const int byte_type)
 {
-    // compute ratio between width and height to know which dimension to fill
-    size_t width_ratio = std::max(width / height, 1);
-    size_t height_ratio = std::max(height / width, 1);
-    boolean add_byte_type = byte_type == camera::Endianness::LittleEndian;
-    for (size_t i = 0; i < height * width_ratio; i += width_ratio)
+    ushort output_size = std::max(input_width, input_height);
+
+    float x_ratio = static_cast<float>(input_width) / output_size;
+    float y_ratio = static_cast<float>(input_height) / output_size;
+
+    bool add_byte_type = byte_type == camera::Endianness::LittleEndian;
+
+    for (size_t y = 0; y < output_size; ++y)
     {
-        for (size_t j = 0; j < width * height_ratio; j += height_ratio)
+        for (size_t x = 0; x < output_size; ++x)
         {
-            // depending which dimension is the biggest, we fill the output buffer
-            if (width_ratio >= height_ratio)
-                for (size_t k = 0; k < width_ratio; k++)
-                    output[(i + k) * width + j] =
-                        frame[((i / width_ratio) * width + j / height_ratio) * 2 + add_byte_type];
-            else
-                for (size_t k = 0; k < height_ratio; k++)
-                    output[i * width + j + k] =
-                        frame[((i / width_ratio) * width + j / height_ratio) * 2 + add_byte_type];
+            float src_x = x * x_ratio;
+            float src_y = y * y_ratio;
+
+            int x1 = static_cast<int>(std::floor(src_x));
+            int y1 = static_cast<int>(std::floor(src_y));
+            int x2 = std::min(x1 + 1, static_cast<int>(input_width - 1));
+            int y2 = std::min(y1 + 1, static_cast<int>(input_height - 1));
+
+            float x_diff = src_x - x1;
+            float y_diff = src_y - y1;
+
+            uchar pixel11 = static_cast<uchar>(frame[(y1 * input_width + x1) * 2 + add_byte_type]);
+            uchar pixel12 = static_cast<uchar>(frame[(y1 * input_width + x2) * 2 + add_byte_type]);
+            uchar pixel21 = static_cast<uchar>(frame[(y2 * input_width + x1) * 2 + add_byte_type]);
+            uchar pixel22 = static_cast<uchar>(frame[(y2 * input_width + x2) * 2 + add_byte_type]);
+
+            float value = (pixel11 * (1 - x_diff) * (1 - y_diff)) + (pixel12 * x_diff * (1 - y_diff)) +
+                          (pixel21 * (1 - x_diff) * y_diff) + (pixel22 * x_diff * y_diff);
+
+            output[y * output_size + x] = static_cast<uchar>(value);
         }
     }
 }
