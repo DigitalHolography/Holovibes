@@ -152,7 +152,6 @@ DECLARE_SETTING(FrameAcquisitionEnabled, bool);
 DECLARE_SETTING(ChartRecordEnabled, bool);
 
 /*! \name Advanced Cache */
-DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);

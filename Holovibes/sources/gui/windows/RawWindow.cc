@@ -18,6 +18,7 @@
 #include "API.hh"
 
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 #include "notifier.hh"
 #include "rect_gl.hh"
 
@@ -181,7 +182,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / API.view.get_display_rate());
+    startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
 }
 
 /* This part of code makes a resizing of the window displaying image to

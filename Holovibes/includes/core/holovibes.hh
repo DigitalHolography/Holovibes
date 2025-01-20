@@ -86,7 +86,6 @@
     holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::DisplayRate,                            \
     holovibes::settings::InputBufferSize,                        \
     holovibes::settings::RecordBufferSize,                       \
     holovibes::settings::ContrastLowerThreshold,                 \
@@ -278,11 +277,8 @@ class Holovibes
      */
     void init_record_queue();
 
-    /*! \brief Sets and starts the file_read_worker attribute
-     *
-     * \param callback
-     */
-    void start_file_frame_read(const std::function<void()>& callback = []() {});
+    /*! \brief Sets and starts the file_read_worker attribute. */
+    void start_file_frame_read();
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
@@ -415,7 +411,6 @@ class Holovibes
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::DisplayRate{24},
                                              settings::InputBufferSize{512},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.5f},
