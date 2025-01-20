@@ -2,34 +2,72 @@
 
 #include "API.hh"
 
+#define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
+    if (old_val == new_val)                                                                                            \
+        return ApiCode::NO_CHANGE;                                                                                     \
+    if (api_->compute.get_compute_mode() == Computation::Raw)                                                          \
+        return ApiCode::WRONG_COMP_MODE;
+
 namespace holovibes::api
 {
 
 #pragma region Registration
 
-void GlobalPostProcessApi::update_registration_zone(float value) const
+ApiCode GlobalPostProcessApi::set_registration_enabled(bool value) const
 {
-    if (!is_between(value, 0.f, 1.f) || api_->compute.get_is_computation_stopped())
-        return;
-
-    set_registration_zone(value);
-    api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
-}
-
-void GlobalPostProcessApi::set_registration_enabled(bool value) const
-{
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_registration_enabled(), value);
 
     UPDATE_SETTING(RegistrationEnabled, value);
-    api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+
+    return ApiCode::OK;
+}
+
+ApiCode GlobalPostProcessApi::set_registration_zone(float value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_registration_zone(), value);
+
+    if (!get_registration_enabled())
+        return ApiCode::INVALID_VALUE;
+
+    if (!is_between(value, 0.f, 1.f))
+    {
+        LOG_WARN("Registration zone must be in range ]0, 1[");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(RegistrationZone, value);
+
+    if (!api_->compute.get_is_computation_stopped())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Renormalization
 
-void GlobalPostProcessApi::set_renorm_enabled(bool value) const { UPDATE_SETTING(RenormEnabled, value); }
+ApiCode GlobalPostProcessApi::set_renorm_enabled(bool value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_renorm_enabled(), value);
+
+    UPDATE_SETTING(RenormEnabled, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode GlobalPostProcessApi::set_renorm_constant(unsigned int value) const
+{
+    if (get_renorm_constant() == value)
+        return ApiCode::NO_CHANGE;
+
+    UPDATE_SETTING(RenormConstant, value);
+
+    return ApiCode::OK;
+}
 
 #pragma endregion
 
@@ -128,13 +166,16 @@ std::vector<float> GlobalPostProcessApi::load_convolution_matrix(const std::stri
 
 #pragma region Conv Divide
 
-void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
+ApiCode GlobalPostProcessApi::set_divide_convolution_enabled(const bool value) const
 {
-    if (api_->compute.get_is_computation_stopped() || get_divide_convolution_enabled() == value ||
-        get_convolution_file_name().empty())
-        return;
+    NOT_SAME_AND_NOT_RAW(get_divide_convolution_enabled(), value);
+
+    if (get_convolution_file_name().empty())
+        return ApiCode::INVALID_VALUE;
 
     UPDATE_SETTING(DivideConvolutionEnabled, value);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion

@@ -397,7 +397,7 @@ void ViewPanel::reticle_scale(double value) { api_.contrast.set_reticle_scale(va
 
 void ViewPanel::update_registration_zone(double value)
 {
-    api_.global_pp.update_registration_zone(value);
+    api_.global_pp.set_registration_zone(value);
 
     if (UserInterfaceDescriptor::instance().mainDisplay)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
