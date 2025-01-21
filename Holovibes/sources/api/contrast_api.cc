@@ -248,7 +248,7 @@ ApiCode ContrastApi::set_contrast_upper_threshold(float value) const
 
 ApiCode ContrastApi::set_cuts_contrast_p_offset(uint value) const
 {
-    if (get_contrast_upper_threshold() == value)
+    if (get_cuts_contrast_p_offset() == value)
         return ApiCode::NO_CHANGE;
 
     if (api_->input.get_import_type() != ImportType::None &&

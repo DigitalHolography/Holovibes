@@ -280,6 +280,9 @@ class ContrastApi : public IApi
      * \---------------/
      *
      * \param[in] value the new cuts contrast offset in range [0, get_fd().width / 2]
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, INVALID_VALUE if not in range [0, get_fd().width / 2], OK
+     * otherwise
      */
     ApiCode set_cuts_contrast_p_offset(uint value) const;
 

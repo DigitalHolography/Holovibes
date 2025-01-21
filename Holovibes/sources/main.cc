@@ -121,6 +121,7 @@ static void copy_files(const std::filesystem::path src, std::filesystem::path de
 
 int main(int argc, char* argv[])
 {
+    // Get the API object once and pass it to all functions (also in the CLI)
     holovibes::api::Api& api = API;
 
     api.information.register_logger_thread("main");
