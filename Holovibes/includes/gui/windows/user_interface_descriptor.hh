@@ -56,6 +56,7 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
     size_t auto_scale_point_threshold_ = 100;
+    float display_rate_ = 24.f;
 
     std::string output_filename_{"capture"};
     std::string record_output_directory_;

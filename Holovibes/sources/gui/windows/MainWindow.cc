@@ -142,9 +142,6 @@ MainWindow::MainWindow(QWidget* parent)
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Store the value because when the camera is initialised it is reset
-    bool is_conv_enabled = api_.global_pp.get_convolution_enabled();
-
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
@@ -161,13 +158,6 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
-    ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
-    // Add the convolution after the initialisation of the panel
-    // if the value is enabled in the compute settings.
-
-    if (api_.window_pp.get_enabled(WindowKind::YZview) && api_.window_pp.get_enabled(WindowKind::XZview))
-        ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
 
@@ -214,10 +204,7 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
-    // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
-    api_.compute.disable_pipe_refresh();
-
-    // Disable the notify for the same reason
+    // Disable the notify to avoid notify loop in the panels
     disable_notify();
 
     // Notify all panels
@@ -225,8 +212,6 @@ void MainWindow::on_notify()
         panel->on_notify();
 
     enable_notify();
-
-    api_.compute.enable_pipe_refresh();
 
     QSpinBox* fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
     fps_number_sb->setValue(api_.input.get_input_fps());
@@ -457,7 +442,9 @@ void MainWindow::load_gui()
                                         json_get_or_default(j_us, 560, "light ui window", "x"),
                                         json_get_or_default(j_us, 290, "light ui window", "y"));
 
-    api_.view.set_display_rate(json_get_or_default(j_us, api_.view.get_display_rate(), "display", "refresh rate"));
+    UserInterfaceDescriptor::instance().display_rate_ =
+        json_get_or_default(j_us, UserInterfaceDescriptor::instance().display_rate_, "display", "refresh rate");
+
     api_.window_pp.set_raw_bitshift(
         json_get_or_default(j_us, api_.window_pp.get_raw_bitshift(), "file info", "raw bit shift"));
 
@@ -525,7 +512,7 @@ void MainWindow::save_gui()
     j_us["light ui window"]["x"] = light_ui_->pos().x();
     j_us["light ui window"]["y"] = light_ui_->pos().y();
 
-    j_us["display"]["refresh rate"] = api_.view.get_display_rate();
+    j_us["display"]["refresh rate"] = UserInterfaceDescriptor::instance().display_rate_;
     j_us["file info"]["raw bit shift"] = api_.window_pp.get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;

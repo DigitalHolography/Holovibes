@@ -4,15 +4,11 @@
 #include "chrono.hh"
 
 #include "tools.hh"
-#include "icompute.hh"
-#include "holovibes_config.hh"
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
 #include "enum_window_kind.hh"
-#include "fast_updates_holder.hh"
 #include "API.hh"
 #include "logger.hh"
-#include "spdlog/spdlog.h"
 
 namespace cli
 {
@@ -63,9 +59,8 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     LOG_INFO("==== End Config ====");
 }
 
-int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
+int get_first_and_last_frame(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
 {
-    auto& api = API;
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
         holovibes::Logger::logger()->error(
@@ -102,10 +97,9 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     return 0;
 }
 
-static int set_parameters(const holovibes::OptionsDescriptor& opts)
+static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
-    auto& api = API;
 
     std::optional<holovibes::io_files::InputFrameFile*> input_frame_file_opt = api.input.import_file(input_path, "");
     if (!input_frame_file_opt)
@@ -157,7 +151,9 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         api.record.set_record_mode(holovibes::RecordMode::HOLOGRAM);
     }
 
-    if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
+    api.information.set_benchmark_mode(opts.benchmark);
+
+    if (int ret = get_first_and_last_frame(api, opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
         return ret; // error 31, 32
 
     delete input_frame_file;
@@ -165,13 +161,13 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     return 0;
 }
 
-static void main_loop()
+static void main_loop(holovibes::api::Api& api)
 {
-    while (API.record.is_recording())
+    while (api.record.is_recording())
     {
-        if (API.information.get_information().record_info)
+        if (api.information.get_information().record_info)
         {
-            holovibes::RecordProgressInfo progress = API.information.get_information().record_info.value();
+            holovibes::RecordProgressInfo progress = api.information.get_information().record_info.value();
             progress_bar(static_cast<int>(progress.saved_frames), static_cast<int>(progress.total_frames), 40);
         }
         else
@@ -185,11 +181,9 @@ static void main_loop()
     progress_bar(1, 1, 40);
 }
 
-static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
+static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI workers");
-    auto& api = API;
-    // Force some values
 
     // Value used in more than 1 thread
     size_t input_nb_frames = api.input.get_input_file_end_index() - api.input.get_input_file_start_index();
@@ -247,12 +241,13 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     return 0;
 }
 
-int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI");
 
-    holovibes.is_cli = true;
-    if (int ret = set_parameters(opts))
+    api.information.set_is_cli(true);
+
+    if (int ret = set_parameters(api, opts))
         return ret;
 
     LOG_INFO("Parameters set");
@@ -261,17 +256,17 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         print_verbose(opts);
 
     Chrono chrono;
-    if (int ret = start_cli_workers(opts))
+    if (int ret = start_cli_workers(api, opts))
         return ret;
 
     LOG_INFO("CLI workers started, main looping");
 
-    main_loop();
+    main_loop(api);
 
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
-    API.compute.stop();
+    api.compute.stop();
 
     return 0;
 }

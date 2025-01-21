@@ -90,7 +90,6 @@
         "batch_size": 64,
         "convolution": {
             "divide": false,
-            "enabled": false,
             "type": "None"
         },
         "filter2d": {

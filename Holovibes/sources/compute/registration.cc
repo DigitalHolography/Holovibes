@@ -104,9 +104,9 @@ void Registration::updade_cirular_mask()
     get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
 
     // We shift the mask if the fftshift is not enabled to stay in the wanted zone (Useful for LDH).
-    // Also, this happens only when we have a Space Transform, since this process change the image shift.
-    // Here we are doing a XOR in the if condition since we want one or the other but not both.
-    if ((setting<settings::SpaceTransformation>() != SpaceTransformation::NONE) != setting<settings::FftShiftEnabled>())
+    // Also, this happens only when we have a Fresnel Space Transform, since this process change the image shift.
+    if ((setting<settings::SpaceTransformation>() == SpaceTransformation::FRESNELTR) !=
+        setting<settings::FftShiftEnabled>())
         shift_corners(gpu_circle_mask_, 1, fd_.width, fd_.height, stream_);
 }
 

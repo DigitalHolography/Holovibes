@@ -151,11 +151,14 @@ class Pipe : public ICompute
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
 
-        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
-            onrestart_settings_.update_setting(setting);
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            pipe_cycle_settings_.update_setting(setting);
 
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             pipe_refresh_settings_.update_setting(setting);
+
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
+            onrestart_settings_.update_setting(setting);
 
         if constexpr (has_setting_v<T, compute::ImageAccumulation>)
             image_accumulation_->update_setting(setting);
@@ -185,14 +188,28 @@ class Pipe : public ICompute
      */
     bool make_requests();
 
-    /**
-     * @brief Apply the updates of the settings on pipe refresh,
-     */
+    /*! \brief Apply the updates of the settings on pipe refresh */
     inline void pipe_refresh_apply_updates()
     {
+        converts_->pipe_refresh_apply_updates();
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
+        postprocess_->pipe_refresh_apply_updates();
+        registration_->pipe_refresh_apply_updates();
+        rendering_->pipe_refresh_apply_updates();
+
         pipe_refresh_settings_.apply_updates();
+    }
+
+    /*! \brief Apply the updates of realtime settings at the end of a pipe cycle */
+    inline void pipe_cycle_apply_updates()
+    {
+        converts_->pipe_cycle_apply_updates();
+        fourier_transforms_->pipe_cycle_apply_updates();
+        postprocess_->pipe_cycle_apply_updates();
+        rendering_->pipe_cycle_apply_updates();
+
+        pipe_cycle_settings_.apply_updates();
     }
 
     /*! \name Insert computation functions in the pipe

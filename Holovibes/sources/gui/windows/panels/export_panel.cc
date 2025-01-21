@@ -121,6 +121,9 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
+    bool is_eye_modifiable = API.input.get_import_type() == ImportType::Camera;
+    ui_->RecordedEyePushButton->setEnabled(is_eye_modifiable);
+    ui_->RecordedEyeLabel->setEnabled(is_eye_modifiable);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
 }
@@ -194,9 +197,8 @@ void ExportPanel::set_record_mode(int index)
     if (api_.record.get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api_.record.set_record_mode(static_cast<RecordMode>(index));
-
-    parent_->notify();
+    if (api_.record.set_record_mode(static_cast<RecordMode>(index)) == ApiCode::OK)
+        parent_->notify();
 }
 
 void ExportPanel::stop_record() { api_.record.stop_record(); }
@@ -312,8 +314,9 @@ void ExportPanel::update_record_file_extension(const QString& value)
 
 void ExportPanel::update_recorded_eye()
 {
-    int next = (static_cast<int>(API.record.get_recorded_eye()) + 1) % 3;
-    API.record.set_recorded_eye(static_cast<RecordedEyeType>(next));
+    int next = (static_cast<int>(api_.record.get_recorded_eye()) + 1) % 3;
+    api_.record.set_recorded_eye(static_cast<RecordedEyeType>(next));
+
     on_notify();
 }
 

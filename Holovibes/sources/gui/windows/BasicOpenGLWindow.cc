@@ -209,9 +209,7 @@ void BasicOpenGLWindow::setTransform()
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::Close)
-    {
         emit destroyed();
-    }
 
     return QObject::eventFilter(obj, event);
 }

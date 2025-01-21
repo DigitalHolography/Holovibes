@@ -137,22 +137,6 @@ class ViewApi : public IApi
 
 #pragma endregion
 
-#pragma region Display Rate
-
-    /*! \brief Returns the display rate of the view.
-     *
-     * \return float the display rate
-     */
-    inline float get_display_rate() const { return GET_SETTING(DisplayRate); }
-
-    /*! \brief Sets the display rate of the view.
-     *
-     * \param[in] value the new display rate
-     */
-    inline void set_display_rate(float value) const { UPDATE_SETTING(DisplayRate, value); }
-
-#pragma endregion
-
 #pragma region Last Image
 
     void* get_raw_last_image() const;      // get_input_queue().get()

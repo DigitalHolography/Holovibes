@@ -282,7 +282,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             std::min(static_cast<size_t>(setting<settings::BatchSize>()), nb_frames_to_enqueue - frames_enqueued));
         fps_limiter_.wait(setting<settings::InputFPS>() / real_frames_enqueued);
 
-        if (Holovibes::instance().is_cli)
+        if (setting<settings::IsCli>())
         {
             const auto input_queue = API.compute.get_input_queue();
             // Wait for the queue to have enough space before enqueuing

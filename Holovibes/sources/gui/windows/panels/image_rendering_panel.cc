@@ -108,12 +108,7 @@ void ImageRenderingPanel::on_notify()
     ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
 
     // Convolution
-    ui_->ConvoCheckBox->setVisible(api_.compute.get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api_.global_pp.get_convolution_enabled());
-
-    ui_->DivideConvoCheckBox->setVisible(api_.global_pp.get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api_.global_pp.get_divide_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setVisible(api_.global_pp.get_convolution_enabled());
 
     index = 0;
     if (!api_.global_pp.get_convolution_file_name().empty())
@@ -172,9 +167,6 @@ void ImageRenderingPanel::update_time_stride()
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    if (api_.compute.get_compute_mode() == Computation::Raw)
-        return;
-
     api_.filter2d.set_filter2d_enabled(checked);
 
     if (checked)
@@ -203,8 +195,6 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
-    LOG_FUNC();
-
     std::string v = value.toStdString();
     api_.filter2d.enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
 }
@@ -218,19 +208,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
 {
-    SpaceTransformation st;
-
-    try
-    {
-        // json{} return an array
-        st = json{value.toStdString()}[0].get<SpaceTransformation>();
-        LOG_DEBUG("value.toStdString() : {}", value.toStdString());
-    }
-    catch (std::out_of_range& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-        throw;
-    }
+    SpaceTransformation st = json{value.toStdString()}[0].get<SpaceTransformation>();
 
     if (api_.transform.set_space_transformation(st) == ApiCode::OK)
         parent_->notify();
@@ -260,9 +238,7 @@ void ImageRenderingPanel::set_lambda(const double value)
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
-    float z_distance = value / 1000.0f;
-
-    api_.transform.set_z_distance(z_distance);
+    api_.transform.set_z_distance(value / 1000.0f);
 
     // Keep consistency between the slider and double box
     const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
@@ -281,19 +257,6 @@ void ImageRenderingPanel::set_z_distance(const double value)
 void ImageRenderingPanel::increment_z() { set_z_distance(api_.transform.get_z_distance() * 1000 + z_step_); }
 
 void ImageRenderingPanel::decrement_z() { set_z_distance(api_.transform.get_z_distance() * 1000 - z_step_); }
-
-void ImageRenderingPanel::set_convolution_mode(const bool value)
-{
-    if (api_.compute.get_is_computation_stopped())
-        return;
-
-    if (value)
-        api_.global_pp.enable_convolution(api_.global_pp.get_convolution_file_name());
-    else
-        api_.global_pp.disable_convolution();
-
-    parent_->notify();
-}
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {

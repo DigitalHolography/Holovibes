@@ -25,8 +25,6 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
             api_->window_pp.set_enabled(true, WindowKind::XZview);
             set_cuts_view_enabled(true);
 
-            api_->compute.pipe_refresh();
-
             return true;
         }
         catch (const std::logic_error& e)
@@ -71,7 +69,6 @@ void ViewApi::set_filter2d_view(bool enabled) const
             continue;
 
         api_->contrast.set_log_enabled(true, WindowKind::Filter2D);
-        api_->compute.pipe_refresh();
     }
     else
     {
@@ -117,13 +114,12 @@ void ViewApi::set_lens_view(bool enabled) const
 
     set_lens_view_enabled(enabled);
 
-    if (!enabled)
-    {
-        auto pipe = api_->compute.get_compute_pipe();
-        pipe->request(ICS::DisableLensView);
-        while (pipe->is_requested(ICS::DisableLensView))
-            continue;
-    }
+    auto request = enabled ? ICS::LensView : ICS::DisableLensView;
+    auto pipe = api_->compute.get_compute_pipe();
+
+    pipe->request(request);
+    while (pipe->is_requested(request))
+        continue;
 }
 
 #pragma endregion
@@ -150,8 +146,6 @@ void ViewApi::set_raw_view(bool enabled) const
     pipe->request(request);
     while (pipe->is_requested(request))
         continue;
-
-    api_->compute.pipe_refresh();
 }
 
 #pragma endregion

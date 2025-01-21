@@ -25,33 +25,34 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
-    holovibes::settings::RecordMode,               \
-    holovibes::settings::ImageType,                \
+#define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
-    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Q
+
+#define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::RecordMode,               \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::P,                        \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
-    holovibes::settings::Filter2dN1,               \
-    holovibes::settings::Filter2dN2,               \
-    holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::SpaceTransformation
 
-#define PIPEREFRESH_SETTINGS                       \
-    holovibes::settings::BatchSize,                \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter
-
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
+#define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
 
@@ -93,7 +94,7 @@ class FourierTransform
         , time_transformation_env_(time_transformation_env)
         , moments_env_(moments_env)
         , stream_(stream)
-        , realtime_settings_(settings)
+        , pipe_cycle_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
         gpu_lens_.resize(fd_.get_frame_res());
@@ -107,6 +108,9 @@ class FourierTransform
 
     /*! \brief Get Lens Queue used to display the Fresnel lens. */
     std::unique_ptr<Queue>& get_lens_queue();
+
+    /*! \brief Initialize the Lens Queue. */
+    void init_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform();
@@ -138,18 +142,23 @@ class FourierTransform
     template <typename T>
     inline void update_setting(T setting)
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
         {
             LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
-            realtime_settings_.update_setting(setting);
+            pipe_cycle_settings_.update_setting(setting);
         }
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
         {
             LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }
 
+    /*! \brief Update the realtime settings */
+    inline void pipe_cycle_apply_updates() { pipe_cycle_settings_.apply_updates(); }
+
+    /*! \brief Update the pipe refresh settings */
     inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
@@ -177,7 +186,7 @@ class FourierTransform
      */
     void insert_pca();
 
-    void insert_ssa_stft(ViewPQ view_q);
+    void insert_ssa_stft();
 
     /**
      * @brief Helper function to get a settings value.
@@ -185,15 +194,11 @@ class FourierTransform
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
-            return realtime_settings_.get<T>().value;
-        }
+        if constexpr (has_setting_v<T, decltype(pipe_cycle_settings_)>)
+            return pipe_cycle_settings_.get<T>().value;
 
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Roi zone of Filter 2D */
@@ -227,7 +232,7 @@ class FourierTransform
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute

@@ -12,8 +12,8 @@ ApiCode ComputeApi::stop() const
     if (get_is_computation_stopped())
         return ApiCode::NOT_STARTED;
 
-    if (api_->global_pp.get_convolution_enabled())
-        api_->global_pp.disable_convolution();
+    if (!api_->global_pp.get_convo_matrix().empty())
+        api_->global_pp.enable_convolution("");
 
     if (api_->view.get_cuts_view_enabled())
         api_->view.set_3d_cuts_view(false);
@@ -28,7 +28,7 @@ ApiCode ComputeApi::stop() const
         api_->view.set_raw_view(false);
 
     Holovibes::instance().stop_compute();
-    API.information.stop_benchmark();
+    api_->information.stop_benchmark();
     set_is_computation_stopped(true);
 
     Holovibes::instance().stop_frame_read();
@@ -44,62 +44,35 @@ ApiCode ComputeApi::start() const
     // Stop any computation currently running and file reading
     stop();
 
-    // Check some settings (now that we have the input frame descriptor)
-    api_->transform.check_x_limits();
-    api_->transform.check_y_limits();
-
-    // Create the pipe and start the pipe
+    // Create the pipe
     Holovibes::instance().start_compute();
     set_is_computation_stopped(false);
 
-    if (api_->global_pp.get_convolution_enabled())
+    // Add here settings that need to be loaded before the pipe is started (they can't be done before since they needs
+    // data inside the pipe).
+    api_->transform.check_x_limits();
+    api_->transform.check_y_limits();
+
+    if (!api_->global_pp.get_convolution_file_name().empty())
         api_->global_pp.enable_convolution(api_->global_pp.get_convolution_file_name());
+
     if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
-    else
-        pipe_refresh();
 
+    if (api_->global_pp.get_registration_enabled())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+
+    // Start the pipe
+    get_compute_pipe()->request(ICS::Start);
+
+    // Start input reading
     if (api_->input.get_import_type() == ImportType::Camera)
         Holovibes::instance().start_camera_frame_read();
     else
         Holovibes::instance().start_file_frame_read();
 
-    API.information.start_benchmark();
-
-    return ApiCode::OK;
-}
-
-#pragma endregion
-
-#pragma region Pipe
-
-ApiCode ComputeApi::disable_pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    get_compute_pipe()->clear_request(ICS::RefreshEnabled);
-
-    return ApiCode::OK;
-}
-
-ApiCode ComputeApi::enable_pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
-
-    return ApiCode::OK;
-}
-
-ApiCode ComputeApi::pipe_refresh() const
-{
-    if (get_is_computation_stopped())
-        return ApiCode::NOT_STARTED;
-
-    LOG_TRACE("pipe_refresh");
-    get_compute_pipe()->request_refresh();
+    // Start benchmark
+    api_->information.start_benchmark();
 
     return ApiCode::OK;
 }
@@ -161,8 +134,6 @@ ApiCode ComputeApi::set_img_type(const ImgType type) const
         // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
         if (composite)
             start();
-        else
-            pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
     {

@@ -32,8 +32,10 @@ class GlobalPostProcessApi : public IApi
      * artifacts.
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_registration_enabled(bool value) const;
+    ApiCode set_registration_enabled(bool value) const;
 
     /*! \brief Returns the radius of the circular mask used for the registration. Is in range ]0, 1[.
      *
@@ -44,14 +46,11 @@ class GlobalPostProcessApi : public IApi
     /*! \brief Sets the radius of the circular mask used for the registration. Must be in range ]0, 1[.
      *
      *  \param[in] value The new zone value.
-     */
-    inline void set_registration_zone(float value) const { UPDATE_SETTING(RegistrationZone, value); }
-
-    /*! \brief Set the new value of the registration zone for the circular mask. Must be in range ]0, 1[.
      *
-     *  \param[in] value The new zone value.
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if registration is not enabled or if not in range ]0, 1[, OK otherwise
      */
-    void update_registration_zone(float value) const;
+    ApiCode set_registration_zone(float value) const;
 
 #pragma endregion
 
@@ -74,8 +73,10 @@ class GlobalPostProcessApi : public IApi
      * the image to renormalize.
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_renorm_enabled(bool value) const;
+    ApiCode set_renorm_enabled(bool value) const;
 
     /*! \brief Returns the renormalization constant. The renormalization is a post-processing step used to correct the
      * intensity of the image.
@@ -94,8 +95,10 @@ class GlobalPostProcessApi : public IApi
      * the image to renormalize.
      *
      * \param[in] value The new renormalization constant
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    inline void set_renorm_constant(unsigned int value) const { UPDATE_SETTING(RenormConstant, value); }
+    ApiCode set_renorm_constant(unsigned int value) const;
 
 #pragma endregion
 
@@ -106,18 +109,6 @@ class GlobalPostProcessApi : public IApi
      * \return std::vector<float> The convolution matrix/kernel
      */
     inline std::vector<float> get_convo_matrix() const { return GET_SETTING(ConvolutionMatrix); };
-
-    /*! \brief Sets the convolution matrix/kernel used for the convolution post-processing step.
-     *
-     * \param[in] value The new convolution matrix/kernel
-     */
-    inline void set_convo_matrix(std::vector<float> value) const { UPDATE_SETTING(ConvolutionMatrix, value); }
-
-    /*! \brief Loads a convolution matrix from a given file
-     *
-     * \param[in] file the file containing the convolution's settings
-     */
-    void load_convolution_matrix(std::string filename) const;
 
 #pragma endregion
 
@@ -136,18 +127,15 @@ class GlobalPostProcessApi : public IApi
      * The calculation is: `out = in / conv(in)`
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if no convolution is loaded, OK otherwise
      */
-    void set_divide_convolution_enabled(const bool value) const;
+    ApiCode set_divide_convolution_enabled(const bool value) const;
 
 #pragma endregion
 
 #pragma region Convolution
-
-    /*! \brief Returns whether the convolution is enabled or not.
-     *
-     * \return bool true if enabled, false otherwise
-     */
-    inline bool get_convolution_enabled() const { return GET_SETTING(ConvolutionEnabled); }
 
     /*! \brief Enables the convolution and loads the convolution matrix/kernel from the given file
      *
@@ -158,41 +146,25 @@ class GlobalPostProcessApi : public IApi
      */
     ApiCode enable_convolution(const std::string& file) const;
 
-    /*! \brief Disables the convolution */
-    void disable_convolution() const;
-
     /*! \brief Returns the path of the file containing the convolution matrix/kernel
      *
      * \return std::string The path of the file
      */
     inline std::string get_convolution_file_name() const { return GET_SETTING(ConvolutionFileName); }
 
-    /*! \brief Sets the path of the file containing the convolution matrix/kernel
-     *
-     * \param[in] value The path of the file
-     */
-    inline void set_convolution_file_name(std::string value) const { UPDATE_SETTING(ConvolutionFileName, value); }
-
 #pragma endregion
 
   private:
-    /*! \brief Sets the convolution enabled or not.
-     *
-     * \param[in] value true: enable, false: disable
-     */
-    inline void set_convolution_enabled(bool value) const { UPDATE_SETTING(ConvolutionEnabled, value); }
-
     /*!
      * \brief Loads a convolution matrix from a file
      *
      * This function is a tool / util supposed to be called by other functions
      *
      * \param[in] file The name of the file to load the matrix from. NOT A FULL PATH
-     * \param[in] convo_matrix Where to store the read matrix
      *
-     * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+     * \return std::vector<float> The convolution matrix or an empty vector in case of error.
      */
-    void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix) const;
+    std::vector<float> load_convolution_matrix(const std::string& file) const;
 };
 
 } // namespace holovibes::api

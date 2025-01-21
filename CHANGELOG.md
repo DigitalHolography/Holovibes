@@ -1,5 +1,11 @@
 ## Changelog
 
+### 14.4.3
+
+- Anamorphic image are interpolate for beeing square in .avi
+- Removed duplicate \_L and \_R
+- Readded benchmark mode in cli
+
 ### 14.4.2
 
 - Fix:

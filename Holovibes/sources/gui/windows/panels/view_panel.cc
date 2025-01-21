@@ -73,6 +73,7 @@ void ViewPanel::on_notify()
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(api_.compute.get_img_type() == ImgType::PhaseIncrease ||
                                            api_.compute.get_img_type() == ImgType::Argument);
+    ui_->PhaseUnwrap2DCheckBox->setChecked(api_.transform.get_unwrapping_2d());
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api_.view.get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(
@@ -396,7 +397,7 @@ void ViewPanel::reticle_scale(double value) { api_.contrast.set_reticle_scale(va
 
 void ViewPanel::update_registration_zone(double value)
 {
-    api_.global_pp.update_registration_zone(value);
+    api_.global_pp.set_registration_zone(value);
 
     if (UserInterfaceDescriptor::instance().mainDisplay)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);

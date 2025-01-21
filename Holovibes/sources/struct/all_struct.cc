@@ -24,9 +24,24 @@ namespace holovibes
 void Windows::Update()
 {
     this->xy = GET_SETTING(XY);
+    this->xy.contrast.invert = GET_SETTING(XYContrastRange).invert;
+    this->xy.contrast.min = GET_SETTING(XYContrastRange).min;
+    this->xy.contrast.max = GET_SETTING(XYContrastRange).max;
+
     this->yz = GET_SETTING(YZ);
+    this->yz.contrast.invert = GET_SETTING(YZContrastRange).invert;
+    this->yz.contrast.min = GET_SETTING(YZContrastRange).min;
+    this->yz.contrast.max = GET_SETTING(YZContrastRange).max;
+
     this->xz = GET_SETTING(XZ);
+    this->xz.contrast.invert = GET_SETTING(XZContrastRange).invert;
+    this->xz.contrast.min = GET_SETTING(XZContrastRange).min;
+    this->xz.contrast.max = GET_SETTING(XZContrastRange).max;
+
     this->filter2d = GET_SETTING(Filter2d);
+    this->filter2d.contrast.invert = GET_SETTING(Filter2dContrastRange).invert;
+    this->filter2d.contrast.min = GET_SETTING(Filter2dContrastRange).min;
+    this->filter2d.contrast.max = GET_SETTING(Filter2dContrastRange).max;
 }
 
 void Reticle::Update()
@@ -57,7 +72,6 @@ void Views::Update()
 
 void Rendering::Convolution::Update()
 {
-    this->enabled = GET_SETTING(ConvolutionEnabled);
     this->type = GET_SETTING(ConvolutionFileName);
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
@@ -188,9 +202,20 @@ void ComputeSettings::Load()
 void Windows::Load()
 {
     UPDATE_SETTING(XY, this->xy);
+    ContrastRange xy{this->xy.contrast.invert, this->xy.contrast.min, this->xy.contrast.max};
+    UPDATE_SETTING(XYContrastRange, xy);
+
     UPDATE_SETTING(XZ, this->xz);
+    ContrastRange xz{this->xz.contrast.invert, this->xz.contrast.min, this->xz.contrast.max};
+    UPDATE_SETTING(XZContrastRange, xz);
+
     UPDATE_SETTING(YZ, this->yz);
+    ContrastRange yz{this->yz.contrast.invert, this->yz.contrast.min, this->yz.contrast.max};
+    UPDATE_SETTING(YZContrastRange, yz);
+
     UPDATE_SETTING(Filter2d, this->filter2d);
+    ContrastRange filter2d{this->filter2d.contrast.invert, this->filter2d.contrast.min, this->filter2d.contrast.max};
+    UPDATE_SETTING(Filter2dContrastRange, filter2d);
 }
 
 void Reticle::Load()
@@ -221,7 +246,6 @@ void Views::Load()
 
 void Rendering::Convolution::Load()
 {
-    UPDATE_SETTING(ConvolutionEnabled, this->enabled);
     UPDATE_SETTING(ConvolutionFileName, this->type == "None" ? "" : this->type);
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }

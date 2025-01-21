@@ -34,6 +34,9 @@
 
 namespace holovibes::settings
 {
+
+DECLARE_SETTING(IsCli, bool);
+
 /*!
  * \brief The number of frames per seconds to load from a file
  * or a camera to the GPU input buffer.
@@ -89,15 +92,23 @@ DECLARE_SETTING(OutputBufferSize, size_t);
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
 DECLARE_SETTING(ImageType, ImgType);
+DECLARE_SETTING(Unwrap2d, bool);
 
 DECLARE_SETTING(X, ViewXY);
 DECLARE_SETTING(Y, ViewXY);
 DECLARE_SETTING(P, ViewPQ);
 DECLARE_SETTING(Q, ViewPQ);
+
 DECLARE_SETTING(XY, ViewXYZ);
 DECLARE_SETTING(XZ, ViewXYZ);
 DECLARE_SETTING(YZ, ViewXYZ);
 DECLARE_SETTING(Filter2d, ViewWindow);
+
+DECLARE_SETTING(XYContrastRange, ContrastRange);
+DECLARE_SETTING(XZContrastRange, ContrastRange);
+DECLARE_SETTING(YZContrastRange, ContrastRange);
+DECLARE_SETTING(Filter2dContrastRange, ContrastRange);
+
 DECLARE_SETTING(CurrentWindow, holovibes::WindowKind);
 DECLARE_SETTING(LensViewEnabled, bool);
 DECLARE_SETTING(ChartDisplayEnabled, bool);
@@ -141,7 +152,6 @@ DECLARE_SETTING(FrameAcquisitionEnabled, bool);
 DECLARE_SETTING(ChartRecordEnabled, bool);
 
 /*! \name Advanced Cache */
-DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
@@ -160,7 +170,6 @@ DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
 
-DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionFileName, std::string);

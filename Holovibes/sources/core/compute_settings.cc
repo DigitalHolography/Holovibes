@@ -70,7 +70,6 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
     compute_settings.Dump("cli_load_compute_settings");
 
     LOG_INFO("Compute settings loaded from : {}", json_path);
-    API.compute.pipe_refresh();
 }
 
 void ComputeSettingsApi::import_buffer(const std::string& json_path) const
@@ -104,7 +103,6 @@ void ComputeSettingsApi::import_buffer(const std::string& json_path) const
     buffer_settings.Load();
 
     LOG_INFO("Buffer settings loaded from : {}", json_path);
-    API.compute.pipe_refresh();
 }
 
 // clang-format off

@@ -36,6 +36,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::IsCli,                                  \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::InputFd,                                \
@@ -52,6 +53,7 @@
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
+    holovibes::settings::Unwrap2d,                               \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
     holovibes::settings::P,                                      \
@@ -60,6 +62,10 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::Filter2d,                               \
+    holovibes::settings::XYContrastRange,                        \
+    holovibes::settings::XZContrastRange,                        \
+    holovibes::settings::YZContrastRange,                        \
+    holovibes::settings::Filter2dContrastRange,                  \
     holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
     holovibes::settings::ChartDisplayEnabled,                    \
@@ -80,7 +86,6 @@
     holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::DisplayRate,                            \
     holovibes::settings::InputBufferSize,                        \
     holovibes::settings::RecordBufferSize,                       \
     holovibes::settings::ContrastLowerThreshold,                 \
@@ -95,7 +100,6 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
-    holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ConvolutionFileName,                    \
@@ -273,11 +277,8 @@ class Holovibes
      */
     void init_record_queue();
 
-    /*! \brief Sets and starts the file_read_worker attribute
-     *
-     * \param callback
-     */
-    void start_file_frame_read(const std::function<void()>& callback = []() {});
+    /*! \brief Sets and starts the file_read_worker attribute. */
+    void start_file_frame_read();
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
@@ -313,10 +314,6 @@ class Holovibes
     void start_compute();
 
     void stop_compute();
-
-    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
-     * used to know if queues have to keep contiguity or not. */
-    bool is_cli;
 
     /*! \brief function called when some thread throws an exception */
     std::function<void(const std::exception&)> error_callback_;
@@ -364,7 +361,8 @@ class Holovibes
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
+        : realtime_settings_(std::make_tuple(settings::IsCli{false},
+                                             settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
                                              settings::InputFd{camera::FrameDescriptor{}},
@@ -380,6 +378,7 @@ class Holovibes
                                              settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},
+                                             settings::Unwrap2d{false},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
                                              settings::P{ViewPQ{}},
@@ -388,6 +387,10 @@ class Holovibes
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
                                              settings::Filter2d{ViewWindow{}},
+                                             settings::XYContrastRange{ContrastRange{}},
+                                             settings::XZContrastRange{ContrastRange{}},
+                                             settings::YZContrastRange{ContrastRange{}},
+                                             settings::Filter2dContrastRange{ContrastRange{}},
                                              settings::CurrentWindow{WindowKind::XYview},
                                              settings::LensViewEnabled{false},
                                              settings::ChartDisplayEnabled{false},
@@ -408,7 +411,6 @@ class Holovibes
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::DisplayRate{24},
                                              settings::InputBufferSize{512},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.5f},
@@ -423,7 +425,6 @@ class Holovibes
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
                                              settings::ZDistance{0.0f},
-                                             settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ConvolutionFileName{std::string("")},
