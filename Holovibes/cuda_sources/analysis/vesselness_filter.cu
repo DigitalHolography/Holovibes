@@ -113,7 +113,8 @@ void gaussian_imfilter_sep(float* input_output,
                            float* const convolution_tmp_buffer,
                            cudaStream_t stream)
 {
-    // This convolution method gives correct values compared to matlab
+    // This convolution method gives same values as matlab
+    // We don't use CUDA convolution because it gives us wrong values, maybe we did something wrong
     apply_convolution(input_output,
                       gpu_kernel_buffer,
                       std::sqrt(frame_res),

@@ -158,12 +158,17 @@ void compute_std(const float* input, float* output, int size, int depth, cudaStr
 void compute_first_correlation(float* const output,
                                float* const M0_ff_video_centered,
                                float* const vascular_pulse,
-                               const int nnz_mask_vesslness_clean,
-                               const size_t length_video, // length_video here is actual time window
+                               int nnz_mask_vesslness_clean,
+                               size_t length_video, // length_video here is actual time window
                                const VesselnessFilterEnv& filter_struct_,
                                const size_t size,
                                const cudaStream_t stream)
 {
+    if (nnz_mask_vesslness_clean == 0)
+        nnz_mask_vesslness_clean = 1;
+    if (length_video == 1)
+        length_video = 2;
+
     map_divide(vascular_pulse, length_video, nnz_mask_vesslness_clean, stream);
 
     float vascular_mean = compute_mean(vascular_pulse, length_video);
