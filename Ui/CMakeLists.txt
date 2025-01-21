@@ -1,3 +1,13 @@
+# ---------------------------------------------------------------------
+# Libraries only used by the UI
+# ---------------------------------------------------------------------
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
+find_package(opengl_system REQUIRED)
+find_package(glm REQUIRED)
+
+# https://doc.qt.io/qt-6/qt-standard-project-setup.html
+qt_standard_project_setup()
+
 # Where to look for .ui files.
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
@@ -14,15 +24,7 @@ set(EXTERNAL_INCLUDES
 )
 
 set(INTERNAL_INCLUDES
-    cuda_includes/
-    includes/
-    includes/api/
     includes/cli/
-    includes/compute/
-    includes/data_struct/
-    includes/core/
-    includes/enum/
-    includes/struct/
     includes/gui/
     includes/gui/notifier/
     includes/gui/other/
@@ -33,18 +35,25 @@ set(INTERNAL_INCLUDES
     includes/gui/windows/panels/
     includes/gui/windows/AdvancedSettingsWindowTools
     includes/gui/windows/AdvancedSettingsWindowTools/panels
-    includes/io/
-    includes/io/input_file/
-    includes/io/output_file/
-    includes/thread/
-    includes/tools/
-    includes/tools/cuda_tools/
-    includes/tools/units/
-    includes/tools/check/
-    includes/tools/exception/
-    includes/tools/logger/
-    includes/tools/state/
-    "${CMAKE_SOURCE_DIR}/GPIB/"
+    "${HOLO_DIR}/cuda_includes/"
+    "${HOLO_DIR}/includes/"
+    "${HOLO_DIR}/includes/api/"
+    "${HOLO_DIR}/includes/compute/"
+    "${HOLO_DIR}/includes/data_struct/"
+    "${HOLO_DIR}/includes/core/"
+    "${HOLO_DIR}/includes/enum/"
+    "${HOLO_DIR}/includes/struct/"
+    "${HOLO_DIR}/includes/io/"
+    "${HOLO_DIR}/includes/io/input_file/"
+    "${HOLO_DIR}/includes/io/output_file/"
+    "${HOLO_DIR}/includes/thread/"
+    "${HOLO_DIR}/includes/tools/"
+    "${HOLO_DIR}/includes/tools/cuda_tools/"
+    "${HOLO_DIR}/includes/tools/units/"
+    "${HOLO_DIR}/includes/tools/check/"
+    "${HOLO_DIR}/includes/tools/exception/"
+    "${HOLO_DIR}/includes/tools/logger/"
+    "${HOLO_DIR}/includes/tools/state/"
     "${CAMERA_DIR}/include/"
 )
 
@@ -90,12 +99,8 @@ target_link_libraries(Holovibes PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    opencv_videoio
     opengl::opengl
-    cufft
-    cublas
-    cusolver
-    nvml
+    Backend
 )
 
 target_include_directories(Holovibes PRIVATE
@@ -139,9 +144,9 @@ endif()
 add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy shaders and convolution kernels and json patch
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/assets/json_patches_holofile/
 
     # Copy camera libs
@@ -150,10 +155,10 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/style.css" $<TARGET_FILE_DIR:Holovibes>/assets/style/style.css
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/assets/style/drop_down.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/style/style.css" $<TARGET_FILE_DIR:Holovibes>/assets/style/style.css
+    COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/style/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/assets/style/drop_down.png
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -202,12 +207,12 @@ install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
     COMPONENT application
 )
 
-install(DIRECTORY "${HOLO_DIR}/assets/icons/"
+install(DIRECTORY "${UI_DIR}/assets/icons/"
     DESTINATION assets/icons
     COMPONENT application
 )
 
-install(DIRECTORY "${HOLO_DIR}/assets/style/"
+install(DIRECTORY "${UI_DIR}/assets/style/"
     DESTINATION assets/style
     COMPONENT application
 )
@@ -311,8 +316,8 @@ set(CPACK_COMPONENTS_ALL application process)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
-set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
-set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
+set(CPACK_NSIS_MUI_ICON "${UI_DIR}/assets/icons/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${UI_DIR}/assets/icons/Holovibes.ico")
 set(CPACK_NSIS_INSTALLED_ICON_NAME "Holovibes.exe")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
@@ -350,8 +355,3 @@ set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 ")
 
 include(CPack)
-
-# ---------------------------------------------------------------------
-# Unit testing
-# ---------------------------------------------------------------------
-add_subdirectory(tests)
