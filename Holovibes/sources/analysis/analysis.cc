@@ -33,28 +33,6 @@ size_t Analysis::get_mask_nnz() { return count_non_zero(mask_result_buffer_, fd_
 
 #pragma region Compute
 
-// To be deleted
-void Analysis::insert_bin_moments()
-{
-    cudaXMemcpyAsync(moments_env_.moment0_buffer,
-                     m0_bin_video_ + i_ * 512 * 512,
-                     sizeof(float) * 512 * 512,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    cudaXMemcpyAsync(moments_env_.moment1_buffer,
-                     m1_bin_video_ + i_ * 512 * 512,
-                     sizeof(float) * 512 * 512,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    i_ = (i_ + 1) % 506;
-
-    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                     moments_env_.moment0_buffer,
-                     sizeof(float) * fd_.width * fd_.height,
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-}
-
 void Analysis::compute_pretreatment()
 {
     // Compute the flat field corrected image for each frame of the video
@@ -277,13 +255,9 @@ void Analysis::insert_first_analysis_masks()
         fn_compute_vect_->push_back(
             [=]()
             {
-                // map_multiply(moments_env_.moment0_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
-                // map_multiply(moments_env_.moment1_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
-
                 // Reset the mask result to 0
                 cudaXMemsetAsync(mask_result_buffer_, 0, sizeof(float) * buffers_.gpu_postprocess_frame_size, stream_);
 
-                // insert_bin_moments();
                 compute_pretreatment();
                 compute_vesselness_response();
                 compute_barycentres_and_circle_mask();

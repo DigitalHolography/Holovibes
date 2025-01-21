@@ -162,9 +162,6 @@ class Analysis
                                        int q,
                                        cudaStream_t stream);
 
-    /*! \brief To be remove, only for test */
-    void insert_bin_moments();
-
     /*! \brief Compute pretreatment to be able to do the different masks, such as the temporal mean of M0 */
     void compute_pretreatment();
 
