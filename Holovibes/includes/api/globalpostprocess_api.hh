@@ -32,8 +32,10 @@ class GlobalPostProcessApi : public IApi
      * artifacts.
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_registration_enabled(bool value) const;
+    ApiCode set_registration_enabled(bool value) const;
 
     /*! \brief Returns the radius of the circular mask used for the registration. Is in range ]0, 1[.
      *
@@ -44,14 +46,11 @@ class GlobalPostProcessApi : public IApi
     /*! \brief Sets the radius of the circular mask used for the registration. Must be in range ]0, 1[.
      *
      *  \param[in] value The new zone value.
-     */
-    inline void set_registration_zone(float value) const { UPDATE_SETTING(RegistrationZone, value); }
-
-    /*! \brief Set the new value of the registration zone for the circular mask. Must be in range ]0, 1[.
      *
-     *  \param[in] value The new zone value.
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if registration is not enabled or if not in range ]0, 1[, OK otherwise
      */
-    void update_registration_zone(float value) const;
+    ApiCode set_registration_zone(float value) const;
 
 #pragma endregion
 
@@ -74,8 +73,10 @@ class GlobalPostProcessApi : public IApi
      * the image to renormalize.
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_renorm_enabled(bool value) const;
+    ApiCode set_renorm_enabled(bool value) const;
 
     /*! \brief Returns the renormalization constant. The renormalization is a post-processing step used to correct the
      * intensity of the image.
@@ -94,8 +95,10 @@ class GlobalPostProcessApi : public IApi
      * the image to renormalize.
      *
      * \param[in] value The new renormalization constant
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
      */
-    inline void set_renorm_constant(unsigned int value) const { UPDATE_SETTING(RenormConstant, value); }
+    ApiCode set_renorm_constant(unsigned int value) const;
 
 #pragma endregion
 
@@ -124,8 +127,11 @@ class GlobalPostProcessApi : public IApi
      * The calculation is: `out = in / conv(in)`
      *
      * \param[in] value true: enable, false: disable
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if no convolution is loaded, OK otherwise
      */
-    void set_divide_convolution_enabled(const bool value) const;
+    ApiCode set_divide_convolution_enabled(const bool value) const;
 
 #pragma endregion
 

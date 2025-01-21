@@ -442,7 +442,9 @@ void MainWindow::load_gui()
                                         json_get_or_default(j_us, 560, "light ui window", "x"),
                                         json_get_or_default(j_us, 290, "light ui window", "y"));
 
-    api_.view.set_display_rate(json_get_or_default(j_us, api_.view.get_display_rate(), "display", "refresh rate"));
+    UserInterfaceDescriptor::instance().display_rate_ =
+        json_get_or_default(j_us, UserInterfaceDescriptor::instance().display_rate_, "display", "refresh rate");
+
     api_.window_pp.set_raw_bitshift(
         json_get_or_default(j_us, api_.window_pp.get_raw_bitshift(), "file info", "raw bit shift"));
 
@@ -510,7 +512,7 @@ void MainWindow::save_gui()
     j_us["light ui window"]["x"] = light_ui_->pos().x();
     j_us["light ui window"]["y"] = light_ui_->pos().y();
 
-    j_us["display"]["refresh rate"] = api_.view.get_display_rate();
+    j_us["display"]["refresh rate"] = UserInterfaceDescriptor::instance().display_rate_;
     j_us["file info"]["raw bit shift"] = api_.window_pp.get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;

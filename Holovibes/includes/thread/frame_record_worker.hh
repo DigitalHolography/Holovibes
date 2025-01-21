@@ -21,6 +21,7 @@
 // clang-format off
 
 #define ONRESTART_SETTINGS                    \
+  holovibes::settings::IsCli,                 \
   holovibes::settings::RecordFilePath,        \
   holovibes::settings::RecordFrameCount,      \
   holovibes::settings::RecordMode,            \

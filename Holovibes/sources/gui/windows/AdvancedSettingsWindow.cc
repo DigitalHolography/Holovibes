@@ -40,7 +40,8 @@ void AdvancedSettingsWindow::set_ui_values()
     api.compute.set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
     api.transform.set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
 
-    api.view.set_display_rate(ui.DisplayRateSpinBox->value());
+    UserInterfaceDescriptor::instance().display_rate_ = ui.DisplayRateSpinBox->value();
+
     api.filter2d.set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
     api.filter2d.set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
     api.contrast.set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
@@ -91,7 +92,7 @@ void AdvancedSettingsWindow::set_current_values()
     ui.OutputBSSpinBox->setValue(static_cast<int>(api.compute.get_output_buffer_size()));
     ui.Cuts3DBSSpinBox->setValue(api.transform.get_time_transformation_cuts_output_buffer_size());
 
-    ui.DisplayRateSpinBox->setValue(api.view.get_display_rate());
+    ui.DisplayRateSpinBox->setValue(UserInterfaceDescriptor::instance().display_rate_);
     ui.Filter2DLowSpinBox->setValue(api.filter2d.get_filter2d_smooth_low());
     ui.Filter2DHighSpinBox->setValue(api.filter2d.get_filter2d_smooth_high());
     ui.ContrastLowerSpinBox->setValue(api.contrast.get_contrast_lower_threshold());

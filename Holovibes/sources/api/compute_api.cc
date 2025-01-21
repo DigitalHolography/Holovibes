@@ -59,6 +59,9 @@ ApiCode ComputeApi::start() const
     if (api_->filter2d.get_filter2d_enabled() && !api_->filter2d.get_filter_file_name().empty())
         api_->filter2d.enable_filter(api_->filter2d.get_filter_file_name());
 
+    if (api_->global_pp.get_registration_enabled())
+        api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+
     // Start the pipe
     get_compute_pipe()->request(ICS::Start);
 

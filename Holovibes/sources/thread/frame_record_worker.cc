@@ -64,7 +64,7 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
         API.input.get_import_type() == ImportType::Camera ? eye_map[setting<settings::RecordedEye>()] : "";
 
     std::string record_file_path;
-    if (Holovibes::instance().is_cli)
+    if (setting<settings::IsCli>())
         record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string, "R");
     else
         record_file_path = get_record_filename(setting<settings::RecordFilePath>(), eye_string);

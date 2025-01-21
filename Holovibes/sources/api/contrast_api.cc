@@ -2,6 +2,12 @@
 
 #include "API.hh"
 
+#define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
+    if (old_val == new_val)                                                                                            \
+        return ApiCode::NO_CHANGE;                                                                                     \
+    if (api_->compute.get_compute_mode() == Computation::Raw)                                                          \
+        return ApiCode::WRONG_COMP_MODE;
+
 namespace holovibes::api
 {
 
@@ -49,6 +55,27 @@ void ContrastApi::set_contrast_range(ContrastRange range, WindowKind kind) const
 
 #pragma endregion
 
+#pragma region Log
+
+ApiCode ContrastApi::set_log_enabled(const bool value, WindowKind kind) const
+{
+    NOT_SAME_AND_NOT_RAW(get_log_enabled(kind), value);
+
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, log_enabled, value);
+        return ApiCode::OK;
+    }
+
+    auto window = api_->window_pp.get_window_xyz(kind);
+    window.log_enabled = value;
+    api_->window_pp.set_window_xyz(kind, window);
+
+    return ApiCode::OK;
+}
+
+#pragma endregion
+
 #pragma region Contrast
 
 float ContrastApi::get_contrast_min(WindowKind kind) const
@@ -57,27 +84,26 @@ float ContrastApi::get_contrast_min(WindowKind kind) const
     return get_log_enabled(kind) ? min : log10(min);
 }
 
-void ContrastApi::set_contrast_min(float value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_min(float value, WindowKind kind) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
-        return;
+    NOT_SAME_AND_NOT_RAW(ftruncate(2, get_contrast_min(kind)), value);
 
-    // Get the minimum contrast value rounded for the comparison
-    const float old_val = ftruncate(2, get_contrast_min(kind));
-    if (old_val == value)
-        return;
+    if (!get_contrast_enabled())
+        return ApiCode::INVALID_VALUE;
 
     float new_val = get_log_enabled(kind) ? value : powf(10, value);
 
     if (kind == WindowKind::Filter2D)
     {
         SET_SETTING(Filter2d, contrast.min, new_val);
-        return;
+        return ApiCode::OK;
     }
 
     auto contrast_range = get_contrast_range(kind);
     contrast_range.min = new_val;
     set_contrast_range(contrast_range, kind);
+
+    return ApiCode::OK;
 }
 
 float ContrastApi::get_contrast_max(WindowKind kind) const
@@ -86,27 +112,26 @@ float ContrastApi::get_contrast_max(WindowKind kind) const
     return get_log_enabled(kind) ? max : log10(max);
 }
 
-void ContrastApi::set_contrast_max(float value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_max(float value, WindowKind kind) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
-        return;
+    NOT_SAME_AND_NOT_RAW(ftruncate(2, get_contrast_max(kind)), value);
 
-    // Get the maximum contrast value rounded for the comparison
-    const float old_val = ftruncate(2, get_contrast_max(kind));
-    if (old_val == value)
-        return;
+    if (!get_contrast_enabled())
+        return ApiCode::INVALID_VALUE;
 
     float new_val = get_log_enabled(kind) ? value : powf(10, value);
 
     if (kind == WindowKind::Filter2D)
     {
         SET_SETTING(Filter2d, contrast.max, new_val);
-        return;
+        return ApiCode::OK;
     }
 
     auto contrast_range = get_contrast_range(kind);
     contrast_range.max = new_val;
     set_contrast_range(contrast_range, kind);
+
+    return ApiCode::OK;
 }
 
 void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
@@ -124,40 +149,45 @@ void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
 
 #pragma region Contrast Enabled
 
-void ContrastApi::set_contrast_enabled(bool value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_enabled(bool value, WindowKind kind) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    NOT_SAME_AND_NOT_RAW(get_contrast_enabled(kind), value);
 
     if (kind == WindowKind::Filter2D)
     {
         SET_SETTING(Filter2d, contrast.enabled, value);
-        return;
+        return ApiCode::OK;
     }
 
     auto window = api_->window_pp.get_window_xyz(kind);
     window.contrast.enabled = value;
     api_->window_pp.set_window_xyz(kind, window);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
 #pragma region Contrast Auto Refresh
 
-void ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
-        return;
+    NOT_SAME_AND_NOT_RAW(get_contrast_auto_refresh(kind), value);
+
+    if (!get_contrast_enabled())
+        return ApiCode::INVALID_VALUE;
 
     if (kind == WindowKind::Filter2D)
     {
         SET_SETTING(Filter2d, contrast.auto_refresh, value);
-        return;
+        return ApiCode::OK;
     }
 
     auto window = api_->window_pp.get_window_xyz(kind);
     window.contrast.auto_refresh = value;
     api_->window_pp.set_window_xyz(kind, window);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
@@ -166,34 +196,71 @@ void ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) const
 
 bool ContrastApi::get_contrast_invert(WindowKind kind) const { return get_contrast_range(kind).invert; }
 
-void ContrastApi::set_contrast_invert(bool value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_invert(bool value, WindowKind kind) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
-        return;
+    NOT_SAME_AND_NOT_RAW(get_contrast_invert(kind), value);
+
+    if (!get_contrast_enabled())
+        return ApiCode::INVALID_VALUE;
 
     auto contrast_range = get_contrast_range(kind);
     contrast_range.invert = value;
     set_contrast_range(contrast_range, kind);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
 
-#pragma region Log
+#pragma region Contrast Adv.
 
-void ContrastApi::set_log_enabled(const bool value, WindowKind kind) const
+ApiCode ContrastApi::set_contrast_lower_threshold(float value) const
 {
-    if (api_->compute.get_compute_mode() == Computation::Raw)
-        return;
+    if (get_contrast_lower_threshold() == value)
+        return ApiCode::NO_CHANGE;
 
-    if (kind == WindowKind::Filter2D)
+    if (!is_between(value, 0.f, 100.f))
     {
-        SET_SETTING(Filter2d, log_enabled, value);
-        return;
+        LOG_WARN("Contrast lower threshold must be in range [0., 100.]");
+        return ApiCode::INVALID_VALUE;
     }
 
-    auto window = api_->window_pp.get_window_xyz(kind);
-    window.log_enabled = value;
-    api_->window_pp.set_window_xyz(kind, window);
+    UPDATE_SETTING(ContrastLowerThreshold, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode ContrastApi::set_contrast_upper_threshold(float value) const
+{
+    if (get_contrast_upper_threshold() == value)
+        return ApiCode::NO_CHANGE;
+
+    if (!is_between(value, 0.f, 100.f))
+    {
+        LOG_WARN("Contrast upper threshold must be in range [0., 100.]");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(ContrastUpperThreshold, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode ContrastApi::set_cuts_contrast_p_offset(uint value) const
+{
+    if (get_cuts_contrast_p_offset() == value)
+        return ApiCode::NO_CHANGE;
+
+    if (api_->input.get_import_type() != ImportType::None &&
+        !is_between(static_cast<float>(value), 0.f, api_->input.get_input_fd().width / 2.f))
+    {
+        LOG_WARN("Contrast upper threshold must be in range [0, get_fd().width / 2]");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(CutsContrastPOffset, value);
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
@@ -202,8 +269,7 @@ void ContrastApi::set_log_enabled(const bool value, WindowKind kind) const
 
 ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 {
-    if (get_reticle_display_enabled() == value)
-        return ApiCode::NO_CHANGE;
+    NOT_SAME_AND_NOT_RAW(get_reticle_display_enabled(), value);
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
 
@@ -212,14 +278,19 @@ ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 
 ApiCode ContrastApi::set_reticle_scale(float value) const
 {
+    NOT_SAME_AND_NOT_RAW(get_reticle_scale(), value);
+
+    if (!get_reticle_display_enabled())
+    {
+        LOG_WARN("Reticle display must be enabled to set the reticle scale");
+        return ApiCode::INVALID_VALUE;
+    }
+
     if (!is_between(value, 0.f, 1.f))
     {
         LOG_WARN("Reticle scale must be in range [0., 1.]");
         return ApiCode::INVALID_VALUE;
     }
-
-    if (get_reticle_scale() == value)
-        return ApiCode::NO_CHANGE;
 
     UPDATE_SETTING(ReticleScale, value);
 
@@ -228,8 +299,13 @@ ApiCode ContrastApi::set_reticle_scale(float value) const
 
 ApiCode ContrastApi::set_reticle_zone(const units::RectFd& rect) const
 {
-    if (get_reticle_zone() == rect)
-        return ApiCode::NO_CHANGE;
+    NOT_SAME_AND_NOT_RAW(get_reticle_zone(), rect);
+
+    if (!get_reticle_display_enabled())
+    {
+        LOG_WARN("Reticle display must be enabled to set the reticle zone");
+        return ApiCode::INVALID_VALUE;
+    }
 
     UPDATE_SETTING(ReticleZone, rect);
 
