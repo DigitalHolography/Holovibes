@@ -7,8 +7,8 @@ add_library("${PROJECT_NAME}" SHARED
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
-    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
+    "${CAMERA_DIR}/Camera/"
+    "${CAMERA_DIR}/include/"
     "${HOLO_DIR}/includes/"
     "${OpenCV_INCLUDE_DIRS}"
 )

@@ -7,8 +7,8 @@ add_library("${PROJECT_NAME}" SHARED
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${VIMBAX_SDK}/api/include"
-    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
+    "${CAMERA_DIR}/Camera/"
+    "${CAMERA_DIR}/include/"
     "${HOLO_DIR}/includes/"
 )
 

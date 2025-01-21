@@ -2,6 +2,8 @@ include(CheckIncludeFile)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CAMERA_LIB_DIR "${CMAKE_SOURCE_DIR}/Camera/libs")
+
 # Idealy create a FindBitflow.cmake file
 set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
 # idem
