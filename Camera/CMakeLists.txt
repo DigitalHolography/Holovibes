@@ -2,13 +2,10 @@ include(CheckIncludeFile)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CAMERA_LIB_DIR "${CMAKE_SOURCE_DIR}/Camera/libs")
-
 # Idealy create a FindBitflow.cmake file
 set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
-# idem
-set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
 
+set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
 set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
 
 find_file(HAVE_BFType "BFType.h" PATHS "${BITFLOW_SDK}/Include")

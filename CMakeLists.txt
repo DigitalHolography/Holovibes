@@ -9,10 +9,12 @@ project(Holovibes
 # Export compile_commands.json so IDE can use it for code completion.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Backend")
 set(UI_DIR "${CMAKE_SOURCE_DIR}/Ui")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
+set(CAMERA_LIB_DIR "${CMAKE_SOURCE_DIR}/Camera/libs")
 set(PRESET_DIR "${UI_DIR}/assets/preset")
 
 # Common libraries for all targets
