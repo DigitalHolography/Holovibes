@@ -36,6 +36,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::IsCli,                                  \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::InputFd,                                \
@@ -85,7 +86,6 @@
     holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
-    holovibes::settings::DisplayRate,                            \
     holovibes::settings::InputBufferSize,                        \
     holovibes::settings::RecordBufferSize,                       \
     holovibes::settings::ContrastLowerThreshold,                 \
@@ -277,11 +277,8 @@ class Holovibes
      */
     void init_record_queue();
 
-    /*! \brief Sets and starts the file_read_worker attribute
-     *
-     * \param callback
-     */
-    void start_file_frame_read(const std::function<void()>& callback = []() {});
+    /*! \brief Sets and starts the file_read_worker attribute. */
+    void start_file_frame_read();
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
@@ -317,10 +314,6 @@ class Holovibes
     void start_compute();
 
     void stop_compute();
-
-    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
-     * used to know if queues have to keep contiguity or not. */
-    bool is_cli;
 
     /*! \brief function called when some thread throws an exception */
     std::function<void(const std::exception&)> error_callback_;
@@ -368,7 +361,8 @@ class Holovibes
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
+        : realtime_settings_(std::make_tuple(settings::IsCli{false},
+                                             settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
                                              settings::InputFd{camera::FrameDescriptor{}},
@@ -417,7 +411,6 @@ class Holovibes
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::DisplayRate{24},
                                              settings::InputBufferSize{512},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.5f},

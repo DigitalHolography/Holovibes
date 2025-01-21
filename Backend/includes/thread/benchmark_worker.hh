@@ -33,8 +33,7 @@ class BenchmarkWorker final : public Worker
 {
   public:
     /*!
-     * \param[in] is_cli Whether the program is running in cli mode or not
-     * \param[in] info Information container where the BenchmarkWorker periodically fetches data to display it
+     * \param[in] settings The settings to use for the worker
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     BenchmarkWorker(InitSettings settings)

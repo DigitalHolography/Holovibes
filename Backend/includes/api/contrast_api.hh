@@ -75,8 +75,10 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_log_enabled(bool value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_log_enabled(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -97,8 +99,11 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast min value
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if contrast is not enabled, OK otherwise
      */
-    void set_contrast_min(float value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_contrast_min(float value, WindowKind kind = get_current_window_type()) const;
 
     /*! \brief Returns the contrast max value of the specified window kind (or the current window if not specified).
      *
@@ -115,8 +120,11 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast max value
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if contrast is not enabled, OK otherwise
      */
-    void set_contrast_max(float value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_contrast_max(float value, WindowKind kind = get_current_window_type()) const;
 
     /*! \brief Updates the contrast of the specified window kind (or the current window if not specified).
      *
@@ -125,6 +133,8 @@ class ContrastApi : public IApi
      * \param[in] min the new contrast min value
      * \param[in] max the new contrast max value
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \warning This function is for internal use only, use set_contrast_min and set_contrast_max instead.
      */
     void update_contrast(float min, float max, WindowKind kind = get_current_window_type()) const;
 
@@ -147,8 +157,10 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
-    void set_contrast_enabled(bool value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_contrast_enabled(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -170,8 +182,11 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if contrast is not enabled, OK otherwise
      */
-    void set_contrast_auto_refresh(bool value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_contrast_auto_refresh(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -190,8 +205,11 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      * \param[in] kind the window kind or the current window if not specified
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if contrast is not enabled, OK otherwise
      */
-    void set_contrast_invert(bool value, WindowKind kind = get_current_window_type()) const;
+    ApiCode set_contrast_invert(bool value, WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -208,8 +226,10 @@ class ContrastApi : public IApi
      * used for the min contrast value when computing the auto contrast. Must be in range [0, 100].
      *
      * \param[in] value the new contrast lower threshold in range [0, 100]
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, INVALID_VALUE if not in range [0., 100.], OK otherwise
      */
-    inline void set_contrast_lower_threshold(float value) const { UPDATE_SETTING(ContrastLowerThreshold, value); }
+    ApiCode set_contrast_lower_threshold(float value) const;
 
     /*! \brief Returns the contrast upper threshold pourcentage. This setting is used to determine which percentile will
      * be used for the max contrast value when computing the auto contrast. Is in range [0, 100].
@@ -222,8 +242,10 @@ class ContrastApi : public IApi
      * used for the max contrast value when computing the auto contrast. Must be in range [0, 100].
      *
      * \param[in] value the new contrast upper threshold in range [0, 100]
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, INVALID_VALUE if not in range [0., 100.], OK otherwise
      */
-    inline void set_contrast_upper_threshold(float value) const { UPDATE_SETTING(ContrastUpperThreshold, value); }
+    ApiCode set_contrast_upper_threshold(float value) const;
 
     /*! \brief Returns the offset used to compute the autocontrast for the XZ and YZ views (cuts). Is in range [0,
      * get_fd().width / 2].
@@ -258,8 +280,11 @@ class ContrastApi : public IApi
      * \---------------/
      *
      * \param[in] value the new cuts contrast offset in range [0, get_fd().width / 2]
+     *
+     * \return ApiCode NO_CHANGE if the value is the same, INVALID_VALUE if not in range [0, get_fd().width / 2], OK
+     * otherwise
      */
-    inline void set_cuts_contrast_p_offset(uint value) const { UPDATE_SETTING(CutsContrastPOffset, value); }
+    ApiCode set_cuts_contrast_p_offset(uint value) const;
 
 #pragma endregion
 
@@ -276,7 +301,7 @@ class ContrastApi : public IApi
      * calculated on.
      *
      * \param[in] value true: enable, false: disable
-     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
      */
     ApiCode set_reticle_display_enabled(bool value) const;
 
@@ -289,8 +314,8 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle scale. The reticle scale is the size of the reticle display.
      *
      * \param[in] value the new reticle scale
-     * \return ApiCode OK if the value is in range [0, 1], NO_CHANGE if the value is the same, INVALID_VALUE if the
-     * value is not in range [0, 1]
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if reticle display is not enabled or if not in range [0., 1.], OK otherwise
      */
     ApiCode set_reticle_scale(float value) const;
 
@@ -303,7 +328,8 @@ class ContrastApi : public IApi
     /*! \brief Sets the reticle zone. This zone defines the rect region where the contrast is calculated on.
      *
      * \param[in] rect the new reticle zone
-     * \return ApiCode NO_CHANGE if the value is the same, OK otherwise
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if reticle display is not enabled, OK otherwise
      */
     ApiCode set_reticle_zone(const units::RectFd& rect) const;
 

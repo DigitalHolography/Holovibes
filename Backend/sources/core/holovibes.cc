@@ -90,11 +90,10 @@ void Holovibes::init_record_queue()
     LOG_DEBUG("Record queue allocated");
 }
 
-void Holovibes::start_file_frame_read(const std::function<void()>& callback)
+void Holovibes::start_file_frame_read()
 {
     CHECK(input_queue_.load() != nullptr);
 
-    file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
 

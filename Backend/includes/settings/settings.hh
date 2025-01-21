@@ -34,6 +34,9 @@
 
 namespace holovibes::settings
 {
+
+DECLARE_SETTING(IsCli, bool);
+
 /*!
  * \brief The number of frames per seconds to load from a file
  * or a camera to the GPU input buffer.
@@ -149,7 +152,6 @@ DECLARE_SETTING(FrameAcquisitionEnabled, bool);
 DECLARE_SETTING(ChartRecordEnabled, bool);
 
 /*! \name Advanced Cache */
-DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
