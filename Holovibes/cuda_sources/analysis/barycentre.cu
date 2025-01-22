@@ -3,19 +3,8 @@
 #include "tools_analysis_debug.hh"
 #include "map.cuh"
 
-__global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < depth)
-    {
-        for (uint i = 0; i < size; i++)
-            output[index] += A[i + index * size] * B[i];
-        output[index] /= size;
-    }
-}
-
-__global__ void kernel_compute_multiplication_mean_optimized(
-    float* output, const float* A, const float* B, size_t size, uint depth, size_t i)
+__global__ void
+kernel_compute_multiplication_mean(float* output, const float* A, const float* B, size_t size, uint depth, size_t i)
 {
     extern __shared__ float sdata[];
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -48,12 +37,7 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
     for (size_t i = 0; i < depth; ++i)
     {
         size_t shared_mem_size = threads * sizeof(float);
-        kernel_compute_multiplication_mean_optimized<<<blocks, threads, shared_mem_size, stream>>>(output,
-                                                                                                   A,
-                                                                                                   B,
-                                                                                                   size,
-                                                                                                   depth,
-                                                                                                   i);
+        kernel_compute_multiplication_mean<<<blocks, threads, shared_mem_size, stream>>>(output, A, B, size, depth, i);
         cudaCheckError();
     }
     blocks = map_blocks_to_problem(depth, threads);

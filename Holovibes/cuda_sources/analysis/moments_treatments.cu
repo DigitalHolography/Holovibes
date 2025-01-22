@@ -87,22 +87,12 @@ kernel_compute_mean_1_2(float* const output, const float* const input, const int
         output[image_index] = shared_data[0] / frame_size;
 }
 
-void compute_mean_1_2(
-    float* const output, const float* const input, const size_t frame_size, const size_t frame_nb, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_nb, threads);
-    size_t sharedMemSize = threads / blocks * sizeof(float);
-    kernel_compute_mean_1_2<<<blocks, threads, sharedMemSize, stream>>>(output, input, frame_size, frame_nb);
-    cudaCheckError();
-}
-
 __global__ void kernel_image_centering(
     float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const uint length_video)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size * length_video)
-        output[index] = m0_video[index] - m0_mean[index % frame_size];
+        output[index] = m0_video[index] - m0_mean[index % frame_size]; // Modulo inside kernel is probably unoptimized
 }
 
 void image_centering(float* output,
@@ -112,11 +102,9 @@ void image_centering(float* output,
                      const size_t length_video,
                      const cudaStream_t stream)
 {
-    // Determine optimal thread count per block
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size * length_video, threads);
 
-    // Launch the kernel with dynamic shared memory for the mean
     kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_mean, frame_size, length_video);
-    cudaCheckError(); // Check for CUDA errors
+    cudaCheckError();
 }

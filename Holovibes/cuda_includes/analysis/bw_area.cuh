@@ -11,7 +11,7 @@
 using uint = unsigned int;
 
 /*!
- * \brief compute black and white area filter, find the largest connected component from a binarised image and remove
+ * \brief Compute black and white area filter, find the largest connected component from a binarised image and remove
  * all the other, for this we use the ccl (connected component labeling) union find Kuroma algorithm
  *
  * \param[in out] input_output image to process
@@ -36,7 +36,7 @@ void bwareafilt(float* input_output,
                 cudaStream_t stream);
 
 /*!
- * \brief compute black and white area open, find the size of each connected component and remove all connected
+ * \brief Compute black and white area open, find the size of each connected component and remove all connected
  * component smaller than n, for this we use the ccl (connected component labeling) union find Kuroma algorithm
  *
  * \param[in out] input_output image to process
