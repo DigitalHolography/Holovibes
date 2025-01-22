@@ -11,10 +11,10 @@ add_library("${PROJECT_NAME}" SHARED
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${EURESYS_SDK}/include/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
-    "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
-    "${CMAKE_SOURCE_DIR}/Camera/CamerasPhantom"
+    "${CAMERA_DIR}/Camera/"
+    "${CAMERA_DIR}/include/"
+    "${CAMERA_DIR}/CamerasPhantom"
+    "${HOLO_DIR}/includes/"
 )
 
 target_link_libraries("${PROJECT_NAME}"

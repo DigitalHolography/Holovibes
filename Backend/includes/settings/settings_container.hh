@@ -42,8 +42,19 @@
 #include <type_traits>
 #include "logger.hh"
 
+/*! \brief Macro to disable inlining.
+ *
+ * Theire is an issue with optimization (only in release build) done by MSVC on inlined function of this class.
+ * Only update call are marked as not to be inlined but it will be better to disable inlining also for get call. We
+ * havn't done it since get are called a way lot more than update so it will impact performance.
+ *
+ * The use of `#pragma optimize("", off)` in `output_holo_file.cc` is related to this issue.
+ */
+#define NO_INLINE __declspec(noinline)
+
 namespace holovibes
 {
+
 /*!
  * \brief SFINEA helper to check if a setting is in a container.
  *
@@ -88,18 +99,7 @@ class SettingsContainer
 
         (init_setting(std::get<Settings>(settings)), ...);
     }
-    /*!
-     * \brief Update a setting. This specialization is for settings
-     * that should be updated in realtime.
-     * \tparam T The type of the setting to update.
-     * \param setting The new value of the setting.
-     */
-    template <typename T>
-    enable_if_any_of<T, Settings...> inline update_setting(T setting)
-    {
-        LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
-        std::get<T>(settings_) = setting;
-    }
+
     /*!
      * \brief Get the value of a setting.
      * \tparam T The type of the setting to get.
@@ -124,18 +124,20 @@ template <typename... Settings>
 class RealtimeSettingsContainer : public SettingsContainer<Settings...>
 {
   public:
+    template <TupleContainsTypes<Settings...> InitSettings>
+    RealtimeSettingsContainer(InitSettings settings)
+        : SettingsContainer<Settings...>{settings}
+    {
+    }
+
     /*!
      * \brief Update a setting. This specialization is for settings
      * that should be updated in realtime.
-     *
-     * Updating a setting that is not in the container will trigger
-     * a compilation error.
-     *
      * \tparam T The type of the setting to update.
      * \param setting The new value of the setting.
      */
     template <typename T>
-    enable_if_any_of<T, Settings...> inline update_setting(T setting)
+    NO_INLINE enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
         LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(this->settings_) = setting;
@@ -192,7 +194,7 @@ class DelayedSettingsContainer : public SettingsContainer<Settings...>
      * \param setting The new value of the setting.
      */
     template <typename T>
-    enable_if_any_of<T, Settings...> inline update_setting(T setting)
+    NO_INLINE enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
         LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(buffer_) = setting;
@@ -200,7 +202,7 @@ class DelayedSettingsContainer : public SettingsContainer<Settings...>
     }
 
     /*! \brief Update the settings with the buffered values. */
-    void apply_updates()
+    NO_INLINE void apply_updates()
     {
         LOG_TRACE("[SettingsContainer] [apply_updates]");
         (apply_update<Settings>(), ...);
@@ -246,4 +248,5 @@ template <typename T, typename... Settings>
 struct has_setting<T, DelayedSettingsContainer<Settings...>> : is_any_of<T, Settings...>
 {
 };
+
 } // namespace holovibes

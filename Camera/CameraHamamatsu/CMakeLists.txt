@@ -6,14 +6,14 @@ add_library("${PROJECT_NAME}" SHARED
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
-    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/libs/hamamatsu/include/"
-    "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
+    "${CAMERA_DIR}/Camera/"
+    "${CAMERA_DIR}/include/"
+    "${CAMERA_LIB_DIR}/hamamatsu/include/"
+    "${HOLO_DIR}/includes/"
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/libs/hamamatsu/dcamapi.lib"
+    "${CAMERA_LIB_DIR}/hamamatsu/dcamapi.lib"
     Boost::boost
     spdlog::spdlog_header_only
 )
