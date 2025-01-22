@@ -197,7 +197,7 @@ void Analysis::compute_correlation()
 
     // To get the new vascular_pulse, we need to do that : vascularPulse = vascularPulse ./ nnz(maskVesselnessClean), so
     // we compute nnz
-    int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
+    int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_); // This function need to be optimize
     // then this function will directly returns us the R_vascular_pulse, which is
     // vascularPulse_centered = vascularPulse - mean(vascularPulse, 3);
     // R_VascularPulse = mean(M0_ff_video_centered .* vascularPulse_centered, 3) ./ (std((M0_ff_video_centered), [], 3)
