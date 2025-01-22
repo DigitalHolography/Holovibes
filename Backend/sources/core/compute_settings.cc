@@ -48,6 +48,21 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
 
+    ComputeSettingsVersion version = ComputeSettingsVersion::V5;
+    if (!j_cs.contains("version"))
+    {
+        LOG_WARN("No version found in the compute settings file interpreting it as version 5");
+        version = ComputeSettingsVersion::V5;
+    }
+    else
+        version = static_cast<ComputeSettingsVersion>(j_cs["version"].get<int>());
+
+    ComputeSettings::convert_json(j_cs, version);
+
+    LOG_ERROR("Version found in the compute settings file : {}", static_cast<int>(version));
+
+    // TODO check version here
+
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
     json old_one;
@@ -188,6 +203,9 @@ struct JsonSettings
         }
     }
 
+    /*! \brief convert holo file footer from version 5 to 6 */
+    static void convert_v5_to_v6(json& data, const json& json_patch) { convert_default(data, json_patch); }
+
     /*! \class ComputeSettingsConverter
      *
      * \brief Struct that contains all information to perform a convertion
@@ -224,6 +242,7 @@ struct JsonSettings
         {ComputeSettingsVersion::V2, ComputeSettingsVersion::V3, "patch_v2_to_v3.json", convert_default},
         {ComputeSettingsVersion::V3, ComputeSettingsVersion::V4, "patch_v3_to_v4.json", convert_v3_to_v4},
         {ComputeSettingsVersion::V4, ComputeSettingsVersion::V5, "patch_v4_to_v5.json", convert_v4_to_v5},
+        {ComputeSettingsVersion::V5, ComputeSettingsVersion::V6, "patch_v5_to_v6.json", convert_v5_to_v6},
     };
 };
 
@@ -246,7 +265,7 @@ void ComputeSettings::convert_json(json& data, ComputeSettingsVersion from)
                   JsonSettings::converters.end(),
                   [&data](const JsonSettings::ComputeSettingsConverter& converter)
                   {
-                      LOG_TRACE("Applying patch version v{}", static_cast<int>(converter.to) + 2);
+                      LOG_WARN("Applying patch version v{}", static_cast<int>(converter.to));
                       std::ifstream patch_file{JsonSettings::patches_folder / converter.patch_file};
                       try
                       {
