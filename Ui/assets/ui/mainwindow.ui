@@ -3045,7 +3045,7 @@ The range of frequencies kept is [z, z + width]</string>
                     <string>Start recording</string>
                    </property>
                    <property name="text">
-                    <string>Rec.</string>
+                    <string>Record</string>
                    </property>
                    <property name="shortcut">
                     <string>Ctrl+R</string>
