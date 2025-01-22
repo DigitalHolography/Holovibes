@@ -1,4 +1,5 @@
 #include "output_avi_file.hh"
+#include "API.hh"
 #include "file_exception.hh"
 #include <algorithm>
 #include <cmath>
@@ -21,8 +22,11 @@ void OutputAviFile::write_header()
     try
     {
         int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
-
-        cv::Size size = cv::Size(size_length_, size_length_);
+        cv::Size size;
+        if (API.transform.get_space_transformation() == SpaceTransformation::FRESNELTR)
+            size = cv::Size(size_length_, size_length_);
+        else
+            size = cv::Size(fd_.width, fd_.height);
 
         bool is_color = fd_.depth == camera::PixelDepth::Bits24;
 
@@ -94,9 +98,32 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
         {
             // OpenCV does not handle 16 bits video in our case
             // So we make a 8 bits video
-            mat_frame = cv::Mat(size_length_, size_length_, CV_8UC1);
             // move frame to the mat_frame.data buffer, and make it square if needed
-            move_frame(mat_frame.data, frame, fd_.width, fd_.height, fd_.byteEndian);
+            if (API.transform.get_space_transformation() == SpaceTransformation::FRESNELTR)
+            {
+                mat_frame = cv::Mat(size_length_, size_length_, CV_8UC1);
+                move_frame(mat_frame.data, frame, fd_.width, fd_.height, fd_.byteEndian);
+            }
+            else
+            {
+                // if the space transform isn't FRESNELTR there is no interpolation of the output
+                mat_frame = cv::Mat(fd_.height, fd_.width, CV_8UC1);
+                const uchar* src = reinterpret_cast<const uchar*>(frame);
+                uchar* dest = mat_frame.data;
+
+                for (int y = 0; y < fd_.height; ++y)
+                {
+                    const uchar* src_row = src + y * fd_.width * 2;
+                    uchar* dest_row = dest + y * fd_.width;
+
+                    for (int x = 0; x < fd_.width; ++x)
+                    {
+                        ushort pixel_16bit = reinterpret_cast<const ushort*>(src_row)[x];
+                        uchar pixel_8bit = static_cast<uchar>(pixel_16bit >> 8);
+                        dest_row[x] = pixel_8bit;
+                    }
+                }
+            }
         }
 
         video_writer_ << mat_frame;
