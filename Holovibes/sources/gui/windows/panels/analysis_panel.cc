@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 namespace api = ::holovibes::api;
 
@@ -61,22 +62,34 @@ void AnalysisPanel::on_notify()
     ui_->ThresholdSlider->setValue(API.analysis.get_threshold() * 1000);
 }
 
+void maybe_disable_chart()
+{
+    if (api::get_chart_mean_vessels_enabled() && !api::set_chart_mean_vessels_enabled(true))
+        gui::set_analysis_chart_display(false);
+}
+
 void AnalysisPanel::set_artery_mask(bool enabled)
 {
     API.analysis.set_artery_mask_enabled(enabled);
     ui_->ArteryCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::set_vein_mask(bool enabled)
 {
     API.analysis.set_vein_mask_enabled(enabled);
     ui_->VeinCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::set_choroid_mask(bool enabled)
 {
     API.analysis.set_choroid_mask_enabled(enabled);
     ui_->ChoroidCheckBox->setChecked(enabled);
+    if (!enabled)
+        maybe_disable_chart();
 }
 
 void AnalysisPanel::update_time_window()
@@ -154,6 +167,12 @@ void AnalysisPanel::update_threshold_slider(int value)
 {
     double new_value = value / 1000.f;
     API.analysis.set_threshold(new_value);
+}
+
+void AnalysisPanel::show_chart()
+{
+    if (api::set_chart_mean_vessels_enabled(true))
+        gui::set_analysis_chart_display(true);
 }
 
 } // namespace holovibes::gui

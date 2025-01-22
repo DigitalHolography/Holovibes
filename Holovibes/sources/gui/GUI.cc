@@ -83,6 +83,7 @@ void close_windows()
     UI.sliceYZ.reset(nullptr);
     UI.filter2d_window.reset(nullptr);
     UI.lens_window.reset(nullptr);
+    UI.analysis_plot_window_.reset(nullptr);
     UI.plot_window_.reset(nullptr);
     UI.raw_window.reset(nullptr);
 }
@@ -225,6 +226,23 @@ void set_chart_display(bool enabled)
                                                   "Chart"));
     else
         UI.plot_window_.reset(nullptr);
+}
+
+void set_analysis_chart_display(bool enabled)
+{
+    if (enabled)
+    {
+        // If the window already exists, put it in front of the desktop. Else, create it.
+        if (UI.analysis_plot_window_)
+            UI.analysis_plot_window_->activateWindow();
+        else
+            UI.analysis_plot_window_.reset(
+                new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
+                                            UI.auto_scale_point_threshold_,
+                                            "Vessels means"));
+    }
+    else
+        UI.analysis_plot_window_.reset(nullptr);
 }
 
 void set_3d_cuts_view(bool enabled, uint max_window_size)

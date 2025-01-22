@@ -62,6 +62,12 @@ void ViewPanel::update_img_type(int img_type)
         for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
             viewbox_view->setRowHidden(i, false); // Set all display options to be visible again
     }
+
+    if (img_type < mom0 || img_type > mom2)
+    {
+        api::set_chart_mean_vessels_enabled(false);
+        gui::set_analysis_chart_display(false);
+    }
 }
 
 void ViewPanel::on_notify()

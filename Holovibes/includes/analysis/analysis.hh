@@ -27,10 +27,10 @@
     holovibes::settings::DiaphragmFactor,          \
     holovibes::settings::BarycenterFactor,         \
     holovibes::settings::ChoroidMaskEnabled,       \
-    holovibes::settings::Threshold
+    holovibes::settings::Threshold                 \
+    holovibes::settings::ChartMeanVesselsEnabled
 
-
-#define ALL_SETTINGS REALTIME_SETTINGS
+#pragma endregion
 
 // clang-format on
 
@@ -62,6 +62,7 @@ class Analysis
              const camera::FrameDescriptor& input_fd,
              VesselnessMaskEnv& vesselness_mask_env,
              MomentsEnv& moments_env,
+             ChartMeanVesselsEnv& chart_mean_vessels_env,
              const cudaStream_t& stream,
              InitSettings settings)
         : cuComplex_buffer_()
@@ -72,6 +73,7 @@ class Analysis
         , moments_env_(moments_env)
         , stream_(stream)
         , realtime_settings_(settings)
+        , chart_mean_vessels_env_(chart_mean_vessels_env)
     {
         // Create for Analysis its own cublas handler associated to its personal cuda stream
         cublasCreate_v2(&cublas_handler_);
@@ -114,6 +116,12 @@ class Analysis
 
     /*! \brief Insert choroid mask */
     void insert_choroid_mask();
+
+    /*! \brief Insert both masks*/
+    void insert_vesselness();
+
+    /*! \brief Insert chart compute*/
+    void insert_chart();
 
     /*! \brief Getter for the mask result buffer */
     float* get_mask_result();
@@ -185,9 +193,7 @@ class Analysis
     auto setting()
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
             return realtime_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Temporary complex buffer used for FFT computations */
@@ -219,6 +225,9 @@ class Analysis
 
     /*! \brief Reference to the MomentsEnv to get access to moments buffers */
     MomentsEnv& moments_env_;
+
+    /*! \brief Reference to the ChartMeanVesselsEnv to get access to chart display queue */
+    ChartMeanVesselsEnv& chart_mean_vessels_env_;
 
     /*! \brief Cublas handler used for matrices multiplications */
     cublasHandle_t cublas_handler_;

@@ -215,5 +215,10 @@ void Analysis::init()
     // Step 10: Allocate the final result buffer and set it to 0
     mask_result_buffer_.safe_resize(frame_res);
     cudaXMemset(mask_result_buffer_, 0, frame_res * sizeof(float));
+
+    // Other
+    chart_mean_vessels_env_.float_buffer_gpu_.resize(8);
+    if (chart_mean_vessels_env_.chart_display_queue_.get() == nullptr)
+        chart_mean_vessels_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartMeanVesselsPoint>());
 }
 } // namespace holovibes::analysis

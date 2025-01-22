@@ -327,7 +327,7 @@ struct OtsuEnv
     cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
 };
 
-/*! \struct OtsuEnv
+/*! \struct BwAreaEnv
  *
  * \brief Struct used for bwareaopen and bwarefilt computations.
  */
@@ -341,6 +341,19 @@ struct BwAreaEnv
     cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> float_buffer_;
+};
+
+/*! \struct ChartMeanVesselsEnv
+ *
+ * \brief Struct used for ChartMeanVessels computations.
+ * /*TODO change with struct of three double after
+ */
+struct ChartMeanVesselsEnv
+{
+    /*! \brief TODO: comment */
+    std::unique_ptr<ConcurrentDeque<ChartMeanVesselsPoint>> chart_display_queue_ = nullptr;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> float_buffer_gpu_;
 };
 
 } // namespace holovibes

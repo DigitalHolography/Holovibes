@@ -351,6 +351,7 @@ void Pipe::refresh()
     analysis_->insert_artery_mask();
     analysis_->insert_vein_mask();
     analysis_->insert_choroid_mask();
+    analysis_->insert_chart();
 
     insert_filter2d_view();
 

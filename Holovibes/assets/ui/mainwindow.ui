@@ -1051,7 +1051,7 @@ The range of frequencies kept is [z, z + width].</string>
               <string>index of the image displayed</string>
              </property>
              <property name="minimum">
-              <number>0</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -2840,6 +2840,26 @@ The range of frequencies kept is [z, z + width]</string>
            </item>
           </layout>
          </item>
+         <item>
+          <layout class="QHBoxLayout" name="AnalysisChartLayout">
+           <item>
+            <widget class="QPushButton" name="AnalysisChartStartPushButton">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>Shows a chart view displaying Arteries, Veins and Choroid means</string>
+             </property>
+             <property name="text">
+              <string>Show means</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+T</string>
+              </property>
+            </widget>
+           </item>
+          </layout>
+        </item>
          <item>
           <spacer name="BottomAnalysisSpacer">
            <property name="orientation">
@@ -5567,6 +5587,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <y>550</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>AnalysisChartStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>show_chart()</slot>
   </connection>
   <connection>
    <sender>ImportStartPushButton</sender>

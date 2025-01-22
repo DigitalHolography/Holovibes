@@ -122,6 +122,7 @@
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::ChoroidMaskEnabled,                     \
+    holovibes::settings::ChartMeanVesselsEnabled,                \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::VesselnessSigma,                        \
     holovibes::settings::MinMaskArea,                            \
@@ -463,7 +464,8 @@ class Holovibes
                                              settings::DiaphragmPreviewEnabled{false},
                                              settings::BarycenterFactor{0.07f},
                                              settings::BarycenterPreviewEnabled{false},
-                                             settings::Threshold{0.333f}))
+                                             settings::Threshold{0.333f},
+                                             settings::ChartMeanVesselsEnabled{false}))
     {
     }
 

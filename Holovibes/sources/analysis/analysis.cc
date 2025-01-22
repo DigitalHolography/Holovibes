@@ -17,6 +17,7 @@
 #include "tools_analysis_debug.hh"
 #include "tools_compute.cuh"
 #include "map.cuh"
+#include "chart_mean_vessels.cuh"
 
 #define OTSU_BINS 256
 
@@ -398,6 +399,28 @@ void Analysis::insert_choroid_mask()
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+            });
+    }
+}
+
+void Analysis::insert_chart()
+{
+    LOG_FUNC();
+    if (setting<settings::ChartMeanVesselsEnabled>() && setting<settings::ImageType>() == ImgType::Moments_0 &&
+        (setting<settings::VeinMaskEnabled>() || setting<settings::ArteryMaskEnabled>() ||
+         setting<settings::ChoroidMaskEnabled>()))
+    {
+        fn_compute_vect_->push_back(
+            [=]()
+            {
+                float* mask_buffer = get_mask_result();
+                auto points = get_sum_with_mask(moments_env_.moment0_buffer, // TODO change with the correct buffer
+                                                vesselness_mask_env_.quantizedVesselCorrelation_,
+                                                fd_.get_frame_size(),
+                                                chart_mean_vessels_env_.float_buffer_gpu_,
+                                                stream_);
+
+                chart_mean_vessels_env_.chart_display_queue_->push_back(points);
             });
     }
 }
