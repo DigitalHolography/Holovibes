@@ -4,6 +4,19 @@
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
 
+/*!
+ * \brief Adds the elements of an input frame to a sum array.
+ *
+ * This CUDA kernel function adds the elements of an input frame to a sum array. The operation is performed in place,
+ * meaning the sum array is modified directly. Each thread in the kernel adds the corresponding element from the input
+ * frame to the sum array.
+ *
+ * \param [in,out] input_output Pointer to the sum array where the addition will be performed in place.
+ * \param [in] input Pointer to the input frame containing the elements to be added.
+ * \param [in] frame_size The number of elements in the input frame and the sum array.
+ *
+ * \note The function performs the addition only for the elements within the specified frame size.
+ */
 static __global__ void
 kernel_add_frame_to_sum(float* const input_output, const float* const input, const size_t frame_size)
 {
@@ -20,6 +33,19 @@ void add_frame_to_sum(float* const input_output, const float* const input, const
     cudaCheckError();
 }
 
+/*!
+ * \brief Subtracts the elements of an input frame from a sum array.
+ *
+ * This CUDA kernel function subtracts the elements of an input frame from a sum array. The operation is performed in
+ * place, meaning the sum array is modified directly. Each thread in the kernel subtracts the corresponding element from
+ * the input frame from the sum array.
+ *
+ * \param [in,out] input_output Pointer to the sum array where the subtraction will be performed in place.
+ * \param [in] input Pointer to the input frame containing the elements to be subtracted.
+ * \param [in] frame_size The number of elements in the input frame and the sum array.
+ *
+ * \note The function performs the subtraction only for the elements within the specified frame size.
+ */
 static __global__ void
 kernel_subtract_frame_from_sum(float* const input_output, const float* const input, const size_t frame_size)
 {
@@ -50,43 +76,22 @@ void compute_mean(float* const output,
     map_divide(output, input, frame_size, time_window, stream);
 }
 
-__global__ void
-kernel_compute_mean_1_2(float* const output, const float* const input, const int frame_size, const int frame_nb_)
-{
-    extern __shared__ float shared_data[];
-
-    // Each block processes one image, each thread processes one element
-    int image_index = blockIdx.x;
-    if (image_index >= frame_nb_)
-        return;
-
-    int tid = threadIdx.x;
-
-    // Initialize partial sum for each thread in shared memory
-    shared_data[tid] = 0.0f;
-
-    // Accumulate sum within each thread
-    for (int i = tid; i < frame_size; i += blockDim.x)
-    {
-        shared_data[tid] += input[image_index * frame_size + i];
-    }
-
-    // Synchronize threads to ensure all have written their partial sum
-    __syncthreads();
-
-    // Perform parallel reduction within the block to get the total sum
-    for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
-    {
-        if (tid < stride)
-            shared_data[tid] += shared_data[tid + stride];
-        __syncthreads();
-    }
-
-    // Write the mean to the output buffer by the first thread of each block
-    if (tid == 0)
-        output[image_index] = shared_data[0] / frame_size;
-}
-
+/*!
+ * \brief Centers the frames of a video by subtracting the mean frame.
+ *
+ * This CUDA kernel function centers the frames of a video by subtracting the mean frame from each frame.
+ * The operation is performed element-wise, and the result is stored in the output array.
+ *
+ * \param [out] output Pointer to the output array where the centered frames will be stored.
+ * \param [in] m0_video Pointer to the input video array containing the frames to be centered.
+ * \param [in] m0_mean Pointer to the mean frame array.
+ * \param [in] frame_size The number of elements in each frame.
+ * \param [in] length_video The number of frames in the video.
+ *
+ * \note The function performs the centering operation only for the elements within the specified frame size and video
+ * length. The modulo operation inside the kernel is used to wrap around the mean frame array, which might be
+ * unoptimized.
+ */
 __global__ void kernel_image_centering(
     float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const uint length_video)
 {

@@ -1,6 +1,7 @@
 /*! \file analysis.hh
  *
- * \brief Implementation of postprocessing features on complex buffers.
+ * \brief Implementation of `createMask`from Pulsewave project. Orignialy on Matlab, we transcribed it to work on
+ * holovibes for real time.
  */
 #pragma once
 
@@ -78,16 +79,6 @@ class Analysis
         // Create for Analysis its own cublas handler associated to its personal cuda stream
         cublasCreate_v2(&cublas_handler_);
         cublasSetStream(cublas_handler_, stream_);
-
-        // TODO: remove everything below when done
-        // Load valid moment test data for debugging purpose
-        const size_t frame_res = fd_.get_frame_res();
-
-        m0_bin_video_.resize(512 * 512 * 506);
-        load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);
-
-        m1_bin_video_.resize(512 * 512 * 506);
-        load_bin_video_file(RELATIVE_PATH("../../Obj_M1_data_video_permuted.bin"), m1_bin_video_, stream_);
     }
 
     /*!
@@ -234,15 +225,6 @@ class Analysis
 
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> m0_bin_video_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> m1_bin_video_;
-
-    // To delete
-    size_t i_ = 0;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 

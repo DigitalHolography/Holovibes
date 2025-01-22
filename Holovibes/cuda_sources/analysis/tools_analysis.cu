@@ -35,16 +35,6 @@ static __global__ void kernel_normalized_list(float* output, int lim, int size)
         output[index] = (int)index - lim;
 }
 
-/*!
- * \brief Launches a CUDA kernel to generate a normalized list.
- *
- * This function configures and launches the `kernel_normalized_list` on the GPU.
- *
- * \param [out] output Pointer to the output array on the device memory.
- * \param [in] lim The limit value to subtract from each index.
- * \param [in] size The total number of elements to compute.
- * \param [in] stream CUDA stream for asynchronous kernel execution.
- */
 void normalized_list(float* output, int lim, int size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -163,22 +153,6 @@ static __global__ void kernel_comp_dgaussian(float* output, float* input, size_t
         output[index] = device_comp_dgaussian(input[index], sigma, n); // Compute the nth derivative.
 }
 
-/*!
- * \brief Launches a CUDA kernel to compute the nth derivative of a Gaussian function for an array of inputs.
- *
- * This function launches `kernel_comp_dgaussian` to compute the nth derivative of a Gaussian function for each element
- * in the input array. The results are stored in the output array.
- *
- * \param [out] output Pointer to the output array in device memory where results are stored.
- * \param [in] input Pointer to the input array in device memory containing the x values.
- * \param [in] input_size The number of elements in the input array.
- * \param [in] sigma The standard deviation (\( \sigma > 0 \)) of the Gaussian function.
- * \param [in] n The order of the derivative to compute (\( n \geq 0 \)).
- * \param [in] stream The CUDA stream to be used for asynchronous execution.
- *
- * \note Ensure that the `output` and `input` pointers reference valid, allocated memory in the device.
- *       The sizes of both arrays must be at least `input_size` elements.
- */
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -187,6 +161,23 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes the eigenvalues of 2x2 symmetric matrices stored in an array.
+ *
+ * This CUDA kernel function computes the eigenvalues of 2x2 symmetric matrices stored in an array.
+ * Each matrix is represented by three elements in the array: the diagonal elements and the off-diagonal element.
+ * The function calculates the eigenvalues for each matrix and stores them in the provided output arrays.
+ *
+ * \param H Pointer to the input array containing the elements of the 2x2 symmetric matrices.
+ *          The array is expected to have the following layout: [a1, a2, ..., an, b1, b2, ..., bn, d1, d2, ..., dn],
+ *          where each matrix is represented by (a, b, d).
+ * \param size The number of 2x2 matrices in the input array.
+ * \param lambda1 Pointer to the output array where the first eigenvalue of each matrix will be stored.
+ * \param lambda2 Pointer to the output array where the second eigenvalue of each matrix will be stored.
+ *
+ * \note The function assumes that the input array H contains the elements of the matrices in the specified layout.
+ *       The eigenvalues are computed using the characteristic equation of the 2x2 symmetric matrices.
+ */
 static __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -224,6 +215,23 @@ void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cu
     cudaCheckError();
 }
 
+/*!
+ * \brief Applies a circular diaphragm mask to an output array.
+ *
+ * This CUDA kernel function applies a circular diaphragm mask to an output array.
+ * The mask is centered at (center_X, center_Y) with a specified radius.
+ * Points outside the circle are set to zero, while points inside the circle remain unchanged.
+ *
+ * \param [in,out] output Pointer to the output array where the mask will be applied.
+ * \param [in] width The width of the output array.
+ * \param [in] height The height of the output array.
+ * \param [in] center_X The x-coordinate of the center of the circular mask.
+ * \param [in] center_Y The y-coordinate of the center of the circular mask.
+ * \param [in] radius The radius of the circular mask.
+ *
+ * \note The function calculates the squared distance of each point from the center of the mask
+ *       and compares it to the squared radius to determine if the point is inside or outside the circle.
+ */
 static __global__ void
 kernel_apply_diaphragm_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
@@ -259,6 +267,23 @@ void apply_diaphragm_mask(float* output,
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes a circular mask and applies it to an output array.
+ *
+ * This CUDA kernel function computes a circular mask and applies it to an output array.
+ * The mask is centered at (center_X, center_Y) with a specified radius.
+ * Points inside the circle are set to 1, while points outside the circle are set to 0.
+ *
+ * \param [out] output Pointer to the output array where the mask will be applied.
+ * \param [in] width The width of the output array.
+ * \param [in] height The height of the output array.
+ * \param [in] center_X The x-coordinate of the center of the circular mask.
+ * \param [in] center_Y The y-coordinate of the center of the circular mask.
+ * \param [in] radius The radius of the circular mask.
+ *
+ * \note The function calculates the squared distance of each point from the center of the mask
+ *       and compares it to the squared radius to determine if the point is inside or outside the circle.
+ */
 static __global__ void
 kernel_compute_circle_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
@@ -274,11 +299,6 @@ kernel_compute_circle_mask(float* output, short width, short height, float cente
 
         // If the point is inside the circle set the value to 1, else 0.
         output[index] = (distance_squared <= radius_squared);
-
-        // if (distance_squared <= radius_squared)
-        //     output[index] = 1;
-        // else
-        //     output[index] = 0;
     }
 }
 
@@ -299,6 +319,21 @@ void compute_circle_mask(float* output,
     cudaCheckError();
 }
 
+/*!
+ * \brief Applies a mask to an output array by performing element-wise multiplication with an input array.
+ *
+ * This CUDA kernel function applies a mask to an output array by performing element-wise multiplication
+ * with the corresponding elements of an input array. The function ensures that the operation is only
+ * performed within the bounds of the array dimensions.
+ *
+ * \param [in,out] output Pointer to the output array where the mask will be applied.
+ * \param [in] input Pointer to the input array containing the mask values.
+ * \param [in] width The width of the output and input arrays.
+ * \param [in] height The height of the output and input arrays.
+ *
+ * \note The function performs the element-wise multiplication only for the elements within the specified width and
+ * height.
+ */
 static __global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -321,6 +356,20 @@ void apply_mask_and(float* output, const float* input, const short width, const 
     cudaCheckError();
 }
 
+/*!
+ * \brief Applies a mask to an output array by performing an element-wise logical OR operation with an input array.
+ *
+ * This CUDA kernel function applies a mask to an output array by performing an element-wise logical OR operation
+ * with the corresponding elements of an input array. If an element in the input array is non-zero, the corresponding
+ * element in the output array is set to 1. Otherwise, the element in the output array remains unchanged.
+ *
+ * \param [in,out] output Pointer to the output array where the mask will be applied.
+ * \param [in] input Pointer to the input array containing the mask values.
+ * \param [in] width The width of the output and input arrays.
+ * \param [in] height The height of the output and input arrays.
+ *
+ * \note The function performs the logical OR operation only for the elements within the specified width and height.
+ */
 static __global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -343,6 +392,21 @@ void apply_mask_or(float* output, const float* input, const short width, const s
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes a Gaussian kernel and stores it in an output array.
+ *
+ * This CUDA kernel function computes a Gaussian kernel of a specified size and standard deviation (sigma),
+ * and stores the resulting values in an output array. It also accumulates the total sum of the kernel values
+ * for normalization purposes.
+ *
+ * \param [out] output Pointer to the output array where the Gaussian kernel values will be stored.
+ * \param [in] kernel_size The size of the Gaussian kernel (both width and height).
+ * \param [in] sigma The standard deviation of the Gaussian distribution.
+ * \param [out] d_sum Pointer to a device variable where the total sum of the kernel values will be accumulated.
+ *
+ * \note The function calculates the Gaussian values using the formula for a 2D Gaussian distribution
+ *       and uses atomic addition to accumulate the total sum of the kernel values.
+ */
 static __global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -362,6 +426,21 @@ static __global__ void kernel_compute_gauss_kernel(float* output, int kernel_siz
     atomicAdd(d_sum, value);
 }
 
+/*!
+ * \brief Computes a Gaussian kernel and stores it in an output array.
+ *
+ * This CUDA kernel function computes a Gaussian kernel of a specified size and standard deviation (sigma)
+ * and stores the resulting values in an output array. It also accumulates the sum of all kernel values
+ * for normalization purposes.
+ *
+ * \param [out] output Pointer to the output array where the Gaussian kernel values will be stored.
+ * \param [in] kernel_size The size of the Gaussian kernel (both width and height).
+ * \param [in] sigma The standard deviation of the Gaussian kernel.
+ * \param [out] d_sum Pointer to a device variable where the sum of all kernel values will be accumulated.
+ *
+ * \note The function calculates the Gaussian value for each element in the kernel and uses atomicAdd
+ *       to accumulate the sum of all kernel values for normalization.
+ */
 static __global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -380,42 +459,48 @@ void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream)
     float initial_sum = 0.0f;
     int kernel_size = 2 * std::ceil(2 * sigma) + 1;
 
-    // Allocate memory for sum on the device and initialize to 0
     cudaXMalloc(&d_sum, sizeof(float));
     cudaXMemcpyAsync(d_sum, &initial_sum, sizeof(float), cudaMemcpyHostToDevice, stream);
 
-    // Define grid and block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, (kernel_size + blockSize.y - 1) / blockSize.y);
 
-    // Launch the kernel to compute the Gaussian values
     kernel_compute_gauss_kernel<<<gridSize, blockSize, 0, stream>>>(output, kernel_size, sigma, d_sum);
     cudaCheckError();
 
-    // Normalize the kernel using the computed sum directly on the GPU
     kernel_normalize_array<<<gridSize, blockSize, 0, stream>>>(output, kernel_size, d_sum);
     cudaCheckError();
 
-    // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);
-    // Free device memory for sum
     cudaXFree(d_sum);
 }
 
+/*!
+ * \brief Counts the number of non-zero elements in an input array.
+ *
+ * This CUDA kernel function counts the number of non-zero elements in an input array.
+ * It uses shared memory for partial counts within each block and performs a reduction
+ * to accumulate the total count of non-zero elements. The result is stored in a global count variable.
+ *
+ * \param [in] input Pointer to the input array containing the elements to be counted.
+ * \param [out] count Pointer to the global count variable where the total number of non-zero elements will be stored.
+ * \param [in] rows The number of rows in the input array.
+ * \param [in] cols The number of columns in the input array.
+ *
+ * \note The function uses shared memory for efficient reduction within each block and atomicAdd
+ *       to accumulate the partial results into the global count variable.
+ */
 __global__ void kernel_count_non_zero(const float* const input, int* const count, int rows, int cols)
 {
-    // Shared memory for partial counts
     __shared__ int partial_sum[256];
     int thread_id = threadIdx.x;
     int index = blockIdx.x * blockDim.x + thread_id;
     partial_sum[thread_id] = 0;
 
-    // Check bounds and compute non-zero counts
     if (index < rows * cols && input[index] != 0)
         partial_sum[thread_id] = 1;
     __syncthreads();
 
-    // Reduce within the block
     for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
     {
         if (thread_id < stride)
@@ -423,7 +508,6 @@ __global__ void kernel_count_non_zero(const float* const input, int* const count
         __syncthreads();
     }
 
-    // Add partial result to global count
     if (thread_id == 0)
         atomicAdd(count, partial_sum[0]);
 }
@@ -435,28 +519,21 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
     int size = rows * cols;
     int result;
 
-    // Allocate memory on device
     cudaXMalloc((void**)&device_input, size * sizeof(float));
     cudaXMalloc((void**)&device_count, sizeof(int));
 
-    // Copy input matrix to device
     cudaXMemcpyAsync(device_input, input, size * sizeof(float), cudaMemcpyHostToDevice, stream);
 
-    // Initialize count to 0
     cudaXMemsetAsync(device_count, 0, sizeof(int), stream);
 
-    // Configure kernel
     dim3 threads_per_block(256);
     dim3 blocks_per_grid((size + 255) / 256);
 
-    // Launch kernel
     kernel_count_non_zero<<<blocks_per_grid, threads_per_block, 0, stream>>>(device_input, device_count, rows, cols);
     cudaCheckError();
 
-    // Copy result back to host
     cudaXMemcpyAsync(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
 
-    // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);
     cudaXFree(device_input);
     cudaXFree(device_count);
@@ -464,6 +541,19 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
     return result;
 }
 
+/*!
+ * \brief Divides each element of an input array by the corresponding element of a denominator array in place.
+ *
+ * This CUDA kernel function divides each element of an input array by the corresponding element of a denominator array
+ * and stores the result back in the input array. The operation is performed in place, meaning the input array is
+ * modified directly.
+ *
+ * \param [in,out] input_output Pointer to the input array where the division will be performed in place.
+ * \param [in] denominator Pointer to the array containing the denominator values.
+ * \param [in] size The number of elements in the input and denominator arrays.
+ *
+ * \note The function performs the division only for the elements within the specified size.
+ */
 __global__ void
 kernel_divide_frames_float_inplace(float* const input_output, const float* const denominator, const uint size)
 {
@@ -486,7 +576,22 @@ void divide_frames_inplace(float* const input_output,
     cudaCheckError();
 }
 
-// Kernel to normalize an array between a given range
+/*!
+ * \brief Normalizes the elements of an array to a specified range.
+ *
+ * This CUDA kernel function normalizes the elements of an input array to a specified range [min_range, max_range].
+ * The normalization process first scales the elements to the range [0, 1] and then scales them to the desired range.
+ * The result is rounded to the nearest integer.
+ *
+ * \param [in,out] input_output Pointer to the input array where the normalization will be performed in place.
+ * \param [in] size The number of elements in the input array.
+ * \param [in] min_range The minimum value of the desired output range.
+ * \param [in] max_range The maximum value of the desired output range.
+ * \param [in] min_val The minimum value in the input array.
+ * \param [in] max_val The maximum value in the input array.
+ *
+ * \note The function performs the normalization only for the elements within the specified size.
+ */
 __global__ void
 kernel_normalize_array(float* input_output, size_t size, float min_range, float max_range, float min_val, float max_val)
 {
@@ -500,19 +605,15 @@ kernel_normalize_array(float* input_output, size_t size, float min_range, float 
     }
 }
 
-// Host function to normalize a device-only array
 void normalize_array(float* input_output, size_t size, float min_range, float max_range, cudaStream_t stream)
 {
-    // Step 1: Use Thrust to find min and max values on the device
     int min_idx = find_min_thrust(input_output, size);
     int max_idx = find_max_thrust(input_output, size);
 
-    // Copy min and max values from device memory to host
     float min_val, max_val;
     cudaXMemcpyAsync(&min_val, input_output + min_idx, sizeof(float), cudaMemcpyDeviceToHost, stream);
     cudaXMemcpyAsync(&max_val, input_output + max_idx, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
-    // Step 2: Launch kernel to normalize
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(input_output, size, min_range, max_range, min_val, max_val);

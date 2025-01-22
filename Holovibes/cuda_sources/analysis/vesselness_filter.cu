@@ -7,6 +7,26 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
+/*!
+ * \brief Performs a 2D convolution operation on an input image using a specified kernel.
+ *
+ * This CUDA kernel function performs a 2D convolution operation on an input image using a specified kernel.
+ * It supports different padding types, including replicate boundary behavior and scalar padding.
+ * The result of the convolution is stored in the output array.
+ *
+ * \param [out] output Pointer to the output array where the convolution result will be stored.
+ * \param [in] input Pointer to the input image array.
+ * \param [in] kernel Pointer to the convolution kernel array.
+ * \param [in] width The width of the input image.
+ * \param [in] height The height of the input image.
+ * \param [in] kWidth The width of the convolution kernel.
+ * \param [in] kHeight The height of the convolution kernel.
+ * \param [in] padding_type The type of padding to use (e.g., replicate boundary behavior or scalar padding).
+ * \param [in] padding_scalar The scalar value to use for padding if `padding_type` is `SCALAR`. Default is 0.
+ *
+ * \note The function performs the convolution operation only for the pixels within the specified width and height.
+ *       It uses the specified padding type to handle boundary conditions. The kernel is assumed to be centered.
+ */
 __global__ void convolution_kernel(float* output,
                                    const float* input,
                                    const float* kernel,
@@ -21,7 +41,7 @@ __global__ void convolution_kernel(float* output,
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x >= width || y >= height)
-        return; // Ensure we don't go out of image bounds
+        return;
 
     float result = 0.0f;
     int kHalfWidth = kWidth / 2;
@@ -37,10 +57,8 @@ __global__ void convolution_kernel(float* output,
             int iy = y + ky;
 
             float imageValue;
-            // Appliquer le type de padding
             if (padding_type == ConvolutionPaddingType::REPLICATE)
             {
-                // Comportement de réplication des bords
                 if (ix < 0)
                     ix = 0;
                 if (ix >= width)
@@ -54,7 +72,6 @@ __global__ void convolution_kernel(float* output,
             }
             else if (padding_type == ConvolutionPaddingType::SCALAR)
             {
-                // Utiliser la valeur du padding scalar
                 if (ix < 0 || ix >= width || iy < 0 || iy >= height)
                     imageValue = padding_scalar;
                 else
@@ -80,11 +97,9 @@ void apply_convolution(float* const input_output,
                        ConvolutionPaddingType padding_type,
                        int padding_scalar)
 {
-    // Définir la taille des blocs et de la grille
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-    // Lancer le kernel
     convolution_kernel<<<gridSize, blockSize, 0, stream>>>(convolution_tmp_buffer,
                                                            input_output,
                                                            kernel,
@@ -97,7 +112,6 @@ void apply_convolution(float* const input_output,
 
     cudaCheckError();
 
-    // Copy convolution result in the input_output
     cudaXMemcpyAsync(input_output,
                      convolution_tmp_buffer,
                      sizeof(float) * width * height,
@@ -105,6 +119,25 @@ void apply_convolution(float* const input_output,
                      stream);
 }
 
+/*!
+ * \brief Applies a separable Gaussian filter to an input image.
+ *
+ * This function applies a separable Gaussian filter to an input image using a custom convolution method.
+ * It configures and launches a CUDA kernel to perform the convolution operation with replicate padding.
+ * The function uses the provided CUDA stream for asynchronous execution.
+ *
+ * \param [in,out] input_output Pointer to the input-output array where the filtered image will be stored.
+ * \param [in] gpu_kernel_buffer Pointer to the GPU buffer containing the separable Gaussian kernel.
+ * \param [in] kernel_x_size The width of the Gaussian kernel.
+ * \param [in] kernel_y_size The height of the Gaussian kernel.
+ * \param [in] frame_res The resolution of the input frame (number of elements per frame).
+ * \param [in] convolution_tmp_buffer Pointer to a temporary buffer used to store the intermediate convolution result.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function assumes that the input frame is square, i.e., the width and height are equal and can be derived
+ * from the frame resolution. It calls the `apply_convolution` function to perform the convolution operation with
+ * replicate padding.
+ */
 void gaussian_imfilter_sep(float* input_output,
                            float* gpu_kernel_buffer,
                            int kernel_x_size,
@@ -126,6 +159,21 @@ void gaussian_imfilter_sep(float* input_output,
                       ConvolutionPaddingType::REPLICATE);
 }
 
+/*!
+ * \brief Performs element-wise division of the absolute values of two input arrays.
+ *
+ * This CUDA kernel function performs element-wise division of the absolute values of two input arrays, `lambda_1` and
+ * `lambda_2`. The result is stored in the output array. Each thread in the kernel computes the division for a single
+ * element.
+ *
+ * \param [out] output Pointer to the output array where the result of the division will be stored.
+ * \param [in] lambda_1 Pointer to the first input array.
+ * \param [in] lambda_2 Pointer to the second input array.
+ * \param [in] input_size The number of elements in the input arrays.
+ *
+ * \note The function performs the division only for the elements within the specified input size.
+ *       It computes the absolute value of each element before performing the division to ensure non-negative results.
+ */
 __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float* lambda_2, size_t input_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -133,6 +181,22 @@ __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float
         output[index] = abs(lambda_1[index]) / abs(lambda_2[index]);
 }
 
+/*!
+ * \brief Performs element-wise division of the absolute values of two input arrays using a CUDA kernel.
+ *
+ * This function performs element-wise division of the absolute values of two input arrays, `lambda_1` and `lambda_2`,
+ * using a CUDA kernel. It configures and launches the kernel to perform the division operation. The function uses the
+ * provided CUDA stream for asynchronous execution.
+ *
+ * \param [out] output Pointer to the output array where the result of the division will be stored.
+ * \param [in] lambda_1 Pointer to the first input array.
+ * \param [in] lambda_2 Pointer to the second input array.
+ * \param [in] frame_res The number of elements in the input arrays.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function configures the kernel launch parameters based on the frame resolution.
+ *       It calls `cudaCheckError()` to check for any CUDA errors after the kernel launch.
+ */
 void abs_lambda_division(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -142,6 +206,22 @@ void abs_lambda_division(float* output, float* lambda_1, float* lambda_2, uint f
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes the element-wise normalization of two input arrays.
+ *
+ * This CUDA kernel function computes the element-wise normalization of two input arrays, `lambda_1` and `lambda_2`.
+ * The normalization is performed by calculating the square root of the sum of the squares of the corresponding elements
+ * from the two input arrays. The result is stored in the output array.
+ *
+ * \param [out] output Pointer to the output array where the result of the normalization will be stored.
+ * \param [in] lambda_1 Pointer to the first input array.
+ * \param [in] lambda_2 Pointer to the second input array.
+ * \param [in] input_size The number of elements in the input arrays.
+ *
+ * \note The function performs the normalization only for the elements within the specified input size.
+ *       It computes the square root of the sum of the squares of the corresponding elements to ensure the
+ * normalization.
+ */
 __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2, size_t input_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -149,6 +229,22 @@ __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2
         output[index] = sqrtf(powf(lambda_1[index], 2) + powf(lambda_2[index], 2));
 }
 
+/*!
+ * \brief Computes the element-wise normalization of two input arrays using a CUDA kernel.
+ *
+ * This function computes the element-wise normalization of two input arrays, `lambda_1` and `lambda_2`,
+ * using a CUDA kernel. It configures and launches the kernel to perform the normalization operation.
+ * The function uses the provided CUDA stream for asynchronous execution.
+ *
+ * \param [out] output Pointer to the output array where the result of the normalization will be stored.
+ * \param [in] lambda_1 Pointer to the first input array.
+ * \param [in] lambda_2 Pointer to the second input array.
+ * \param [in] frame_res The number of elements in the input arrays.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function configures the kernel launch parameters based on the frame resolution.
+ *       It calls `cudaCheckError()` to check for any CUDA errors after the kernel launch.
+ */
 void normalize(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -158,6 +254,24 @@ void normalize(float* output, float* lambda_1, float* lambda_2, uint frame_res, 
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes a custom function for each element in the input arrays.
+ *
+ * This CUDA kernel function computes a custom function for each element in the input arrays. The function involves
+ * several mathematical operations including squaring, exponentiation, and division. The result is stored in the output
+ * array.
+ *
+ * \param [out] output Pointer to the output array where the result will be stored.
+ * \param [in] input_size The number of elements in the input arrays.
+ * \param [in] R_blob Pointer to the first input array.
+ * \param [in] beta A scalar value used in the computation.
+ * \param [in] c A scalar value used in the computation.
+ * \param [in] c_temp Pointer to the second input array.
+ *
+ * \note The function performs the computation only for the elements within the specified input size.
+ *       It involves several mathematical operations to compute the final result for each element, all coming from
+ *       MatLab, Pulsewave project.
+ */
 __global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float c, float* c_temp)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -173,6 +287,24 @@ __global__ void kernel_If(float* output, size_t input_size, float* R_blob, float
     }
 }
 
+/*!
+ * \brief Computes a custom function for each element in the input arrays using a CUDA kernel.
+ *
+ * This function computes a custom function for each element in the input arrays, `R_blob` and `c_temp`,
+ * using a CUDA kernel, all coming from MatLab, Pulsewave project. It configures and launches the kernel to perform the
+ * computation. The function uses the provided CUDA stream for asynchronous execution.
+ *
+ * \param [out] output Pointer to the output array where the result will be stored.
+ * \param [in] input_size The number of elements in the input arrays.
+ * \param [in] R_blob Pointer to the first input array.
+ * \param [in] beta A scalar value used in the computation.
+ * \param [in] c A scalar value used in the computation.
+ * \param [in] c_temp Pointer to the second input array.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function configures the kernel launch parameters based on the input size.
+ *       It calls `cudaCheckError()` to check for any CUDA errors after the kernel launch.
+ */
 void If(float* output, size_t input_size, float* R_blob, float beta, float c, float* c_temp, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -182,6 +314,20 @@ void If(float* output, size_t input_size, float* R_blob, float beta, float c, fl
     cudaCheckError();
 }
 
+/*!
+ * \brief Applies a logical condition to elements of an input array.
+ *
+ * This CUDA kernel function applies a logical condition to elements of an input array. Specifically, it multiplies
+ * each element of the output array by 1 if the corresponding element in the `lambda_2` array is less than or equal to
+ * 0, and by 0 otherwise. The result is stored in the output array.
+ *
+ * \param [in,out] output Pointer to the output array where the result will be stored.
+ * \param [in] input_size The number of elements in the input arrays.
+ * \param [in] lambda_2 Pointer to the input array containing the values to be checked against the logical condition.
+ *
+ * \note The function performs the logical condition check and multiplication only for the elements within the specified
+ * input size.
+ */
 __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float* lambda_2)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -189,6 +335,21 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
         output[index] *= (lambda_2[index] <= 0.f);
 }
 
+/*!
+ * \brief Applies a logical condition to elements of an input array using a CUDA kernel.
+ *
+ * This function applies a logical condition to elements of an input array, `lambda_2`, using a CUDA kernel.
+ * It configures and launches the kernel to perform the logical condition check and multiplication operation.
+ * The function uses the provided CUDA stream for asynchronous execution.
+ *
+ * \param [in,out] output Pointer to the output array where the result will be stored.
+ * \param [in] input_size The number of elements in the input arrays.
+ * \param [in] lambda_2 Pointer to the input array containing the values to be checked against the logical condition.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function configures the kernel launch parameters based on the input size.
+ *       It calls `cudaCheckError()` to check for any CUDA errors after the kernel launch.
+ */
 void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -198,6 +359,31 @@ void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStr
     cudaCheckError();
 }
 
+/*!
+ * \brief Computes a processed image by applying a series of operations.
+ *
+ * This function computes a processed image by applying a series of operations to the input image.
+ * It performs the following steps:
+ * 1. Copies the input image to the output buffer.
+ * 2. Applies a separable Gaussian filter to the output buffer.
+ * 3. Multiplies the output buffer by a scalar value.
+ * The function uses the provided CUDA stream for asynchronous execution.
+ *
+ * \param [out] output Pointer to the output array where the processed image will be stored.
+ * \param [in] input Pointer to the input image array.
+ * \param [in] g_mul Pointer to the Gaussian kernel array.
+ * \param [in] A Scalar value used to multiply the output buffer.
+ * \param [in] frame_res The resolution of the input frame (number of elements per frame).
+ * \param [in] kernel_x_size The width of the Gaussian kernel.
+ * \param [in] kernel_y_size The height of the Gaussian kernel.
+ * \param [in] convolution_tmp_buffer Pointer to a temporary buffer used for the convolution operation.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function assumes that the input frame is square, i.e., the width and height are equal and can be derived
+ * from the frame resolution. It calls `cudaXMemcpyAsync` to copy the input image to the output buffer,
+ * `gaussian_imfilter_sep` to apply the Gaussian filter, and `map_multiply` to multiply the output buffer by the scalar
+ * value.
+ */
 void compute_I(float* output,
                float* input,
                float* g_mul,

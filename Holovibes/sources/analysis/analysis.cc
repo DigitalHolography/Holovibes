@@ -70,7 +70,7 @@ void Analysis::compute_vesselness_response()
                       stream_);
 
     // Uncomment if using real moments
-    shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+    // shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
     // Compute and apply a circular diaphragm mask on the vesselness output
     apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
@@ -227,6 +227,8 @@ void Analysis::compute_segment_vessels()
                    fd_.height,
                    stream_);
 
+    // Need to use multithreshold (that's what is done in matlab), for now it's hardcoded, a V1 was coded but we had a
+    // hard time trying to make it work here, so we simply put a slider to manualy set a threshold
     float thresholds[3] = {0.207108953480839f,
                            setting<settings::Threshold>(),
                            0.458741275652768f}; // this is hardcoded, need to

@@ -7,39 +7,47 @@
 #include <cuda_runtime.h>
 
 /*!
- * \brief Compute the mean of the buffer of frames A on the dimensions 1 and 2 multiplied by the single frame B, the
- * only remaining dimension will be the third one e.g. the number of frames in A
- * Example: A is of dimensions 512x512x506 (e.g. 506 frames of size 512x512) and B is of dimensions 512x512x1 (e.g. a
- * single frame of 512x512)
- * The output will be of dimensions 1x1x506, each element i along the third axis (the only one remainng) is the mean of
- * all pixels of frames number i of A multiplied by its corresponding pixel in B.
+ * \brief Computes the mean of the element-wise multiplication of two arrays for multiple depths.
  *
- * Parallelization is done frame per frame, indeed the function will call its internal kernel once for each frame
+ * This function computes the mean of the element-wise multiplication of two arrays, `A` and `B`, for multiple depths.
+ * It launches a CUDA kernel to perform the multiplication and reduction for each depth and then divides the results
+ * by the size to compute the mean. The function uses the provided CUDA stream for asynchronous execution.
  *
- * This function was originally made for use inside the CircularVideoBuffer class
+ * \param [out] output Pointer to the output array where the mean values will be stored.
+ * \param [in] A Pointer to the first input array.
+ * \param [in] B Pointer to the second input array.
+ * \param [in] size The number of elements in the input arrays.
+ * \param [in] depth The number of depths to process.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
  *
- * \param[out] output The output buffer
- * \param[in] A Input buffer containing depth frames
- * \param[in] B Input buffer containing a single frame
- * \param[in] size  The size of a single frame
- * \param[in] depth The number of frames contained in A
- * \param[in] stream The CUDA stream to use
+ * \note The function configures the kernel launch parameters based on the size of the input arrays
+ *       and calls `cudaCheckError()` to check for any CUDA errors after the kernel launch. It also
+ *       calls `map_divide` to divide the results by the size to compute the mean.
  */
 void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream);
 
 /*!
- * \brief
+ * \brief Computes a barycentre circle mask and applies it to an input array.
  *
- * \param output
- * \param crv_circle_mask
- * \param input
- * \param width
- * \param height
- * \param barycentre_factor
- * \param stream
- * \param CRV_index
+ * This function computes a barycentre circle mask and applies it to an input array. It first finds the indices of the
+ * maximum and minimum values in the input array. It then computes circle masks centered at these indices with a radius
+ * determined by the barycentre factor. Finally, it applies the masks to the input array using a bitwise OR operation.
  *
- * \return int
+ * \param [out] output Pointer to the output array where the result will be stored.
+ * \param [out] crv_circle_mask Pointer to the array where the CRV circle mask will be stored.
+ * \param [in] input Pointer to the input array.
+ * \param [in] width The width of the input array.
+ * \param [in] height The height of the input array.
+ * \param [in] barycentre_factor The factor used to determine the radius of the circle masks.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ * \param [in,out] CRV_index The index of the CRV (minimum value) in the input array. If -1, the function will find the
+ * minimum value index.
+ *
+ * \return The index of the CRV (minimum value) in the input array.
+ *
+ * \note The function uses Thrust to find the maximum and minimum value indices. It then computes the circle masks
+ *       and applies them to the input array using the `apply_mask_or` function. The function assumes that the input
+ *       array is a 2D array with dimensions `width` x `height`.
  */
 int compute_barycentre_circle_mask(float* output,
                                    float* crv_circle_mask,

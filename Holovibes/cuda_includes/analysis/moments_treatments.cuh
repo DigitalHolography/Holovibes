@@ -56,14 +56,21 @@ void compute_mean(float* const output,
                   cudaStream_t stream);
 
 /*!
- * \brief
+ * \brief Centers the frames of a video by subtracting the mean frame using a CUDA kernel.
  *
- * \param output
- * \param m0_video
- * \param m0_mean
- * \param frame_size
- * \param length_video
- * \param stream
+ * This function centers the frames of a video by subtracting the mean frame from each frame. It configures and launches
+ * a CUDA kernel to perform the centering operation. The function uses the provided CUDA stream for asynchronous
+ * execution.
+ *
+ * \param [out] output Pointer to the output array where the centered frames will be stored.
+ * \param [in] m0_video Pointer to the input video array containing the frames to be centered.
+ * \param [in] m0_mean Pointer to the mean frame array.
+ * \param [in] frame_size The number of elements in each frame.
+ * \param [in] length_video The number of frames in the video.
+ * \param [in] stream The CUDA stream to use for the kernel launch and memory operations.
+ *
+ * \note The function configures the kernel launch parameters based on the frame size and video length.
+ *       It calls `cudaCheckError()` to check for any CUDA errors after the kernel launch.
  */
 void image_centering(float* output,
                      const float* m0_video,

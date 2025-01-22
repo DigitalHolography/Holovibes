@@ -78,8 +78,6 @@ void Analysis::init_params_vesselness_filter(float* result_transpose,
                                result_transpose, // Output transposed matrix
                                x_size));         // Leading dimension of the output matrix
 
-    // Step 5: Free allocated GPU memory
-    // Deallocate the GPU memory for temporary arrays and kernels
     cudaXStreamSynchronize(stream_);
     cudaXFree(x);
     cudaXFree(y);

@@ -3,6 +3,23 @@
 #include "tools_analysis_debug.hh"
 #include "map.cuh"
 
+/*!
+ * \brief Computes the mean of the element-wise multiplication of two arrays for a specific depth.
+ *
+ * This CUDA kernel function computes the mean of the element-wise multiplication of two arrays, `A` and `B`,
+ * for a specific depth `i`. It uses shared memory for efficient reduction within each block and atomicAdd
+ * to accumulate the results into the output array.
+ *
+ * \param [out] output Pointer to the output array where the mean values will be stored.
+ * \param [in] A Pointer to the first input array.
+ * \param [in] B Pointer to the second input array.
+ * \param [in] size The number of elements in the input arrays.
+ * \param [in] depth The depth index for the multiplication operation.
+ * \param [in] i The index for the specific depth being processed.
+ *
+ * \note The function performs the multiplication and reduction only for the elements within the specified size.
+ *       It uses shared memory for efficient reduction within each block and atomicAdd to accumulate the results.
+ */
 __global__ void
 kernel_compute_multiplication_mean(float* output, const float* A, const float* B, size_t size, uint depth, size_t i)
 {
