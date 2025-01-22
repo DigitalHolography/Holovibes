@@ -108,20 +108,16 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
             {
                 // if the space transform isn't FRESNELTR there is no interpolation of the output
                 mat_frame = cv::Mat(fd_.height, fd_.width, CV_8UC1);
-                const uchar* src = reinterpret_cast<const uchar*>(frame);
+                const ushort* src = reinterpret_cast<const ushort*>(frame);
                 uchar* dest = mat_frame.data;
 
                 for (int y = 0; y < fd_.height; ++y)
                 {
-                    const uchar* src_row = src + y * fd_.width * 2;
+                    const ushort* src_row = src + y * fd_.width;
                     uchar* dest_row = dest + y * fd_.width;
 
                     for (int x = 0; x < fd_.width; ++x)
-                    {
-                        ushort pixel_16bit = reinterpret_cast<const ushort*>(src_row)[x];
-                        uchar pixel_8bit = static_cast<uchar>(pixel_16bit >> 8);
-                        dest_row[x] = pixel_8bit;
-                    }
+                        dest_row[x] = static_cast<uchar>(src_row[x] >> 8);
                 }
             }
         }
