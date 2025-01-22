@@ -1,12 +1,12 @@
-include(GoogleTest)
+find_package(GTest REQUIRED)
 
+include(GoogleTest)
 enable_testing()
 
 set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/cuda_includes/"
     "${HOLO_DIR}/includes/"
     "${HOLO_DIR}/includes/api/"
-    "${HOLO_DIR}/includes/cli/"
     "${HOLO_DIR}/includes/compute/"
     "${HOLO_DIR}/includes/data_struct/"
     "${HOLO_DIR}/includes/core/"
@@ -26,61 +26,25 @@ set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/tests/includes"
 )
 
-set(UNIT_TEST_SOURCES
-    test_example.cc
-    test_batch_input_queue.cc
-    test_chart.cc
-    test_fast_updates_holder.cc
-    test_map.cc
-    test_queue.cc
-    test_reduce.cc
-    test_subsample_frame.cc
-)
-
-set(EXTERNAL_INCLUDES_TEST
-    ${Boost_INCLUDE_DIRS}
-    ${CUDA_EXTERNAL_INCLUDES}
-)
-
-file(GLOB_RECURSE SOURCES_TEST "${HOLO_DIR}/sources/*.cc")
-file(GLOB_RECURSE HEADERS_TEST "${HOLO_DIR}/includes/*.hh")
-
-# Exclude gui and entry point
-list(FILTER SOURCES_TEST EXCLUDE REGEX "/gui/")
-list(FILTER HEADERS_TEST EXCLUDE REGEX "/gui/")
-list(FILTER SOURCES_TEST EXCLUDE REGEX "main.cc")
+file(GLOB_RECURSE UNIT_TEST_SOURCES *.cc)
 
 add_executable(test
-    ${SOURCES_TEST}
-    ${HEADERS_TEST}
-    ${CUDA_SOURCES}
-    ${CUDA_HEADERS}
     ${UNIT_TEST_SOURCES}
 )
 
 target_include_directories(test PRIVATE
-    ${EXTERNAL_INCLUDES_TEST}
     ${INTERNAL_INCLUDES_TEST}
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+    ${nlohmann_json_INCLUDE_DIRS}
 )
 
 target_link_libraries(test
     GTest::gtest_main
     spdlog::spdlog_header_only
-    fmt::fmt
-    Boost::program_options
-    opencv_videoio
-    cufft
-    cublas
-    cusolver
-    nvml
+    Backend
 )
 
 target_compile_options(test PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:
-    --extended-lambda
-    -Xcudafe --diag_suppress=field_without_dll_interface
-    -diag-suppress 27
-    >
     $<$<COMPILE_LANGUAGE:CXX>:
     /W3
     /wd4005
@@ -92,11 +56,6 @@ target_compile_definitions(test PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:.
     _CRT_SECURE_NO_WARNINGS
     >
-)
-
-set_target_properties(test PROPERTIES
-    CUDA_ARCHITECTURES "61;75;86;89"
-    CUDA_STANDARD 17
 )
 
 gtest_discover_tests(test)
