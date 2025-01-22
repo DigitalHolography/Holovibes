@@ -64,7 +64,7 @@ void AnalysisPanel::on_notify()
 
 void maybe_disable_chart()
 {
-    if (api::get_chart_mean_vessels_enabled() && !api::set_chart_mean_vessels_enabled(true))
+    if (API.analysis.get_chart_mean_vessels_enabled() && !gui::set_chart_mean_vessels_enabled(true))
         gui::set_analysis_chart_display(false);
 }
 
@@ -171,7 +171,7 @@ void AnalysisPanel::update_threshold_slider(int value)
 
 void AnalysisPanel::show_chart()
 {
-    if (api::set_chart_mean_vessels_enabled(true))
+    if (gui::set_chart_mean_vessels_enabled(true))
         gui::set_analysis_chart_display(true);
 }
 

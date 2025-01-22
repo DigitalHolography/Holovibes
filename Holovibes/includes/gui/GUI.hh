@@ -81,6 +81,16 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size);
  */
 void set_chart_display(bool enabled);
 
+/*!
+ * \brief Enables the chart mean computation.
+ * The UI then fetches the data and prints it in a chart.
+ * If the conditions are not met to enable the setting, it won't be updated.
+ *
+ * \param value True = enabled, False = disabled
+ * \return The new value of the setting.
+ */
+bool set_chart_mean_vessels_enabled(bool enabled);
+
 /*! \brief Open or close the 3D cuts view
  *
  * \param[in] enabled true: open, false: close

@@ -65,7 +65,7 @@ void ViewPanel::update_img_type(int img_type)
 
     if (img_type < mom0 || img_type > mom2)
     {
-        api::set_chart_mean_vessels_enabled(false);
+        gui::set_chart_mean_vessels_enabled(false);
         gui::set_analysis_chart_display(false);
     }
 }

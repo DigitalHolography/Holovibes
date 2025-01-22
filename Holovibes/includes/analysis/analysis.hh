@@ -27,7 +27,7 @@
     holovibes::settings::DiaphragmFactor,          \
     holovibes::settings::BarycenterFactor,         \
     holovibes::settings::ChoroidMaskEnabled,       \
-    holovibes::settings::Threshold                 \
+    holovibes::settings::Threshold,                \
     holovibes::settings::ChartMeanVesselsEnabled
 
 #pragma endregion

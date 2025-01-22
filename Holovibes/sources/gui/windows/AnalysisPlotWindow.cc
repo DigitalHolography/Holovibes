@@ -37,7 +37,7 @@ AnalysisPlotWindow::~AnalysisPlotWindow() {}
 void AnalysisPlotWindow::closeEvent(QCloseEvent* event)
 {
     gui::set_analysis_chart_display(false);
-    api::set_chart_mean_vessels_enabled(false);
+    gui::set_chart_mean_vessels_enabled(false);
     emit closed();
 }
 

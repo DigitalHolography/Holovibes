@@ -228,8 +228,24 @@ void set_chart_display(bool enabled)
         UI.plot_window_.reset(nullptr);
 }
 
+bool set_chart_mean_vessels_enabled(bool enabled)
+{
+    auto& api = API;
+    // Checks if it is right to enable vessels charting at this moment.
+    if (!enabled || !(api.compute.get_img_type() == ImgType::Moments_0 &&
+                      (api.analysis.get_vein_mask_enabled() || api.analysis.get_artery_mask_enabled() ||
+                       api.analysis.get_choroid_mask_enabled())))
+        enabled = false;
+
+    if (api.analysis.get_chart_mean_vessels_enabled() != enabled)
+        UPDATE_SETTING(ChartMeanVesselsEnabled, enabled);
+
+    return enabled;
+}
+
 void set_analysis_chart_display(bool enabled)
 {
+    auto& api = API;
     if (enabled)
     {
         // If the window already exists, put it in front of the desktop. Else, create it.
@@ -237,7 +253,7 @@ void set_analysis_chart_display(bool enabled)
             UI.analysis_plot_window_->activateWindow();
         else
             UI.analysis_plot_window_.reset(
-                new gui::AnalysisPlotWindow(*api::get_compute_pipe()->get_chart_mean_vessels_queue().get(),
+                new gui::AnalysisPlotWindow(*api.compute.get_compute_pipe()->get_chart_mean_vessels_queue().get(),
                                             UI.auto_scale_point_threshold_,
                                             "Vessels means"));
     }

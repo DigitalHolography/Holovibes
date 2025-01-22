@@ -85,7 +85,7 @@
     holovibes::settings::MinMaskArea,                            \
     holovibes::settings::DiaphragmFactor,                        \
     holovibes::settings::BarycenterFactor,                       \
-    holovibes::settings::Threshold                               \
+    holovibes::settings::Threshold,                              \
     holovibes::settings::ChartMeanVesselsEnabled
 
 
