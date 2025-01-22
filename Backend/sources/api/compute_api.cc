@@ -62,6 +62,9 @@ ApiCode ComputeApi::start() const
     if (api_->global_pp.get_registration_enabled())
         api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
+    if (api_->contrast.get_reticle_display_enabled())
+        api_->contrast.update_reticle_zone();
+
     // Start the pipe
     get_compute_pipe()->request(ICS::Start);
 

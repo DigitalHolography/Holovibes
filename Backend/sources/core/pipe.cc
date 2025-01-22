@@ -651,14 +651,14 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (is_requested(ICS::Refresh))
-        refresh();
+    while (!is_requested(ICS::Start))
+        continue;
+
+    // Build the pipe
+    refresh();
 
     while (!is_requested(ICS::Termination))
     {
-        if (!is_requested(ICS::Start))
-            continue;
-
         // Run the entire pipeline of calculation
         run_all();
 
