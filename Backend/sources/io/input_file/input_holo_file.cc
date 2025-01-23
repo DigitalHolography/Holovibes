@@ -5,13 +5,15 @@
 #include <filesystem>
 
 #include "input_holo_file.hh"
+
+#include "API.hh"
+#include "all_struct.hh"
+#include "compute_settings_struct.hh"
 #include "file_exception.hh"
 #include "holovibes_config.hh"
-#include "logger.hh"
-#include "all_struct.hh"
-#include "API.hh"
+#include "holo_file_converter.hh"
 #include "internals_struct.hh"
-#include "compute_settings_struct.hh"
+#include "logger.hh"
 
 namespace holovibes::io_files
 {
@@ -148,34 +150,29 @@ void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC();
 
+    ComputeSettings raw_footer_;
+
+    // Load the footer inside meta_data_
     meta_data_ = json::parse("{}");
-    // if there is no footer we use the state of the GSH
     if (!has_footer)
     {
         raw_footer_.Update();
         to_json(meta_data_, raw_footer_);
     }
     else
-    {
         this->load_footer();
+
+    if (version::HoloFileConverter::convert_holo_file(*this) != ApiCode::OK)
+    {
+        LOG_ERROR("Holo file conversion failed");
+        return;
     }
 
     auto& api = API;
     api.input.set_data_type(RecordedDataType::RAW);
 
-    // perform convertion of holo file footer if needed
-    if (holo_file_header_.version < 3)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V2);
-    else if (holo_file_header_.version < 4)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V3);
-    else if (holo_file_header_.version == 4)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
-    else if (holo_file_header_.version == 5 || holo_file_header_.version == 6)
-        ; // Version 6 was skipped because of a versioning error, it is considered the same as 5
-    else if (holo_file_header_.version == 7) // Version that adds data type in the header
+    if (holo_file_header_.version == 7) // Version that adds data type in the header
         api.input.set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
-    else
-        LOG_ERROR("HOLO file version not supported!");
 
     if (!has_footer)
     {

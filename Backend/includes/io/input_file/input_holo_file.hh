@@ -33,11 +33,8 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;
 
-    /*! \brief Load json patch and apply it to meta_data */
-    void apply_json_patch(json& meta_data, const std::string& json_patch_path);
-
   private:
-    // Give access to private members to the factory
+    // Give access to private members to the factory and the converter
     friend class InputFrameFileFactory;
 
     /*! \brief Constructor

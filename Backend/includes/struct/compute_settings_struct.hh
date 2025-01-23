@@ -21,7 +21,10 @@ namespace holovibes
  */
 struct ComputeSettings
 {
-    ComputeSettingsVersion version = ComputeSettingsVersion::V6;
+    /*! \brief Latest version of the compute settings */
+    inline static const ComputeSettingsVersion latest_version = ComputeSettingsVersion::V6;
+
+    ComputeSettingsVersion version = latest_version;
     Rendering image_rendering;
     Views view;
     Composite color_composite_image;

@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "holovibes_config.hh"
+
 #include <nlohmann/json_fwd.hpp>
 
 using json = ::nlohmann::json;
@@ -33,7 +35,6 @@ class ComputeSettingsApi
      */
     void import_buffer(const std::string& path) const;
 
-  private:
     /*! \brief Returns the compute settings as a json object.
      *
      * \return nlohmann::json The compute settings as a json object

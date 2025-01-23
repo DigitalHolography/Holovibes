@@ -30,6 +30,12 @@
 #include <nlohmann/json.hpp>
 #include "compute_settings_struct.hh"
 
+// Forward declaration
+namespace holovibes::version
+{
+class HoloFileConverter;
+}
+
 using json = ::nlohmann::json;
 
 namespace holovibes::io_files
@@ -88,11 +94,13 @@ class HoloFile
 
     /*! \brief Header of the holo file */
     HoloFileHeader holo_file_header_;
+
     /*! \brief The json meta data present in the footer */
     json meta_data_;
-    /*! \brief The json meta data present in the footer */
-    ComputeSettings raw_footer_;
+
     /*! \brief Current version of the holo file, update it when changing version */
     static constexpr uint16_t current_version_ = 7;
+
+    friend class holovibes::version::HoloFileConverter;
 };
 } // namespace holovibes::io_files

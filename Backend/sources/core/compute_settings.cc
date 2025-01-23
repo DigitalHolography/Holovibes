@@ -45,8 +45,19 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
         return;
     }
 
-    std::ifstream ifs(json_path);
-    auto j_cs = json::parse(ifs);
+    nlohmann::json j_cs;
+
+    // Parse the file
+    try
+    {
+        std::ifstream ifs(json_path);
+        ifs >> j_cs;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("File not found or invalid json file : {}", json_path);
+        throw std::exception(e);
+    }
 
     ComputeSettingsVersion version = ComputeSettingsVersion::V5;
     if (!j_cs.contains("version"))
@@ -55,13 +66,9 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
         version = ComputeSettingsVersion::V5;
     }
     else
-        version = static_cast<ComputeSettingsVersion>(j_cs["version"].get<int>());
+        version = j_cs["version"];
 
     ComputeSettings::convert_json(j_cs, version);
-
-    LOG_ERROR("Version found in the compute settings file : {}", static_cast<int>(version));
-
-    // TODO check version here
 
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
@@ -158,10 +165,6 @@ inline static const std::filesystem::path dir(GET_EXE_DIR);
  */
 struct JsonSettings
 {
-
-    /*! \brief latest version of holo file version */
-    inline static const auto latest_version = ComputeSettingsVersion::V5;
-
     /*! \brief path to json patch directories  */
     inline static const auto patches_folder = dir / "assets/json_patches_holofile";
 
@@ -248,12 +251,14 @@ struct JsonSettings
 
 /*! \brief convert a json based on the source version
  *
- *
  * \param data: json footer
  * \param from: source version
  */
 void ComputeSettings::convert_json(json& data, ComputeSettingsVersion from)
 {
+    if (from == ComputeSettings::latest_version)
+        return;
+
     auto it = std::find_if(JsonSettings::converters.begin(),
                            JsonSettings::converters.end(),
                            [=](auto converter) -> bool { return converter.from == from; });
