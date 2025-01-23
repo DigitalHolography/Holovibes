@@ -273,6 +273,8 @@ ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
 
+    update_reticle_zone();
+
     return ApiCode::OK;
 }
 
@@ -294,23 +296,26 @@ ApiCode ContrastApi::set_reticle_scale(float value) const
 
     UPDATE_SETTING(ReticleScale, value);
 
+    update_reticle_zone();
+
     return ApiCode::OK;
 }
 
-ApiCode ContrastApi::set_reticle_zone(const units::RectFd& rect) const
+void ContrastApi::update_reticle_zone() const
 {
-    NOT_SAME_AND_NOT_RAW(get_reticle_zone(), rect);
+    if (api_->compute.get_is_computation_stopped())
+        return;
 
-    if (!get_reticle_display_enabled())
-    {
-        LOG_WARN("Reticle display must be enabled to set the reticle zone");
-        return ApiCode::INVALID_VALUE;
-    }
+    float scale = get_reticle_scale();
 
-    UPDATE_SETTING(ReticleZone, rect);
+    const float w_2 = api_->input.get_input_fd().width / 2.0f;
+    const float h_2 = api_->input.get_input_fd().height / 2.0f;
 
-    return ApiCode::OK;
-};
+    auto top_left = units::PointFd(static_cast<int>(w_2 - w_2 * scale), static_cast<int>(h_2 - h_2 * scale));
+    auto bottom_right = units::PointFd(static_cast<int>(w_2 + w_2 * scale), static_cast<int>(h_2 + h_2 * scale));
+
+    UPDATE_SETTING(ReticleZone, units::RectFd(top_left, bottom_right));
+}
 
 #pragma endregion
 

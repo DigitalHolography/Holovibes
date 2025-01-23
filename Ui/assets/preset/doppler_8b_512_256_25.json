@@ -9,8 +9,8 @@
         },
         "contrast": {
             "frame_index_offset": 2,
-            "lower": 0.5,
-            "upper": 99.5
+            "lower": 0.05,
+            "upper": 99.95
         },
         "filter2d_smooth": {
             "high": 1,

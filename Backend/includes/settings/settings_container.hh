@@ -106,7 +106,7 @@ class SettingsContainer
      * \return The value of the setting.
      */
     template <typename T>
-    inline T get()
+    NO_INLINE inline T get()
     {
         return std::get<T>(settings_);
     }

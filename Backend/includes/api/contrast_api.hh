@@ -325,13 +325,11 @@ class ContrastApi : public IApi
      */
     inline units::RectFd get_reticle_zone() const { return GET_SETTING(ReticleZone); };
 
-    /*! \brief Sets the reticle zone. This zone defines the rect region where the contrast is calculated on.
+    /*! \brief Recompute the reticle zone based on the reticle scale and the input frame descriptor.
      *
-     * \param[in] rect the new reticle zone
-     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
-     * if reticle display is not enabled, OK otherwise
+     * \warning This function is for internal use only.
      */
-    ApiCode set_reticle_zone(const units::RectFd& rect) const;
+    void update_reticle_zone() const;
 
 #pragma endregion
 };
