@@ -24,10 +24,13 @@ class InputCineFile : public InputFrameFile, public CineFile
     /*! \brief Getter on the total number of frames in the file */
     size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
-    /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() override;
+    /*! \brief Return the compute settings present in the file as a json object
+     *
+     * \return json The compute settings present in the file
+     */
+    json import_compute_settings() override;
 
-    /*! \brief Update Global State Holder with the settings present in the file */
+    /*! \brief Update global settings with the settings present in the file */
     void import_info() const override;
 
     /*! \brief Set the pointer in the file to the frame requested

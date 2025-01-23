@@ -9,11 +9,12 @@ void HoloFileConverter::init()
         {2, "patch_v2_to_v3.json", convert_default},
         {3, "patch_v3_to_v4.json", convert_v3_to_v4},
         {4, "patch_v4_to_v5.json", convert_v4_to_v5},
-        {5, "patch_v5_to_v6.json", convert_default},
-        {6,
-         "empty.json",
-         convert_default}, // Version 6 was skipped because of a versioning error, it is considered the same as 5
+        {5, "", convert_default},
+        {6, "", convert_default},
     };
+
+    // Version 6 was skipped because of a versioning error, it is considered the same as 5
+    // Version 7 just added a new entry in the header, so the footer is the same as version 6
 }
 
 void HoloFileConverter::convert_v3_to_v4(io_files::InputHoloFile& input, json& data, const json& json_patch)
@@ -48,6 +49,9 @@ void HoloFileConverter::convert_v4_to_v5(io_files::InputHoloFile& input, json& d
 
 ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
 {
+    if (converters_.empty())
+        init();
+
     int version = input.holo_file_header_.version;
 
     if (version == latest_version)
@@ -63,7 +67,7 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
     if (version < 2)
         version = 2;
 
-    while (version != latest_version)
+    for (; version <= latest_version; ++version)
     {
         auto it = std::find_if(converters_.begin(),
                                converters_.end(),
@@ -77,21 +81,21 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
 
         LOG_WARN("Applying holo file patch version v{} to v{}", version, version + 1);
 
+        if (it->patch_file.empty())
+            continue;
+
         std::ifstream patch_file{patches_folder / it->patch_file};
         try
         {
+            json res = json::parse(patch_file);
             it->converter(input, input.meta_data_, json::parse(patch_file));
         }
-        catch (const std::exception&)
+        catch (const std::exception& e)
         {
-            LOG_ERROR("Failed to apply holo file patch v{}", version);
+            LOG_ERROR("Failed to apply holo file patch v{}: {}", version, e.what());
             return ApiCode::FAILURE;
         }
-
-        version++;
     }
-
-    // TODO(etienne): Needs to apply patch to the compute settings here
 
     return ApiCode::OK;
 }

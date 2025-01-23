@@ -36,13 +36,14 @@ void merge_json(json& base_json, const json& update_json)
     }
 }
 
-void ComputeSettingsApi::load_compute_settings(const std::string& json_path) const
+ApiCode ComputeSettingsApi::load_compute_settings(const std::string& json_path) const
 {
     LOG_FUNC(json_path);
+
     if (json_path.empty())
     {
         LOG_WARN("Configuration file not found.");
-        return;
+        return ApiCode::NO_IN_DATA;
     }
 
     nlohmann::json j_cs;
@@ -53,10 +54,23 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
         std::ifstream ifs(json_path);
         ifs >> j_cs;
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         LOG_ERROR("File not found or invalid json file : {}", json_path);
-        throw std::exception(e);
+        return ApiCode::FAILURE;
+    }
+
+    return load_compute_settings(j_cs);
+}
+
+ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
+{
+    LOG_FUNC(j_cs.dump());
+
+    if (j_cs.empty())
+    {
+        LOG_WARN("Empty compute settings.");
+        return ApiCode::NO_IN_DATA;
     }
 
     ComputeSettingsVersion version = ComputeSettingsVersion::V5;
@@ -72,26 +86,24 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path) con
 
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
-    json old_one;
-    to_json(old_one, compute_settings);
+    json old_one = compute_settings;
 
     try
     {
         // this allows a compute_settings to not have all the fields and to still work
         merge_json(old_one, j_cs);
-        from_json(old_one, compute_settings);
+        compute_settings = old_one;
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR("{} is an invalid compute settings", json_path);
-        throw std::exception(e);
+        LOG_ERROR("Invalid compute settings");
+        return ApiCode::FAILURE;
     }
 
     compute_settings.Assert();
     compute_settings.Load();
-    compute_settings.Dump("cli_load_compute_settings");
 
-    LOG_INFO("Compute settings loaded from : {}", json_path);
+    return ApiCode::OK;
 }
 
 void ComputeSettingsApi::import_buffer(const std::string& json_path) const

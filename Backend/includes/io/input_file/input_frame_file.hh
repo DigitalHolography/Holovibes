@@ -5,6 +5,9 @@
 #pragma once
 
 #include "frame_file.hh"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace holovibes::io_files
 {
@@ -15,10 +18,13 @@ namespace holovibes::io_files
 class InputFrameFile : public FrameFile
 {
   public:
-    /*! \brief Update Global State Holder with the settings present in the file */
-    virtual void import_compute_settings() = 0;
+    /*! \brief Return the compute settings present in the file as a json object
+     *
+     * \return json The compute settings present in the file
+     */
+    virtual json import_compute_settings() = 0;
 
-    /*! \brief Update Global State Holder with the info settings present in the file */
+    /*! \brief Update global settings with the settings present in the file */
     virtual void import_info() const = 0;
 
     /*! \brief Set the pointer in the file to the frame requested

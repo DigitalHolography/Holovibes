@@ -27,10 +27,13 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      */
     void set_pos_to_frame(size_t frame_id) override;
 
-    /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() override;
+    /*! \brief Return the compute settings present in the file as a json object
+     *
+     * \return json The compute settings present in the file
+     */
+    json import_compute_settings() override;
 
-    /*! \brief Update Global State Holder with the settings present in the file */
+    /*! \brief Update global settings with the settings present in the file */
     void import_info() const override;
 
   private:
@@ -46,16 +49,10 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      */
     InputHoloFile(const std::string& file_path);
 
-    /*! \brief Open file to initialize holo_file_header_
-     */
+    /*! \brief Open file to initialize holo_file_header_ */
     void load_header();
 
-    /*! \brief Open file to initialize holo_file_header_
-     */
+    /*! \brief Open file to initialize holo_file_header_ */
     void load_fd();
-
-    /*! \brief Open file to initialize raw_rooter_
-     */
-    void load_footer();
 };
 } // namespace holovibes::io_files
