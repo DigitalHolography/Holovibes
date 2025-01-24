@@ -62,6 +62,10 @@ namespace holovibes::api
 {
 class Api;
 
+/*! \class IApi
+ *
+ * \brief Abstract class common for all sub-APIs that defines a member to access the parent API.
+ */
 class IApi
 {
   public:

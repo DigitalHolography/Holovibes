@@ -10,6 +10,10 @@
 namespace holovibes::api
 {
 
+/*! \class RecordProgress
+ *
+ * \brief Regroup information about the record progress.
+ */
 struct RecordProgress
 {
     uint acquired_frames;
@@ -17,6 +21,11 @@ struct RecordProgress
     uint total_frames;
 };
 
+/*! \class RecordApi
+ *
+ * \brief Regroup all functions used to interact with the recording (record file path, record frame count, record frame,
+ * record type, ...), the record queue and record progress.
+ */
 class RecordApi : public IApi
 {
 

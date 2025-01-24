@@ -9,6 +9,10 @@
 namespace holovibes::api
 {
 
+/*! \class TransformApi
+ *
+ * \brief Regroup all functions used to interact with the Space transform and the time transform alogrithm.
+ */
 class TransformApi : public IApi
 {
 

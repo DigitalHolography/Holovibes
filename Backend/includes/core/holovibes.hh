@@ -233,12 +233,6 @@ class Holovibes
         return loaded;
     }
 
-    /*! \brief Return the compute pipe.
-     *
-     * \return std::shared_ptr<Pipe> The compute pipe
-     */
-    inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() const { return compute_pipe_.load(); }
-
     /*! \brief Return the cuda streams
      *
      * \return const CudaStreams& The cuda streams

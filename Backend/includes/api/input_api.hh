@@ -9,6 +9,11 @@
 namespace holovibes::api
 {
 
+/*! \class InputApi
+ *
+ * \brief Regroup all functions used to interact with file loading, camera managment and their associated settings
+ * (pixel size, import type, file offset, ...).
+ */
 class InputApi : public IApi
 {
 

@@ -1,6 +1,7 @@
 /*! \file information_api.hh
  *
- * \brief Regroup all functions used for information (information display, benchmark, boundary, credits, doc).
+ * \brief Regroup all functions used for information (cuda version, logger, hardware usage, queue usage, benchmark,
+ * boundary, credits, doc).
  */
 #pragma once
 
@@ -14,6 +15,11 @@
 namespace holovibes::api
 {
 
+/*! \class InformationApi
+ *
+ * \brief Regroup all functions used for information (cuda version, logger, hardware usage, queue usage, benchmark,
+ * boundary, credits, doc).
+ */
 class InformationApi : public IApi
 {
 
@@ -209,7 +215,9 @@ class InformationApi : public IApi
     const std::string get_documentation_url() const;
 
     /*!
-     * \brief Gather all the information available from the FastUpdatesHolder and return it
+     * \brief Gather all the information available from the FastUpdatesHolder and return it. Contains hardware usage
+     * (ram and vram usage, gpu load), camera information (fps, temperature, model, throughput), record information
+     * (fps, throughput) and queue usage.
      *
      * \return Information The structure to update with new information. Every entry
      * not present in the Holder will be absent (empty optional, nullptr, ...)

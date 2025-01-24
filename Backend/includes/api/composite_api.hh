@@ -9,6 +9,10 @@
 namespace holovibes::api
 {
 
+/*! \class CompositeApi
+ *
+ * \brief Regroup all functions used to interact with the composite settings (HSV, RGB).
+ */
 class CompositeApi : public IApi
 {
 

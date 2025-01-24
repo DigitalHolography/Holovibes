@@ -12,6 +12,11 @@
 namespace holovibes::api
 {
 
+/*! \class ContrastApi
+ *
+ * \brief Regroup all functions related to contrast (min, max, auto, invert, low/high treshold), log and reticle
+ * settings.
+ */
 class ContrastApi : public IApi
 {
 
