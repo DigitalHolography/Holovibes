@@ -1,5 +1,12 @@
 ## Changelog
 
+### 14.5.0
+
+- Fix reticle bug in cli
+- ui: Rec. -> Record
+- fix avi file resolution
+- split front and back in the repository
+
 ### 14.4.3
 
 - Anamorphic image are interpolate for beeing square in .avi

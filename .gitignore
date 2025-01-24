@@ -5,6 +5,7 @@
 # Ignore Visual Studio config files
 .vscode/
 .vs/
+.pytest_cache/
 *.code-workspace
 
 # python cache from scripts
@@ -45,10 +46,8 @@ setup_creator_files
 Output
 
 # Do not ignore .lib and .dll files in libs directory
-!libs/**/*.lib
-!libs/**/*.dll
-
-libs/glm/
+!Camera/libs/**/*.lib
+!Camera/libs/**/*.dll
 
 # Doxygen generated files
 latex
@@ -72,7 +71,6 @@ setupCreator.iss
 # Python venv
 .venv/
 venv/
-
 
 # spdlog
 libs/spdlog/build
