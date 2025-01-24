@@ -45,7 +45,8 @@ class ComputeApi : public IApi
 
 #pragma endregion
 
-#pragma region Buffer
+    /*! \brief Stops holovibes' controllers for computation*/
+    void stop_all_worker_controller() const;
 
     /*! \brief Returns the capacity (number of frames) of the output buffer. The output buffer stores the final frames
      * of the Holographic pipeline.
