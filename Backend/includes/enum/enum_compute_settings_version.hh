@@ -30,6 +30,7 @@ enum class ComputeSettingsVersion
  */
 SERIALIZE_JSON_ENUM(ComputeSettingsVersion, {
     {ComputeSettingsVersion::NONE, "None"},
+    {ComputeSettingsVersion::NONE, "v0"},
     {ComputeSettingsVersion::V1, "v1"},
 })
 // clang-format on

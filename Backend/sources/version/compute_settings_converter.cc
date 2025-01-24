@@ -19,7 +19,7 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
 
     ComputeSettingsVersion version = ComputeSettingsVersion::NONE;
     if (!input.contains("version"))
-        LOG_WARN("No version found in the compute settings file interpreting it as version 0");
+        LOG_WARN("No version found in the compute settings file interpreting it as version v0");
     else
     {
         try
@@ -29,7 +29,7 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
         catch (const std::exception&)
         {
             std::string version_str = input["version"];
-            LOG_ERROR("Unknown compute settings version found : {}. Latest supported is v{}",
+            LOG_ERROR("Unknown compute settings version found : v{}. Latest supported is v{}",
                       version_str,
                       static_cast<int>(latest_version));
             return ApiCode::FAILURE;
@@ -38,6 +38,10 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
 
     if (version == latest_version)
         return ApiCode::OK;
+
+    LOG_INFO("Converting compute settings from version v{} to v{}",
+             static_cast<int>(version),
+             static_cast<int>(latest_version));
 
     while (version != latest_version)
     {
@@ -53,7 +57,7 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
             return ApiCode::FAILURE;
         }
 
-        LOG_WARN("Applying holo file patch version v{} to v{}", version_int, version_int + 1);
+        LOG_TRACE("Applying compute settings patch version v{} to v{}", version_int, version_int + 1);
 
         if (!it->patch_file.empty())
         {

@@ -46,7 +46,7 @@ struct HoloSettingsConverter
 class HoloFileConverter
 {
   public:
-    inline static const int latest_version = 6;
+    inline static const int latest_version = 7;
 
   public:
     /*! \brief Convert a holo_file to the latest version. Version is deduced from the header of the file.

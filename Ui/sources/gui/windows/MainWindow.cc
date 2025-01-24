@@ -131,13 +131,9 @@ MainWindow::MainWindow(QWidget* parent)
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
-    try
+    if (api_.settings.load_compute_settings(holovibes::settings::compute_settings_filepath) != ApiCode::OK)
     {
-        api_.settings.load_compute_settings(holovibes::settings::compute_settings_filepath);
-    }
-    catch (const std::exception&)
-    {
-        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
+        LOG_INFO("{}: Compute settings incorrect or file not found. Keeping previous values.",
                  ::holovibes::settings::compute_settings_filepath);
         api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
@@ -363,17 +359,10 @@ void MainWindow::reload_ini(const std::string& filename)
     bool stopped = api_.compute.get_is_computation_stopped();
     gui::stop();
 
-    try
-    {
-        api_.settings.load_compute_settings(filename);
+    if (api_.settings.load_compute_settings(filename) == ApiCode::OK)
         notify();
-    }
-    catch (const std::exception&)
-    {
-        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
-                 ::holovibes::settings::compute_settings_filepath);
-        api_.settings.save_compute_settings(holovibes::settings::compute_settings_filepath);
-    }
+    else
+        LOG_WARN("Compute settings incorrect or file not found: {}. Initialization with previous values.", filename);
 
     // Do not trigger the start of computation if nothing was running
     if (stopped)

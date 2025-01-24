@@ -96,7 +96,7 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     auto input_buffer_size = get_input_buffer_size();
     auto record_buffer_size = api_->record.get_record_buffer_size();
 
-    // Try importing the compute settings from the file. If it fails, we will use the default values
+    // Try importing the compute settings from the file. If it fails, we will use the one given as parameter
     json compute = input->import_compute_settings();
     if (api_->settings.load_compute_settings(compute) != ApiCode::OK)
     {

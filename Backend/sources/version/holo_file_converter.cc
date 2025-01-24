@@ -59,7 +59,7 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
 
     if (version > latest_version)
     {
-        LOG_ERROR("Holo file version v{} not supported, latest supported is v{}", version, latest_version);
+        LOG_ERROR("Holo file version {} not supported, latest supported is {}", version, latest_version);
         return ApiCode::FAILURE;
     }
 
@@ -67,7 +67,9 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
     if (version < 2)
         version = 2;
 
-    for (; version <= latest_version; ++version)
+    LOG_INFO("Converting holo file from version {} to {}", version, latest_version);
+
+    for (; version < latest_version; ++version)
     {
         auto it = std::find_if(converters_.begin(),
                                converters_.end(),
@@ -79,7 +81,7 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
             return ApiCode::FAILURE;
         }
 
-        LOG_WARN("Applying holo file patch version v{} to v{}", version, version + 1);
+        LOG_TRACE("Applying holo file patch version {} to {}", version, version + 1);
 
         if (it->patch_file.empty())
             continue;
@@ -87,12 +89,11 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
         std::ifstream patch_file{patches_folder / it->patch_file};
         try
         {
-            json res = json::parse(patch_file);
             it->converter(input, input.meta_data_, json::parse(patch_file));
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Failed to apply holo file patch v{}: {}", version, e.what());
+            LOG_ERROR("Failed to apply holo file patch for version {}: {}", version, e.what());
             return ApiCode::FAILURE;
         }
     }
