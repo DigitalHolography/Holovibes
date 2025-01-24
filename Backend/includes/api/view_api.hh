@@ -17,7 +17,7 @@
 namespace holovibes::api
 {
 
-/*! \class RecordApi
+/*! \class ViewApi
  *
  * \brief Regroup all functions used to interact with the different view/output (holographic, 3D cuts, filter2d, lens,
  * raw, chart) and their related settings.

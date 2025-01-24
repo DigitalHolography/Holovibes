@@ -217,7 +217,7 @@ class InformationApi : public IApi
     /*!
      * \brief Gather all the information available from the FastUpdatesHolder and return it. Contains hardware usage
      * (ram and vram usage, gpu load), camera information (fps, temperature, model, throughput), record information
-     * (fps, throughput) and queue usage.
+     * (fps, throughput) and queues usage.
      *
      * \return Information The structure to update with new information. Every entry
      * not present in the Holder will be absent (empty optional, nullptr, ...)
