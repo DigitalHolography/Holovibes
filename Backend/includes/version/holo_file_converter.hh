@@ -39,8 +39,6 @@ struct HoloSettingsConverter
     std::function<void(io_files::InputHoloFile&, json&, const json&)> converter;
 };
 
-inline static const std::filesystem::path dir(GET_EXE_DIR);
-
 /*! \class HoloFileConverter
  *
  * \brief Class that holds all conversion functions for holo files
@@ -51,7 +49,7 @@ class HoloFileConverter
     inline static const int latest_version = 6;
 
   public:
-    /*! \brief Convert a holo_file from a given version to the current version
+    /*! \brief Convert a holo_file to the latest version. Version is deduced from the header of the file.
      *
      * \param[in] input The current holo file
      *
@@ -64,7 +62,7 @@ class HoloFileConverter
     inline static std::vector<HoloSettingsConverter> converters_;
 
     /*! \brief path to json patch directories  */
-    inline static const auto patches_folder = dir / "assets/json_patches_holofile";
+    inline static const auto patches_folder = GET_EXE_DIR / "assets/json_patches_holofile";
 
   private:
     /*! \brief Register all available converters */
