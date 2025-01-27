@@ -74,6 +74,6 @@ class ComputeSettingsConverter
      * \param[in] data       The current compute settings of the holo file
      * \param[in] json_patch The patch to apply to the compute settings
      */
-    static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }
+    static void convert_default(json& data, const json& json_patch);
 };
 }; // namespace holovibes::version

@@ -12,6 +12,13 @@ void ComputeSettingsConverter::init()
     };
 }
 
+void ComputeSettingsConverter::convert_default(json& data, const json& json_patch)
+{
+    if (json_patch.empty())
+        return;
+    data = data.patch(json_patch);
+}
+
 ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
 {
     if (converters_.empty())
@@ -59,19 +66,29 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
 
         LOG_TRACE("Applying compute settings patch version v{} to v{}", version_int, version_int + 1);
 
+        json patch = {};
         if (!it->patch_file.empty())
         {
-            std::filesystem::path path = patches_folder / it->patch_file;
-            std::ifstream patch_file{patches_folder / it->patch_file};
             try
             {
-                it->converter(input, json::parse(patch_file));
+                std::ifstream patch_file{patches_folder / it->patch_file};
+                patch = json::parse(patch_file);
             }
             catch (const std::exception& e)
             {
-                LOG_ERROR("Failed to apply compute settings patch v{}: {}", version_int, e.what());
+                LOG_ERROR("File does not exist or is not a valid json file: {}. Error: {}", it->patch_file, e.what());
                 return ApiCode::FAILURE;
             }
+        }
+
+        try
+        {
+            it->converter(input, patch);
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR("Failed to apply compute settings patch for version {}: {}", version_int, e.what());
+            return ApiCode::FAILURE;
         }
 
         version = static_cast<ComputeSettingsVersion>(version_int + 1);

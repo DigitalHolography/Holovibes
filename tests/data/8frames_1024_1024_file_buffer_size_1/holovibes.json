@@ -20,6 +20,7 @@
         "raw_bitshift": 0,
         "nb_frames_to_record": 0
     },
+    "version": "v1",
     "view": {
         "renorm": false,
         "reticle": {

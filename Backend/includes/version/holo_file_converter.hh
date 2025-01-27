@@ -74,10 +74,7 @@ class HoloFileConverter
      * \param[in] data       The current compute settings of the holo file
      * \param[in] json_patch The patch to apply to the compute settings
      */
-    static void convert_default(io_files::InputHoloFile& input, json& data, const json& json_patch)
-    {
-        data = data.patch(json_patch);
-    }
+    static void convert_default(io_files::InputHoloFile& input, json& data, const json& json_patch);
 
     /*! \brief Convert holo file footer from version 3 to 4: Passing from int to enum for ComputeMode,
      * TimeTransformation and SpaceTransformation

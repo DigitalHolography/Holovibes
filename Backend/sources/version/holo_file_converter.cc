@@ -17,6 +17,14 @@ void HoloFileConverter::init()
     // Version 7 just added a new entry in the header, so the footer is the same as version 6
 }
 
+void HoloFileConverter::convert_default(io_files::InputHoloFile&, json& data, const json& json_patch)
+{
+    if (json_patch.empty())
+        return;
+
+    data = data.patch(json_patch);
+}
+
 void HoloFileConverter::convert_v3_to_v4(io_files::InputHoloFile& input, json& data, const json& json_patch)
 {
     convert_default(input, data, json_patch);
@@ -83,13 +91,24 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
 
         LOG_TRACE("Applying holo file patch version {} to {}", version, version + 1);
 
-        if (it->patch_file.empty())
-            continue;
+        json patch = {};
+        if (!it->patch_file.empty())
+        {
+            try
+            {
+                std::ifstream patch_file{patches_folder / it->patch_file};
+                patch = json::parse(patch_file);
+            }
+            catch (const std::exception& e)
+            {
+                LOG_ERROR("File does not exist or is not a valid json file: {}. Error: {}", it->patch_file, e.what());
+                return ApiCode::FAILURE;
+            }
+        }
 
-        std::ifstream patch_file{patches_folder / it->patch_file};
         try
         {
-            it->converter(input, input.meta_data_, json::parse(patch_file));
+            it->converter(input, input.meta_data_, patch);
         }
         catch (const std::exception& e)
         {
