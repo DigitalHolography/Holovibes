@@ -1,11 +1,11 @@
-/*! \file
+/*! \file frame_record_worker.hh
  *
  * \brief Declaration of the FrameRecordWorker class.
  */
 #pragma once
 
-#include <array>
 #include <atomic>
+#include <array>
 #include <cuda_runtime.h>
 #include <optional>
 
@@ -72,11 +72,12 @@ class FrameRecordWorker final : public Worker
 
     void run() override;
 
-    /**
-     * @brief Update a setting. The actual application of the update
+    /*!
+     * \brief Update a setting. The actual application of the update
      * might ve delayed until a certain event occurs.
-     * @tparam T The type of tho update.
-     * @param setting The new value of the setting.
+     *
+     * \tparam T The type of tho update.
+     * \param setting The new value of the setting.
      */
     template <typename T>
     inline void update_setting(T setting)
@@ -88,9 +89,7 @@ class FrameRecordWorker final : public Worker
     }
 
   private:
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {
@@ -130,8 +129,8 @@ class FrameRecordWorker final : public Worker
 
     const cudaStream_t stream_;
 
-    /**
-     * @brief Contains all the settings of the worker that should be updated
+    /*!
+     * \brief Contains all the settings of the worker that should be updated
      * on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;

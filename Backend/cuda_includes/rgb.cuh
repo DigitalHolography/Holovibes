@@ -1,14 +1,16 @@
-/*! \file
+/*! \file rgb.cuh
  *
- * \brief Declaration of rgb function
+ * \brief Declaration of rgb function and RGBPixel struct.
  */
 #pragma once
 
 #include "common.cuh"
 #include "composite_struct.hh"
 
-/**
- * @brief A struct to represent a RGB pixel.
+/*!
+ * \brief A struct to represent a RGB pixel.
+ *
+ * Defines three operations: addition, division and multiplication.
  */
 struct RGBPixel
 {
@@ -44,7 +46,19 @@ struct RGBPixel
     }
 };
 
-// Computes 3 different p slices and put them in each color
+/*!
+ * \brief Computes the RGB image from the input data by computing three different p slices and putting them in each
+ * color channel.
+ *
+ * \param output The output RGB image.
+ * \param input The input data.
+ * \param frame_res The frame resolution.
+ * \param auto_weights Whether to use auto weights.
+ * \param min The minimum value.
+ * \param max The maximum value.
+ * \param weights The RGB weights.
+ * \param stream The CUDA stream.
+ */
 void rgb(float* output,
          cuComplex* input,
          const size_t frame_res,

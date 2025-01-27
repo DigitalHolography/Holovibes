@@ -215,7 +215,7 @@ class InputApi : public IApi
      */
     inline void set_camera_fps(uint value) const { UPDATE_SETTING(CameraFps, value); }
 
-    /**
+    /*!
      * \brief Getter for if a camera is loaded and it can transmit camera fps.
      *
      * \return true Camera fps are available

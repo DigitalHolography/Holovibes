@@ -107,8 +107,8 @@ class Postprocessing
     void
     convolution_composite(float* gpu_postprocess_frame, float* gpu_convolution_buffer, bool divide_convolution_enabled);
 
-    /**
-     * @brief Helper function to get a settings value.
+    /*!
+     * \brief Helper function to get a settings value.
      */
     template <typename T>
     auto setting()

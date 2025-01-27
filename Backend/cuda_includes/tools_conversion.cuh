@@ -1,4 +1,4 @@
-/*! \file
+/*! \file tools_conversion.cuh
  *
  * \brief Declaration of some useful conversion functions
  */
@@ -123,7 +123,7 @@ void input_queue_to_input_buffer(void* const output,
                                  const camera::PixelDepth depth,
                                  const cudaStream_t stream);
 
-/**
+/*!
  * \brief Transfers data from a float buffer to another float buffer.
  *
  * Essentially the same function as above, but without the conversion.

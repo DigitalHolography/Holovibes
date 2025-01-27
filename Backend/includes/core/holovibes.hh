@@ -314,11 +314,12 @@ class Holovibes
 
     void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
 
-    /**
-     * @brief Update a setting. The actual application of the update
+    /*!
+     * \brief Update a setting. The actual application of the update
      * might ve delayed until a certain event occurs.
-     * @tparam T The type of tho update.
-     * @param setting The new value of the setting.
+     *
+     * \tparam T The type of tho update.
+     * \param setting The new value of the setting.
      */
     template <typename T>
     inline void update_setting(T setting)
