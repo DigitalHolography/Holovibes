@@ -9,6 +9,11 @@
 namespace holovibes::api
 {
 
+/*! \class InputApi
+ *
+ * \brief Regroup all functions used to interact with file loading, camera managment and their associated settings
+ * (pixel size, import type, file offset, ...).
+ */
 class InputApi : public IApi
 {
 
@@ -210,7 +215,7 @@ class InputApi : public IApi
      */
     inline void set_camera_fps(uint value) const { UPDATE_SETTING(CameraFps, value); }
 
-    /**
+    /*!
      * \brief Getter for if a camera is loaded and it can transmit camera fps.
      *
      * \return true Camera fps are available

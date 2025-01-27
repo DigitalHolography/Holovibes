@@ -17,6 +17,11 @@
 namespace holovibes::api
 {
 
+/*! \class WindowPostProcessApi
+ *
+ * \brief Regroup all functions used to interact with post processing operations (image accumulation, rotation, flip)
+ * done on all windows (Holographic, filter2d and Cuts).
+ */
 class WindowPostProcessApi : public IApi
 {
 

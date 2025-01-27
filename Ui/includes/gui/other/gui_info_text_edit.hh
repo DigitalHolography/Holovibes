@@ -1,4 +1,4 @@
-/*! \file
+/*! \file gui_info_text_edit.hh
  *
  * \brief Declares the widget InfoTextEdit, used for displaying information in the UI.
  */
@@ -41,27 +41,25 @@ class InfoTextEdit : public QTextEdit
     {
     }
 
-    /*!
-     * \brief Formats all available information and displays it in the UI
-     */
+    /*! \brief Formats all available information and displays it in the UI */
     void display_information();
 
   private:
-    /**
+    /*!
      * \brief Formats the GPU load into an html string
      *
      * \return std::string The formatted string
      */
     std::string gpu_load();
 
-    /**
+    /*!
      * \brief Formats GPU memory controller data into an html string
      *
      * \return std::string The formatted string
      */
     std::string gpu_memory_controller_load();
 
-    /**
+    /*!
      * \brief Formats the GPU memory percentage into an html string
      *
      * \return std::string The formatted string

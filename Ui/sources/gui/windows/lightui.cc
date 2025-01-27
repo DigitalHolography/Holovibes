@@ -115,7 +115,7 @@ void LightUI::notify()
     ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 
     // Contrast
-    bool pipe_loaded = api.compute.get_compute_pipe_no_throw() != nullptr;
+    bool pipe_loaded = !api.compute.get_is_computation_stopped();
     ui_->ContrastCheckBox->setChecked(pipe_loaded && api.contrast.get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(pipe_loaded);
     ui_->AutoRefreshContrastCheckBox->setChecked(api.contrast.get_contrast_auto_refresh());

@@ -7,20 +7,18 @@
 #include <atomic>
 #include <memory>
 
-#include "queue.hh"
-
-#include "rect.hh"
-#include "frame_desc.hh"
-#include "unique_ptr.hh"
-#include "cufft_handle.hh"
 #include "compute_env.hh"
 #include "concurrent_deque.hh"
+#include "cufft_handle.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
+#include "frame_desc.hh"
 #include "logger.hh"
-
+#include "queue.hh"
+#include "rect.hh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
+#include "unique_ptr.hh"
 
 #define ICS holovibes::ICompute::Setting
 
@@ -217,26 +215,35 @@ class ICompute
     /*! \name Request Settings
      * \{
      */
-    /*! \brief Whether the setting is requested.
-     *  \tparam T The type of the setting.
-     *  \return The value of the setting.
+    /*!
+     * \brief Whether the setting is requested.
+     *
+     * \tparam T The type of the setting.
+     *
+     * \return The value of the setting.
      */
     std::atomic<bool>& is_requested(Setting setting);
 
-    /*! \brief Request the setting (like request a filter2D in the pipeline) and call @ref
+    /*!
+     * \brief Request the setting (like request a filter2D in the pipeline) and call \ref
      * holovibes::ICompute::request_refresh "request_refresh".
+     *
      * \param setting The setting to be requested.
      */
     void request(Setting setting);
 
-    /*! \brief Set the setting to the value and but do not call @ref holovibes::ICompute::request_refresh
+    /*!
+     * \brief Set the setting to the value and but do not call \ref holovibes::ICompute::request_refresh
      * "request_refresh".
+     *
      * \param setting The setting to be set.
      * \param value The value to be set.
      */
     void set_requested(Setting setting, bool value);
 
-    /*! \brief Clear the request of the setting.
+    /*!
+     * \brief Clear the request of the setting.
+     *
      * \param setting The setting to be cleared.
      */
     void clear_request(Setting setting);
@@ -310,11 +317,10 @@ class ICompute
      */
     void update_spatial_transformation_parameters();
 
-    /**
+    /*!
      * \brief Resizes the moments buffers (in moments_env_) when a moments file is read.
      *
      * Each buffer (moments0_buffer, ...) stores one single moment frame.
-     *
      */
     void allocate_moments_buffers();
 
@@ -333,9 +339,7 @@ class ICompute
     virtual ~ICompute() {}
     /*! \} */
 
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {
@@ -422,8 +426,8 @@ class ICompute
     /*! \brief Container for the pipe refresh settings. */
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
 
-    /**
-     * @brief Contains all the settings of the worker that should be updated
+    /*!
+     * \brief Contains all the settings of the worker that should be updated
      * on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;

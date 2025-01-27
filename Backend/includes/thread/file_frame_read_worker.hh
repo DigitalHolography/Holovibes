@@ -59,12 +59,13 @@ class FileFrameReadWorker final : public FrameReadWorker
     FileFrameReadWorker(FileFrameReadWorker&&) = delete;
     FileFrameReadWorker& operator=(FileFrameReadWorker&&) = delete;
 
-    /**
-     * @brief Constructor.
-     * @tparam InitSettings A tuple type that contains at least all the settings of the FileFrameReadWorker.
-     * @param input_queue The queue where the frames should be copied.
+    /*!
+     * \brief Constructor.
+     *
+     * \tparam InitSettings A tuple type that contains at least all the settings of the FileFrameReadWorker.
+     * \param input_queue The queue where the frames should be copied.
      * This is the input queue of the compute pipeline, it should be allocated on GPU memory.
-     * @param settings A tuple that contains the initial value of all settings used by the FileFrameReadWorker.
+     * \param settings A tuple that contains the initial value of all settings used by the FileFrameReadWorker.
      * It should contain at least all the settings used, but it can carry more.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
@@ -83,11 +84,12 @@ class FileFrameReadWorker final : public FrameReadWorker
 
     void run() override;
 
-    /**
-     * @brief Update a setting. The actual application of the update
+    /*!
+     * \brief Update a setting. The actual application of the update
      * might ve delayed until a certain event occurs.
-     * @tparam T The type of tho update.
-     * @param setting The new value of the setting.
+     *
+     * \tparam T The type of tho update.
+     * \param setting The new value of the setting.
      */
     template <typename T>
     inline void update_setting(T setting)
@@ -106,21 +108,15 @@ class FileFrameReadWorker final : public FrameReadWorker
     }
 
   private:
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Sets the input file to the one in settings and fd + frame_size accordingly. */
@@ -132,20 +128,16 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Init the cpu_buffer and gpu_buffer */
     bool init_frame_buffers();
 
-    /**
-     * @brief Free the cpu_buffer and gpu_buffer.
-     */
+    /*! \brief Free the cpu_buffer and gpu_buffer. */
     void free_frame_buffers();
 
-    /**
-     * @brief Creates entry in the fast update map to send informations
+    /*!
+     * \brief Creates entry in the fast update map to send informations
      * about this worker to the GSH.
      */
     void insert_fast_update_map_entries();
 
-    /**
-     * @brief Removes the workers entries from the fast update map of the GSH.
-     */
+    /*! \brief Removes the workers entries from the fast update map of the GSH. */
     void remove_fast_update_map_entries();
 
     /*! \brief Load all the frames of the file in the memory, either GPU or RAM
@@ -175,69 +167,53 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     void enqueue_loop(size_t nb_frames_to_enqueue);
 
-    /*! \brief Returns the number of frames to allocate depending on whether or not the file is loaded in GPU.
-     *
-     */
+    /*! \brief Returns the number of frames to allocate depending on whether or not the file is loaded in GPU. */
     size_t get_buffer_nb_frames();
 
   private:
     FastUpdatesHolder<ProgressType>::Value fast_updates_entry_;
 
-    /**
-     * @brief Current number of frames read
-     */
+    /*! \brief Current number of frames read */
     std::atomic<unsigned int>& current_nb_frames_read_;
 
-    /**
-     * @brief Total number of frames to read at the beginning of the process
-     */
+    /*! \brief Total number of frames to read at the beginning of the process */
     std::atomic<unsigned int>& total_nb_frames_to_read_;
 
-    /**
-     * @brief The input file in which the frames are read
-     */
+    /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
 
-    /**
-     * @brief The frame descriptor associated with the opened file.
-     */
+    /*! \brief The frame descriptor associated with the opened file. */
     std::optional<camera::FrameDescriptor> fd_;
 
-    /**
-     * @brief Size of an input frame
-     */
+    /*! \brief Size of an input frame */
     size_t frame_size_;
 
-    /**
-     * @brief CPU buffer in which the frames are temporarly stored
-     */
+    /*! \brief CPU buffer in which the frames are temporarly stored */
     char* cpu_frame_buffer_;
 
-    /**
-     * @brief GPU buffer in which the frames are temporarly stored
-     */
+    /*! \brief GPU buffer in which the frames are temporarly stored */
     char* gpu_file_frame_buffer_;
 
-    /**
-     * @brief Tmp GPU buffer in which the frames are temporarly stored to convert
+    /*!
+     * \brief Tmp GPU buffer in which the frames are temporarly stored to convert
      * data from packed bits to 16bit
      */
     char* gpu_packed_buffer_;
 
-    /**
-     * @brief The Fps limiter used in the enqueue loop to limit the number of frames enqueued
+    /*!
+     * \brief The Fps limiter used in the enqueue loop to limit the number of frames enqueued
      * per seconds.
      */
     FPSLimiter fps_limiter_;
 
-    /**
-     * @brief All the settings used by the FileFrameReadWorker that should be updated
+    /*!
+     * \brief All the settings used by the FileFrameReadWorker that should be updated
      * in realtime.
      */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
-    /**
-     * @brief All the settings used by the FileFrameReadWorker that can be updated
+    /*!
+     * \brief All the settings used by the FileFrameReadWorker that can be updated
      * only on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;

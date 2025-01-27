@@ -1,12 +1,15 @@
-#ifndef LIGHTUI_HH
-#define LIGHTUI_HH
+/*! \file lightui.hh
+ *
+ *  \brief Contains the LightUI class definition.
+ */
+#pragma once
 
 #include <QMainWindow>
 #include <tuple>
 
-#include "notifier.hh"
-#include "enum_record_mode.hh"
 #include "enum_camera_kind.hh"
+#include "enum_record_mode.hh"
+#include "notifier.hh"
 
 namespace Ui
 {
@@ -19,31 +22,32 @@ class MainWindow;
 class ExportPanel;
 class ImageRenderingPanel;
 
-/**
- * @class LightUI
- * @brief The LightUI class is a QMainWindow derived class for the application's user interface.
+/*!
+ * \class LightUI
+ *
+ * \brief The LightUI class is a QMainWindow derived class for the application's user interface.
  */
 class LightUI : public QMainWindow
 {
     Q_OBJECT
 
   public:
-    /**
-     * @brief Constructor for LightUI class.
-     * @param parent The parent widget.
-     * @param main_window Pointer to the MainWindow instance.
-     * @param export_panel Pointer to the ExportPanel instance.
+    /*!
+     * \brief Constructor for LightUI class.
+     * \param parent The parent widget.
+     * \param main_window Pointer to the MainWindow instance.
+     * \param export_panel Pointer to the ExportPanel instance.
      */
     explicit LightUI(QWidget* parent, MainWindow* main_window);
 
-    /**
-     * @brief Destructor for LightUI class.
+    /*!
+     * \brief Destructor for LightUI class.
      */
     ~LightUI();
 
-    /**
-     * @brief Overridden showEvent handler.
-     * @param event The QShowEvent instance.
+    /*!
+     * \brief Overridden showEvent handler.
+     * \param event The QShowEvent instance.
      */
     void showEvent(QShowEvent* event) override;
 
@@ -54,9 +58,9 @@ class LightUI : public QMainWindow
      */
     void notify();
 
-    /**
-     * @brief Updates the UI with the output file name for recording.
-     * @param filename The name of the output file.
+    /*!
+     * \brief Updates the UI with the output file name for recording.
+     * \param filename The name of the output file.
      */
     void actualise_record_output_file_ui(const std::filesystem::path file_path);
 
@@ -65,42 +69,42 @@ class LightUI : public QMainWindow
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
 
-    /**
-     * @brief Sets the state of the ui depending on the pipeline state.
-     * @param active Boolean to set concerned widgets active (true) or inactive (false).
+    /*!
+     * \brief Sets the state of the ui depending on the pipeline state.
+     * \param active Boolean to set concerned widgets active (true) or inactive (false).
      */
     void pipeline_active(bool active);
 
-    /**
-     * @brief Sets the window size and position.
+    /*!
+     * \brief Sets the window size and position.
      */
     void set_window_size_position(int width, int height, int x, int y);
 
   public slots:
-    /**
-     * @brief Sets preset for given usage.
+    /*!
+     * \brief Sets preset for given usage.
      */
     void set_preset();
 
-    /**
-     * @brief Opens the file explorer to let the user choose an output file with extension replacement.
+    /*!
+     * \brief Opens the file explorer to let the user choose an output file with extension replacement.
      */
     void browse_record_output_file_ui();
 
-    /**
-     * @brief Sets the output filepath in the export manel with the name written
-     * @param filename The name of the output file.
+    /*!
+     * \brief Sets the output filepath in the export manel with the name written
+     * \param filename The name of the output file.
      */
     void set_record_file_name();
 
-    /**
-     * @brief Opens the configuration UI.
+    /*!
+     * \brief Opens the configuration UI.
      */
     void open_configuration_ui();
 
-    /**
-     * @brief Starts or stops the recording.
-     * @param start Boolean to start (true) or stop (false) the recording.
+    /*!
+     * \brief Starts or stops the recording.
+     * \param start Boolean to start (true) or stop (false) the recording.
      */
     void start_stop_recording(bool start);
 
@@ -172,7 +176,7 @@ class LightUI : public QMainWindow
     void update_recorded_eye();
 
   protected:
-    /**
+    /*!
      * \brief Overridden closeEvent handler.
      * \param[in] event The QCloseEvent instance.
      */
@@ -186,5 +190,3 @@ class LightUI : public QMainWindow
 };
 
 } // namespace holovibes::gui
-
-#endif // LIGHTUI_HH

@@ -1,6 +1,6 @@
 /*! \file compute_api.hh
  *
- * \brief Regroup all functions related to computation: pipe (refresh, creation, ...), compute mode, view mode
+ * \brief Regroup all functions related to computation: start/stop computation, compute mode, view mode
  */
 #pragma once
 
@@ -9,6 +9,10 @@
 namespace holovibes::api
 {
 
+/*! \class ComputeApi
+ *
+ * \brief Regroup all functions related to computation: start/stop computation, compute mode, view mode and queues
+ */
 class ComputeApi : public IApi
 {
 
@@ -45,9 +49,6 @@ class ComputeApi : public IApi
 
 #pragma endregion
 
-    /*! \brief Stops holovibes' controllers for computation*/
-    void stop_all_worker_controller() const;
-
     /*! \brief Returns the capacity (number of frames) of the output buffer. The output buffer stores the final frames
      * of the Holographic pipeline.
      *
@@ -68,37 +69,30 @@ class ComputeApi : public IApi
      */
     inline std::shared_ptr<Queue> get_gpu_output_queue() const
     {
-        if (Holovibes::instance().get_compute_pipe_no_throw())
-            return Holovibes::instance().get_compute_pipe()->get_output_queue();
-
-        return nullptr;
+        return get_is_computation_stopped() ? nullptr : Holovibes::instance().get_compute_pipe()->get_output_queue();
     };
 
     /*! \brief Return the input queue.
      *
      * \return std::shared_ptr<BatchInputQueue> The input queue
      */
-    inline std::shared_ptr<BatchInputQueue> get_input_queue() const { return Holovibes::instance().get_input_queue(); };
+    inline std::shared_ptr<BatchInputQueue> get_input_queue() const
+    {
+        return get_is_computation_stopped() ? nullptr : Holovibes::instance().get_input_queue();
+    };
 
 #pragma endregion
 
 #pragma region Pipe
 
-    /*! \brief Return the compute pipe or throw if no pipe.
-     * user.
+    /*! \brief Return the compute pipe or nullptr if not initialized.
      *
      * \return std::shared_ptr<Pipe> The compute pipe
      * \throw std::runtime_error If the compute pipe is not initialized
      */
-    inline std::shared_ptr<Pipe> get_compute_pipe() const { return Holovibes::instance().get_compute_pipe(); };
-
-    /*! \brief Return the compute pipe.
-     *
-     * \return std::shared_ptr<Pipe> The compute pipe
-     */
-    inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() const
+    inline std::shared_ptr<Pipe> get_compute_pipe() const
     {
-        return Holovibes::instance().get_compute_pipe_no_throw();
+        return get_is_computation_stopped() ? nullptr : Holovibes::instance().get_compute_pipe();
     };
 
 #pragma endregion

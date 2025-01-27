@@ -1,14 +1,15 @@
-#include "cuda_memory.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
 #include "composite.cuh"
-#include "rgb.cuh"
-#include "map.cuh"
+
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
 
+#include "cuda_memory.cuh"
 #include "logger.hh"
+#include "map.cuh"
+#include "rgb.cuh"
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
 
 struct rect
 {
@@ -18,11 +19,12 @@ struct rect
     int h;
 };
 
-/**
- * @brief Check that the selected zone is not out of bounds, if so replace it to take the entiere image
- * @param zone The selected zone on the UI
- * @param frame_res The total number of pixel in one frame
- * @param line_size The length of one frame line
+/*!
+ * \brief Check that the selected zone is not out of bounds, if so replace it to take the entiere image
+ *
+ * \param zone The selected zone on the UI
+ * \param frame_res The total number of pixel in one frame
+ * \param line_size The length of one frame line
  */
 static void check_zone(rect& zone, const uint frame_res, const int line_size)
 {
@@ -36,14 +38,15 @@ static void check_zone(rect& zone, const uint frame_res, const int line_size)
     }
 }
 
-/**
- * @brief Copy the selected zone to a contiguous rgb pixel buffer
- * @param input The whole rgb image
- * @param zone_data The output rgb buffer
- * @param zone The selected zone characteristics
- * @param range The total number of pixel to copy
- * @param fd_width The width of the input image
- * @param start_zone_id The index of the beginning of the input buffer
+/*!
+ * \brief Copy the selected zone to a contiguous rgb pixel buffer
+ *
+ * \param input The whole rgb image
+ * \param zone_data The output rgb buffer
+ * \param zone The selected zone characteristics
+ * \param range The total number of pixel to copy
+ * \param fd_width The width of the input image
+ * \param start_zone_id The index of the beginning of the input buffer
  */
 __global__ static void kernel_copy_zone(
     RGBPixel* input, RGBPixel* zone_data, rect zone, size_t range, const uint fd_width, size_t start_zone_id)
@@ -59,12 +62,13 @@ __global__ static void kernel_copy_zone(
     }
 }
 
-/**
- * @brief Normalize an rgb image by dividing each pixel component by the given average.
- * @param image A contiguous rgb pixel buffer that represent the image.
- * @param image_res The number of pixel in the image.
- * @param rgb_average The average RGB components used to normalize the image.
- * @param stream The cuda stream used.
+/*!
+ * \brief Normalize an rgb image by dividing each pixel component by the given average.
+ *
+ * \param image A contiguous rgb pixel buffer that represent the image.
+ * \param image_res The number of pixel in the image.
+ * \param rgb_average The average RGB components used to normalize the image.
+ * \param stream The cuda stream used.
  */
 void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, cudaStream_t stream)
 {
@@ -83,14 +87,15 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
     thrust::transform(execution_policy, begin, end, result, normalize);
 }
 
-/**
- * @brief Compute and apply the normalized weights of rgb colors
- * @param output The rgb float buffer
- * @param fd_height The height of the buffer
- * @param fd_width The width of the buffer
- * @param selection The selected zone
- * @param averages The rgb averages to fill, used in UI
- * @param stream The used cuda stream
+/*!
+ * \brief Compute and apply the normalized weights of rgb colors
+ *
+ * \param output The rgb float buffer
+ * \param fd_height The height of the buffer
+ * \param fd_width The width of the buffer
+ * \param selection The selected zone
+ * \param averages The rgb averages to fill, used in UI
+ * \param stream The used cuda stream
  */
 void postcolor_normalize(float* output,
                          const uint fd_height,
@@ -115,13 +120,9 @@ void postcolor_normalize(float* output,
     RGBPixel* gpu_zone_data;
     bool zone_selected = !(zone.x == 0 && zone.y == 0 && frame_res == zone_size);
 
-    // No need to copy.
-    if (!zone_selected)
-    {
+    if (!zone_selected) // No need to copy.
         gpu_zone_data = rgb_output;
-    }
-    // Copy in contiguous buffer.
-    else
+    else // Copy in contiguous buffer.
     {
         cudaXMalloc(&gpu_zone_data, zone_size * sizeof(RGBPixel));
 
@@ -156,7 +157,5 @@ void postcolor_normalize(float* output,
     normalize_rgb_image(rgb_output, frame_res, *((RGBPixel*)averages), stream);
 
     if (zone_selected)
-    {
         cudaXFree(gpu_zone_data);
-    }
 }

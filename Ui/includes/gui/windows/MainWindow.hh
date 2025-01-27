@@ -137,23 +137,23 @@ class MainWindow : public QMainWindow
     /*! \brief Changes the focused windows */
     void change_window(int index);
 
-    /**
-     * @brief Open light ui panel and hide this one
+    /*!
+     * \brief Open light ui panel and hide this one
      */
     void open_light_ui();
 
-    /**
-     * @brief Sets preset for given usage.
+    /*!
+     * \brief Sets preset for given usage.
      */
     void set_preset();
 
-    /**
-     * @brief Sets default File read preset.
+    /*!
+     * \brief Sets default File read preset.
      */
     void set_file_read_preset();
 
-    /**
-     * @brief Sets preset given a preset file.
+    /*!
+     * \brief Sets preset given a preset file.
      */
     void set_preset(std::filesystem::path file);
 
@@ -177,7 +177,7 @@ class MainWindow : public QMainWindow
     void load_gui();
     void save_gui();
 
-    /**
+    /*!
      * \brief Small helper function that just writes tooltips.
      * Note : the only affected locations should be drop-down menus, or 'comboBox'.
      */
