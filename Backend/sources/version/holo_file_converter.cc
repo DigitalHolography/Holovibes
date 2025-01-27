@@ -101,7 +101,9 @@ ApiCode HoloFileConverter::convert_holo_file(io_files::InputHoloFile& input)
             }
             catch (const std::exception& e)
             {
-                LOG_ERROR("File does not exist or is not a valid json file: {}. Error: {}", it->patch_file, e.what());
+                LOG_ERROR("File does not exist or is not a valid json file: {}. Error: {}",
+                          (patches_folder / it->patch_file).string(),
+                          e.what());
                 return ApiCode::FAILURE;
             }
         }

@@ -186,6 +186,11 @@ install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
     COMPONENT application
 )
 
+install(DIRECTORY "${HOLO_DIR}/assets/json_patches_settings/"
+    DESTINATION assets/json_patches_settings
+    COMPONENT application
+)
+
 install(DIRECTORY "${UI_DIR}/assets/icons/"
     DESTINATION assets/icons
     COMPONENT application
