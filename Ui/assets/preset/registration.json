@@ -6,6 +6,7 @@
         },
         "time_transformation_size": 128
     },
+    "version": "v1",
     "view": {
         "fft_shift": true,
         "registration": {

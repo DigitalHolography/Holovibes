@@ -5,13 +5,15 @@
 #include <filesystem>
 
 #include "input_holo_file.hh"
+
+#include "API.hh"
+#include "all_struct.hh"
+#include "compute_settings_struct.hh"
 #include "file_exception.hh"
 #include "holovibes_config.hh"
-#include "logger.hh"
-#include "all_struct.hh"
-#include "API.hh"
+#include "holo_file_converter.hh"
 #include "internals_struct.hh"
-#include "compute_settings_struct.hh"
+#include "logger.hh"
 
 namespace holovibes::io_files
 {
@@ -68,6 +70,13 @@ void InputHoloFile::load_header()
         std::fclose(file_);
         throw FileException("Invalid holo file: invalid bytecode size", false);
     }
+
+    auto& api = API;
+    api.input.set_data_type(RecordedDataType::RAW);
+
+    if (holo_file_header_.version == 7) // Version that adds data type in the header
+        api.input.set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
+
     LOG_TRACE("Exiting InputHoloFile::load_header");
 }
 
@@ -80,9 +89,14 @@ void InputHoloFile::load_fd()
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
     LOG_TRACE("Exiting InputHoloFile::load_fd");
 }
-void InputHoloFile::load_footer()
+
+json InputHoloFile::import_compute_settings()
 {
     LOG_FUNC();
+
+    if (!has_footer)
+        return {};
+
     // compute the meta data offset to retrieve the meta data
     uintmax_t meta_data_offset = sizeof(HoloFileHeader) + holo_file_header_.total_data_size;
     uintmax_t file_size = std::filesystem::file_size(file_path_);
@@ -96,7 +110,7 @@ void InputHoloFile::load_footer()
     uintmax_t meta_data_size = file_size - meta_data_offset;
 
     // retrieve the meta data
-    meta_data_ = json::parse("{}");
+    meta_data_ = {};
     if (meta_data_size > 0)
     {
         std::string meta_data_str;
@@ -109,9 +123,7 @@ void InputHoloFile::load_footer()
 
             if (std::fsetpos(file_, reinterpret_cast<std::fpos_t*>(&meta_data_offset)) == 0 &&
                 std::fread(meta_data_str.data(), sizeof(char), meta_data_size, file_) == meta_data_size)
-            {
                 meta_data_ = json::parse(meta_data_str);
-            }
         }
         catch (const std::exception&)
         {
@@ -121,85 +133,11 @@ void InputHoloFile::load_footer()
         }
     }
 
-    LOG_TRACE("Exiting InputHoloFile::load_footer");
-}
+    // Update the meta data to the latest version
+    if (version::HoloFileConverter::convert_holo_file(*this) != ApiCode::OK)
+        return {};
 
-void rec_fill_default_json(json& dst, json& src)
-{
-    for (auto dst_el = dst.begin(); dst_el != dst.end(); ++dst_el)
-    {
-        if (src.contains(dst_el.key()))
-        {
-            auto src_el = src.find(dst_el.key());
-            if (dst_el->is_object())
-            {
-                rec_fill_default_json(*dst_el, *src_el);
-            }
-            else
-            {
-                dst.at(dst_el.key()) = src_el.value();
-            }
-        }
-        // else : nothing to do, we keep the dst default json
-    }
-}
-
-void InputHoloFile::import_compute_settings()
-{
-    LOG_FUNC();
-
-    meta_data_ = json::parse("{}");
-    // if there is no footer we use the state of the GSH
-    if (!has_footer)
-    {
-        raw_footer_.Update();
-        to_json(meta_data_, raw_footer_);
-    }
-    else
-    {
-        this->load_footer();
-    }
-
-    auto& api = API;
-    api.input.set_data_type(RecordedDataType::RAW);
-
-    // perform convertion of holo file footer if needed
-    if (holo_file_header_.version < 3)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V2);
-    else if (holo_file_header_.version < 4)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V3);
-    else if (holo_file_header_.version == 4)
-        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
-    else if (holo_file_header_.version == 5 || holo_file_header_.version == 6)
-        ; // Version 6 was skipped because of a versioning error, it is considered the same as 5
-    else if (holo_file_header_.version == 7) // Version that adds data type in the header
-        api.input.set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
-    else
-        LOG_ERROR("HOLO file version not supported!");
-
-    if (!has_footer)
-    {
-        from_json(meta_data_, raw_footer_);
-    }
-    else
-    {
-        auto full_meta_data_ = json::parse("{}");
-        raw_footer_.Update();
-        to_json(full_meta_data_, raw_footer_);
-        // full_meta_data_["compute_settings"] = full_meta_data_;
-        rec_fill_default_json(full_meta_data_, meta_data_["compute_settings"]);
-
-        from_json(full_meta_data_, raw_footer_);
-
-        auto info_json = meta_data_["info"];
-        api.input.set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
-        if (info_json.contains("eye_type"))
-            api.record.set_recorded_eye(static_cast<RecordedEyeType>(info_json["eye_type"]));
-    }
-
-    // update GSH with the footer values
-    raw_footer_.Assert();
-    raw_footer_.Load();
+    return meta_data_["compute_settings"];
 }
 
 void InputHoloFile::import_info() const
@@ -210,9 +148,17 @@ void InputHoloFile::import_info() const
 
     try
     {
+        auto& api = API;
+        auto info_json = meta_data_["info"];
+
         // Pixel are considered square
-        API.input.set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
-        API.input.set_input_fps(meta_data_["info"]["input_fps"]);
+        api.input.set_pixel_size(info_json["pixel_pitch"]["x"]);
+
+        api.input.set_input_fps(info_json["input_fps"]);
+        api.input.set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
+
+        if (info_json.contains("eye_type"))
+            api.record.set_recorded_eye(info_json["eye_type"]);
     }
     catch (std::exception&)
     {

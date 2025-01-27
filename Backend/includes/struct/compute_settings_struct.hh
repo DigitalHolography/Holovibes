@@ -10,21 +10,10 @@
 #include "view_struct.hh"
 #include "composite_struct.hh"
 #include "advanced_struct.hh"
+#include "enum_compute_settings_version.hh"
 
 namespace holovibes
 {
-
-/*! \enum ComputeSettingsVersion
- *
- * \brief List of all possible version of compute settings
- */
-enum class ComputeSettingsVersion
-{
-    V2,
-    V3,
-    V4,
-    V5
-};
 
 /*! \class ComputeSettings
  *
@@ -32,6 +21,10 @@ enum class ComputeSettingsVersion
  */
 struct ComputeSettings
 {
+    /*! \brief Latest version of the compute settings */
+    inline static const ComputeSettingsVersion latest_version = ComputeSettingsVersion::V1;
+
+    ComputeSettingsVersion version = latest_version;
     Rendering image_rendering;
     Views view;
     Composite color_composite_image;
@@ -44,7 +37,7 @@ struct ComputeSettings
     static void convert_json(json& data, ComputeSettingsVersion from);
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, color_composite_image, advanced);
+    SERIALIZE_JSON_STRUCT(ComputeSettings, version, image_rendering, view, color_composite_image, advanced);
 
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

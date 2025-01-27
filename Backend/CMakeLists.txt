@@ -23,6 +23,7 @@ set(INTERNAL_INCLUDES
     includes/tools/exception/
     includes/tools/logger/
     includes/tools/state/
+    includes/version/
     "${CAMERA_DIR}/include/"
 )
 

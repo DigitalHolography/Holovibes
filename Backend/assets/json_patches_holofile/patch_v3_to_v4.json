@@ -11,7 +11,7 @@
             },
             "raw bitshift": 0
         }
-},
+    },
     {
         "op": "add",
         "path": "/compute settings",
@@ -120,6 +120,7 @@
                 "time transformation stride": 1,
                 "z distance": 1.5
             },
+            "version": "v1",
             "view": {
                 "fft shift": false,
                 "p": {
@@ -197,106 +198,105 @@
                 }
             }
         }
+    },
+    {
+        "op": "move",
+        "from": "/#img",
+        "path": "/compute settings/image rendering/time transformation size"
+    },
+    {
+        "op": "move",
+        "from": "/algorithm",
+        "path": "/compute settings/image rendering/space transformation"
+    },
+    {
+        "op": "move",
+        "from": "/mode",
+        "path": "/compute settings/image rendering/image mode"
+    },
+    {
+        "op": "move",
+        "from": "/time_filter",
+        "path": "/compute settings/image rendering/time transformation"
+    },
+    {
+        "op": "move",
+        "from": "/contrast_max",
+        "path": "/compute settings/view/window/xy/contrast/max"
+    },
+    {
+        "op": "move",
+        "from": "/contrast_min",
+        "path": "/compute settings/view/window/xy/contrast/min"
+    },
+    {
+        "op": "move",
+        "from": "/fft_shift_enabled",
+        "path": "/compute settings/view/fft shift"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_xy_level",
+        "path": "/compute settings/view/window/xy/img accu level"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_yz_level",
+        "path": "/compute settings/view/window/yz/imgacculevel"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_xz_level",
+        "path": "/compute settings/view/window/xz/img accu level"
+    },
+    {
+        "op": "move",
+        "from": "/lambda",
+        "path": "/compute settings/image rendering/lambda"
+    },
+    {
+        "op": "move",
+        "from": "/log_scale",
+        "path": "/compute settings/view/window/xy/log enabled"
+    },
+    {
+        "op": "move",
+        "from": "/p",
+        "path": "/compute settings/view/p/index"
+    },
+    {
+        "op": "move",
+        "from": "/p_acc_level",
+        "path": "/compute settings/view/p/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/renorm_enabled",
+        "path": "/compute settings/view/renorm"
+    },
+    {
+        "op": "move",
+        "from": "/x_acc_level",
+        "path": "/compute settings/view/x/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/y_acc_level",
+        "path": "/compute settings/view/y/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/z",
+        "path": "/compute settings/image rendering/z distance"
+    },
+    {
+        "op": "copy",
+        "from": "/pixel_size",
+        "path": "/info/pixel size/y"
+    },
+    {
+        "op": "move",
+        "from": "/pixel_size",
+        "path": "/info/pixel size/x"
     }
-,{
-		"op": "move",
-		"from": "/#img",
-		"path": "/compute settings/image rendering/time transformation size"
-	},
-        	{
-		"op": "move",
-		"from": "/algorithm",
-		"path": "/compute settings/image rendering/space transformation"
-	},
-        	{
-		"op": "move",
-		"from": "/mode",
-		"path": "/compute settings/image rendering/image mode"
-	},
-        	{
-		"op": "move",
-		"from": "/time_filter",
-		"path": "/compute settings/image rendering/time transformation"
-	},
-	{
-		"op": "move",
-		"from": "/contrast_max",
-		"path": "/compute settings/view/window/xy/contrast/max"
-	},
-	{
-		"op": "move",
-		"from": "/contrast_min",
-		"path": "/compute settings/view/window/xy/contrast/min"
-	},
-	{
-		"op": "move",
-		"from": "/fft_shift_enabled",
-		"path": "/compute settings/view/fft shift"
-	},
-	{
-		"op": "move",
-		"from": "/img_acc_slice_xy_level",
-		"path": "/compute settings/view/window/xy/img accu level"
-	},
-	{
-		"op": "move",
-		"from": "/img_acc_slice_yz_level",
-		"path": "/compute settings/view/window/yz/imgacculevel"
-	},
-	{
-		"op": "move",
-		"from": "/img_acc_slice_xz_level",
-		"path": "/compute settings/view/window/xz/img accu level"
-	},
-	{
-		"op": "move",
-		"from": "/lambda",
-		"path": "/compute settings/image rendering/lambda"
-	},
-	{
-		"op": "move",
-		"from": "/log_scale",
-		"path": "/compute settings/view/window/xy/log enabled"
-	},
-	{
-		"op": "move",
-		"from": "/p",
-		"path": "/compute settings/view/p/index"
-	},
-	{
-		"op": "move",
-		"from": "/p_acc_level",
-		"path": "/compute settings/view/p/accu level"
-	},
-	{
-		"op": "move",
-		"from": "/renorm_enabled",
-		"path": "/compute settings/view/renorm"
-	},
-
-	{
-		"op": "move",
-		"from": "/x_acc_level",
-		"path": "/compute settings/view/x/accu level"
-	},
-	{
-		"op": "move",
-		"from": "/y_acc_level",
-		"path": "/compute settings/view/y/accu level"
-	},
-	{
-		"op": "move",
-		"from": "/z",
-		"path": "/compute settings/image rendering/z distance"
-	},
-	{
-		"op": "copy",
-		"from": "/pixel_size",
-                "path" : "/info/pixel size/y"
-	},
-	{
-		"op": "move",
-		"from": "/pixel_size",
-                "path" : "/info/pixel size/x"
-	}
 ]

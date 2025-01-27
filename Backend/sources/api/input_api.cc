@@ -91,51 +91,29 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     set_import_type(ImportType::File);
     api_->record.set_record_mode(RecordMode::HOLOGRAM);
 
-    if (!input->get_has_footer())
-    {
-        if (!json_path.empty())
-        {
-            LOG_INFO("No footer. Initialization with: {}", json_path);
-            API.settings.load_compute_settings(json_path);
-        }
-
-        if (get_file_load_kind() != FileLoadKind::REGULAR)
-        {
-            std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
-            api_->settings.import_buffer(dest.string());
-            LOG_INFO("GPU Preset loaded");
-        }
-
-        return input;
-    }
-
     // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
     // record
     auto input_buffer_size = get_input_buffer_size();
     auto record_buffer_size = api_->record.get_record_buffer_size();
 
-    // Try importing the compute settings from the file. If it fails, we will use the default values
-    try
+    // Try importing the compute settings from the file. If it fails, we will use the one given as parameter
+    json compute = input->import_compute_settings();
+    if (api_->settings.load_compute_settings(compute) != ApiCode::OK)
     {
-        input->import_compute_settings();
-        input->import_info();
-
-        // When reading moments, the batch size must be forced to 3. Because they are 3 moments per frame.
-        if (get_data_type() == RecordedDataType::MOMENTS)
-        {
-            api_->transform.set_batch_size(3);
-            api_->transform.set_time_stride(3);
-        }
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-
         if (!json_path.empty())
         {
-            LOG_INFO("Compute settings incorrect or file not found. Initialization with: {}", json_path);
-            API.settings.load_compute_settings(json_path);
+            LOG_INFO("Initialization with: {}", json_path);
+            api_->settings.load_compute_settings(json_path);
         }
+    }
+
+    input->import_info();
+
+    // When reading moments, the batch size must be forced to 3. Because they are 3 moments per frame.
+    if (get_data_type() == RecordedDataType::MOMENTS)
+    {
+        api_->transform.set_batch_size(3);
+        api_->transform.set_time_stride(3);
     }
 
     // update the buffer size with the old values to avoid surcharging the gpu memory in case of big

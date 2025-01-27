@@ -148,6 +148,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/convolution_kernels/" ${CMAKE_BINARY_DIR}/AppData/convolution_kernels/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/input_filters/" ${CMAKE_BINARY_DIR}/AppData/input_filters/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" ${CMAKE_BINARY_DIR}/assets/json_patches_holofile/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_settings/" ${CMAKE_BINARY_DIR}/assets/json_patches_settings/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${PRESET_DIR}/" ${CMAKE_BINARY_DIR}/AppData/preset/
 
     # Copy camera libs
