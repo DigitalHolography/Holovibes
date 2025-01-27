@@ -67,8 +67,8 @@ struct AdvancedSettings
      */
     struct ContrastThreshold
     {
-        float lower = 0.05f;
-        float upper = 99.95f;
+        float lower = 0.02f;
+        float upper = 99.8f;
         unsigned frame_index_offset = 2;
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
