@@ -233,12 +233,6 @@ class Holovibes
         return loaded;
     }
 
-    /*! \brief Return the compute pipe.
-     *
-     * \return std::shared_ptr<Pipe> The compute pipe
-     */
-    inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() const { return compute_pipe_.load(); }
-
     /*! \brief Return the cuda streams
      *
      * \return const CudaStreams& The cuda streams
@@ -320,11 +314,12 @@ class Holovibes
 
     void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
 
-    /**
-     * @brief Update a setting. The actual application of the update
+    /*!
+     * \brief Update a setting. The actual application of the update
      * might ve delayed until a certain event occurs.
-     * @tparam T The type of tho update.
-     * @param setting The new value of the setting.
+     *
+     * \tparam T The type of tho update.
+     * \param setting The new value of the setting.
      */
     template <typename T>
     inline void update_setting(T setting)
@@ -413,9 +408,9 @@ class Holovibes
                                              settings::ChartRecordEnabled{false},
                                              settings::InputBufferSize{512},
                                              settings::RecordBufferSize{1024},
-                                             settings::ContrastLowerThreshold{0.5f},
+                                             settings::ContrastLowerThreshold{0.02f},
                                              settings::RawBitshift{0},
-                                             settings::ContrastUpperThreshold{99.5f},
+                                             settings::ContrastUpperThreshold{99.98f},
                                              settings::RenormConstant{5},
                                              settings::CutsContrastPOffset{2},
                                              settings::BatchSize{1},

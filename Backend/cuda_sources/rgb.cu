@@ -1,22 +1,23 @@
-#include "cuda_memory.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
 #include "rgb.cuh"
-#include "map.cuh"
+
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
 
+#include "cuda_memory.cuh"
 #include "logger.hh"
+#include "map.cuh"
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
 
-/**
- * @brief Apply the colors on the image cube
- * @param input input complex buffer
- * @param output output rgb float buffer
- * @param frame_res The total number of pixel in one frame
- * @param range The number of frame on depth (max - min)
- * @param colors The computed color buffer
- * @return
+/*!
+ * \brief Apply the colors on the image cube
+ *
+ * \param[in] input input complex buffer
+ * \param[out] output output rgb float buffer
+ * \param[in] frame_res The total number of pixel in one frame
+ * \param[in] range The number of frame on depth (max - min)
+ * \param[in] colors The computed color buffer
  */
 __global__ static void
 kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t range, const float* colors)
@@ -37,12 +38,13 @@ kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t r
     }
 }
 
-/**
- * @brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color
+/*!
+ * \brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color
  * gradient on a position
- * @param colors The buffer to fill (range * 3 * sizeof(float))
- * @param range The number of frame on depth (max - min)
- * @param weights The weights entered on the UI
+ *
+ * \param colors The buffer to fill (range * 3 * sizeof(float))
+ * \param range The number of frame on depth (max - min)
+ * \param weights The weights entered on the UI
  */
 __global__ static void kernel_precompute_colors(float* colors, size_t range, holovibes::RGBWeights weights)
 {
@@ -78,16 +80,17 @@ __global__ static void kernel_precompute_colors(float* colors, size_t range, hol
     }
 }
 
-/**
- * @brief Compute the rgb color of each pixel of the image
- * @param input The input complex buffer
- * @param output The output rgb float buffer (1 pixel = 3 floats)
- * @param frame_res The total number of pixels in an image
- * @param auto_weights A boolean equal to the value of the auto equalization checkbox
- * @param min Starting depth in image cube
- * @param max Last frame index in image cube
- * @param weights The RGB weights
- * @param stream The cuda stream used
+/*!
+ * \brief Compute the rgb color of each pixel of the image
+ *
+ * \param output The output rgb float buffer (1 pixel = 3 floats)
+ * \param input The input complex buffer
+ * \param frame_res The total number of pixels in an image
+ * \param auto_weights A boolean equal to the value of the auto equalization checkbox
+ * \param min Starting depth in image cube
+ * \param max Last frame index in image cube
+ * \param weights The RGB weights
+ * \param stream The cuda stream used
  */
 void rgb(float* output,
          cuComplex* input,

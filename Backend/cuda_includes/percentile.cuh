@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "aliases.hh"
 #include "rect.hh"
 
 /*!

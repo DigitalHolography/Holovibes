@@ -9,6 +9,10 @@
 namespace holovibes::api
 {
 
+/*! \class Filter2dApi
+ *
+ * \brief Regroup all functions related to filter 2D settings.
+ */
 class Filter2dApi : public IApi
 {
 

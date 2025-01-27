@@ -46,15 +46,13 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         auto& api = API;
         int camera_fps = api.input.get_camera_fps() == 0 ? input_fps : api.input.get_camera_fps();
         auto j_fi = json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
-                         {"input_fps", API.input.can_get_camera_fps() ? camera_fps : input_fps},
+                         {"input_fps", api.input.can_get_camera_fps() ? camera_fps : input_fps},
                          {"camera_fps", camera_fps},
                          {"eye_type", api.record.get_recorded_eye()},
                          {"contiguous", contiguous},
                          {"holovibes_version", __HOLOVIBES_VERSION__}};
-        raw_footer_.Update();
-        auto inter = json{};
-        to_json(inter, raw_footer_);
-        meta_data_ = json{{"compute_settings", inter}, {"info", j_fi}};
+
+        meta_data_ = json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
     catch (const json::exception& e)
     {

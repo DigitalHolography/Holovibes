@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.5.3
+
+- Changement des valeurs par defaults pour le contraste
+
 ### 14.5.0
 
 - Fix reticle bug in cli

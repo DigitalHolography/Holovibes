@@ -1,22 +1,22 @@
-/*! \file
+/*! \file rendering.hh
  *
  * \brief Implementation of the rendering features.
  */
 #pragma once
 
 #include <atomic>
+#include <cufft.h>
 
+#include "apply_mask.cuh"
+#include "convolution.cuh"
 #include "frame_desc.hh"
 #include "function_vector.hh"
+#include "logger.hh"
 #include "queue.hh"
 #include "rect.hh"
-#include "shift_corners.cuh"
-#include "apply_mask.cuh"
-#include "logger.hh"
-#include "convolution.cuh"
-#include <cufft.h>
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
+#include "shift_corners.cuh"
 
 #pragma region Settings configuration
 // clang-format off
@@ -179,9 +179,7 @@ class Rendering
         return queue->is_full() || queue->get_size() == 1;
     }
 
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {

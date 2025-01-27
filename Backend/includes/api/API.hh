@@ -2,7 +2,7 @@
  *
  * \brief This file contains the API functions for the Holovibes application. These functions manage input files,
  * camera operations, computation settings, visualization modes, and more. The API functions are used to interact with
- * the Holovibes application from the user interface.
+ * the Holovibes application.
  */
 
 #pragma once
@@ -27,6 +27,12 @@ namespace holovibes::api
 
 #define API holovibes::api::Api::instance()
 
+/*! \class Api
+ *
+ * \brief Regroup all functions used to interact with the Holovibes application. It's a singleton, you must not call
+ * functions outside of the API. The API is divided into several sub-APIs, each of which is responsible for a specific
+ * aspect of the application (input, recording, contrast, ...).
+ */
 class Api
 {
 

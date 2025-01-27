@@ -108,6 +108,7 @@
         "time_transformation_size": 1,
         "time_transformation_stride": 1
     },
+    "version": "v1",
     "view": {
         "fft_shift": false,
         "image_type": "MODULUS",

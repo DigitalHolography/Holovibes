@@ -9,8 +9,8 @@
         },
         "contrast": {
             "frame_index_offset": 2,
-            "lower": 0.05,
-            "upper": 99.95
+            "lower": 0.02,
+            "upper": 99.98
         },
         "filter2d_smooth": {
             "high": 1,
@@ -108,6 +108,7 @@
         "time_transformation_size": 32,
         "time_transformation_stride": 64
     },
+    "version": "v1",
     "view": {
         "fft_shift": true,
         "image_type": "MODULUS",

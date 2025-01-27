@@ -1,20 +1,18 @@
-/*! \file
+/*! \file converts.hh
  *
  * \brief Implmentation of the conversions between buffers.
  */
 #pragma once
 
+#include <cufft.h>
 #include <memory>
 
-#include <cufft.h>
-
-#include "frame_desc.hh"
 #include "batch_input_queue.hh"
 #include "cuda_tools\cufft_handle.hh"
-#include "function_vector.hh"
 #include "enum_img_type.hh"
+#include "function_vector.hh"
+#include "frame_desc.hh"
 #include "logger.hh"
-
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
@@ -97,7 +95,7 @@ class Converts
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
 
-    /**
+    /*!
      * \brief Insert a dequeue from input_queue to output.
      *
      * Note: the data manipulated should be of depth 4 (floats)
@@ -155,9 +153,7 @@ class Converts
     /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
     void insert_filter2d_ushort();
 
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {

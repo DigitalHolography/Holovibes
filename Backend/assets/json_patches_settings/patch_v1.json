@@ -1,0 +1,27 @@
+[
+	{
+		"op": "remove",
+		"path": "/image_rendering/input_filter/enabled"
+	},
+	{
+		"op": "remove",
+		"path": "/image_rendering/convolution/enabled"
+	},
+	{
+		"op": "remove",
+		"path": "/advanced/record_mode"
+	},
+	{
+		"op": "add",
+		"path": "/version",
+		"value": "v1"
+	},
+	{
+		"op": "add",
+		"path": "/view/registration",
+		"value": {
+			"registration_enabled": false,
+			"registration_zone": 0.7
+		}
+	}
+]

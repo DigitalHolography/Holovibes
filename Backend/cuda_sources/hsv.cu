@@ -1,23 +1,22 @@
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-
 #include "hsv.cuh"
-#include "tools_hsv.cuh"
-#include "convolution.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "percentile.cuh"
-#include "cuda_memory.cuh"
-#include "shift_corners.cuh"
-#include "map.cuh"
-#include "reduce.cuh"
-#include "unique_ptr.hh"
-#include "logger.hh"
 
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
+
+#include "convolution.cuh"
+#include "cuda_memory.cuh"
+#include "logger.hh"
+#include "map.cuh"
+#include "percentile.cuh"
+#include "reduce.cuh"
+#include "shift_corners.cuh"
+#include "tools_compute.cuh"
+#include "tools_conversion.cuh"
+#include "tools_hsv.cuh"
+#include "unique_ptr.hh"
 
 static constexpr ushort max_ushort_value = (1 << (sizeof(ushort) * 8)) - 1;
 
@@ -90,11 +89,14 @@ __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* ds
     }
 }
 
-/// @brief Convert an array of HSV normalized float [0,1] to an array of RGB float [0,65536]
-/// @param src Input hsv array (contiguous pixel on x: [h1,...,hn,s1,...,sn,v1,...,vn])
-/// @param dst Output rgb array (contiguous rgb channels: [r1,g1,b1,...,rn,gn,bn])
-/// @param frame_res Total number of pixels on one frame
-/// @param stream The used cuda stream
+/*!
+ * \brief Convert an array of HSV normalized float [0,1] to an array of RGB float [0,65536]
+ *
+ * \param src Input hsv array (contiguous pixel on x: [h1,...,hn,s1,...,sn,v1,...,vn])
+ * \param dst Output rgb array (contiguous rgb channels: [r1,g1,b1,...,rn,gn,bn])
+ * \param frame_res Total number of pixels on one frame
+ * \param stream The used cuda stream
+ */
 void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res, const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
@@ -104,7 +106,7 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
     cudaCheckError();
 }
 
-/// @brief get the real z value, because of the FFT frequency shift
+/*! \brief get the real z value, because of the FFT frequency shift */
 __device__ float get_real_z(size_t z, int depth, bool z_fft_shift)
 {
     if (!z_fft_shift)
@@ -117,9 +119,13 @@ __device__ float get_real_z(size_t z, int depth, bool z_fft_shift)
     return (float)z - (float)depth;
 }
 
-/// @brief Convert the input complex number to a float
-/// @param input_elm input complex number
-/// @return a float, reprensenting the magnitude of the input complex number
+/*!
+ * \brief Convert the input complex number to a float
+ *
+ * \param input_elm input complex number
+ *
+ * \return a float, reprensenting the magnitude of the input complex number
+ */
 __device__ float get_input_elm(cuComplex input_elm) { return hypotf(input_elm.x, input_elm.y); }
 
 __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
@@ -290,7 +296,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     cudaCheckError();
 }
 
-/// @brief Compute the hsv values of each pixel of the frame
+/*! \brief Compute the hsv values of each pixel of the frame */
 void compute_and_fill_hsv(const cuComplex* gpu_input,
                           float* gpu_output,
                           const size_t frame_res,
@@ -307,7 +313,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
     compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream);
 }
 
-/// @brief Basic operation on any specified channel (S or V)
+/*! \brief Basic operation on any specified channel (S or V) */
 void apply_operations(float* gpu_arr,
                       uint height,
                       uint width,
@@ -344,7 +350,7 @@ void apply_operations(float* gpu_arr,
     thrust::transform(exec_policy, gpu_channel_arr, gpu_channel_arr + frame_res, gpu_channel_arr, op);
 }
 
-/// @brief Special function for hue channel because hue has two UI sliders
+/*! \brief Special function for hue channel because hue has two UI sliders */
 void apply_operations_on_h(
     float* gpu_h_arr, uint height, uint width, const holovibes::CompositeH& h_struct, const cudaStream_t stream)
 {
@@ -385,7 +391,7 @@ void apply_operations_on_h(
     thrust::transform(exec_policy, gpu_h_arr, gpu_h_arr + frame_res, gpu_h_arr, op);
 }
 
-/// @brief Apply basic image processing operations on h,s and v (threshold, normalization...)
+/*! \brief Apply basic image processing operations on h,s and v (threshold, normalization...) */
 void apply_operations_on_hsv(float* tmp_hsv_arr,
                              const uint height,
                              const uint width,

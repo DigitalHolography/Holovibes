@@ -44,7 +44,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings() {}
+json InputCineFile::import_compute_settings() { return {}; }
 
 void InputCineFile::import_info() const
 {
