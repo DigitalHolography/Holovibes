@@ -1,6 +1,6 @@
 ## Changelog
 
-### 14.5.1
+### 14.5.3
 
 - Changement des valeurs par defaults pour le contraste
 
