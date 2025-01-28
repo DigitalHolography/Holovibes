@@ -190,9 +190,6 @@ DECLARE_SETTING(NoiseZone, units::RectFd);
 /*! \brief The area on which we'll normalize the colors */
 DECLARE_SETTING(CompositeZone, units::RectFd);
 
-/*! \brief The zone of the reticle area */
-DECLARE_SETTING(ReticleZone, units::RectFd);
-
 /*! \name CompositeCache */
 DECLARE_SETTING(CompositeKind, holovibes::CompositeKind);
 DECLARE_SETTING(CompositeAutoWeights, bool);

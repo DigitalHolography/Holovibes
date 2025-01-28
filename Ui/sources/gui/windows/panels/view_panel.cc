@@ -393,7 +393,11 @@ void ViewPanel::display_reticle(bool value)
     parent_->notify();
 }
 
-void ViewPanel::reticle_scale(double value) { api_.contrast.set_reticle_scale(value); }
+void ViewPanel::reticle_scale(double value)
+{
+    api_.contrast.set_reticle_scale(value);
+    gui::set_reticle_overlay_visible(true);
+}
 
 void ViewPanel::update_registration_zone(double value)
 {

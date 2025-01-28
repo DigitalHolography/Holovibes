@@ -11,7 +11,6 @@
 #include "compute_settings_converter.hh"
 #include "compute_settings_struct.hh"
 #include "enum_theme.hh"
-#include "internals_struct.hh"
 #include "logger.hh"
 
 namespace holovibes::api

@@ -63,7 +63,7 @@ ApiCode ComputeApi::start() const
         api_->compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 
     if (api_->contrast.get_reticle_display_enabled())
-        api_->contrast.update_reticle_zone();
+        api_->contrast.update_reticle_scale();
 
     // Start the pipe
     get_compute_pipe()->request(ICS::Start);

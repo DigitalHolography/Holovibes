@@ -12,7 +12,6 @@
 #include "file_exception.hh"
 #include "holovibes_config.hh"
 #include "holo_file_converter.hh"
-#include "internals_struct.hh"
 #include "logger.hh"
 
 namespace holovibes::io_files

@@ -53,7 +53,6 @@
     holovibes::settings::ContrastLowerThreshold,                 \
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
-    holovibes::settings::ReticleZone,                            \
     holovibes::settings::ReticleScale,                           \
     holovibes::settings::CutsContrastPOffset
 
