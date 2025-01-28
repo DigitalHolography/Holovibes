@@ -54,6 +54,7 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::ReticleZone,                            \
+    holovibes::settings::ReticleScale,                           \
     holovibes::settings::CutsContrastPOffset
 
 #define PIPE_REFRESH_SETTINGS                                    \

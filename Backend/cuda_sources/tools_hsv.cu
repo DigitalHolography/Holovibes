@@ -50,16 +50,7 @@ void apply_percentile_and_threshold(float* gpu_arr,
     const float percent_in_h[2] = {low_threshold, high_threshold};
     auto exec_policy = thrust::cuda::par.on(stream);
 
-    compute_percentile_xy_view(gpu_arr,
-                               width,
-                               height,
-                               0,
-                               percent_in_h,
-                               percent_out,
-                               2,
-                               holovibes::units::RectFd(),
-                               false,
-                               stream);
+    compute_percentile_xy_view(gpu_arr, width, height, 0, percent_in_h, percent_out, 2, 0.0f, false, stream);
 
     threshold_top_bottom(gpu_arr, percent_out[0], percent_out[1], frame_res, stream);
 

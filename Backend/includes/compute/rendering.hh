@@ -34,6 +34,7 @@
     holovibes::settings::NoiseZone,                \
     holovibes::settings::CutsContrastPOffset,      \
     holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::ReticleScale,             \
     holovibes::settings::ReticleZone
 
 #define PIPE_REFRESH_SETTINGS                      \

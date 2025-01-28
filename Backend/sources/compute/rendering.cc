@@ -321,7 +321,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   setting<settings::ReticleZone>(),
+                                   setting<settings::ReticleScale>(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         break;
@@ -333,12 +333,11 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   setting<settings::ReticleZone>(),
+                                   setting<settings::ReticleScale>(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         break;
     }
-
     API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
 }
 } // namespace holovibes::compute
