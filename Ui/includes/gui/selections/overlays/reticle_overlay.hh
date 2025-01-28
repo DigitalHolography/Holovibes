@@ -5,7 +5,7 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
-#include "rect_overlay.hh"
+#include "circ_overlay.hh"
 
 namespace holovibes::gui
 {
@@ -13,7 +13,7 @@ namespace holovibes::gui
  *
  * \brief Class that represents a reticle overlay in the window.
  */
-class ReticleOverlay : public RectOverlay
+class ReticleOverlay : public CircOverlay
 {
   public:
     ReticleOverlay(BasicOpenGLWindow* parent);
