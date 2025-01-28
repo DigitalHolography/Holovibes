@@ -92,6 +92,16 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
     cudaXStreamSynchronize(stream);
 }
 
+/*!
+ * \brief Calculate frame_res according to the width, height and required offset
+ *
+ * \param width The width of the frame
+ * \param height The height of the frame
+ * \param offset The offset
+ * \param factor Multiplication factor for the offset (width for xz and height for yz)
+ * \param scale The scale of the reticle
+ * \param compute_on_sub_zone Whether to compute the percentile on the sub zone
+ */
 uint calculate_frame_res(const uint width,
                          const uint height,
                          const uint offset,
