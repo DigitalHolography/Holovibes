@@ -57,6 +57,20 @@ thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream
     return thrust::device_ptr<float>(raw_gpu_input_copy);
 }
 
+/*!
+ * \brief Sort a copy of the array and save each of the values at h_percent % of the array in h_out_percent.
+ *
+ * Example:
+ * `h_percent = [25f, 50f, 75f]`, `gpu_input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`, `size_percent = 3`.
+ * gives : `h_out_percent = [3, 6, 8]`
+ *
+ * \param thrust_gpu_input_copy The input array to sort
+ * \param frame_res The res of a frame
+ * \param h_percent The percentiles to compute
+ * \param h_out_percent The output array
+ * \param size_percent The size of the output array
+ * \param stream The stream to use
+ */
 void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
                         const uint frame_res,
                         const float* const h_percent,
@@ -101,6 +115,16 @@ uint calculate_frame_res(const uint width, const uint height, const uint offset,
     return frame_res;
 }
 
+/*!
+ * \brief Calculate frame_res according to the width, height and required offset
+ *
+ * \param width The width of the frame
+ * \param height The height of the frame
+ * \param offset The offset
+ * \param factor Multiplication factor for the offset (width for xz and height for yz)
+ * \param scale The scale of the reticle
+ * \param compute_on_sub_zone Whether to compute the percentile on the sub zone
+ */
 void compute_percentile_xy_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,
