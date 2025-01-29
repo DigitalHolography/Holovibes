@@ -6,6 +6,7 @@
 #include <thrust/sort.h>
 
 #include "cuda_memory.cuh"
+#include "common.cuh"
 #include "logger.hh"
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
@@ -112,7 +113,7 @@ uint calculate_frame_res(const uint width,
     // Calculate the area based on the circular region defined by the scale
     const uint radius = static_cast<uint>(scale * std::min(width, height) / 2);
     const uint frame_res = (compute_on_sub_zone && radius > 0)
-                               ? (3.14159f * radius * radius * 1.1f) // aproximation to avoid memory overflow
+                               ? (M_PI * radius * radius * 1.1f) // aproximation to avoid memory overflow
                                : width * height - 2 * offset * factor;
     CHECK(frame_res > 0);
     return frame_res;
@@ -158,8 +159,8 @@ void compute_percentile_xy_view(const float* gpu_input,
     {
         // Allocate memory for the data buffer and the counter on the GPU
         thrust_gpu_input_copy = allocate_thrust(frame_res, stream);
-        cudaSafeCall(cudaMalloc(&d_counter, sizeof(uint)));
-        cudaSafeCall(cudaMemsetAsync(d_counter, 0, sizeof(uint), stream)); // Initialize the counter to 0
+        cudaXMalloc(&d_counter, sizeof(uint));
+        cudaXMemsetAsync(d_counter, 0, sizeof(uint), stream); // Initialize the counter to 0
 
         if (compute_on_sub_zone)
         {
@@ -183,14 +184,13 @@ void compute_percentile_xy_view(const float* gpu_input,
                                                                    d_counter);
 
             // Check for any errors during kernel execution
-            cudaSafeCall(cudaGetLastError());
+            cudaCheckError();
 
             // Synchronize the stream to ensure kernel execution is complete
-            cudaSafeCall(cudaStreamSynchronize(stream));
+            cudaXStreamSynchronize(stream);
 
             // Retrieve the actual number of copied pixels from the device counter
-            cudaSafeCall(cudaMemcpyAsync(&h_counter, d_counter, sizeof(uint), cudaMemcpyDeviceToHost, stream));
-            cudaSafeCall(cudaStreamSynchronize(stream));
+            cudaXMemcpy(&h_counter, d_counter, sizeof(uint), cudaMemcpyDeviceToHost);
         }
         else
         {
@@ -216,7 +216,7 @@ void compute_percentile_xy_view(const float* gpu_input,
 
     // Free GPU resources
     if (d_counter != nullptr)
-        cudaSafeCall(cudaFree(d_counter));
+        cudaXFree(d_counter);
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaSafeCall(cudaFreeAsync(thrust_gpu_input_copy.get(), stream));
 }
@@ -228,8 +228,6 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const float scale,
-                                const bool compute_on_sub_zone,
                                 const cudaStream_t stream)
 {
     uint frame_res = calculate_frame_res(width, height, offset, height);

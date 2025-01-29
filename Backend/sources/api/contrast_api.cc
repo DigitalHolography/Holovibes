@@ -273,8 +273,6 @@ ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
 
-    update_reticle_scale();
-
     return ApiCode::OK;
 }
 
@@ -296,17 +294,7 @@ ApiCode ContrastApi::set_reticle_scale(float value) const
 
     UPDATE_SETTING(ReticleScale, value);
 
-    update_reticle_scale();
-
     return ApiCode::OK;
-}
-
-void ContrastApi::update_reticle_scale() const
-{
-    if (api_->compute.get_is_computation_stopped())
-        return;
-
-    float scale = get_reticle_scale();
 }
 
 #pragma endregion

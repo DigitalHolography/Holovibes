@@ -54,6 +54,4 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const float scale,
-                                const bool compute_on_sub_zone,
                                 const cudaStream_t stream);
