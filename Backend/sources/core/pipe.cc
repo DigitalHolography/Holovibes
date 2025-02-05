@@ -19,6 +19,9 @@
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
 #include "fast_updates_holder.hh"
+#include "noise_filter.cuh"
+#include "vessel_enhancement.cuh"
+#include "bilateral_filter.cuh"
 
 #include "API.hh"
 
@@ -66,8 +69,8 @@ using camera::FrameDescriptor;
 
 Pipe::~Pipe()
 {
-    FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS);
-    FastUpdatesMap::map<RecordType>.remove_entry(RecordType::FRAME);
+    (FastUpdatesMap::map<IntType>).remove_entry(IntType::OUTPUT_FPS);
+    (FastUpdatesMap::map<RecordType>).remove_entry(RecordType::FRAME);
 }
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
@@ -351,6 +354,14 @@ void Pipe::refresh()
 
     // Postprocessing'
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
+
+    // Insertion du nouveau filtre anti bruit simple
+
+    // On récupère les dimensions de l'image à partir du file descriptor de l'input queue
+    auto fd = input_queue_.get_fd();
+
+    // Ajout d'une lambda dans la file de calcul qui applique le filtre
+
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     // Rendering
@@ -368,6 +379,14 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
     rendering_->insert_contrast();
+
+    fn_compute_vect_->push_back(
+        [this, fd]()
+        {
+            // 1. Appliquer le filtre bilatéral
+            // Les paramètres sigma_spatial et sigma_range sont à ajuster en fonction de vos images
+            apply_bilateral_filter(buffers_.gpu_postprocess_frame.get(), fd.width, fd.height, 10.0f, 0.1f, stream_);
+        });
 
     converts_->insert_to_ushort();
 
