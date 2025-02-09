@@ -1,0 +1,31 @@
+{
+    "image_rendering": {
+        "convolution": {
+            "divide": true,
+            "type": "gaussian_128_128_1.txt"
+        },
+        "time_transformation_size": 128
+    },
+    "version": "v1",
+    "view": {
+        "fft_shift": true,
+        "registration": {
+            "registration_enabled": true,
+            "registration_zone": 0.699999988079071
+        },
+        "window": {
+            "xy": {
+                "output_image_accumulation": 16
+            },
+            "xz": {
+                "output_image_accumulation": 16
+            },
+            "yz": {
+                "output_image_accumulation": 16
+            }
+        },
+        "z": {
+            "width": 96
+        }
+    }
+}

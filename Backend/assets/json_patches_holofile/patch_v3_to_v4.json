@@ -1,0 +1,302 @@
+[
+    {
+        "op": "add",
+        "path": "/info",
+        "value": {
+            "contiguous": 1,
+            "input fps": 1,
+            "pixel size": {
+                "x": 1,
+                "y": 1
+            },
+            "raw bitshift": 0
+        }
+    },
+    {
+        "op": "add",
+        "path": "/compute settings",
+        "value": {
+            "advanced": {
+                "buffer size": {
+                    "file": 512,
+                    "input": 512,
+                    "output": 1024,
+                    "record": 256,
+                    "time transformation cuts": 512
+                },
+                "contrast": {
+                    "cuts p offset": 2,
+                    "lower": 0.5,
+                    "upper": 99.5
+                },
+                "filter2d smooth": {
+                    "high": 0,
+                    "low": 0
+                },
+                "renorm constant": 5
+            },
+            "composite": {
+                "auto weight": false,
+                "hsv": {
+                    "h": {
+                        "blur": {
+                            "enabled": false,
+                            "kernel size": 1
+                        },
+                        "p": {
+                            "max": 0,
+                            "min": 0
+                        },
+                        "slider threshold": {
+                            "max": 0.0,
+                            "min": 0.0
+                        },
+                        "threshold": {
+                            "high": 0.0,
+                            "low": 0.0
+                        }
+                    },
+                    "s": {
+                        "p": {
+                            "activated": false,
+                            "max": 0,
+                            "min": 0
+                        },
+                        "slider threshold": {
+                            "max": 0.0,
+                            "min": 0.0
+                        },
+                        "threshold": {
+                            "high": 0.0,
+                            "low": 0.0
+                        }
+                    },
+                    "v": {
+                        "p": {
+                            "activated": false,
+                            "max": 0,
+                            "min": 0
+                        },
+                        "slider threshold": {
+                            "max": 0.0,
+                            "min": 0.0
+                        },
+                        "threshold": {
+                            "high": 0.0,
+                            "low": 0.0
+                        }
+                    }
+                },
+                "mode": "RGB",
+                "rgb": {
+                    "p": {
+                        "max": 0,
+                        "min": 0
+                    },
+                    "weight": {
+                        "b": 0.0,
+                        "g": 0.0,
+                        "r": 0.0
+                    }
+                }
+            },
+            "image rendering": {
+                "batch size": 1,
+                "convolution": {
+                    "divide": false,
+                    "enabled": false,
+                    "type": "None"
+                },
+                "filter2d": {
+                    "enabled": false,
+                    "n1": 0,
+                    "n2": 1
+                },
+                "image mode": "RAW",
+                "lambda": 8.520000278622319e-7,
+                "space transformation": "NONE",
+                "time transformation": "NONE",
+                "time transformation size": 1,
+                "time transformation stride": 1,
+                "z distance": 1.5
+            },
+            "version": "v1",
+            "view": {
+                "fft shift": false,
+                "p": {
+                    "accu level": 0,
+                    "index": 0
+                },
+                "q": {
+                    "accu level": 0,
+                    "index": 0
+                },
+                "renorm": true,
+                "reticle": {
+                    "display enabled": false,
+                    "scale": 0.5
+                },
+                "type": "MODULUS",
+                "window": {
+                    "filter2d": {
+                        "contrast": {
+                            "auto refresh": true,
+                            "enabled": false,
+                            "invert": false,
+                            "max": 65535.0,
+                            "min": 1.0
+                        },
+                        "log enabled": false
+                    },
+                    "xy": {
+                        "contrast": {
+                            "auto refresh": true,
+                            "enabled": false,
+                            "invert": false,
+                            "max": 65535.0,
+                            "min": 1.0
+                        },
+                        "flip": false,
+                        "img accu level": 1,
+                        "log enabled": false,
+                        "rot": 0.0
+                    },
+                    "xz": {
+                        "contrast": {
+                            "auto refresh": true,
+                            "enabled": false,
+                            "invert": false,
+                            "max": 65535.0,
+                            "min": 1.0
+                        },
+                        "flip": false,
+                        "img accu level": 1,
+                        "log enabled": false,
+                        "rot": 0.0
+                    },
+                    "yz": {
+                        "contrast": {
+                            "auto refresh": true,
+                            "enabled": false,
+                            "invert": false,
+                            "max": 65535.0,
+                            "min": 1.0
+                        },
+                        "flip": false,
+                        "img accu level": 1,
+                        "log enabled": false,
+                        "rot": 0.0
+                    }
+                },
+                "x": {
+                    "accu level": 0,
+                    "cuts": 0
+                },
+                "y": {
+                    "accu level": 0,
+                    "cuts": 0
+                }
+            }
+        }
+    },
+    {
+        "op": "move",
+        "from": "/#img",
+        "path": "/compute settings/image rendering/time transformation size"
+    },
+    {
+        "op": "move",
+        "from": "/algorithm",
+        "path": "/compute settings/image rendering/space transformation"
+    },
+    {
+        "op": "move",
+        "from": "/mode",
+        "path": "/compute settings/image rendering/image mode"
+    },
+    {
+        "op": "move",
+        "from": "/time_filter",
+        "path": "/compute settings/image rendering/time transformation"
+    },
+    {
+        "op": "move",
+        "from": "/contrast_max",
+        "path": "/compute settings/view/window/xy/contrast/max"
+    },
+    {
+        "op": "move",
+        "from": "/contrast_min",
+        "path": "/compute settings/view/window/xy/contrast/min"
+    },
+    {
+        "op": "move",
+        "from": "/fft_shift_enabled",
+        "path": "/compute settings/view/fft shift"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_xy_level",
+        "path": "/compute settings/view/window/xy/img accu level"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_yz_level",
+        "path": "/compute settings/view/window/yz/imgacculevel"
+    },
+    {
+        "op": "move",
+        "from": "/img_acc_slice_xz_level",
+        "path": "/compute settings/view/window/xz/img accu level"
+    },
+    {
+        "op": "move",
+        "from": "/lambda",
+        "path": "/compute settings/image rendering/lambda"
+    },
+    {
+        "op": "move",
+        "from": "/log_scale",
+        "path": "/compute settings/view/window/xy/log enabled"
+    },
+    {
+        "op": "move",
+        "from": "/p",
+        "path": "/compute settings/view/p/index"
+    },
+    {
+        "op": "move",
+        "from": "/p_acc_level",
+        "path": "/compute settings/view/p/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/renorm_enabled",
+        "path": "/compute settings/view/renorm"
+    },
+    {
+        "op": "move",
+        "from": "/x_acc_level",
+        "path": "/compute settings/view/x/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/y_acc_level",
+        "path": "/compute settings/view/y/accu level"
+    },
+    {
+        "op": "move",
+        "from": "/z",
+        "path": "/compute settings/image rendering/z distance"
+    },
+    {
+        "op": "copy",
+        "from": "/pixel_size",
+        "path": "/info/pixel size/y"
+    },
+    {
+        "op": "move",
+        "from": "/pixel_size",
+        "path": "/info/pixel size/x"
+    }
+]

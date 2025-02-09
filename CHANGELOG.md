@@ -1,5 +1,27 @@
 ## Changelog
 
+### 14.5.3
+
+- Changement des valeurs par defaults pour le contraste
+
+### 14.5.0
+
+- Fix reticle bug in cli
+- ui: Rec. -> Record
+- fix avi file resolution
+- split front and back in the repository
+
+### 14.4.3
+
+- Anamorphic image are interpolate for beeing square in .avi
+- Removed duplicate \_L and \_R
+- Readded benchmark mode in cli
+
+### 14.4.2
+
+- Fix:
+  - Angular spectrum now working with a new lens. Allowing angular spectrum to work with anamorphic data.
+
 ### 14.4.1
 
 - Fixed FFT frequencies computation

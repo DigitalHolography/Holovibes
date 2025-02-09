@@ -121,7 +121,8 @@ $exePath = ""
 # Check if Holovibes.exe exists
 if (Test-Path $exePath1) {
     $exePath = $exePath1
-} else {
+}
+else {
     $exePath = $exePath2
 }
 
@@ -142,7 +143,8 @@ function Execute-Holovibes {
     if ($input_fps -ne -1) { $args += " -f $input_fps" }
     if ($isMoments) {
         $args += " --moments_record"
-    } else {
+    }
+    else {
         $args += " --frame_skip $frameSkip"
     }
     if ($configFile) { $args += " -c `"$configFile`"" }
@@ -156,7 +158,7 @@ foreach ($file in $holoFiles) {
     $inputFilePath = $file.FullName
 
     if ($modeChoice -eq 1 -or $modeChoice -eq 3) {
-        $outputFilePath = Join-Path $holoFolderPath "$($file.BaseName)_normal$outputExtension"
+        $outputFilePath = Join-Path $holoFolderPath "$($file.BaseName)$outputExtension"
         Execute-Holovibes -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -input_fps $input_fps -configFile $configFileNormal -isMoments $false
     }
 

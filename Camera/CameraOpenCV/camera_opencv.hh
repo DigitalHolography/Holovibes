@@ -1,8 +1,7 @@
-/*! \file
+/*! \file camera_opencv.hh
  *
  * \brief Default Camera using openCV VideoCapture to provide an "all-default"
  * camera mode.
- *
  */
 #pragma once
 
@@ -15,7 +14,6 @@ namespace camera
 /*! \class CameraOpenCV
  *
  * \brief Camera using openCV to provide an "all-default" camera mode
- *
  */
 class CameraOpenCV : public Camera
 {
@@ -46,10 +44,10 @@ class CameraOpenCV : public Camera
      * \brief get the parameter from capture_device_, compare it with value and
      * return it
      *
-     * @param param
-     * @param value
-     * @param param_str
-     * @return double
+     * \param param
+     * \param value
+     * \param param_str
+     * \return double
      */
     double get_and_check(int param, double value, std::string param_str);
 
@@ -60,6 +58,7 @@ class CameraOpenCV : public Camera
     unsigned int fps_;
 
     enum grayscale_method method_;
+
     // BGR to grayscale colors coeffs [B, G, R]
     std::array<float, 3> grayscale_coeffs_;
 };
