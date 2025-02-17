@@ -322,6 +322,6 @@ void ExportPanel::update_recorded_eye()
     on_notify();
 }
 
-void ExportPanel::stop_fan() { API.input.camera_fan_stop(); }
+void ExportPanel::toggle_fan() { API.input.camera_fan_toggle(); }
 
 } // namespace holovibes::gui

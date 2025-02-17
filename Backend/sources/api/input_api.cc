@@ -216,18 +216,18 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
     return true;
 }
 
-void InputApi::camera_fan_stop() const
+void InputApi::camera_fan_toggle() const
 {
     if (Holovibes::instance().active_camera_)
     {
         int code = Holovibes::instance().active_camera_->toggleFan();
         if (code == 0)
         {
-            LOG_ERROR("fan disabled");
+            LOG_INFO("fan disabled");
         }
         else if (code == 1)
         {
-            LOG_ERROR("fan enabled");
+            LOG_INFO("fan enabled");
         }
         else
         {

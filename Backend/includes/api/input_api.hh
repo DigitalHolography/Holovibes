@@ -242,7 +242,7 @@ class InputApi : public IApi
     inline void set_pixel_size(float value) const { UPDATE_SETTING(PixelSize, value); }
 
     /*! \brief Stop the camera fan for 10 second. */
-    void camera_fan_stop() const;
+    void camera_fan_toggle() const;
 
 #pragma endregion
 

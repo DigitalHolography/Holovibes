@@ -3077,7 +3077,7 @@ The range of frequencies kept is [z, z + width]</string>
                     <string>Stop the fan for 10 second</string>
                    </property>
                    <property name="text">
-                    <string>Stop fan</string>
+                    <string>Toggle fan</string>
                    </property>
                    <property name="shortcut">
                     <string>Ctrl+Z</string>
@@ -5066,7 +5066,7 @@ p, li { white-space: pre-wrap; }
    <sender>ExportStopFanButton</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
-   <slot>stop_fan()</slot>
+   <slot>toggle_fan()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>894</x>
@@ -6041,7 +6041,7 @@ p, li { white-space: pre-wrap; }
   <slot>browse_record_output_file()</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
-  <slot>stop_fan()</slot>
+  <slot>toggle_fan()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>

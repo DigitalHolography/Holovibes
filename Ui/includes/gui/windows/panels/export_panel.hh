@@ -93,9 +93,9 @@ class ExportPanel : public Panel
     void update_recorded_eye();
 
     /*!
-     * \brief the ametek camera fan is disabled for 10 second to stabilize the aquisition.
+     * \brief toggle the ametek camera fan (to stabilize the aquisition).
      */
-    void stop_fan();
+    void toggle_fan();
 
   private:
     int record_frame_step_ = 512;
