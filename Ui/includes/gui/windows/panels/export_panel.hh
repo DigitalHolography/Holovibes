@@ -92,6 +92,11 @@ class ExportPanel : public Panel
      */
     void update_recorded_eye();
 
+    /*!
+     * \brief the ametek camera fan is disabled for 10 second to stabilize the aquisition.
+     */
+    void stop_fan();
+
   private:
     int record_frame_step_ = 512;
     Subscriber<std::string> set_output_file_path_subscriber_;

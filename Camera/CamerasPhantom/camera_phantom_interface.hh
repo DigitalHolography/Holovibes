@@ -141,6 +141,11 @@ class CameraPhantomInt : public Camera
     virtual int get_temperature() const override;
     /*! \brief get the camera fps */
     virtual int get_camera_fps() const override;
+    /*! \brief Temporarily disable the camera's fan for exactly 10 seconds.
+     *
+     * Changes the FanCtrl parameter from "FanOn" to "FanOff", waits 10 seconds, then sets it back to "FanOn".
+     */
+    virtual int toggleFan() const override;
 
   protected:
     /*! \brief Load parameters from the INI file and store them (into private attributes).
