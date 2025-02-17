@@ -3,6 +3,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include <thread>
+#include <chrono>
+
 #include "camera_logger.hh"
 #include "spdlog/spdlog.h"
 #include "camera_exception.hh"
@@ -276,6 +279,29 @@ int CameraPhantomInt::get_camera_fps() const
 {
     auto cycle = params_.get<unsigned int>("CycleMinimumPeriod");
     return cycle ? 1e6 / cycle.value() : -1;
+}
+
+int CameraPhantomInt::toggleFan() const
+{
+    try
+    {
+
+        if (grabber_->available_grabbers_[0]->getString<Euresys::RemoteModule>("FanCtrl") == "FanOn")
+        {
+            grabber_->available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", "FanOff");
+            return 0;
+        }
+        else
+        {
+            grabber_->available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", "FanOn");
+            return 1;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        Logger::camera()->error("toggleFan failed: {}", e.what());
+        return -1;
+    }
 }
 
 } // namespace camera
