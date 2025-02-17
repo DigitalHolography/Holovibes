@@ -241,6 +241,9 @@ class InputApi : public IApi
      */
     inline void set_pixel_size(float value) const { UPDATE_SETTING(PixelSize, value); }
 
+    /*! \brief Stop the camera fan for 10 second. */
+    void camera_fan_stop() const;
+
 #pragma endregion
 
     /*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame

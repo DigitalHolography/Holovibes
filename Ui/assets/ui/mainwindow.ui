@@ -3068,6 +3068,22 @@ The range of frequencies kept is [z, z + width]</string>
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="QPushButton" name="ExportStopFanButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>Stop the fan for 10 second</string>
+                   </property>
+                   <property name="text">
+                    <string>Stop fan</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>Ctrl+Z</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </item>
               </layout>
@@ -5047,6 +5063,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>ExportStopFanButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>stop_fan()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>894</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>InputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>ImportPanel</receiver>
@@ -6009,6 +6041,7 @@ p, li { white-space: pre-wrap; }
   <slot>browse_record_output_file()</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
+  <slot>stop_fan()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
@@ -6080,5 +6113,6 @@ p, li { white-space: pre-wrap; }
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
   <slot>set_file_read_preset()</slot>
+  
  </slots>
 </ui>
