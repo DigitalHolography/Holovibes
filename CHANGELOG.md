@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.5.4
+
+- Button to toggle Ametek camera fans.
+
 ### 14.5.3
 
 - Changement des valeurs par defaults pour le contraste
