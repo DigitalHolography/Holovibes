@@ -5,7 +5,6 @@
 #pragma once
 
 #include "aliases.hh"
-#include "rect.hh"
 
 /*!
  * \brief Compute the output percentile of the xy view
@@ -19,8 +18,8 @@
  * \param[in] h_percent The percentile to compute
  * \param[out] h_out_percent The output percentile
  * \param[in] size_percent The size of the percentile array
- * \param[in] sub_zone The zone to apply the mask to
- * \param[in] compute_on_sub_zone Whether to compute the percentile on the sub zone
+ * \param[in] scale The scale of the circular mask (relative to the smallest dimension of the image)
+ * \param[in] compute_on_sub_zone Whether to compute the percentile within the circular mask
  * \param[in] stream The CUDA stream to use
  */
 void compute_percentile_xy_view(const float* gpu_input,
@@ -30,7 +29,7 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const float scale,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream);
 
@@ -44,8 +43,8 @@ void compute_percentile_xy_view(const float* gpu_input,
  * \param[in] h_percent The percentile to compute
  * \param[out] h_out_percent The output percentile
  * \param[in] size_percent The size of the percentile array
- * \param[in] sub_zone The zone to apply the mask to
- * \param[in] compute_on_sub_zone Whether to compute the percentile on the sub zone
+ * \param[in] scale The scale of the circular mask (relative to the smallest dimension of the image)
+ * \param[in] compute_on_sub_zone Whether to compute the percentile within the circular mask
  * \param[in] stream The CUDA stream to use
  */
 void compute_percentile_yz_view(const float* gpu_input,
@@ -55,6 +54,4 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone,
                                 const cudaStream_t stream);
