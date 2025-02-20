@@ -1,6 +1,13 @@
 ## Changelog
 
-### 14.5.4
+### 14.5.7
+
+- fix convolution bugs.
+- circular reticle overlay for contrast calculation.
+- new presset.
+- ps1 improvement.
+
+### 14.5.6
 
 - Button to toggle Ametek camera fans.
 
