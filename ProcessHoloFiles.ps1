@@ -55,13 +55,56 @@ function Select-OutputExtension {
     }
 }
 
-# Function to get configuration files
+# Function to get a configuration file with multiple options:
+# 1. Skip configuration file selection
+# 2. Use the preset configuration file at AppData\preset\preset.json
+# 3. Open the file explorer to select a configuration file
 function Get-ConfigFileOption {
-    $filePath = Select-File -description "Select a configuration file" -filter "Config Files (*.json)|*.json|All Files (*.*)|*.*"
-    if ($filePath) {
-        Write-Host "Selected configuration file: $filePath" -ForegroundColor Green
+    # Display the available options
+    Write-Host "Select the configuration file option:" -ForegroundColor Cyan
+    Write-Host "1. Skip configuration file selection" -ForegroundColor Yellow
+    Write-Host "2. Use the standard preset configuration file" -ForegroundColor Yellow
+    Write-Host "3. Open the file explorer to select a configuration file" -ForegroundColor Yellow
+
+    # Prompt for the user's choice (default is 1)
+    $choice = Read-Host "Enter your choice (default is 1 to skip)"
+
+    # Default to option 1 if input is invalid
+    if ([string]::IsNullOrEmpty($choice) -or $choice -notmatch '^[1-3]$') {
+        $choice = "1"
     }
-    return $filePath
+
+    switch ($choice) {
+        "1" {
+            # Option 1: Skip configuration file selection
+            Write-Host "No configuration file selected." -ForegroundColor Yellow
+            return $null
+        }
+        "2" {
+            # Option 2: Use the preset configuration file at AppData\preset\preset.json
+            $presetPath = "AppData\preset\settingsDoppler37kHz.json"
+            if (Test-Path $presetPath) {
+                Write-Host "Using standard configuration file: $presetPath" -ForegroundColor Green
+                return $presetPath
+            }
+            else {
+                Write-Host "Preset configuration file not found at: $presetPath. Skipping configuration file selection." -ForegroundColor Red
+                return $null
+            }
+        }
+        "3" {
+            # Option 3: Open the file explorer for file selection
+            $filePath = Select-File -description "Select a configuration file" -filter "Config Files (*.json)|*.json|All Files (*.*)|*.*"
+            if ($filePath) {
+                Write-Host "Selected configuration file: $filePath" -ForegroundColor Green
+                return $filePath
+            }
+            else {
+                Write-Host "No file selected. Skipping configuration file selection." -ForegroundColor Yellow
+                return $null
+            }
+        }
+    }
 }
 
 # Prompt the user to select the folder containing .holo files
@@ -73,9 +116,9 @@ if (-not $holoFolderPath) {
 
 # Select recording mode
 Write-Host "Select recording mode:" -ForegroundColor Cyan
-Write-Host "1. Normal recording" -ForegroundColor Yellow
-Write-Host "2. Moments recording" -ForegroundColor Yellow
-Write-Host "3. Both (Normal + Moments with different configurations)" -ForegroundColor Yellow
+Write-Host "1. Image rendering" -ForegroundColor Yellow
+Write-Host "2. Statistical moments" -ForegroundColor Yellow
+#Write-Host "3. Both (Image + Moments with different configurations)" -ForegroundColor Yellow
 $modeChoice = Read-Host "Enter the number corresponding to your choice (default is 1)"
 
 if (-not ($modeChoice -match '^[1-3]$')) { $modeChoice = 1 }
@@ -87,17 +130,17 @@ $configFileMoments = $null
 switch ($modeChoice) {
     1 { $configFileNormal = Get-ConfigFileOption }
     2 { $configFileMoments = Get-ConfigFileOption }
-    3 {
-        Write-Host "Select configuration file for NORMAL recording:" -ForegroundColor Cyan
-        $configFileNormal = Get-ConfigFileOption
-        Write-Host "Select configuration file for MOMENTS recording:" -ForegroundColor Cyan
-        $configFileMoments = Get-ConfigFileOption
-    }
+    #3 {
+    #    Write-Host "Select configuration file for NORMAL recording:" -ForegroundColor Cyan
+     #   $configFileNormal = Get-ConfigFileOption
+      #  Write-Host "Select configuration file for MOMENTS recording:" -ForegroundColor Cyan
+       # $configFileMoments = Get-ConfigFileOption
+    #}
 }
 
 # Set the frame skip and input fps
-$frameSkip = Read-Host "Enter frame skip (default 16)"
-if (-not ($frameSkip -match '^[0-9]+$')) { $frameSkip = 16 }
+$frameSkip = Read-Host "Enter frame skip (default 4)"
+if (-not ($frameSkip -match '^[0-9]+$')) { $frameSkip = 4 }
 
 $input_fps = Read-Host "Enter input fps (optional, default camera fps)"
 if (-not ($input_fps -match '^[0-9]+$')) { $input_fps = -1 }
