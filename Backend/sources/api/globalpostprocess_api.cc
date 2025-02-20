@@ -89,7 +89,7 @@ std::vector<float> GlobalPostProcessApi::load_convolution_matrix(const std::stri
 
     std::string path = path_file.string();
 
-    std::vector<float> convo_matrix = get_convo_matrix();
+    std::vector<float> convo_matrix = {};
     std::vector<float> matrix;
     uint matrix_width = 0;
     uint matrix_height = 0;
@@ -192,7 +192,6 @@ ApiCode GlobalPostProcessApi::enable_convolution(const std::string& filename) co
     if (api_->compute.get_is_computation_stopped())
         return ApiCode::OK;
 
-    UPDATE_SETTING(ConvolutionMatrix, {});
     std::vector<float> convo_matrix = load_convolution_matrix(filename);
     UPDATE_SETTING(ConvolutionMatrix, convo_matrix);
 
