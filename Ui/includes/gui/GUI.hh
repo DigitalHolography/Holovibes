@@ -81,6 +81,16 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size);
  */
 void set_chart_display(bool enabled);
 
+/*!
+ * \brief Enables the chart mean computation.
+ * The UI then fetches the data and prints it in a chart.
+ * If the conditions are not met to enable the setting, it won't be updated.
+ *
+ * \param value True = enabled, False = disabled
+ * \return The new value of the setting.
+ */
+bool set_chart_mean_vessels_enabled(bool enabled);
+
 /*! \brief Open or close the 3D cuts view
  *
  * \param[in] enabled true: open, false: close
@@ -93,6 +103,76 @@ void rotate_texture();
 
 /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
 void flip_texture();
+
+/*! \brief Closes all the currently displaying windows
+ *
+ */
+void close_windows();
+
+/*! \brief Set the light ui mode
+ *
+ * \param value true: enable, false: disable
+ */
+void set_light_ui_mode(bool value);
+
+/*! \brief Get the light ui mode
+ *
+ * \return Whether the light ui mode is enabled or not
+ */
+bool is_light_ui_mode();
+
+/*! \brief Create and open a window of the specified size and kind
+ *
+ * \param[in] window_kind the kind of window to create (raw or holographic window)
+ * \param[in] window_size the size of the window
+ */
+void create_window(Computation window_kind, ushort window_size);
+
+/*! \brief Close all windows and reopen the current window with the new size
+ *
+ * \param[in] window_size the size of the window
+ */
+void refresh_window(ushort window_size);
+
+/*! \brief Open or close the filter2D view
+ *
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
+ */
+void set_filter2d_view(bool enabled, uint auxiliary_window_max_size);
+
+/*! \brief Open or close the lens view
+ *
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
+ */
+void set_lens_view(bool enabled, uint auxiliary_window_max_size);
+
+/*! \brief Open or close the raw view
+ *
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
+ */
+void set_raw_view(bool enabled, uint auxiliary_window_max_size);
+
+/*! \brief Open or close the plot window for the chart display
+ *
+ * \param[in] enabled true: enable, false: disable
+ */
+void set_chart_display(bool enabled);
+
+/*! \brief Open or close the analysis plot window to display data means
+ *
+ * \param[in] enabled true: enable, false: disable
+ */
+void set_analysis_chart_display(bool enabled);
+
+/*! \brief Open or close the 3D cuts view
+ *
+ * \param[in] enabled true: open, false: close
+ * \param[in] window_size the size of the slice window
+ */
+void set_3d_cuts_view(bool enabled, uint max_window_size);
 
 /*! \brief Make the ui composite overlay visible */
 void set_composite_area();

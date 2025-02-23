@@ -6,6 +6,7 @@ set(EXTERNAL_INCLUDES
 set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
+    includes/analysis/
     includes/api/
     includes/compute/
     includes/data_struct/
@@ -17,6 +18,7 @@ set(INTERNAL_INCLUDES
     includes/io/output_file/
     includes/thread/
     includes/tools/
+    includes/tools/misc/
     includes/tools/cuda_tools/
     includes/tools/units/
     includes/tools/check/

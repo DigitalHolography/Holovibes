@@ -68,6 +68,14 @@ class CudaUniquePtr
         return tmp != nullptr;
     }
 
+    void safe_resize(size_t size)
+    {
+        bool success = resize(size);
+
+        if (!success)
+            throw std::exception(cudaGetErrorString(cudaGetLastError()));
+    }
+
     size_t get_size() const { return size_; }
 
     void reset(T* ptr) { val_.reset(ptr); }

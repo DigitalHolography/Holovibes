@@ -83,13 +83,27 @@ cudaError_t cudaXRMallocHost(T** ptr, size_t size)
     return cudaMallocHost(ptr, size);
 }
 
-/*! \brief Wrapper around cudaMallocHost to handle errors.
+/*! \brief Wrapper around cudaMallocAsync to handle errors
  *
- *  This function uses the error handling from common.cuh (cudaSafeCall).
- *  A program built in error WILL abort in case of error.
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
  *
- *  \param[in] ptr The device pointer to allocate.
- *  \param[in] size Size in byte to allocate.
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ * \param stream Stream identifier.
+ *
+ */
+template <typename T>
+void cudaXMallocAsync(T** devPtr, size_t size, const cudaStream_t stream)
+{
+    cudaSafeCall(cudaXRMallocAsync(devPtr, size, stream));
+}
+
+/*! \brief Wrapper around cudaMalloc for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ *
  */
 template <typename T>
 void cudaXMallocHost(T** ptr, size_t size)
@@ -124,6 +138,19 @@ inline size_t cudaGetAllocatedSize(T* ptr)
     return psize;
 }
 
+/*! \brief Wrapper around cudaXRMallocAsync for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ * \param stream Stream identifier.
+ *
+ */
+template <typename T>
+cudaError_t cudaXRMallocAsync(T** devPtr, size_t size, const cudaStream_t stream)
+{
+    LOG_DEBUG("Allocate {:.3f} Gib on Device w/ Async", static_cast<float>(size) / (1024 * 1024 * 1024));
+    return cudaMallocAsync(devPtr, size, stream);
+}
 /*! \brief Wrapper around cudaMemcpy to handle errors.
  *
  *  This function uses the error handling from common.cuh (cudaSafeCall).
@@ -198,6 +225,16 @@ inline void cudaXFree(void* ptr) { cudaSafeCall(cudaFree(ptr)); }
  *  \param[in] ptr Device pointer to memory to free.
  */
 inline void cudaXFreeHost(void* ptr) { cudaSafeCall(cudaFreeHost(ptr)); }
+
+/*! \brief Wrapper around cudaFreeAsync to handle errors
+ *
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
+ *
+ * \param devPtr Device pointer to memory to free
+ * \param stream Stream identifier.
+ */
+void cudaXFreeAsync(void* devPtr, cudaStream_t stream);
 
 /*! \brief Wrapper around cudaStreamSynchronize to handle errors.
  *

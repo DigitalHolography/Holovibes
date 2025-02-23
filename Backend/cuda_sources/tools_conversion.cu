@@ -18,14 +18,14 @@ static __global__ void kernel_complex_to_modulus_pacc(
         // We use a local variable so the global memory isn't read or written
         // everytime. Only written once at the end.
         float val = 0.0f;
-        for (int i = pmin; i <= pmax; i++)
+        for (int i = pmin; i < pmax; i++)
         {
             const cuComplex* current_p_frame = input + i * size;
 
             val += hypotf(current_p_frame[index].x, current_p_frame[index].y);
         }
 
-        output[index] = val / (pmax - pmin + 1);
+        output[index] = val / (pmax - pmin);
     }
 }
 
@@ -38,7 +38,7 @@ static __global__ void kernel_complex_to_modulus(
     if (index >= frame_res)
         return;
 
-    for (int i = f_start; i <= f_end; i++)
+    for (int i = f_start; i < f_end; i++)
     {
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;
@@ -91,14 +91,14 @@ static __global__ void kernel_complex_to_squared_modulus(
         // We use a local variable so the global memory isn't read or written
         // everytime. Only written once at the end.
         float val = 0.0f;
-        for (int i = pmin; i <= pmax; i++)
+        for (int i = pmin; i < pmax; i++)
         {
             const cuComplex* current_p_frame = input + i * size;
             // square of the square root of the sum of the squares of x and y
             float tmp = hypotf(current_p_frame[index].x, current_p_frame[index].y);
             val += tmp * tmp;
         }
-        output[index] = val / (pmax - pmin + 1);
+        output[index] = val / (pmax - pmin);
     }
 }
 
@@ -133,9 +133,8 @@ void input_queue_to_input_buffer(void* const output,
      */
     static const auto convert_8_bit = [] __device__(const uchar input_pixel)
     {
-        // max uchar value is 255, multiplied by 257 you have 65535 which is max
-        // ushort
-        return static_cast<float>(input_pixel) * 257;
+        // cast to float
+        return static_cast<float>(input_pixel);
     };
     static const auto convert_16_bit = [] __device__(const ushort input_pixel)
     { return static_cast<float>(input_pixel); };
@@ -206,14 +205,14 @@ static __global__ void kernel_complex_to_argument(
         // We use a local variable so the global memory isn't read or written
         // everytime. Only written once at the end.
         float val = 0.0f;
-        for (int i = pmin; i <= pmax; i++)
+        for (int i = pmin; i < pmax; i++)
         {
             const cuComplex* current_p_frame = input + i * size;
             // Computes the arc tangent of y / x
             // We use std::atan2 in order to obtain results in [-pi; pi].
             val += std::atan2(current_p_frame[index].y, current_p_frame[index].x);
         }
-        output[index] = val / (pmax - pmin + 1);
+        output[index] = val / (pmax - pmin);
     }
 }
 

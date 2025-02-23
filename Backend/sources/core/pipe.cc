@@ -249,6 +249,8 @@ bool Pipe::make_requests()
         clear_request(ICS::UpdateRegistrationZone);
     }
 
+    analysis_->init();
+
     return success_allocation;
 }
 
@@ -347,6 +349,13 @@ void Pipe::refresh()
         insert_moments_record();
     }
 
+    // Analysis
+    analysis_->insert_first_analysis_masks();
+    analysis_->insert_artery_mask();
+    analysis_->insert_vein_mask();
+    analysis_->insert_choroid_mask();
+    analysis_->insert_chart();
+
     insert_filter2d_view();
 
     // Postprocessing'
@@ -435,7 +444,7 @@ void Pipe::insert_moments()
     if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
     {
         auto p = setting<settings::P>();
-        moments_env_.f_start = p.start;
+        moments_env_.f_start = p.start - 1; // -1 because indexes start at 0 in C++
         moments_env_.f_end =
             std::min<int>(p.start + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()) - 1);
 

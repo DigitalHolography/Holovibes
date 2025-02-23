@@ -40,6 +40,7 @@ kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t r
 
 /*!
  * \brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color
+
  * gradient on a position
  *
  * \param colors The buffer to fill (range * 3 * sizeof(float))

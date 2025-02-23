@@ -121,3 +121,37 @@ void gpu_normalize(float* const input,
 
     map_generic(input, input, frame_res, map_function, stream);
 }
+
+/*!
+ * \brief Computes the element-wise Hadamard product of two input arrays.
+ *
+ * This CUDA kernel function computes the element-wise Hadamard product (element-wise multiplication) of two input
+ * arrays, `input1` and `input2`. The result is stored in the output array. Each thread in the kernel computes the
+ * product for a single element.
+ *
+ * \param [out] output Pointer to the output array where the result of the Hadamard product will be stored.
+ * \param [in] input1 Pointer to the first input array.
+ * \param [in] input2 Pointer to the second input array.
+ * \param [in] size The number of elements in the input arrays.
+ *
+ * \note The function performs the Hadamard product only for the elements within the specified size.
+ */
+__global__ void kernel_compute_hadamard_product(float* const output,
+                                                const float* const input1,
+                                                const float* const input2,
+                                                const size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+        output[index] = input1[index] * input2[index];
+}
+
+void compute_hadamard_product(
+    float* output, const float* const input1, const float* const input2, const size_t size, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_compute_hadamard_product<<<blocks, threads, 0, stream>>>(output, input1, input2, size);
+    cudaCheckError();
+}

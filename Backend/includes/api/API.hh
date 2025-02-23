@@ -19,6 +19,7 @@
 #include "compute_api.hh"
 #include "transform_api.hh"
 #include "information_api.hh"
+#include "analysis_api.hh"
 
 #include "compute_settings.hh"
 
@@ -51,6 +52,7 @@ class Api
         , view(this)
         , window_pp(this)
         , settings()
+        , analysis(this)
     {
     }
 
@@ -78,6 +80,7 @@ class Api
     const ViewApi view;
     const WindowPostProcessApi window_pp;
     const ComputeSettingsApi settings;
+    AnalysisApi analysis;
 };
 
 } // namespace holovibes::api
