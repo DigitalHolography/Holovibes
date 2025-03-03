@@ -1,6 +1,19 @@
 #include <algorithm>
 #include "texture_update.cuh"
 #include "cuda_memory.cuh"
+#include "logger.hh"
+
+__global__ static void update8BitSlice(uchar* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
+{
+    const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+    const uint index = y * texDim.x + x;
+
+    if (x >= texDim.x || y >= texDim.y)
+        return;
+
+    surf2Dwrite(frame[index], cuSurface, x, y);
+}
 
 __global__ static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
@@ -56,6 +69,12 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
         updateComplexSlice<<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(frame),
                                                            cuSurface,
                                                            dim3(fd.width, fd.height));
+    }
+    else if (fd.depth == camera::PixelDepth::Bits8)
+    {
+        update8BitSlice<<<blocks, threads, 0, stream>>>(reinterpret_cast<uchar*>(frame),
+                                                        cuSurface,
+                                                        dim3(fd.width, fd.height));
     }
     else
     {

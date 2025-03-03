@@ -13,9 +13,11 @@
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "cuda_memory.cuh"
+#include "texture_update.cuh"
 #include "common.cuh"
 #include "tools.hh"
 #include "API.hh"
+#include "logger.hh"
 
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
@@ -88,32 +90,40 @@ void RawWindow::initializeGL()
     Program->bind();
 
 #pragma region Texture
-    glGenBuffers(1, &Pbo);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-    size_t size;
-    if (fd_.depth == camera::PixelDepth::Complex) // cuComplex displayed as a uint
-        size = fd_.get_frame_res() * sizeof(uint);
-    else if (fd_.depth == camera::PixelDepth::Bits32) // Float are displayed as ushort
-        size = fd_.get_frame_res() * sizeof(ushort);
-    else
-        size = fd_.get_frame_size();
-
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr,
-                 GL_STATIC_DRAW); // GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
-    glPixelStorei(GL_UNPACK_SWAP_BYTES, (fd_.byteEndian == Endianness::BigEndian) ? GL_TRUE : GL_FALSE);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-    cudaGraphicsGLRegisterBuffer(&cuResource, Pbo, cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
-    /* -------------------------------------------------- */
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
-    texDepth = (fd_.depth == camera::PixelDepth::Bits8) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-    texType = (fd_.depth == camera::PixelDepth::Complex) ? GL_RG : GL_RED;
-    if (fd_.depth == camera::PixelDepth::Bits48)
-        texType = GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, nullptr);
+
+    size_t size = fd_.get_frame_size();
+
+    if (fd_.depth == camera::PixelDepth::Bits8)
+    {
+        unsigned char* mTexture8 = new unsigned char[size];
+        std::memset(mTexture8, 0, size * sizeof(unsigned char));
+
+        texDepth = GL_UNSIGNED_BYTE;
+        texType = GL_RED;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, mTexture8);
+
+        delete[] mTexture8;
+    }
+    else
+    {
+        ushort* mTexture16 = new ushort[size];
+        std::memset(mTexture16, 0, size * sizeof(ushort));
+
+        texDepth = GL_UNSIGNED_SHORT;
+        texType = (fd_.depth == camera::PixelDepth::Complex) ? GL_RG : GL_RED;
+
+        if (fd_.depth == camera::PixelDepth::Bits48)
+            texType = GL_RGB;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fd_.width, fd_.height, 0, GL_RG, texDepth, mTexture16);
+
+        delete[] mTexture16;
+    }
 
     Program->setUniformValue(Program->uniformLocation("tex"), 0);
-
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -125,12 +135,22 @@ void RawWindow::initializeGL()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
     }
-    else if (fd_.depth != camera::PixelDepth::Bits48)
+    else
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
     }
+
     glBindTexture(GL_TEXTURE_2D, 0);
+    cudaGraphicsGLRegisterImage(&cuResource,
+                                Tex,
+                                GL_TEXTURE_2D,
+                                cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
+    cudaGraphicsMapResources(1, &cuResource, cuStream);
+    cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
+    cuArrRD.resType = cudaResourceTypeArray;
+    cuArrRD.res.array.array = cuArray;
+    cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 #pragma endregion
 
 #pragma region Vertex Buffer Object
@@ -255,54 +275,22 @@ void RawWindow::resizeGL(int w, int h)
 
 void RawWindow::paintGL()
 {
-    // Get the last image from the ouput queue
     void* frame = output_->get_last_image();
     if (!frame)
         return;
 
-    // Window translation but none seems to be performed
     glViewport(0, 0, width(), height());
 
-    // Bind framebuffer to the context, "not necessary to call this function in
-    // most cases, because it is called automatically before invoking
-    // paintGL()."
     makeCurrent();
 
-    // Clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Binds the vertex array object to the OpenGL binding point
     Vao.bind();
     Program->bind();
 
-    // Map resources for CUDA
-    cudaSafeCall(cudaGraphicsMapResources(1, &cuResource, cuStream));
-    // Retrive the cuda pointer
-    cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource));
-
-    // Put the frame inside the cuda ressrouce
-
-    if (API.compute.get_img_type() == ImgType::Composite)
-        cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
-    else
-    {
-        // int bitshift = kView == KindOfView::Raw ? GSH::instance().get_raw_bitshift() : 0;
-        convert_frame_for_display(cuPtrToPbo, frame, fd_.get_frame_res(), fd_.depth, 0, cuStream);
-    }
-
-    // Release resources (needs to be done at each call) and sync
-    cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
-    cudaXStreamSynchronize(cuStream);
-
-    // Texture creationg
+    textureUpdate(cuSurface, frame, fd_, cuStream);
     glBindTexture(GL_TEXTURE_2D, Tex);
-
-    // Binds buffer to texture data source
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fd_.width, fd_.height, texType, texDepth, nullptr);
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
     glEnableVertexAttribArray(0);

@@ -32,6 +32,9 @@ class RawWindow : public BasicOpenGLWindow
 
   protected:
     int texDepth, texType;
+    cudaArray_t cuArray;
+    cudaResourceDesc cuArrRD;
+    cudaSurfaceObject_t cuSurface;
 
     int old_width = -1;
     int old_height = -1;
