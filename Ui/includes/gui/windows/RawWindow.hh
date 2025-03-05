@@ -5,7 +5,7 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
-
+#include "CudaTexture.hh"
 #include "rect.hh"
 
 namespace holovibes::gui
@@ -35,6 +35,7 @@ class RawWindow : public BasicOpenGLWindow
     cudaArray_t cuArray;
     cudaResourceDesc cuArrRD;
     cudaSurfaceObject_t cuSurface;
+    CudaTexture* cudaTexture;
 
     int old_width = -1;
     int old_height = -1;

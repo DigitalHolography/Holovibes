@@ -66,10 +66,13 @@ void Filter2DWindow::initializeGL()
     glBindTexture(GL_TEXTURE_2D, Tex);
 
     size_t size = fd_.get_frame_size();
-    ushort* mTexture = new ushort[size];
-    std::memset(mTexture, 0, size * sizeof(ushort));
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fd_.width, fd_.height, 0, GL_RG, GL_UNSIGNED_SHORT, mTexture);
+    unsigned char* mTexture = new unsigned char[size];
+    std::memset(mTexture, 0, size * sizeof(unsigned char));
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, fd_.width, fd_.height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture);
+
+    delete[] mTexture;
 
     Program->setUniformValue(Program->uniformLocation("tex"), 0);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -90,7 +93,7 @@ void Filter2DWindow::initializeGL()
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    delete[] mTexture;
+
     cudaGraphicsGLRegisterImage(&cuResource,
                                 Tex,
                                 GL_TEXTURE_2D,

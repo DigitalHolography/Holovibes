@@ -19,12 +19,15 @@ __global__ static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSur
 {
     const uint x = blockIdx.x * blockDim.x + threadIdx.x;
     const uint y = blockIdx.y * blockDim.y + threadIdx.y;
-    const uint index = y * texDim.x + x;
 
     if (x >= texDim.x || y >= texDim.y)
         return;
 
-    surf2Dwrite(static_cast<uchar>(frame[index] >> 8), cuSurface, x << 2, y);
+    const uint index = y * texDim.x + x;
+
+    uchar pixel8 = static_cast<uchar>(frame[index] >> 8);
+
+    surf2Dwrite(pixel8, cuSurface, x, y);
 }
 
 __global__ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
@@ -46,9 +49,13 @@ __global__ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t 
         frame[index].y = 65535.f;
     else if (frame[index].y < 0.f)
         frame[index].y = 0.f;
+
     float pix = hypotf(frame[index].x, frame[index].y);
 
-    surf2Dwrite(pix, cuSurface, x << 2, y);
+    float scale = 255.0f / (65535.0f * sqrtf(2.0f));
+    unsigned char out_val = (unsigned char)(pix * scale);
+
+    surf2Dwrite(out_val, cuSurface, x, y);
 }
 
 void textureUpdate(cudaSurfaceObject_t cuSurface,

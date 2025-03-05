@@ -90,38 +90,18 @@ void RawWindow::initializeGL()
     Program->bind();
 
 #pragma region Texture
+
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
 
     size_t size = fd_.get_frame_size();
 
-    if (fd_.depth == camera::PixelDepth::Bits8)
-    {
-        unsigned char* mTexture8 = new unsigned char[size];
-        std::memset(mTexture8, 0, size * sizeof(unsigned char));
+    unsigned char* mTexture8 = new unsigned char[size];
+    std::memset(mTexture8, 0, size * sizeof(unsigned char));
 
-        texDepth = GL_UNSIGNED_BYTE;
-        texType = GL_RED;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, fd_.width, fd_.height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, mTexture8);
-
-        delete[] mTexture8;
-    }
-    else
-    {
-        ushort* mTexture16 = new ushort[size];
-        std::memset(mTexture16, 0, size * sizeof(ushort));
-
-        texDepth = GL_UNSIGNED_SHORT;
-        texType = (fd_.depth == camera::PixelDepth::Complex) ? GL_RG : GL_RED;
-
-        if (fd_.depth == camera::PixelDepth::Bits48)
-            texType = GL_RGB;
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fd_.width, fd_.height, 0, GL_RG, texDepth, mTexture16);
-
-        delete[] mTexture16;
-    }
+    delete[] mTexture8;
 
     Program->setUniformValue(Program->uniformLocation("tex"), 0);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -151,6 +131,13 @@ void RawWindow::initializeGL()
     cuArrRD.resType = cudaResourceTypeArray;
     cuArrRD.res.array.array = cuArray;
     cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
+    /*
+    cudaTexture = new CudaTexture(fd_.width, fd_.height, fd_.depth, cuStream);
+    if (!cudaTexture->init())
+    {
+        LOG_ERROR("Failed to initialize CUDA Texture");
+    }
+    */
 #pragma endregion
 
 #pragma region Vertex Buffer Object
@@ -280,9 +267,7 @@ void RawWindow::paintGL()
         return;
 
     glViewport(0, 0, width(), height());
-
     makeCurrent();
-
     glClear(GL_COLOR_BUFFER_BIT);
 
     Vao.bind();
@@ -290,6 +275,10 @@ void RawWindow::paintGL()
 
     textureUpdate(cuSurface, frame, fd_, cuStream);
     glBindTexture(GL_TEXTURE_2D, Tex);
+    // Use the CudaTexture update method which handles map/unmap and sync.
+    // cudaTexture->update(frame, fd_);
+
+    // glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
