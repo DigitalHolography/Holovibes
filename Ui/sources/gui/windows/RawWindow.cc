@@ -90,54 +90,12 @@ void RawWindow::initializeGL()
     Program->bind();
 
 #pragma region Texture
-
-    glGenTextures(1, &Tex);
-    glBindTexture(GL_TEXTURE_2D, Tex);
-
-    size_t size = fd_.get_frame_size();
-
-    unsigned char* mTexture8 = new unsigned char[size];
-    std::memset(mTexture8, 0, size * sizeof(unsigned char));
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, fd_.width, fd_.height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
-
-    delete[] mTexture8;
-
-    Program->setUniformValue(Program->uniformLocation("tex"), 0);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    if (fd_.depth == camera::PixelDepth::Complex)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
-    }
-    else
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-    }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    cudaGraphicsGLRegisterImage(&cuResource,
-                                Tex,
-                                GL_TEXTURE_2D,
-                                cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
-    cudaGraphicsMapResources(1, &cuResource, cuStream);
-    cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
-    cuArrRD.resType = cudaResourceTypeArray;
-    cuArrRD.res.array.array = cuArray;
-    cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
-    /*
     cudaTexture = new CudaTexture(fd_.width, fd_.height, fd_.depth, cuStream);
     if (!cudaTexture->init())
     {
         LOG_ERROR("Failed to initialize CUDA Texture");
     }
-    */
+
 #pragma endregion
 
 #pragma region Vertex Buffer Object
@@ -273,12 +231,9 @@ void RawWindow::paintGL()
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface, frame, fd_, cuStream);
-    glBindTexture(GL_TEXTURE_2D, Tex);
-    // Use the CudaTexture update method which handles map/unmap and sync.
-    // cudaTexture->update(frame, fd_);
+    cudaTexture->update(frame, fd_);
 
-    // glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
+    glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);

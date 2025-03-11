@@ -42,6 +42,20 @@ CudaTexture::~CudaTexture()
 
 bool CudaTexture::init()
 {
+    QOpenGLContext* context = QOpenGLContext::currentContext();
+    if (!context)
+    {
+        qWarning("No opengl context in CudaTexture::init()");
+        return false;
+    }
+
+    QOpenGLFunctions* glFuncs = context->functions();
+    if (!glFuncs)
+    {
+        qWarning("Not possible to get opengl functions in CudaTexture::init()");
+        return false;
+    }
+
     // Generate and bind the OpenGL texture.
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
@@ -55,6 +69,9 @@ bool CudaTexture::init()
     // Initialize the texture with the empty image.
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
     delete[] mTexture8;
+
+    // Generate mipmap
+    glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
 
     // Set texture parameters.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -107,29 +124,7 @@ bool CudaTexture::init()
 
 void CudaTexture::update(void* frame, const camera::FrameDescriptor& fd)
 {
-    // Mapper la ressource CUDA pour accéder au tableau associé à la texture.
-    cudaGraphicsMapResources(1, &cuResource, cuStream);
-
-    // Récupérer le tableau mappé.
-    cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
-
-    // (Optionnel) Si nécessaire, recréer le cudaSurfaceObject pour prendre en compte le tableau mappé.
-    cudaResourceDesc resDesc;
-    std::memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeArray;
-    resDesc.res.array.array = cuArray;
-    // Détruire l'ancien objet surface s'il existe
-    if (cuSurface)
-    {
-        cudaDestroySurfaceObject(cuSurface);
-    }
-    cudaCreateSurfaceObject(&cuSurface, &resDesc);
-
-    // Lancer le kernel CUDA pour mettre à jour la texture avec les données du frame.
     textureUpdate(cuSurface, frame, fd, cuStream);
-
-    // Démapper la ressource pour permettre à OpenGL d'accéder aux données mises à jour.
-    cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 }
 
 } // namespace holovibes::gui
