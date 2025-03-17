@@ -155,6 +155,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ximea/xiapi64.dll" ${CMAKE_BINARY_DIR}/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ids/uEye_api_64.dll" ${CMAKE_BINARY_DIR}/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/hamamatsu/dcamapi.dll" ${CMAKE_BINARY_DIR}/dcamapi.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/asi/ASICamera2.dll" ${CMAKE_BINARY_DIR}/ASICamera2.dll
 
     # Copy camera config files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" ${CMAKE_BINARY_DIR}/AppData/cameras_config/
@@ -246,6 +247,14 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         ${CMAKE_BINARY_DIR}/AmetekS711EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/AmetekS991EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/CameraPhantomAutoDetection.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_ASI)
+    install(FILES
+        ${CMAKE_BINARY_DIR}/CameraASI.dll
         DESTINATION .
         COMPONENT application
     )

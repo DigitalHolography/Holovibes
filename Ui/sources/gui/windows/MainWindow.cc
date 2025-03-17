@@ -154,7 +154,6 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
     init_tooltips();
 
     enable_notify();
@@ -162,7 +161,7 @@ MainWindow::MainWindow(QWidget* parent)
     notify();
 
     if (api_.input.get_import_type() != ImportType::None)
-        gui::start(window_max_size);
+        gui::start(window_max_size); // ici?
 }
 
 MainWindow::~MainWindow()
@@ -467,6 +466,7 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api_.input.set_camera_kind(camera);
+    LOG_ERROR("HERE");
 }
 
 void MainWindow::save_gui()
@@ -581,6 +581,8 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
+void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
+
 void open_file(const std::string& filename)
 {
     if (filename.empty())
@@ -621,6 +623,8 @@ void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
 void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
 
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
+
+void MainWindow::camera_asi_settings() { open_file("asi.ini"); }
 
 #pragma endregion
 

@@ -14,7 +14,9 @@ CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> ca
 
 void CameraFrameReadWorker::run()
 {
+    LOG_ERROR("ici");
     const camera::FrameDescriptor& camera_fd = camera_->get_fd();
+    LOG_ERROR("la");
 
     // Update information container
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
@@ -30,8 +32,9 @@ void CameraFrameReadWorker::run()
 
     try
     {
+        LOG_ERROR("ici");
         camera_->start_acquisition();
-
+        LOG_ERROR("la");
         while (!stop_requested_)
         {
             auto captured_fd = camera_->get_frames();

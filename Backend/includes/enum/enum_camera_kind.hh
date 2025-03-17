@@ -26,5 +26,6 @@ enum class CameraKind
     Ametek,                        /*!< Ametek camera with EGrabber Studio */
     Alvium,                        /*!< Alvium-1800-u/2050 */
     AutoDetectionPhantom,          /*!< Auto detection of Euresys' cameras */
+    ASI,                           /*!< ASI camera */
 };
 } // namespace holovibes
