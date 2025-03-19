@@ -211,7 +211,6 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         Holovibes::instance().stop_frame_read();
         return false;
     }
-    LOG_ERROR("ok");
 
     return true;
 }

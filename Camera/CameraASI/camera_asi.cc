@@ -39,7 +39,11 @@ CameraAsi::~CameraAsi() { shutdown_camera(); }
 
 void CameraAsi::init_camera()
 {
-    // (Optionnel) Vérifier que cameraID est valide
+    fd_.width = 3840;
+    fd_.height = 2160;
+    fd_.depth = PixelDepth::Bits8;
+    fd_.byteEndian = Endianness::LittleEndian;
+
     int nbCameras = ASIGetNumOfConnectedCameras();
     if (cameraID >= nbCameras)
     {
@@ -83,8 +87,8 @@ void CameraAsi::init_camera()
     }
 
     // Configuration de la ROI : on utilise ici la résolution maximale, binning 1 et format RAW8
-    int width = 512;
-    int height = 512;
+    int width = 3840;
+    int height = 2160;
     ret = ASISetROIFormat(cameraID, width, height, 1, ASI_IMG_RAW8);
     if (ret != ASI_SUCCESS)
     {

@@ -466,7 +466,6 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api_.input.set_camera_kind(camera);
-    LOG_ERROR("HERE");
 }
 
 void MainWindow::save_gui()
