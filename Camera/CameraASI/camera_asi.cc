@@ -6,13 +6,17 @@
 #include <string>
 #include <boost/property_tree/ptree.hpp>
 
-// Pour l'interface ASI, inclure le header de l'SDK
+// For the ASI interface, include the SDK header
 #include <ASICamera2.h>
 
 namespace camera
 {
 
-// Constructeur : lecture du fichier ini, chargement des paramètres et initialisation de la caméra
+/*!
+ * \brief Constructor for CameraAsi.
+ *
+ * Reads the ini file, loads parameters, and initializes the camera.
+ */
 CameraAsi::CameraAsi()
     : Camera("asi.ini")
     , cameraID(0)
@@ -27,16 +31,26 @@ CameraAsi::CameraAsi()
     }
     else
     {
-        Logger::camera()->error("Impossible d'ouvrir le fichier de configuration asi.ini");
+        Logger::camera()->error("Unable to open the configuration file asi.ini");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     load_default_params();
     init_camera();
 }
 
-// Destructeur : ferme la caméra si elle est ouverte
+/*!
+ * \brief Destructor for CameraAsi.
+ *
+ * Closes the camera if it is open.
+ */
 CameraAsi::~CameraAsi() { shutdown_camera(); }
 
+/*!
+ * \brief Initializes the ASI camera.
+ *
+ * Configures the resolution, pixel depth, ROI, gain, and exposure time.
+ * Throws a CameraException if initialization fails.
+ */
 void CameraAsi::init_camera()
 {
     fd_.width = resolution_width_;
@@ -47,7 +61,7 @@ void CameraAsi::init_camera()
         fd_.depth = PixelDepth::Bits16;
     else
     {
-        Logger::camera()->error("Pixel depth non supporté: {}", pixel_depth_value_);
+        Logger::camera()->error("Unsupported pixel depth: {}", pixel_depth_value_);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     fd_.byteEndian = Endianness::LittleEndian;
@@ -55,28 +69,28 @@ void CameraAsi::init_camera()
     int nbCameras = ASIGetNumOfConnectedCameras();
     if (cameraID >= nbCameras)
     {
-        Logger::camera()->error("Camera ID {} invalide. Seules {} caméras détectées.", cameraID, nbCameras);
+        Logger::camera()->error("Invalid Camera ID {}. Only {} cameras detected.", cameraID, nbCameras);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
     ASI_ERROR_CODE ret = ASIGetCameraProperty(&camInfo, cameraID);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Impossible de récupérer les propriétés de la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Unable to retrieve properties of the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
     ret = ASIOpenCamera(cameraID);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de l'ouverture de la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to open the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
     ret = ASIInitCamera(cameraID);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de l'initialisation de la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to initialize the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -85,48 +99,52 @@ void CameraAsi::init_camera()
         ret = ASISetCameraMode(cameraID, ASI_MODE_NORMAL);
         if (ret != ASI_SUCCESS)
         {
-            Logger::camera()->error("Échec du passage en mode normal pour la caméra ASI (ID: {})", cameraID);
+            Logger::camera()->error("Failed to set the ASI camera (ID: {}) to normal mode", cameraID);
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
 
-    // Configuration de la ROI en utilisant la résolution lue depuis le fichier ini
+    // Setting up the ROI using the resolution read from the ini file
     ASI_IMG_TYPE type = (pixel_depth_value_ == 8) ? ASI_IMG_RAW8 : ASI_IMG_RAW16;
     ret = ASISetROIFormat(cameraID, fd_.width, fd_.height, 1, type);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de la configuration de la ROI pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to configure the ROI for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     ret = ASISetStartPos(cameraID, 0, 0);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec du positionnement de départ pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to set the start position for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Configuration du gain
+    // Setting the gain
     ret = ASISetControlValue(cameraID, ASI_GAIN, gain_value_, ASI_FALSE);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de la configuration du gain pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to set the gain for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Configuration du temps d'exposition
+    // Setting the exposure time
     ret = ASISetControlValue(cameraID, ASI_EXPOSURE, exposure_time_, ASI_FALSE);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de la configuration du temps d'exposition pour la caméra ASI (ID: {})",
-                                cameraID);
+        Logger::camera()->error("Failed to set the exposure time for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
     isInitialized = true;
-    Logger::camera()->info("Caméra ASI (ID: {}) initialisée avec succès", cameraID);
+    Logger::camera()->info("ASI Camera (ID: {}) successfully initialized", cameraID);
 }
 
-// Démarrage de l'acquisition vidéo
+/*!
+ * \brief Starts video acquisition.
+ *
+ * Begins capturing video frames from the camera.
+ * Throws a CameraException if acquisition cannot be started.
+ */
 void CameraAsi::start_acquisition()
 {
     if (!isInitialized)
@@ -137,13 +155,18 @@ void CameraAsi::start_acquisition()
     ASI_ERROR_CODE ret = ASIStartVideoCapture(cameraID);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec du démarrage de l'acquisition vidéo pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to start video acquisition for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
-    Logger::camera()->info("Acquisition vidéo démarrée pour la caméra ASI (ID: {})", cameraID);
+    Logger::camera()->info("Video acquisition started for the ASI camera (ID: {})", cameraID);
 }
 
-// Arrêt de l'acquisition vidéo
+/*!
+ * \brief Stops video acquisition.
+ *
+ * Ends the video capture process.
+ * Throws a CameraException if the acquisition cannot be stopped.
+ */
 void CameraAsi::stop_acquisition()
 {
     if (!isInitialized)
@@ -154,13 +177,20 @@ void CameraAsi::stop_acquisition()
     ASI_ERROR_CODE ret = ASIStopVideoCapture(cameraID);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de l'arrêt de l'acquisition vidéo pour la caméra ASI (ID: {})", cameraID);
-        // On peut choisir de ne pas lancer d'exception ici, seulement consigner l'erreur.
+        Logger::camera()->error("Failed to stop video acquisition for the ASI camera (ID: {})", cameraID);
+        // Optionally, do not throw an exception here; just log the error.
     }
-    Logger::camera()->info("Acquisition vidéo arrêtée pour la caméra ASI (ID: {})", cameraID);
+    Logger::camera()->info("Video acquisition stopped for the ASI camera (ID: {})", cameraID);
 }
 
-// Récupération d'une trame capturée
+/*!
+ * \brief Retrieves a captured frame.
+ *
+ * Captures and returns a single frame from the camera.
+ *
+ * \return CapturedFramesDescriptor A descriptor containing the captured frame data.
+ * \throws CameraException if video data retrieval fails.
+ */
 CapturedFramesDescriptor CameraAsi::get_frames()
 {
     if (!isInitialized)
@@ -168,17 +198,17 @@ CapturedFramesDescriptor CameraAsi::get_frames()
         throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
 
-    // Récupération des paramètres ROI actuels
+    // Retrieving the current ROI parameters
     int width = 0, height = 0, bin = 0;
     ASI_IMG_TYPE imgType;
     ASI_ERROR_CODE ret = ASIGetROIFormat(cameraID, &width, &height, &bin, &imgType);
     if (ret != ASI_SUCCESS)
     {
-        Logger::camera()->error("Échec de la lecture de la ROI pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to read the ROI for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
 
-    // Calcul de la taille du buffer en fonction du format d'image
+    // Calculating the buffer size based on the image format
     long bufferSize = 0;
     if (imgType == ASI_IMG_RAW8 || imgType == ASI_IMG_Y8)
     {
@@ -194,31 +224,35 @@ CapturedFramesDescriptor CameraAsi::get_frames()
     }
     else
     {
-        Logger::camera()->error("Format d'image non supporté pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Unsupported image format for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
 
-    // Allocation d'un buffer pour stocker la trame
+    // Allocating a buffer to store the frame
     unsigned char* buffer = new unsigned char[bufferSize];
-    ret = ASIGetVideoData(cameraID, buffer, bufferSize, 1000); // délai d'attente jusqu'à 1000 ms
+    ret = ASIGetVideoData(cameraID, buffer, bufferSize, 1000); // wait time up to 1000 ms
     if (ret != ASI_SUCCESS)
     {
         delete[] buffer;
-        Logger::camera()->error("Échec de la récupération des données vidéo pour la caméra ASI (ID: {})", cameraID);
+        Logger::camera()->error("Failed to retrieve video data for the ASI camera (ID: {})", cameraID);
         throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
 
-    // Construction du descripteur de trame (pour cet exemple, une seule région est utilisée)
+    // Constructing the frame descriptor (for this example, only one region is used)
     CapturedFramesDescriptor desc;
     desc.region1 = buffer;
-    desc.count1 = 1; // une seule trame
+    desc.count1 = 1; // single frame
     desc.region2 = nullptr;
     desc.count2 = 0;
 
     return desc;
 }
 
-// Fermeture de la caméra et libération des ressources
+/*!
+ * \brief Shuts down the camera.
+ *
+ * Closes the camera and releases resources.
+ */
 void CameraAsi::shutdown_camera()
 {
     if (isInitialized)
@@ -226,16 +260,21 @@ void CameraAsi::shutdown_camera()
         ASI_ERROR_CODE ret = ASICloseCamera(cameraID);
         if (ret != ASI_SUCCESS)
         {
-            Logger::camera()->error("Échec de la fermeture de la caméra ASI (ID: {})", cameraID);
+            Logger::camera()->error("Failed to close the ASI camera (ID: {})", cameraID);
         }
         else
         {
-            Logger::camera()->info("Caméra ASI (ID: {}) fermée avec succès", cameraID);
+            Logger::camera()->info("ASI Camera (ID: {}) closed successfully", cameraID);
         }
         isInitialized = false;
     }
 }
 
+/*!
+ * \brief Loads configuration parameters from the ini file.
+ *
+ * Reads parameters such as camera ID, resolution, pixel depth, gain, and exposure time from the ini file.
+ */
 void CameraAsi::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
@@ -257,22 +296,33 @@ void CameraAsi::load_ini_params()
         exposure_time_);
 }
 
-// Chargement des paramètres par défaut
+/*!
+ * \brief Loads default parameters.
+ *
+ * Initializes default values for camera parameters.
+ */
 void CameraAsi::load_default_params()
 {
-    // Initialisation par défaut
+    // Default initialization
     std::memset(&camInfo, 0, sizeof(ASI_CAMERA_INFO));
     isInitialized = false;
 }
 
-// Liaison (binding) des paramètres internes
+/*!
+ * \brief Binds internal parameters.
+ *
+ * Example: logs the camera's maximum resolution.
+ */
 void CameraAsi::bind_params()
 {
-    // Exemple : consigner la résolution maximale de la caméra
-    Logger::camera()->info("Résolution maximale de la caméra : {}x{}", camInfo.MaxWidth, camInfo.MaxHeight);
+    Logger::camera()->info("Camera maximum resolution: {}x{}", camInfo.MaxWidth, camInfo.MaxHeight);
 }
 
-// Fonction d'usine pour créer un nouvel objet caméra
+/*!
+ * \brief Factory function to create a new CameraAsi object.
+ *
+ * \return ICamera* A pointer to a new CameraAsi instance.
+ */
 ICamera* new_camera_device() { return new CameraAsi(); }
 
 } // namespace camera

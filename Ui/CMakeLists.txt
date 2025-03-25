@@ -58,6 +58,7 @@ set(INTERNAL_INCLUDES
 )
 
 set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
+set(ASI_SDK "C:/Program Files/ASI SDK")
 
 # ---------------------------------------------------------------------
 # The executable
@@ -155,7 +156,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ximea/xiapi64.dll" ${CMAKE_BINARY_DIR}/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ids/uEye_api_64.dll" ${CMAKE_BINARY_DIR}/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/hamamatsu/dcamapi.dll" ${CMAKE_BINARY_DIR}/dcamapi.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/asi/ASICamera2.dll" ${CMAKE_BINARY_DIR}/ASICamera2.dll
 
     # Copy camera config files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" ${CMAKE_BINARY_DIR}/AppData/cameras_config/
@@ -253,8 +253,11 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
 endif()
 
 if (HAVE_ASI)
+    add_custom_command(TARGET Holovibes POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${ASI_SDK}/lib/x64/ASICamera2.dll" ${CMAKE_BINARY_DIR}/ASICamera2.dll
+    )
     install(FILES
-        ${CMAKE_BINARY_DIR}/CameraASI.dll
+        ${CMAKE_BINARY_DIR}/ASICamera2.dll
         DESTINATION .
         COMPONENT application
     )
