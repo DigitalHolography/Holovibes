@@ -62,8 +62,8 @@ function Select-OutputExtension {
 function Get-ConfigFileOption {
     # Display the available options
     Write-Host "Select the configuration file option:" -ForegroundColor Cyan
-    Write-Host "1. Skip configuration file selection" -ForegroundColor Yellow
-    Write-Host "2. Use the standard preset configuration file" -ForegroundColor Yellow
+    Write-Host "1. Use the standard preset configuration file" -ForegroundColor Yellow
+    Write-Host "2. Skip configuration file selection" -ForegroundColor Yellow
     Write-Host "3. Open the file explorer to select a configuration file" -ForegroundColor Yellow
 
     # Prompt for the user's choice (default is 1)
@@ -76,12 +76,7 @@ function Get-ConfigFileOption {
 
     switch ($choice) {
         "1" {
-            # Option 1: Skip configuration file selection
-            Write-Host "No configuration file selected." -ForegroundColor Yellow
-            return $null
-        }
-        "2" {
-            # Option 2: Use the preset configuration file at AppData\preset\preset.json
+            # Option 1: Use the preset configuration file at AppData\preset\preset.json
             $presetPath = "AppData\preset\settingsDoppler37kHz.json"
             if (Test-Path $presetPath) {
                 Write-Host "Using standard configuration file: $presetPath" -ForegroundColor Green
@@ -91,6 +86,11 @@ function Get-ConfigFileOption {
                 Write-Host "Preset configuration file not found at: $presetPath. Skipping configuration file selection." -ForegroundColor Red
                 return $null
             }
+        }
+        "2" {
+            # Option 2: Skip configuration file selection
+            Write-Host "No configuration file selected." -ForegroundColor Yellow
+            return $null
         }
         "3" {
             # Option 3: Open the file explorer for file selection

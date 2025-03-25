@@ -39,9 +39,17 @@ CameraAsi::~CameraAsi() { shutdown_camera(); }
 
 void CameraAsi::init_camera()
 {
-    fd_.width = 3840;
-    fd_.height = 2160;
-    fd_.depth = PixelDepth::Bits8;
+    fd_.width = resolution_width_;
+    fd_.height = resolution_height_;
+    if (pixel_depth_value_ == 8)
+        fd_.depth = PixelDepth::Bits8;
+    else if (pixel_depth_value_ == 16)
+        fd_.depth = PixelDepth::Bits16;
+    else
+    {
+        Logger::camera()->error("Pixel depth non supporté: {}", pixel_depth_value_);
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
     fd_.byteEndian = Endianness::LittleEndian;
 
     int nbCameras = ASIGetNumOfConnectedCameras();
@@ -51,7 +59,6 @@ void CameraAsi::init_camera()
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Récupérer les propriétés de la caméra avant ouverture
     ASI_ERROR_CODE ret = ASIGetCameraProperty(&camInfo, cameraID);
     if (ret != ASI_SUCCESS)
     {
@@ -59,7 +66,6 @@ void CameraAsi::init_camera()
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Ouvrir la caméra
     ret = ASIOpenCamera(cameraID);
     if (ret != ASI_SUCCESS)
     {
@@ -67,7 +73,6 @@ void CameraAsi::init_camera()
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Initialiser la caméra
     ret = ASIInitCamera(cameraID);
     if (ret != ASI_SUCCESS)
     {
@@ -75,7 +80,6 @@ void CameraAsi::init_camera()
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    // Pour les caméras trigger, définir le mode en mode normal (video mode)
     if (camInfo.IsTriggerCam == ASI_TRUE)
     {
         ret = ASISetCameraMode(cameraID, ASI_MODE_NORMAL);
@@ -86,20 +90,35 @@ void CameraAsi::init_camera()
         }
     }
 
-    // Configuration de la ROI : on utilise ici la résolution maximale, binning 1 et format RAW8
-    int width = 3840;
-    int height = 2160;
-    ret = ASISetROIFormat(cameraID, width, height, 1, ASI_IMG_RAW8);
+    // Configuration de la ROI en utilisant la résolution lue depuis le fichier ini
+    ASI_IMG_TYPE type = (pixel_depth_value_ == 8) ? ASI_IMG_RAW8 : ASI_IMG_RAW16;
+    ret = ASISetROIFormat(cameraID, fd_.width, fd_.height, 1, type);
     if (ret != ASI_SUCCESS)
     {
         Logger::camera()->error("Échec de la configuration de la ROI pour la caméra ASI (ID: {})", cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
-    // Position de départ à (0,0) (après ASISetROIFormat, qui recentre par défaut)
     ret = ASISetStartPos(cameraID, 0, 0);
     if (ret != ASI_SUCCESS)
     {
         Logger::camera()->error("Échec du positionnement de départ pour la caméra ASI (ID: {})", cameraID);
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
+
+    // Configuration du gain
+    ret = ASISetControlValue(cameraID, ASI_GAIN, gain_value_, ASI_FALSE);
+    if (ret != ASI_SUCCESS)
+    {
+        Logger::camera()->error("Échec de la configuration du gain pour la caméra ASI (ID: {})", cameraID);
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
+
+    // Configuration du temps d'exposition
+    ret = ASISetControlValue(cameraID, ASI_EXPOSURE, exposure_time_, ASI_FALSE);
+    if (ret != ASI_SUCCESS)
+    {
+        Logger::camera()->error("Échec de la configuration du temps d'exposition pour la caméra ASI (ID: {})",
+                                cameraID);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -217,14 +236,25 @@ void CameraAsi::shutdown_camera()
     }
 }
 
-// Chargement des paramètres depuis le fichier ini
 void CameraAsi::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    // Chargement de l'identifiant de la caméra (si présent), sinon défaut à 0
     cameraID = pt.get<int>("asi.camera_id", 0);
-    Logger::camera()->info("Paramètres ini chargés : camera_id = {}", cameraID);
+    resolution_width_ = pt.get<int>("asi.resolution_width", 3840);
+    resolution_height_ = pt.get<int>("asi.resolution_height", 2160);
+    pixel_depth_value_ = pt.get<int>("asi.pixel_depth", 8);
+    gain_value_ = pt.get<int>("asi.gain", 50);
+    exposure_time_ = pt.get<int>("asi.exposure_time", 10000);
+
+    Logger::camera()->info(
+        ".ini loaded : camera_id = {}, resolution = {}x{}, pixel_depth = {}, gain = {}, exposure_time = {}",
+        cameraID,
+        resolution_width_,
+        resolution_height_,
+        pixel_depth_value_,
+        gain_value_,
+        exposure_time_);
 }
 
 // Chargement des paramètres par défaut

@@ -41,6 +41,11 @@ class CameraAsi : public Camera
     int cameraID;            // Unique camera ID (default: 0)
     ASI_CAMERA_INFO camInfo; // Camera information structure
     bool isInitialized;      // Flag to indicate if the camera is initialized
+    int resolution_width_;
+    int resolution_height_;
+    int pixel_depth_value_;
+    int gain_value_;
+    int exposure_time_;
 };
 
 } // namespace camera
