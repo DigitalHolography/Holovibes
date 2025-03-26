@@ -117,9 +117,6 @@ class ICamera
     /*! \brief Get the temperature if possible, else 0 */
     virtual int get_temperature() const = 0;
 
-    /*! \brief Get the temperature if possible, else 0 */
-    virtual int toggleFan() const = 0;
-
     /*! \brief Get the camera fps if possible, else -1 */
     virtual int get_camera_fps() const = 0;
 

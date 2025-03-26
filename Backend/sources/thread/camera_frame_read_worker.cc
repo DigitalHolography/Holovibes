@@ -31,7 +31,6 @@ void CameraFrameReadWorker::run()
     try
     {
         camera_->start_acquisition();
-
         while (!stop_requested_)
         {
             auto captured_fd = camera_->get_frames();

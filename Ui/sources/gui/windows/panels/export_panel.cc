@@ -126,8 +126,6 @@ void ExportPanel::on_notify()
     ui_->RecordedEyeLabel->setEnabled(is_eye_modifiable);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
-
-    ui_->ExportStopFanButton->setEnabled(true);
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -321,7 +319,5 @@ void ExportPanel::update_recorded_eye()
 
     on_notify();
 }
-
-void ExportPanel::stop_fan() { API.input.camera_fan_stop(); }
 
 } // namespace holovibes::gui

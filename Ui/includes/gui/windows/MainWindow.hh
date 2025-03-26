@@ -108,6 +108,7 @@ class MainWindow : public QMainWindow
     void auto_detection_phantom();
     void camera_euresys_egrabber();
     void camera_alvium();
+    void camera_asi();
 
     void camera_adimec_settings();
     void camera_ids_settings();
@@ -121,6 +122,7 @@ class MainWindow : public QMainWindow
     void camera_ametek_s711_coaxlink_qspf_plus_settings();
     void camera_euresys_egrabber_settings();
     void camera_alvium_settings();
+    void camera_asi_settings();
 
     /*! \brief Opens the credit display */
     void credits();

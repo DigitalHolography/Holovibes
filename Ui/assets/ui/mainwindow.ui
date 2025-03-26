@@ -3068,22 +3068,6 @@ The range of frequencies kept is [z, z + width]</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QPushButton" name="ExportStopFanButton">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="toolTip">
-                    <string>Stop the fan for 10 second</string>
-                   </property>
-                   <property name="text">
-                    <string>Stop fan</string>
-                   </property>
-                   <property name="shortcut">
-                    <string>Ctrl+Z</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
               </layout>
@@ -3297,6 +3281,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
      <addaction name="AutoDetectionPhantom"/>
+     <addaction name="actionASI"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3313,6 +3298,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPhantom_S710Settings"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
+     <addaction name="actionASISettings"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3545,6 +3531,11 @@ p, li { white-space: pre-wrap; }
     <string>Auto Detection Camera Euresys</string>
    </property>
   </action>
+  <action name="actionASI">
+   <property name="text">
+    <string>Camera ASI</string>
+   </property>
+  </action>
   <action name="actionBitflowCytonSettings">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
@@ -3598,6 +3589,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionASISettings">
+   <property name="text">
+    <string>Camera ASI</string>
    </property>
   </action>
   <action name="actionReload_ini">
@@ -5063,22 +5059,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ExportStopFanButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>stop_fan()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>894</x>
-     <y>506</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>InputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>ImportPanel</receiver>
@@ -5431,6 +5411,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actionASI</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_asi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5659,6 +5655,22 @@ p, li { white-space: pre-wrap; }
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionASISettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_asi_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -6010,6 +6022,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_bitflow_cyton()</slot>
+  <slot>camera_asi()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
   <slot>auto_detection_phantom()</slot>
@@ -6035,13 +6048,13 @@ p, li { white-space: pre-wrap; }
   <slot>camera_opencv_settings()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_asi_settings()</slot>
   <slot>camera_euresys_egrabber_settings()</slot>
   <slot>camera_alvium_settings()</slot>
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
-  <slot>stop_fan()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>

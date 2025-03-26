@@ -58,6 +58,7 @@ set(INTERNAL_INCLUDES
 )
 
 set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
+set(ASI_SDK "C:/Program Files/ASI SDK")
 
 # ---------------------------------------------------------------------
 # The executable
@@ -246,6 +247,17 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         ${CMAKE_BINARY_DIR}/AmetekS711EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/AmetekS991EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/CameraPhantomAutoDetection.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_ASI)
+    add_custom_command(TARGET Holovibes POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${ASI_SDK}/lib/x64/ASICamera2.dll" ${CMAKE_BINARY_DIR}/ASICamera2.dll
+    )
+    install(FILES
+        ${CMAKE_BINARY_DIR}/ASICamera2.dll
         DESTINATION .
         COMPONENT application
     )
