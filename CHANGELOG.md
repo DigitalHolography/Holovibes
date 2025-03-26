@@ -1,6 +1,11 @@
 ## Changelog
 
-### 14.5.7
+### 14.7.1
+
+- Add asi camera support.
+- removed the stop fan button.
+
+### 14.7.0
 
 - fix convolution bugs.
 - circular reticle overlay for contrast calculation.
