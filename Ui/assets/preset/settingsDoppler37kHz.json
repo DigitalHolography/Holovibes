@@ -95,14 +95,13 @@
   "filter2d": {
    "enabled": true,
    "inner_radius": 5,
-   "outer_radius": 5000
+   "outer_radius": 15000
   },
   "image_mode": "HOLOGRAM",
   "input_filter": {
    "type": "None"
   },
   "lambda": 8.519999710188131e-07,
-  "propagation_distance": 0.38199999928474426,
   "space_transformation": "FRESNELTR",
   "time_transformation": "PCA",
   "time_transformation_size": 64,
