@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.7.2
+
+- Fix ps1 standard preset.
+
 ### 14.7.1
 
 - Add asi camera support.
