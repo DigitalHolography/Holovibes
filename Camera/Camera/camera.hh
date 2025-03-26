@@ -46,8 +46,6 @@ class Camera : public ICamera
 
     virtual int get_temperature() const override { return 0; }
 
-    virtual int toggleFan() const override { return -1; }
-
     virtual int get_camera_fps() const override { return -1; }
 
   protected:
