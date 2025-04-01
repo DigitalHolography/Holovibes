@@ -546,6 +546,22 @@
           </layout>
          </item>
          <item>
+          <widget class="QPushButton" name="AutoFocusButton">
+            <property name="enabled">
+            <bool>false</bool>
+            </property>
+            <property name="toolTip">
+            <string>Set the reconstruction distance automaticaly.</string>
+            </property>
+            <property name="text">
+            <string>AutoFocus</string>
+            </property>
+            <property name="shortcut">
+            <string>Ctrl+W</string>
+            </property>
+          </widget>
+          </item>
+         <item>
             <widget class="QLabel" name="ConvolutionLabel">
              <property name="text">
               <string>Convolution</string>
@@ -3722,6 +3738,7 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
+  <tabstop>AutoFocusButton</tabstop>
   <tabstop>TimeTransformationCutsCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccSpinBox</tabstop>
@@ -4127,6 +4144,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>0</x>
      <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AutoFocusButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>auto_focus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>894</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -6009,6 +6042,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_lambda(double)</slot>
   <slot>set_z_distance(double)</slot>
   <slot>set_z_distance_slider(int)</slot>
+  <slot>auto_focus()</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>set_contrast_min(double)</slot>

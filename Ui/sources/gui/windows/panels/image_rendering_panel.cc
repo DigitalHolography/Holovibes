@@ -12,6 +12,7 @@
 #include "API.hh"
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
+#include "auto_focus.hh"
 
 #include <map>
 
@@ -82,6 +83,7 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
+    ui_->AutoFocusButton->setEnabled(not_raw_not_moments);
 
     // Filter2D
     bool filter2D_enabled = !is_raw && api_.filter2d.get_filter2d_enabled();
@@ -273,4 +275,20 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }
 
+#include <chrono>
+#include <thread>
+
+void ImageRenderingPanel::auto_focus()
+{
+    auto& api = API;
+    AutoFocus autofocus(api.compute.get_gpu_output_queue().get());
+
+    auto start = std::chrono::steady_clock::now();
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count() <
+           1000)
+    {
+        autofocus.adjustFocus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
 } // namespace holovibes::gui

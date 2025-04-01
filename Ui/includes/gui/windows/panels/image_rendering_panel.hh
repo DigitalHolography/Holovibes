@@ -123,6 +123,11 @@ class ImageRenderingPanel : public Panel
      */
     double get_z_step();
 
+    /*!
+     * \brief Set the reconstruction distance automaticaly
+     */
+    void auto_focus();
+
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
