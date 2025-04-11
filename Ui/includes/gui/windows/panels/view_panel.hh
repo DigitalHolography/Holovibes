@@ -127,6 +127,11 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_auto_refresh(bool value);
+
+    void enable_contrast_auto_refresh();
+
+    void disable_contrast_auto_refresh();
+
     /*! \brief Enables or Disables contrast invertion
      *
      * \param value true: enable, false: disable

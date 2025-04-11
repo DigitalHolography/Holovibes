@@ -921,6 +921,16 @@ It's a post-processing step to remove noise</string>
                   </widget>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="AutoRefreshContrastPushButton">
+                   <property name="text">
+                    <string>Refresh</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QCheckBox" name="InvertContrastCheckBox">
                    <property name="text">
                     <string>Invert</string>
@@ -4035,6 +4045,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>AutoRefreshContrastPushButton</sender>
+   <signal>pressed()</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>enable_contrast_auto_refresh()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ContrastMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ViewPanel</receiver>
@@ -6126,6 +6152,8 @@ p, li { white-space: pre-wrap; }
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
   <slot>set_file_read_preset()</slot>
+  <slot>enable_contrast_auto_refresh()</slot>
+  <slot>disable_contrast_auto_refresh()</slot>
   
  </slots>
 </ui>

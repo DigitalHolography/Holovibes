@@ -378,6 +378,10 @@ void ViewPanel::set_contrast_auto_refresh(bool value)
     parent_->notify();
 }
 
+void ViewPanel::enable_contrast_auto_refresh() { set_contrast_auto_refresh(true); }
+
+void ViewPanel::disable_contrast_auto_refresh() { set_contrast_auto_refresh(false); }
+
 void ViewPanel::set_contrast_invert(bool value) { api_.contrast.set_contrast_invert(value); }
 
 void ViewPanel::set_contrast_min(const double value) { api_.contrast.set_contrast_min(value); }
