@@ -3,6 +3,26 @@
 #include "cuda_memory.cuh"
 #include "logger.hh"
 
+__global__ static void updateBits48Slice(ushort3* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
+{
+    const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= texDim.x || y >= texDim.y)
+        return;
+
+    const uint index = y * texDim.x + x;
+
+    ushort4 pixel;
+    pixel.x = frame[index].x;
+    pixel.y = frame[index].y;
+    pixel.z = frame[index].z;
+    pixel.w = 65535; // Alpha canal
+
+    // offset of ushort
+    surf2Dwrite(pixel, cuSurface, x * sizeof(ushort4), y);
+}
+
 __global__ static void update8BitSlice(uchar* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
     const uint x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -26,7 +46,6 @@ __global__ static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSur
     const uint index = y * texDim.x + x;
 
     uchar pixel8 = static_cast<uchar>(frame[index] >> 8);
-
     surf2Dwrite(pixel8, cuSurface, x, y);
 }
 
@@ -51,9 +70,8 @@ __global__ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t 
         frame[index].y = 0.f;
 
     float pix = hypotf(frame[index].x, frame[index].y);
-
     float scale = 255.0f / (65535.0f * sqrtf(2.0f));
-    unsigned char out_val = (unsigned char)(pix * scale);
+    unsigned char out_val = static_cast<unsigned char>(pix * scale);
 
     surf2Dwrite(out_val, cuSurface, x, y);
 }
@@ -63,8 +81,8 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
                    const camera::FrameDescriptor& fd,
                    const cudaStream_t stream)
 {
-    unsigned thread_width = std::min(32u, (unsigned)fd.width);
-    unsigned thread_height = std::min(32u, (unsigned)fd.height);
+    unsigned thread_width = std::min(32u, static_cast<unsigned>(fd.width));
+    unsigned thread_height = std::min(32u, static_cast<unsigned>(fd.height));
     dim3 threads(thread_width, thread_height);
 
     const uint fd_width_div_32 = std::ceil(static_cast<float>(fd.width) / threads.x);
@@ -82,6 +100,12 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
         update8BitSlice<<<blocks, threads, 0, stream>>>(reinterpret_cast<uchar*>(frame),
                                                         cuSurface,
                                                         dim3(fd.width, fd.height));
+    }
+    else if (fd.depth == camera::PixelDepth::Bits48)
+    {
+        updateBits48Slice<<<blocks, threads, 0, stream>>>(reinterpret_cast<ushort3*>(frame),
+                                                          cuSurface,
+                                                          dim3(fd.width, fd.height));
     }
     else
     {

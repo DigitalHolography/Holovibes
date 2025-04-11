@@ -60,18 +60,33 @@ bool CudaTexture::init()
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
 
-    // Create an empty image to initialize the texture.
-    // We use an array of unsigned char (1 byte per pixel) for GL_RED format.
-    size_t size = width * height;
-    unsigned char* mTexture8 = new unsigned char[size];
-    std::memset(mTexture8, 0, size * sizeof(unsigned char));
+    if (depth == camera::PixelDepth::Bits48)
+    {
+        size_t numElements = width * height * 3;
+        unsigned short* mTexture16 = new unsigned short[numElements];
 
-    // Initialize the texture with the empty image.
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
-    delete[] mTexture8;
+        std::memset(mTexture16, 0, numElements * sizeof(unsigned short));
 
-    // Generate mipmap
-    glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT, mTexture16);
+
+        delete[] mTexture16;
+        glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        // Create an empty image to initialize the texture.
+        // We use an array of unsigned char (1 byte per pixel) for GL_RED format.
+        size_t size = width * height;
+        unsigned char* mTexture8 = new unsigned char[size];
+        std::memset(mTexture8, 0, size * sizeof(unsigned char));
+
+        // Initialize the texture with the empty image.
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
+        delete[] mTexture8;
+
+        // Generate mipmap
+        glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     // Set texture parameters.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -82,8 +97,14 @@ bool CudaTexture::init()
     // Configure swizzling based on the pixel type.
     if (depth == camera::PixelDepth::Complex)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_BLUE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+    }
+    else if (depth == camera::PixelDepth::Bits48)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_GREEN);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_BLUE);
     }
     else
     {
