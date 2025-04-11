@@ -102,7 +102,7 @@
             "type": "None"
         },
         "lambda": 8.520000278622319e-07,
-        "propagation_distance": 0.5,
+        "propagation_distance": 0.48,
         "space_transformation": "FRESNELTR",
         "time_transformation": "PCA",
         "time_transformation_size": 32,
