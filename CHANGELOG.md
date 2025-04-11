@@ -1,5 +1,12 @@
 ## Changelog
 
+### 14.8.0
+
+- New cuda texture class.
+- The standard propagation idstance is now 480mm.
+- New constrast refresh button.
+- New documentation for ametek camera ini files.
+
 ### 14.7.2
 
 - Fix ps1 standard preset.
