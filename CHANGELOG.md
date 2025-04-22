@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.8.1
+
+- Revert changes on ametek camera BufferPartCount in ini files.
+
 ### 14.8.0
 
 - New cuda texture class.
