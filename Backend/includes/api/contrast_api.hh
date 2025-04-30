@@ -295,15 +295,43 @@ class ContrastApi : public IApi
 
 #pragma region Reticle
 
-    /*! \brief Returns whether the reticle display is enabled. The reticle display is a rect region where the contrast
-     * is calculated on.
+    /*! \brief Returns whether the contrast reticle display is enabled. The contrast reticle display is a rect region
+     * where the contrast is calculated on.
+     *
+     * \return bool true if the contrast reticle display is enabled
+     */
+    inline bool get_contrast_reticle_display_enabled() const { return GET_SETTING(ContrastReticleDisplayEnabled); }
+
+    /*! \brief Enables or Disables the contrast reticle display. The contrast reticle display is a rect region where the
+     * contrast is calculated on.
+     *
+     * \param[in] value true: enable, false: disable
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
+     */
+    ApiCode set_contrast_reticle_display_enabled(bool value) const;
+
+    /*! \brief Returns the contrast reticle scale. The contrast reticle scale is the size of the contrast reticle
+     * display.
+     *
+     * \return float the contrast reticle scale
+     */
+    inline float get_contrast_reticle_scale() const { return GET_SETTING(ContrastReticleScale); }
+
+    /*! \brief Sets the contrast reticle scale. The contrast reticle scale is the size of the contrast reticle display.
+     *
+     * \param[in] value the new contrast reticle scale
+     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, INVALID_VALUE
+     * if contrast reticle display is not enabled or if not in range [0., 1.], OK otherwise
+     */
+    ApiCode set_contrast_reticle_scale(float value) const;
+
+    /*! \brief Returns whether the reticle display is enabled.
      *
      * \return bool true if the reticle display is enabled
      */
     inline bool get_reticle_display_enabled() const { return GET_SETTING(ReticleDisplayEnabled); }
 
-    /*! \brief Enables or Disables the reticle display. The reticle display is a rect region where the contrast is
-     * calculated on.
+    /*! \brief Enables or Disables the reticle display.
      *
      * \param[in] value true: enable, false: disable
      * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if the computation mode is Raw, OK otherwise
@@ -314,7 +342,7 @@ class ContrastApi : public IApi
      *
      * \return float the reticle scale
      */
-    inline float get_reticle_scale() const { return GET_SETTING(ReticleScale); }
+    float get_reticle_scale() const { return GET_SETTING(ReticleScale); }
 
     /*! \brief Sets the reticle scale. The reticle scale is the size of the reticle display.
      *

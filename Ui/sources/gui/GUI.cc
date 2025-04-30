@@ -315,13 +315,24 @@ void active_noise_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Noise
 
 void active_signal_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Signal>(); }
 
+void set_contrast_reticle_overlay_visible(bool value)
+{
+    if (!UI.mainDisplay)
+        return;
+
+    if (value)
+        UI.mainDisplay->getOverlayManager().enable<gui::ContrastReticle>(false, 1000);
+    else
+        UI.mainDisplay->getOverlayManager().disable(gui::ContrastReticle);
+}
+
 void set_reticle_overlay_visible(bool value)
 {
     if (!UI.mainDisplay)
         return;
 
     if (value)
-        UI.mainDisplay->getOverlayManager().enable<gui::Reticle>(false, 1000);
+        UI.mainDisplay->getOverlayManager().enable<gui::Reticle>(false, -1);
     else
         UI.mainDisplay->getOverlayManager().disable(gui::Reticle);
 }

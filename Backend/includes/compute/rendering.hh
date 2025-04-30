@@ -26,16 +26,15 @@
     holovibes::settings::XZContrastRange,       \
     holovibes::settings::YZContrastRange,       \
     holovibes::settings::Filter2dContrastRange
-
+    
 #define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::SignalZone,               \
     holovibes::settings::NoiseZone,                \
     holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::ReticleDisplayEnabled,    \
-    holovibes::settings::ReticleScale             
-
+    holovibes::settings::ContrastReticleDisplayEnabled,    \
+    holovibes::settings::ContrastReticleScale       
 
 #define PIPE_REFRESH_SETTINGS                      \
     holovibes::settings::ImageType,                \
@@ -49,6 +48,7 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::TimeTransformationSize
+    
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS
 

@@ -9,6 +9,23 @@
 
 namespace holovibes::gui
 {
+/*! \class ContrastReticleOverlay
+ *
+ * \brief Class that represents a reticle overlay in the window.
+ */
+class ContrastReticleOverlay : public CircOverlay
+{
+  public:
+    ContrastReticleOverlay(BasicOpenGLWindow* parent);
+    virtual ~ContrastReticleOverlay() {}
+
+    virtual void move(QMouseEvent* e) override {}
+    virtual void release(ushort frameside) override {}
+
+  protected:
+    void setBuffer() override;
+};
+
 /*! \class ReticleOverlay
  *
  * \brief Class that represents a reticle overlay in the window.

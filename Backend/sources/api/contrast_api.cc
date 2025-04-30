@@ -267,6 +267,36 @@ ApiCode ContrastApi::set_cuts_contrast_p_offset(uint value) const
 
 #pragma region Reticle
 
+ApiCode ContrastApi::set_contrast_reticle_display_enabled(bool value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_contrast_reticle_display_enabled(), value);
+
+    UPDATE_SETTING(ContrastReticleDisplayEnabled, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode ContrastApi::set_contrast_reticle_scale(float value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_contrast_reticle_scale(), value);
+
+    if (!get_contrast_reticle_display_enabled())
+    {
+        LOG_WARN("Reticle display must be enabled to set the reticle scale");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    if (!is_between(value, 0.f, 1.f))
+    {
+        LOG_WARN("Reticle scale must be in range [0., 1.]");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(ContrastReticleScale, value);
+
+    return ApiCode::OK;
+}
+
 ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 {
     NOT_SAME_AND_NOT_RAW(get_reticle_display_enabled(), value);
@@ -279,7 +309,6 @@ ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 ApiCode ContrastApi::set_reticle_scale(float value) const
 {
     NOT_SAME_AND_NOT_RAW(get_reticle_scale(), value);
-
     if (!get_reticle_display_enabled())
     {
         LOG_WARN("Reticle display must be enabled to set the reticle scale");

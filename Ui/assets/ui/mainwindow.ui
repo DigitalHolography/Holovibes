@@ -1414,7 +1414,7 @@ It's a post-processing step to remove noise</string>
                <item row="6" column="1" colspan="2">
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
-                  <widget class="QCheckBox" name="DisplayReticleCheckBox">
+                  <widget class="QCheckBox" name="DisplayContrastReticleCheckBox">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -1430,7 +1430,7 @@ It's a post-processing step to remove noise</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
+                  <widget class="QDoubleSpinBox" name="ContrastReticleScaleDoubleSpinBox">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
@@ -1504,7 +1504,7 @@ It's a post-processing step to remove noise</string>
          <item row="17" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <item>
-            <widget class="QCheckBox" name="TempCheckbox">
+            <widget class="QCheckBox" name="DisplayReticleCheckbox">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -1517,7 +1517,7 @@ It's a post-processing step to remove noise</string>
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="TempDoubleSpinbox">
+            <widget class="QDoubleSpinBox" name="DisplayReticleDoubleSpinbox">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -4790,10 +4790,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>DisplayReticleCheckBox</sender>
+   <sender>DisplayContrastReticleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>display_reticle(bool)</slot>
+   <slot>display_contrast_reticle(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>289</x>
@@ -4838,10 +4838,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ReticleScaleDoubleSpinBox</sender>
+   <sender>ContrastReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>reticle_scale(double)</slot>
+   <slot>contrast_reticle_scale(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>387</x>
@@ -6085,6 +6085,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>DisplayReticleCheckbox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>display_reticle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>346</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DisplayReticleDoubleSpinbox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>reticle_scale(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>457</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_compute_mode(int)</slot>
@@ -6192,8 +6224,8 @@ p, li { white-space: pre-wrap; }
   <slot>update_raw_view(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
-  <slot>display_reticle(bool)</slot>
-  <slot>reticle_scale(double)</slot>
+  <slot>display_contrast_reticle(bool)</slot>
+  <slot>contrast_reticle_scale(double)</slot>
   <slot>update_registration_zone(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(int)</slot>
@@ -6211,5 +6243,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_file_read_preset()</slot>
   <slot>enable_contrast_auto_refresh()</slot>
   <slot>disable_contrast_auto_refresh()</slot>
+  <slot>reticle_scale(double)</slot>
+  <slot>display_reticle(bool)</slot>
  </slots>
 </ui>

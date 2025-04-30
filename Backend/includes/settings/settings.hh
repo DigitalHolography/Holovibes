@@ -119,8 +119,10 @@ DECLARE_SETTING(RegistrationEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
+DECLARE_SETTING(ContrastReticleScale, float);
 DECLARE_SETTING(ReticleScale, float);
 DECLARE_SETTING(RegistrationZone, float);
+DECLARE_SETTING(ContrastReticleDisplayEnabled, bool);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
 
 /*! \name Filter2D Cache */

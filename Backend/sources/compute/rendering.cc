@@ -321,8 +321,9 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   setting<settings::ReticleScale>(),
-                                   (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
+                                   setting<settings::ContrastReticleScale>(),
+                                   (view == WindowKind::Filter2D) ? false
+                                                                  : setting<settings::ContrastReticleDisplayEnabled>(),
                                    stream_);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
