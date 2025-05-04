@@ -21,6 +21,7 @@ QToolButton:disabled,
 QTextEdit:disabled,
 QLineEdit:disabled,
 QCheckBox:disabled,
+QRadioButton:disabled,
 QSpinBox:disabled,
 QDoubleSpinBox:disabled,
 QComboBox:disabled,
@@ -36,6 +37,7 @@ QToolButton,
 QTextEdit,
 QLineEdit,
 QCheckBox,
+QRadioButton,
 QSpinBox,
 QDoubleSpinBox,
 QComboBox,
@@ -61,6 +63,10 @@ QToolTip {
     border-radius: 6%;
     margin: 0px;
     padding: 1px;
+}
+
+QChartView {
+    background-color: #101111;
 }
 
 /* Menu bar and menu bar item styling */
@@ -251,4 +257,16 @@ QProgressBar {
 QProgressBar::chunk {
     background-color: #0067C6;
     border-radius: 5%;
+}
+
+QRadioButton::indicator {
+    background-color: #101111;
+    border: 1px solid #ffffff;
+    border-radius: 7px;
+}
+
+QRadioButton::indicator:checked {
+    background-clip: content;
+    background-color: #0067C6;
+    padding: 3px
 }

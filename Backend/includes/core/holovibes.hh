@@ -121,7 +121,19 @@
     holovibes::settings::FrameSkip,                              \
     holovibes::settings::Mp4Fps,                                 \
     holovibes::settings::CameraFps,                              \
-    holovibes::settings::DataType
+    holovibes::settings::DataType,                               \
+    holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::VeinMaskEnabled,                        \
+    holovibes::settings::ChoroidMaskEnabled,                     \
+    holovibes::settings::ChartMeanVesselsEnabled,                \
+    holovibes::settings::TimeWindow,                             \
+    holovibes::settings::VesselnessSigma,                        \
+    holovibes::settings::MinMaskArea,                            \
+    holovibes::settings::DiaphragmFactor,                        \
+    holovibes::settings::DiaphragmPreviewEnabled,                \
+    holovibes::settings::BarycenterFactor,                       \
+    holovibes::settings::BarycenterPreviewEnabled,               \
+    holovibes::settings::Threshold
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -375,8 +387,8 @@ class Holovibes
                                              settings::Unwrap2d{false},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
-                                             settings::P{ViewPQ{}},
-                                             settings::Q{ViewPQ{}},
+                                             settings::P{ViewP{0, 1}},
+                                             settings::Q{ViewQ{}},
                                              settings::XY{ViewXYZ{}},
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
@@ -440,7 +452,19 @@ class Holovibes
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
                                              settings::CameraFps{0},
-                                             settings::DataType{RecordedDataType::RAW}))
+                                             settings::DataType{RecordedDataType::RAW},
+                                             settings::TimeWindow{100},
+                                             settings::ArteryMaskEnabled{false},
+                                             settings::VeinMaskEnabled{false},
+                                             settings::ChoroidMaskEnabled{false},
+                                             settings::VesselnessSigma{2.0},
+                                             settings::MinMaskArea{10},
+                                             settings::DiaphragmFactor{0.4f},
+                                             settings::DiaphragmPreviewEnabled{false},
+                                             settings::BarycenterFactor{0.07f},
+                                             settings::BarycenterPreviewEnabled{false},
+                                             settings::Threshold{0.333f},
+                                             settings::ChartMeanVesselsEnabled{false}))
     {
     }
 

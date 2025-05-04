@@ -81,11 +81,11 @@ void Converts::insert_compute_p_accu()
         [=]()
         {
             auto p = setting<settings::P>();
-            pmin_ = p.start;
+            pmin_ = p.start - 1;
             if (p.width != 0)
                 pmax_ = std::max(
                     0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
+                    std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()) - 1));
             else
                 pmax_ = p.start;
         });

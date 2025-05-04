@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1283</width>
+    <width>1526</width>
     <height>810</height>
    </rect>
   </property>
@@ -51,12 +51,12 @@
      <enum>QLayout::SetNoConstraint</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="centralHorizontalLayout" stretch="0,0,0,0,0,0,0">
       <property name="spacing">
        <number>3</number>
       </property>
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SetMinimumSize</enum>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -1057,7 +1057,7 @@ The range of frequencies kept is [z, z + width].</string>
               <string>index of the image displayed</string>
              </property>
              <property name="minimum">
-              <number>0</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -1402,18 +1402,6 @@ The range of frequencies kept is [z, z + width]</string>
              <property name="enabled">
               <bool>false</bool>
              </property>
-             <property name="toolTip">
-              <string>The radius of the circle to compute the Registration</string>
-             </property>
-             <property name="minimum">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.050000000000000</double>
-             </property>
              <property name="minimumSize">
               <size>
                <width>70</width>
@@ -1425,6 +1413,18 @@ The range of frequencies kept is [z, z + width]</string>
                <width>70</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>The radius of the circle to compute the Registration</string>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
              </property>
             </widget>
            </item>
@@ -1447,18 +1447,6 @@ The range of frequencies kept is [z, z + width]</string>
              <property name="enabled">
               <bool>false</bool>
              </property>
-             <property name="minimum">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.050000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.500000000000000</double>
-             </property>
              <property name="minimumSize">
               <size>
                <width>70</width>
@@ -1470,6 +1458,18 @@ The range of frequencies kept is [z, z + width]</string>
                <width>70</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>
@@ -1612,26 +1612,6 @@ The range of frequencies kept is [z, z + width]</string>
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QSpinBox" name="PRedSpinBox_Composite">
                 <property name="sizePolicy">
@@ -1673,6 +1653,26 @@ The range of frequencies kept is [z, z + width]</string>
                 </property>
                 <property name="value">
                  <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -2424,6 +2424,468 @@ The range of frequencies kept is [z, z + width]</string>
        </widget>
       </item>
       <item>
+       <widget class="holovibes::gui::AnalysisPanel" name="AnalysisPanel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Analysis</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QLabel" name="TimeWindowLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Time window</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="TimeWindowSpinBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>2000</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="ArteryVeinGridLayout">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="ArteryCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Artery</string>
+             </property>
+             <property name="autoExclusive">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="VeinCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Veins</string>
+             </property>
+             <property name="autoExclusive">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="ChoroidCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Choroid</string>
+             </property>
+             <property name="autoExclusive">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="VesselnessGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="VesselnessSigmaLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Vesselness</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>5.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="VesselnessSigmaSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>500</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="MinMaskAreaGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="MinMaskAreaLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Min. area of Mask</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="MinMaskAreaSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>500</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="MinMaskAreaSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>500</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="DiaphragmGridLayout">
+           <item row="0" column="2">
+            <widget class="QDoubleSpinBox" name="DiaphragmFactorDoubleSpinBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.400000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="DiaphragmPreviewCheckBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Preview</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="QSlider" name="DiaphragmFactorSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="value">
+              <number>400</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="DiaphragmFactorLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Diaphragm factor</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="BarycenterGridLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="BarycenterFactorLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Barycenter factor</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QDoubleSpinBox" name="BarycenterFactorDoubleSpinBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.070000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="BarycenterPreviewCheckBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Preview</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="QSlider" name="BarycenterFactorSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="value">
+              <number>70</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="1">
+            <widget class="QSlider" name="ThresholdSlider">
+            <property name="minimum">
+              <number>208</number>
+             </property>
+             <property name="maximum">
+              <number>458</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Threshold</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="AnalysisChartLayout">
+           <item>
+            <widget class="QPushButton" name="AnalysisChartStartPushButton">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>Shows a chart view displaying Arteries, Veins and Choroid means</string>
+             </property>
+             <property name="text">
+              <string>Show means</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+T</string>
+              </property>
+            </widget>
+           </item>
+          </layout>
+        </item>
+         <item>
+          <spacer name="BottomAnalysisSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="holovibes::gui::Frame" name="ImportExportFrame">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -3004,11 +3466,11 @@ The range of frequencies kept is [z, z + width]</string>
                  </item>
                  <item row="0" column="3" colspan="3">
                   <widget class="QPushButton" name="RecordedEyePushButton">
-                   <property name="text">
-                    <string>None</string>
-                   </property>
                    <property name="toolTip">
                     <string>Switch between left eye, right eye or none</string>
+                   </property>
+                   <property name="text">
+                    <string>None</string>
                    </property>
                   </widget>
                  </item>
@@ -3169,10 +3631,13 @@ The range of frequencies kept is [z, z + width]</string>
            </property>
            <property name="html">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3232,8 +3697,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1283</width>
-     <height>22</height>
+     <width>1526</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3728,6 +4193,12 @@ p, li { white-space: pre-wrap; }
    <header>image_rendering_panel.hh</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::AnalysisPanel</class>
+   <extends>QGroupBox</extends>
+   <header>analysis_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3752,6 +4223,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>InputBrowseToolButton</tabstop>
   <tabstop>ImportInputFpsSpinBox</tabstop>
   <tabstop>ImportStartIndexSpinBox</tabstop>
+  <tabstop>TimeWindowSpinBox</tabstop>
   <tabstop>ImportEndIndexSpinBox</tabstop>
  </tabstops>
  <resources/>
@@ -5149,6 +5621,12 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>AnalysisChartStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>show_chart()</slot>
+  </connection>
+  <connection>
    <sender>ImportStartPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ImportPanel</receiver>
@@ -5885,6 +6363,54 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_start_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_end_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TimeWindowSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_time_window()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
@@ -5997,6 +6523,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>ArteryCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>RecordedEyePushButton</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
@@ -6009,6 +6551,198 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>859</x>
      <y>504</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VesselnessSigmaDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_vesselness_sigma(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VesselnessSigmaSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_vesselness_sigma_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>261</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VeinCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_vein_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DiaphragmFactorDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_diaphragm_factor(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DiaphragmFactorSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_diaphragm_factor_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DiaphragmPreviewCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_diaphragm_preview(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>947</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BarycenterFactorDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_barycenter_factor(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BarycenterFactorSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_barycenter_factor_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BarycenterPreviewCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_barycenter_preview(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>947</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChoroidCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_choroid_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>813</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
     </hint>
    </hints>
   </connection>
@@ -6028,6 +6762,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ThresholdSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_threshold_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_compute_mode(int)</slot>
@@ -6042,6 +6792,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_enabled(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
+  <slot>set_artery_mask(bool)</slot>
   <slot>set_registration(bool)</slot>
   <slot>set_img_type(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
@@ -6151,6 +6902,9 @@ p, li { white-space: pre-wrap; }
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
+  <slot>update_time_window(int)</slot>
+  <slot>update_vesselness_sigma(double)</slot>
+  <slot>update_vesselness_sigma_slider(int)</slot>
   <slot>set_file_read_preset()</slot>
   <slot>enable_contrast_auto_refresh()</slot>
   <slot>disable_contrast_auto_refresh()</slot>

@@ -33,4 +33,31 @@ void matrix_multiply(const T* A,
                                C,
                                A_height));
 }
+
+template <typename T>
+void matrix_multiply(const T* A,
+                     const T* B,
+                     int A_height,
+                     int B_width,
+                     int A_width_B_height,
+                     T* C,
+                     const cublasHandle_t& handle,
+                     cublasOperation_t op_A,
+                     cublasOperation_t op_B)
+{
+    cublasSafeCall(cublasSgemm(handle,
+                               op_A,
+                               op_B,
+                               A_height,
+                               B_width,
+                               A_width_B_height,
+                               &alpha,
+                               A,
+                               A_height,
+                               B,
+                               A_width_B_height,
+                               &beta,
+                               C,
+                               B_width));
+}
 } // namespace holovibes::compute

@@ -5,6 +5,7 @@
 #include "MainWindow.hh"
 #include "export_panel.hh"
 #include "image_rendering_panel.hh"
+#include "analysis_panel.hh"
 #include "logger.hh"
 #include "tools.hh"
 #include "API.hh"

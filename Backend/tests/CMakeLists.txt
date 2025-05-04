@@ -5,8 +5,10 @@ enable_testing()
 
 set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/cuda_includes/"
+    "${HOLO_DIR}/cuda_includes/analysis/"
     "${HOLO_DIR}/includes/"
     "${HOLO_DIR}/includes/api/"
+    "${HOLO_DIR}/includes/analysis/"
     "${HOLO_DIR}/includes/compute/"
     "${HOLO_DIR}/includes/data_struct/"
     "${HOLO_DIR}/includes/core/"
@@ -20,6 +22,7 @@ set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/includes/tools/cuda_tools/"
     "${HOLO_DIR}/includes/tools/exception/"
     "${HOLO_DIR}/includes/tools/logger/"
+    "${HOLO_DIR}/includes/tools/misc/"
     "${HOLO_DIR}/includes/tools/state/"
     "${HOLO_DIR}/includes/tools/units/"
     "${CAMERA_DIR}/include/"

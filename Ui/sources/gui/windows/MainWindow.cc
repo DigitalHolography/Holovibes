@@ -77,12 +77,15 @@ MainWindow::MainWindow(QWidget* parent)
     disable_notify();
 
     ui_->setupUi(this);
-    panels_ = {ui_->ImageRenderingPanel,
-               ui_->ViewPanel,
-               ui_->CompositePanel,
-               ui_->ImportPanel,
-               ui_->ExportPanel,
-               ui_->InfoPanel};
+    panels_ = {
+        ui_->ImageRenderingPanel,
+        ui_->ViewPanel,
+        ui_->CompositePanel,
+        ui_->ImportPanel,
+        ui_->ExportPanel,
+        ui_->InfoPanel,
+        ui_->AnalysisPanel,
+    };
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -231,10 +234,15 @@ void MainWindow::on_notify()
             ui_->menuSelect_preset->addActions(actions);
     }
 
+    const int img_type_int = static_cast<int>(API.compute.get_img_type());
+    ui_->AnalysisPanel->setHidden(img_type_int < static_cast<int>(ImgType::Moments_0) ||
+                                  img_type_int > static_cast<int>(ImgType::Moments_2));
+
     // Tabs
     if (api_.compute.get_is_computation_stopped())
     {
         ui_->CompositePanel->hide();
+        ui_->AnalysisPanel->hide();
         ui_->ImageRenderingPanel->setEnabled(false);
         ui_->ViewPanel->setEnabled(false);
         ui_->ExportPanel->setEnabled(false);
@@ -804,5 +812,6 @@ void MainWindow::set_theme(const Theme theme)
     else
         set_night();
 }
+
 #pragma endregion
 } // namespace holovibes::gui

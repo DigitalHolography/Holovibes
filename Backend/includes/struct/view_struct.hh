@@ -110,18 +110,32 @@ struct ViewAccu
     SERIALIZE_JSON_STRUCT(ViewAccu, width);
 };
 
-/*! \class ViewPQ
+/*! \class ViewP
  *
- * \brief Class that represents ViewPQ
+ * \brief Class that represents ViewP
  */
-struct ViewPQ : public ViewAccu
+struct ViewP : public ViewAccu
+{
+    unsigned start = 1;
+
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewP, width, start);
+
+    bool operator==(const ViewP& other) const { return (start == other.start && width == other.width); }
+};
+
+/*! \class ViewQ
+ *
+ * \brief Class that represents ViewQ
+ */
+struct ViewQ : public ViewAccu
 {
     unsigned start = 0;
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(ViewPQ, width, start);
+    SERIALIZE_JSON_STRUCT(ViewQ, width, start);
 
-    bool operator==(const ViewPQ& other) const { return (start == other.start && width == other.width); }
+    bool operator==(const ViewQ& other) const { return (start == other.start && width == other.width); }
 };
 
 /*! \class ViewXY
@@ -210,8 +224,8 @@ struct Views
     bool fft_shift = false;
     ViewXY x;
     ViewXY y;
-    ViewPQ z;
-    ViewPQ z2;
+    ViewP z;
+    ViewQ z2;
     Windows window;
     bool renorm = false;
     Reticle reticle;

@@ -50,7 +50,7 @@
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
-    holovibes::settings::SpaceTransformation
+    holovibes::settings::SpaceTransformation      
 
 #define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPEREFRESH_SETTINGS
 

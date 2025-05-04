@@ -20,6 +20,7 @@
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_otsu_kind.hh"
 #include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
 #include "frame_desc.hh"
@@ -96,8 +97,9 @@ DECLARE_SETTING(Unwrap2d, bool);
 
 DECLARE_SETTING(X, ViewXY);
 DECLARE_SETTING(Y, ViewXY);
-DECLARE_SETTING(P, ViewPQ);
-DECLARE_SETTING(Q, ViewPQ);
+
+DECLARE_SETTING(P, ViewP);
+DECLARE_SETTING(Q, ViewQ);
 
 DECLARE_SETTING(XY, ViewXYZ);
 DECLARE_SETTING(XZ, ViewXYZ);
@@ -198,6 +200,20 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV);
 DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
+
+/*! \brief Analysis cache */
+DECLARE_SETTING(ArteryMaskEnabled, bool);
+DECLARE_SETTING(VeinMaskEnabled, bool);
+DECLARE_SETTING(ChoroidMaskEnabled, bool);
+DECLARE_SETTING(TimeWindow, int);
+DECLARE_SETTING(VesselnessSigma, double);
+DECLARE_SETTING(MinMaskArea, int);
+DECLARE_SETTING(DiaphragmFactor, float);
+DECLARE_SETTING(DiaphragmPreviewEnabled, bool);
+DECLARE_SETTING(BarycenterFactor, float);
+DECLARE_SETTING(BarycenterPreviewEnabled, bool);
+DECLARE_SETTING(Threshold, float);
+DECLARE_SETTING(ChartMeanVesselsEnabled, bool);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);

@@ -11,6 +11,7 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
+#include "analysis.hh"
 #include "fast_updates_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
@@ -119,6 +120,15 @@ class Pipe : public ICompute
         postprocess_ =
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
+        analysis_ = std::make_unique<analysis::Analysis>(fn_compute_vect_,
+                                                         buffers_,
+                                                         input.get_fd(),
+                                                         vesselness_mask_env_,
+                                                         moments_env_,
+                                                         chart_mean_vessels_env_,
+                                                         stream_,
+                                                         settings);
+
         *processed_output_fps_ = 0;
         nb_frames_acquired_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
@@ -177,6 +187,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, analysis::Analysis>)
+            analysis_->update_setting(setting);
     }
 
   private:
@@ -194,11 +207,13 @@ class Pipe : public ICompute
         converts_->pipe_refresh_apply_updates();
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
+        // analysis_->pipe_refresh_apply_updates();
         postprocess_->pipe_refresh_apply_updates();
         registration_->pipe_refresh_apply_updates();
         rendering_->pipe_refresh_apply_updates();
-
         pipe_refresh_settings_.apply_updates();
+        // TODO: this init should not be there, also handle pipe_refresh_apply_updates like above
+        // analysis_->init();
     }
 
     /*! \brief Apply the updates of realtime settings at the end of a pipe cycle */
@@ -301,6 +316,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
+    std::unique_ptr<analysis::Analysis> analysis_;
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;

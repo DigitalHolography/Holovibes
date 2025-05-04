@@ -24,6 +24,10 @@ set(EXTERNAL_INCLUDES
 )
 
 set(INTERNAL_INCLUDES
+    cuda_includes/
+    includes/
+    includes/analysis/
+    includes/api/
     includes/cli/
     includes/gui/
     includes/gui/notifier/
@@ -37,6 +41,7 @@ set(INTERNAL_INCLUDES
     includes/gui/windows/AdvancedSettingsWindowTools/panels
     "${HOLO_DIR}/cuda_includes/"
     "${HOLO_DIR}/includes/"
+    "${HOLO_DIR}/includes/analysis/"
     "${HOLO_DIR}/includes/api/"
     "${HOLO_DIR}/includes/compute/"
     "${HOLO_DIR}/includes/data_struct/"
@@ -48,6 +53,7 @@ set(INTERNAL_INCLUDES
     "${HOLO_DIR}/includes/io/output_file/"
     "${HOLO_DIR}/includes/thread/"
     "${HOLO_DIR}/includes/tools/"
+    "${HOLO_DIR}/includes/tools/misc"
     "${HOLO_DIR}/includes/tools/cuda_tools/"
     "${HOLO_DIR}/includes/tools/units/"
     "${HOLO_DIR}/includes/tools/check/"
@@ -75,6 +81,7 @@ qt_add_executable(Holovibes
     ${CUDA_HEADERS}
     assets/ui/mainwindow.ui
     assets/ui/advancedsettingswindow.ui
+    assets/ui/analysisplotwindow.ui
     assets/ui/plotwindow.ui
     assets/ui/lightui.ui
     assets/icons/Holovibes.ico
@@ -241,7 +248,7 @@ if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     )
 endif()
 
-if (HAVE_EGrabber AND HAVE_EGrabbers)
+if(HAVE_EGrabber AND HAVE_EGrabbers)
     install(FILES
         ${CMAKE_BINARY_DIR}/AmetekS710EuresysCoaxlinkOcto.dll
         ${CMAKE_BINARY_DIR}/AmetekS711EuresysCoaxlinkQsfp+.dll
@@ -327,6 +334,7 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
 set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
 set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
+
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}

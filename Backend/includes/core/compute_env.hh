@@ -5,7 +5,9 @@
 #include "chart_point.hh"
 #include "cufft_handle.hh"
 #include "concurrent_deque.hh"
+#include "circular_video_buffer.hh"
 
+#include <map>
 #include <cufft.h>
 
 namespace holovibes
@@ -214,6 +216,144 @@ struct ImageAccEnv
 
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
+};
+
+/*! \struct VesselnessMaskEnv
+ *
+ *  \brief Struct containing buffers used for the computation of the vesselness masks
+ *
+ */
+struct VesselnessMaskEnv
+{
+    /*!
+     * \brief Circular buffer that holds the moment_0 values of the last 'time_window_' frames.
+     *
+     * The buffer is of a fixed size, equal to 'time_window_'. When a new frame is processed,
+     * its moment_0 value is added to the buffer, and if the buffer is full, the oldest value
+     * is overwritten. This allows us to keep track of the moment_0 values for the last 'time_window_'
+     * frames, which are used for calculations in subsequent processing steps.
+     */
+    std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
+    std::unique_ptr<CircularVideoBuffer> f_avg_video_cb_ = nullptr;
+
+    /*! \brief image with mean and centered calculated for a time window*/
+    cuda_tools::CudaUniquePtr<float> m0_ff_video_centered_ = nullptr;
+
+    /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
+    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> quantizedVesselCorrelation_ = nullptr;
+
+    /*! \brief Time window for mask */
+    int time_window_;
+
+    /*! \brief X size of kernel */
+    int kernel_x_size_ = 0;
+
+    /*! \brief Y size of kernel */
+    int kernel_y_size_ = 0;
+
+    /*! \brief barycentre buffer */
+    cuda_tools::CudaUniquePtr<float> vascular_image_ = nullptr;
+
+    /*! \brief Gaussian kernel for vascular image */
+    cuda_tools::CudaUniquePtr<float> vascular_kernel_ = nullptr;
+
+    /*! \brief Size of side of vascular kernel */
+    size_t vascular_kernel_size_ = 0;
+
+    /*! \brief f_avg_mean, M1 divided by M0 buffer */
+    cuda_tools::CudaUniquePtr<float> m1_divided_by_m0_frame_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> circle_mask_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> bwareafilt_result_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> before_threshold = nullptr;
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> R_vascular_pulse_ = nullptr;
+};
+
+/*! \struct ImageAccEnv
+ *
+ * \brief Struct used for vesselness_filter computations.
+ */
+// TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
+struct VesselnessFilterEnv
+{
+    cuda_tools::CudaUniquePtr<float> I = nullptr;
+    cuda_tools::CudaUniquePtr<float> convolution_tmp_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> H = nullptr;
+    cuda_tools::CudaUniquePtr<float> lambda_1 = nullptr;
+    cuda_tools::CudaUniquePtr<float> lambda_2 = nullptr;
+    cuda_tools::CudaUniquePtr<float> R_blob = nullptr;
+    cuda_tools::CudaUniquePtr<float> c_temp = nullptr;
+    cuda_tools::CudaUniquePtr<float> CRV_circle_mask = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_M0_ff_video_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> thresholds = nullptr;
+};
+
+/*! \struct FirstMaskChoroidEnv
+ *
+ * \brief Struct used for first_mask_choroid computations.
+ */
+struct FirstMaskChoroidEnv
+{
+    cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
+};
+
+/*! \struct OtsuEnv
+ *
+ * \brief Struct used for otsu computations.
+ */
+struct OtsuEnv
+{
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
+};
+
+/*! \struct BwAreaEnv
+ *
+ * \brief Struct used for bwareaopen and bwarefilt computations.
+ */
+struct BwAreaEnv
+{
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> float_buffer_;
+};
+
+/*! \struct ChartMeanVesselsEnv
+ *
+ * \brief Struct used for ChartMeanVessels computations.
+ * /*TODO change with struct of three double after
+ */
+struct ChartMeanVesselsEnv
+{
+    /*! \brief TODO: comment */
+    std::unique_ptr<ConcurrentDeque<ChartMeanVesselsPoint>> chart_display_queue_ = nullptr;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> float_buffer_gpu_;
 };
 
 } // namespace holovibes

@@ -36,6 +36,22 @@ __global__ static void kernel_map_generic(O* const output, const I* const input,
         output[index] = func(input[index]);
 }
 
+/*! \brief Basic kernel to apply a map operation in place.
+ *  Apply `func` parameter on every pixel of the `input_output` buffer and store it in place.
+ *
+ *  \param[in out] input_output The output to store the pixel after transformation.
+ *  \param[in] size The size of an image.
+ *  \param[in] func The function to apply on each buffer.
+ */
+template <typename O, typename FUNC>
+__global__ static void kernel_map_generic(O* const input_output, const size_t size, const FUNC func)
+{
+    const size_t index = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (index < size)
+        input_output[index] = func(input_output[index]);
+}
+
 /*! \brief Wrapper to call `kernel_map_generic`
  *
  *  This function calls the kernel in the most optimized way.
@@ -55,6 +71,26 @@ map_generic_caller(O* const output, const I* const input, const size_t size, con
     const uint blocks = map_blocks_to_problem(size, threads);
 
     kernel_map_generic<<<blocks, threads, 0, stream>>>(output, input, size, func);
+    cudaCheckError();
+}
+
+/*! \brief Wrapper to call `kernel_map_generic` in place
+ *
+ *  This function calls the kernel in the most optimized way.
+ *
+ *  \param[in out] input_output The output to store the pixel after transformation.
+ *  \param[in] size The size of an image.
+ *  \param[in] func The function to apply on each buffer.
+ *  \param[in] stream The CUDA stream to parallelize the computations.
+ */
+template <typename O, typename FUNC>
+static void map_generic_caller(O* const input_output, const size_t size, const FUNC func, const cudaStream_t stream)
+{
+    // Using 64 threads per blocks is more efficient than using the max number of threads supported
+    constexpr uint threads = 64;
+    const uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_map_generic<<<blocks, threads, 0, stream>>>(input_output, size, func);
     cudaCheckError();
 }
 
@@ -168,6 +204,26 @@ void map_generic(
         map_generic_caller(output, input, size, func, stream);
 }
 
+/*! \brief Map input in place throughout a mapping function.
+ *
+ *  This function is the generic map operation for any types. It means that it is not the most optimized map operation.
+ *  For instance, this map operation cannot be vectorized because only some types (float, ushort, uint...) can be
+ *  vectorized. Moreover, this operation works on any sizes.
+ *
+ *  \param[in out] input_output The buffer to get and store the pixel after transformation.
+ *  \param[in] size The size of an image.
+ *  \param[in] func The function to apply on each buffer.
+ *  \param[in] stream The CUDA stream to parallelize the computations.
+ *
+ *  \tparam O The type of the data contained in input_output
+ *  \tparam FUNC The lambda function type to map on the input_output
+ */
+template <typename O, typename FUNC>
+void map_generic(O* const input_output, const size_t size, const FUNC func, const cudaStream_t stream)
+{
+    map_generic_caller(input_output, size, func, stream);
+}
+
 #endif
 
 /*! \brief Apply log10 on every pixel of the input (float array).
@@ -190,6 +246,15 @@ void map_log10(float* const output, const float* const input, const size_t size,
 void map_divide(
     float* const output, const float* const input, const size_t size, const float value, const cudaStream_t stream);
 
+/*! \brief Divide every pixel of a float array by a value in place.
+ *
+ *  \param[in out] input_output The input_output buffer that will store the result after division application.
+ *  \param[in] size The size of an image.
+ *  \param[in] value The value to use for the division.
+ *  \param[in] stream The CUDA stream to parallelize the computations.
+ */
+void map_divide(float* const input_output, const size_t size, const float value, const cudaStream_t stream);
+
 /*! \brief Multiply every pixel of a float array by a value.
  *
  *  \param[out] output The output buffer after multiplication application.
@@ -200,3 +265,12 @@ void map_divide(
  */
 void map_multiply(
     float* const output, const float* const input, const size_t size, const float value, const cudaStream_t stream);
+
+/*! \brief Multiply every pixel of a float array by a value in place.
+ *
+ *  \param[in out] input_output The input_output buffer that will store the result after multiplication application.
+ *  \param[in] size The size of an image.
+ *  \param[in] value The value to use for the multiplication.
+ *  \param[in] stream The CUDA stream to parallelize the computations.
+ */
+void map_multiply(float* const input_output, const size_t size, const float value, const cudaStream_t stream);
