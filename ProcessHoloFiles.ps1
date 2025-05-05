@@ -1,171 +1,161 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
-# Function to prompt the user to select a file, starting at the script's location
-function Select-File([string]$description, [string]$filter) {
-    Write-Host $description -ForegroundColor Green
-    $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $fileDialog.Filter = $filter
-    $fileDialog.Title = $description
-    
-    # Set InitialDirectory to the folder where the script is executed
-    $scriptPath = Split-Path -Parent -Path $PSScriptRoot
-    $fileDialog.InitialDirectory = $scriptPath
-    
-    $dialogResult = $fileDialog.ShowDialog()
-
-    if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
-        return $fileDialog.FileName
-    }
-    else {
-        return $null
-    }
-}
+# Determine the script's directory
+$scriptPath = Split-Path -Parent -Path $PSScriptRoot
 
 # Function to select folder
-function Select-Folder([string]$description) {
+function Select-Folder([string]$description, [string]$initial = '') {
     Write-Host $description -ForegroundColor Green
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = $description
-    $folderBrowser.SelectedPath = [System.Environment]::GetFolderPath('MyDocuments')
-    $dialogResult = $folderBrowser.ShowDialog()
-
-    if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
+    if ($initial -and (Test-Path $initial)) {
+        $folderBrowser.SelectedPath = $initial
+    } else {
+        $folderBrowser.SelectedPath = [Environment]::GetFolderPath('MyDocuments')
+    }
+    if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         return $folderBrowser.SelectedPath
     }
-    else {
+    return $null
+}
+
+# Prompt for folder containing .holo files (always first)
+$holoFolderPath = Select-Folder -description "Select folder containing .holo files" 
+if (-not $holoFolderPath) {
+    Write-Host "No folder selected. Exiting script." -ForegroundColor Red
+    exit
+}
+
+# Prompt for standard vs interactive configuration
+Write-Host "Select configuration mode:" -ForegroundColor Cyan
+Write-Host " 1) Standard config (all defaults)" -ForegroundColor Yellow
+Write-Host " 2) Interactive setup" -ForegroundColor Yellow
+$useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
+
+if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
+    # Standard defaults
+    Write-Host "Using standard configuration. Processing with defaults..." -ForegroundColor Cyan
+    $modeChoice      = 1
+    $frameSkip       = 8
+    $input_fps       = -1
+    $outputExtension = '.avi'
+
+    # Default preset configuration file
+    $presetPath = "AppData\preset\settingsDoppler37kHz.json"
+    if (Test-Path $presetPath) {
+        $configFileNormal = $presetPath
+        Write-Host "Using preset config: $presetPath" -ForegroundColor Green
+    } else {
+        $configFileNormal = $null
+        Write-Host "Preset config not found. Skipping config file." -ForegroundColor Yellow
+    }
+    $configFileMoments = $null
+} else {
+    # Interactive setup
+    function Select-File([string]$description, [string]$filter) {
+        Write-Host $description -ForegroundColor Green
+        $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $fileDialog.Filter = $filter
+        $fileDialog.Title  = $description
+        $fileDialog.InitialDirectory = $scriptPath
+        if ($fileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { return $fileDialog.FileName }
         return $null
     }
-}
 
-# Function to select output extension
-function Select-OutputExtension {
-    $options = @(".holo", ".mp4", ".avi")
-    Write-Host "Select the output file extension:" -ForegroundColor Cyan
-    for ($i = 0; $i -lt $options.Length; $i++) {
-        Write-Host "$($i+1). $($options[$i])" -ForegroundColor Yellow
+    function Select-OutputExtension {
+        $options = @('.holo', '.mp4', '.avi')
+        Write-Host "Select the output file extension:" -ForegroundColor Cyan
+        for ($i = 0; $i -lt $options.Length; $i++) {
+            Write-Host "  $($i+1). $($options[$i])" -ForegroundColor Yellow
+        }
+        $sel = Read-Host "Enter number (default 3 for .avi)"
+        if ([string]::IsNullOrEmpty($sel) -or $sel -lt 1 -or $sel -gt $options.Length) { return '.avi' }
+        return $options[$sel - 1]
     }
-    $selection = Read-Host "Enter the number corresponding to your choice (default is 3 for .avi)"
 
-    if ([string]::IsNullOrEmpty($selection) -or $selection -lt 1 -or $selection -gt $options.Length) {
-        return ".avi"
+    function Get-ConfigFileOption {
+        Write-Host "Select the configuration file option:" -ForegroundColor Cyan
+        Write-Host " 1. Use standard preset" -ForegroundColor Yellow
+        Write-Host " 2. Skip config file" -ForegroundColor Yellow
+        Write-Host " 3. Browse for config file" -ForegroundColor Yellow
+        $choice = Read-Host "Enter choice (default 1)"
+        if ([string]::IsNullOrEmpty($choice) -or $choice -notmatch '^[1-3]$') { $choice = '1' }
+        switch ($choice) {
+            '1' {
+                $path = "AppData\preset\settingsDoppler37kHz.json"
+                if (Test-Path $path) { Write-Host "Using preset: $path" -ForegroundColor Green; return $path }
+                Write-Host "Preset not found. Skipping." -ForegroundColor Yellow
+                return $null
+            }
+            '2' {
+                Write-Host "No config file selected." -ForegroundColor Yellow
+                return $null
+            }
+            '3' {
+                $fp = Select-File -description 'Select a configuration file' -filter 'JSON Files (*.json)|*.json|All Files (*.*)|*.*'
+                if ($fp) { Write-Host "Selected: $fp" -ForegroundColor Green; return $fp }
+                Write-Host "No file selected. Skipping." -ForegroundColor Yellow
+                return $null
+            }
+        }
     }
-    else {
-        return $options[$selection - 1]
-    }
-}
 
-# Function to get configuration files
-function Get-ConfigFileOption {
-    $filePath = Select-File -description "Select a configuration file" -filter "Config Files (*.json)|*.json|All Files (*.*)|*.*"
-    if ($filePath) {
-        Write-Host "Selected configuration file: $filePath" -ForegroundColor Green
-    }
-    return $filePath
-}
+    # Recording mode
+    Write-Host "Select recording mode:" -ForegroundColor Cyan
+    Write-Host " 1. Image rendering" -ForegroundColor Yellow
+    Write-Host " 2. Statistical moments" -ForegroundColor Yellow
+    $modeChoice = Read-Host "Enter choice (default 1)"
+    if ($modeChoice -notmatch '^[1-2]$') { $modeChoice = 1 }
 
-# Prompt the user to select the folder containing .holo files
-$holoFolderPath = Select-Folder -description "Select the folder containing .holo files"
-if (-not $holoFolderPath) {
-    Write-Host "No folder was selected. Exiting script." -ForegroundColor Red
-    exit
-}
-
-# Select recording mode
-Write-Host "Select recording mode:" -ForegroundColor Cyan
-Write-Host "1. Normal recording" -ForegroundColor Yellow
-Write-Host "2. Moments recording" -ForegroundColor Yellow
-Write-Host "3. Both (Normal + Moments with different configurations)" -ForegroundColor Yellow
-$modeChoice = Read-Host "Enter the number corresponding to your choice (default is 1)"
-
-if (-not ($modeChoice -match '^[1-3]$')) { $modeChoice = 1 }
-
-$configFileNormal = $null
-$configFileMoments = $null
-
-# Get configuration files based on mode
-switch ($modeChoice) {
-    1 { $configFileNormal = Get-ConfigFileOption }
-    2 { $configFileMoments = Get-ConfigFileOption }
-    3 {
-        Write-Host "Select configuration file for NORMAL recording:" -ForegroundColor Cyan
-        $configFileNormal = Get-ConfigFileOption
-        Write-Host "Select configuration file for MOMENTS recording:" -ForegroundColor Cyan
+    # Config files
+    if ($modeChoice -eq 1) {
+        $configFileNormal  = Get-ConfigFileOption
+        $configFileMoments = $null
+    } else {
+        $configFileNormal  = $null
         $configFileMoments = Get-ConfigFileOption
     }
+
+    # Frame skip and input fps
+    $frameSkip   = Read-Host "Enter frame skip (default 8)";     if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
+    $input_fps   = Read-Host "Enter input fps (optional)";         if ($input_fps -notmatch '^[0-9]+$') { $input_fps = -1 }
+    $outputExtension = Select-OutputExtension
 }
 
-# Set the frame skip and input fps
-$frameSkip = Read-Host "Enter frame skip (default 16)"
-if (-not ($frameSkip -match '^[0-9]+$')) { $frameSkip = 16 }
-
-$input_fps = Read-Host "Enter input fps (optional, default camera fps)"
-if (-not ($input_fps -match '^[0-9]+$')) { $input_fps = -1 }
-
-$outputExtension = Select-OutputExtension
-
-# List all .holo files in the selected folder
+# Find all .holo files
 $holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
 if (-not $holoFiles) {
-    Write-Host "No .holo files found in the selected folder. Exiting script." -ForegroundColor Red
+    Write-Host "No .holo files found. Exiting." -ForegroundColor Red
     exit
 }
 
-Write-Host "Found $($holoFiles.Count) .holo files in the selected folder." -ForegroundColor Cyan
+# Determine executable path
+$exePath = if (Test-Path 'Holovibes.exe') { 'Holovibes.exe' } else { 'build/bin/Holovibes.exe' }
+Write-Host "Using executable: $exePath" -ForegroundColor Cyan
 
-# Find the holovibes .exe
-$exePath1 = "Holovibes.exe"
-$exePath2 = "build/bin/Holovibes.exe"
-$exePath = ""
-
-# Check if Holovibes.exe exists
-if (Test-Path $exePath1) {
-    $exePath = $exePath1
-}
-else {
-    $exePath = $exePath2
-}
-
-Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
-
-# Function to execute Holovibes
+# Function to run Holovibes
 function Execute-Holovibes {
-    param (
-        [string]$inputFilePath,
-        [string]$outputFilePath,
-        [string]$frameSkip,
-        [string]$input_fps,
-        [string]$configFile,
-        [bool]$isMoments
-    )
-
-    $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
-    if ($input_fps -ne -1) { $args += " -f $input_fps" }
-    if ($isMoments) {
-        $args += " --moments_record"
-    }
-    else {
-        $args += " --frame_skip $frameSkip"
-    }
-    if ($configFile) { $args += " -c `"$configFile`"" }
-
-    Write-Host "Executing Holovibes with arguments: $args" -ForegroundColor Yellow
+    param($inputFile, $outputFile, $skip, $fps, $config, $moments)
+    $args = "-i `"$inputFile`" -o `"$outputFile`""
+    if ($fps -ne -1) { $args += " -f $fps" }
+    if ($moments)    { $args += ' --moments_record' } else { $args += " --frame_skip $skip" }
+    if ($config)     { $args += " -c `"$config`"" }
+    Write-Host "Running: $exePath $args" -ForegroundColor Yellow
     Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
 }
 
-# Process files
+# Process each file
 foreach ($file in $holoFiles) {
-    $inputFilePath = $file.FullName
-
-    if ($modeChoice -eq 1 -or $modeChoice -eq 3) {
-        $outputFilePath = Join-Path $holoFolderPath "$($file.BaseName)$outputExtension"
-        Execute-Holovibes -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -input_fps $input_fps -configFile $configFileNormal -isMoments $false
-    }
-
-    if ($modeChoice -eq 2 -or $modeChoice -eq 3) {
-        $outputFilePath = Join-Path $holoFolderPath "$($file.BaseName)_moments.holo"
-        Execute-Holovibes -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -input_fps $input_fps -configFile $configFileMoments -isMoments $true
+    $in   = $file.FullName
+    $base = $file.BaseName
+    if ($modeChoice -eq 1) {
+        $out = Join-Path $holoFolderPath "$base$outputExtension"
+        Execute-Holovibes $in $out $frameSkip $input_fps $configFileNormal $false
+    } else {
+        $out = Join-Path $holoFolderPath "${base}_moments.holo"
+        Execute-Holovibes $in $out $frameSkip $input_fps $configFileMoments $true
     }
 }
 
-Write-Host "Processing complete. All files have been processed." -ForegroundColor Cyan
+Write-Host "Processing complete." -ForegroundColor Green

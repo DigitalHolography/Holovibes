@@ -1,5 +1,42 @@
 ## Changelog
 
+### 14.8.2
+
+- New display and contrast reticle layout.
+
+- Revamped processholofiles.ps1.
+
+### 14.8.1
+
+- Revert changes on ametek camera BufferPartCount in ini files.
+
+### 14.8.0
+
+- New cuda texture class.
+- The standard propagation idstance is now 480mm.
+- New constrast refresh button.
+- New documentation for ametek camera ini files.
+
+### 14.7.2
+
+- Fix ps1 standard preset.
+
+### 14.7.1
+
+- Add asi camera support.
+- removed the stop fan button.
+
+### 14.7.0
+
+- fix convolution bugs.
+- circular reticle overlay for contrast calculation.
+- new presset.
+- ps1 improvement.
+
+### 14.5.6
+
+- Button to toggle Ametek camera fans.
+
 ### 14.5.3
 
 - Changement des valeurs par defaults pour le contraste

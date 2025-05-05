@@ -267,13 +267,41 @@ ApiCode ContrastApi::set_cuts_contrast_p_offset(uint value) const
 
 #pragma region Reticle
 
+ApiCode ContrastApi::set_contrast_reticle_display_enabled(bool value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_contrast_reticle_display_enabled(), value);
+
+    UPDATE_SETTING(ContrastReticleDisplayEnabled, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode ContrastApi::set_contrast_reticle_scale(float value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_contrast_reticle_scale(), value);
+
+    if (!get_contrast_reticle_display_enabled())
+    {
+        LOG_WARN("Reticle display must be enabled to set the reticle scale");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    if (!is_between(value, 0.f, 1.f))
+    {
+        LOG_WARN("Reticle scale must be in range [0., 1.]");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(ContrastReticleScale, value);
+
+    return ApiCode::OK;
+}
+
 ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 {
     NOT_SAME_AND_NOT_RAW(get_reticle_display_enabled(), value);
 
     UPDATE_SETTING(ReticleDisplayEnabled, value);
-
-    update_reticle_zone();
 
     return ApiCode::OK;
 }
@@ -281,7 +309,6 @@ ApiCode ContrastApi::set_reticle_display_enabled(bool value) const
 ApiCode ContrastApi::set_reticle_scale(float value) const
 {
     NOT_SAME_AND_NOT_RAW(get_reticle_scale(), value);
-
     if (!get_reticle_display_enabled())
     {
         LOG_WARN("Reticle display must be enabled to set the reticle scale");
@@ -296,25 +323,7 @@ ApiCode ContrastApi::set_reticle_scale(float value) const
 
     UPDATE_SETTING(ReticleScale, value);
 
-    update_reticle_zone();
-
     return ApiCode::OK;
-}
-
-void ContrastApi::update_reticle_zone() const
-{
-    if (api_->compute.get_is_computation_stopped())
-        return;
-
-    float scale = get_reticle_scale();
-
-    const float w_2 = api_->input.get_input_fd().width / 2.0f;
-    const float h_2 = api_->input.get_input_fd().height / 2.0f;
-
-    auto top_left = units::PointFd(static_cast<int>(w_2 - w_2 * scale), static_cast<int>(h_2 - h_2 * scale));
-    auto bottom_right = units::PointFd(static_cast<int>(w_2 + w_2 * scale), static_cast<int>(h_2 + h_2 * scale));
-
-    UPDATE_SETTING(ReticleZone, units::RectFd(top_left, bottom_right));
 }
 
 #pragma endregion

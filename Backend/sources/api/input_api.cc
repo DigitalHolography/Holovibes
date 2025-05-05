@@ -181,7 +181,7 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
             {CameraKind::Ametek, "EuresyseGrabber.dll"},
             {CameraKind::Alvium, "CameraAlvium.dll"},
             {CameraKind::AutoDetectionPhantom, "CameraPhantomAutoDetection.dll"},
-        };
+            {CameraKind::ASI, "CameraASI.dll"}};
 
         // Load the camera
         auto active_camera = camera::CameraDLL::load_camera(camera_dictionary.at(c));
@@ -192,7 +192,6 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
         set_input_fd(active_camera->get_fd());
         set_camera_kind_enum(c);
         set_data_type(RecordedDataType::RAW);
-
         if (active_camera->get_camera_fps() != -1)
             api_->input.set_camera_fps(static_cast<uint>(active_camera->get_camera_fps()));
     }

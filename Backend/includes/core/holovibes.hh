@@ -76,8 +76,10 @@
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
+    holovibes::settings::ContrastReticleScale,                           \
     holovibes::settings::ReticleScale,                           \
     holovibes::settings::RegistrationZone,                       \
+    holovibes::settings::ContrastReticleDisplayEnabled,                  \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -109,7 +111,6 @@
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
-    holovibes::settings::ReticleZone,                            \
     holovibes::settings::InputFilter,                            \
     holovibes::settings::TimeTransformationCutsOutputBufferSize, \
     holovibes::settings::CompositeKind,                          \
@@ -396,8 +397,10 @@ class Holovibes
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
-                                             settings::ReticleScale{0.5f},
+                                             settings::ContrastReticleScale{0.5f},
+                                             settings::ReticleScale{0.2f},
                                              settings::RegistrationZone{0.7f},
+                                             settings::ContrastReticleDisplayEnabled{false},
                                              settings::ReticleDisplayEnabled{false},
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},
@@ -430,7 +433,6 @@ class Holovibes
                                              settings::SignalZone{units::RectFd{}},
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
-                                             settings::ReticleZone{units::RectFd{}},
                                              settings::InputFilter{{}},
                                              settings::CompositeKind{CompositeKind::RGB},
                                              settings::CompositeAutoWeights{false},

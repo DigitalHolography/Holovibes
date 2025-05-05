@@ -127,6 +127,11 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_auto_refresh(bool value);
+
+    void enable_contrast_auto_refresh();
+
+    void disable_contrast_auto_refresh();
+
     /*! \brief Enables or Disables contrast invertion
      *
      * \param value true: enable, false: disable
@@ -151,11 +156,24 @@ class ViewPanel : public Panel
      */
     void toggle_renormalize(bool value);
 
+    /*! \brief Creates or Removes the contrast reticle overlay
+     *
+     * \param value true: create, false: remove
+     */
+    void display_contrast_reticle(bool value);
+
+    /*! \brief Modifies reticle scale in ]0, 1[
+     *
+     * \param value The new contrast reticle scale
+     */
+    void contrast_reticle_scale(double value);
+
     /*! \brief Creates or Removes the reticle overlay
      *
      * \param value true: create, false: remove
      */
     void display_reticle(bool value);
+
     /*! \brief Modifies reticle scale in ]0, 1[
      *
      * \param value The new reticle scale

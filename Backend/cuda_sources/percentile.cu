@@ -6,10 +6,41 @@
 #include <thrust/sort.h>
 
 #include "cuda_memory.cuh"
+#include "common.cuh"
 #include "logger.hh"
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
+
+__global__ void copy_circle_kernel(const float* __restrict__ gpu_input,
+                                   float* __restrict__ thrust_gpu_input_copy,
+                                   const uint width,
+                                   const uint height,
+                                   const uint cx,
+                                   const uint cy,
+                                   const uint radius_squared,
+                                   uint* counter)
+{
+    // Calculate the 2D indices for the current thread
+    uint x = blockIdx.x * blockDim.x + threadIdx.x;
+    uint y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // Ensure the thread operates within the image boundaries
+    if (x >= width || y >= height)
+        return;
+
+    // Compute the squared distance from the center of the circle
+    int dx = x - cx;
+    int dy = y - cy;
+
+    // Check if the pixel lies within the circular region
+    if (dx * dx + dy * dy <= radius_squared)
+    {
+        uint index = atomicAdd(counter, 1);
+        // Write the pixel value from the input image to the circular output buffer
+        thrust_gpu_input_copy[index] = gpu_input[y * width + x];
+    }
+}
 
 void fill_percentile_float_in_case_of_error(float* const out_percent, unsigned size_percent)
 {
@@ -69,20 +100,21 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
  * \param height The height of the frame
  * \param offset The offset
  * \param factor Multiplication factor for the offset (width for xz and height for yz)
- * \param sub_zone The zone to apply the operation to
+ * \param scale The scale of the reticle
  * \param compute_on_sub_zone Whether to compute the percentile on the sub zone
  */
 uint calculate_frame_res(const uint width,
                          const uint height,
                          const uint offset,
                          const uint factor,
-                         const holovibes::units::RectFd& sub_zone,
+                         const float scale,
                          const bool compute_on_sub_zone)
 {
-    // Sub_zone area might be equal to 0 if the overlay hasn't been loaded yet.
-    // This is a dirty fix, but it mostly works
-    uint frame_res =
-        (compute_on_sub_zone && sub_zone.area() != 0) ? sub_zone.area() : width * height - 2 * offset * factor;
+    // Calculate the area based on the circular region defined by the scale
+    const uint radius = static_cast<uint>(scale * std::min(width, height) / 2);
+    const uint frame_res = (compute_on_sub_zone && radius > 0)
+                               ? (M_PI * radius * radius * 1.1f) // aproximation to avoid memory overflow
+                               : width * height - 2 * offset * factor;
     CHECK(frame_res > 0);
     return frame_res;
 }
@@ -94,6 +126,16 @@ uint calculate_frame_res(const uint width, const uint height, const uint offset,
     return frame_res;
 }
 
+/*!
+ * \brief Calculate frame_res according to the width, height and required offset
+ *
+ * \param width The width of the frame
+ * \param height The height of the frame
+ * \param offset The offset
+ * \param factor Multiplication factor for the offset (width for xz and height for yz)
+ * \param scale The scale of the reticle
+ * \param compute_on_sub_zone Whether to compute the percentile on the sub zone
+ */
 void compute_percentile_xy_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,
@@ -101,33 +143,80 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const float scale,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream)
 {
-    uint frame_res = calculate_frame_res(width, height, offset, width, sub_zone, compute_on_sub_zone);
-    offset *= width;
+    // Calculate the frame resolution based on the input dimensions and whether a sub-zone is used
+    uint frame_res = calculate_frame_res(width, height, offset, width, scale, compute_on_sub_zone);
+    offset *= width; // Adjust offset to account for row-based indexing
 
-    thrust::device_ptr<float> thrust_gpu_input_copy(nullptr);
+    thrust::device_ptr<float> thrust_gpu_input_copy(nullptr); // Pointer for GPU memory to store filtered data
+    uint* d_counter = nullptr; // Device-side counter to track the number of pixels in the circular region
+    uint h_counter = 0;        // Host-side counter to retrieve the result from the device
+
     try
     {
+        // Allocate memory for the data buffer and the counter on the GPU
         thrust_gpu_input_copy = allocate_thrust(frame_res, stream);
+        cudaXMalloc(&d_counter, sizeof(uint));
+        cudaXMemsetAsync(d_counter, 0, sizeof(uint), stream); // Initialize the counter to 0
+
         if (compute_on_sub_zone)
-            frame_memcpy(thrust_gpu_input_copy.get(), gpu_input + offset, sub_zone, width, stream);
+        {
+            // Parameters for the reticle zone
+            const uint cx = width / 2;  // Center of the reticle (x-coordinate)
+            const uint cy = height / 2; // Center of the reticle (y-coordinate)
+            const uint radius = static_cast<uint>(scale * std::min(width, height) / 2); // Radius of the reticle
+            const uint radius_squared = radius * radius;
+
+            dim3 block_dim(16, 16);
+            dim3 grid_dim((width + block_dim.x - 1) / block_dim.x, (height + block_dim.y - 1) / block_dim.y);
+
+            // Launch the kernel to copy pixels in the circular region
+            copy_circle_kernel<<<grid_dim, block_dim, 0, stream>>>(gpu_input,
+                                                                   thrust_gpu_input_copy.get(),
+                                                                   width,
+                                                                   height,
+                                                                   cx,
+                                                                   cy,
+                                                                   radius_squared,
+                                                                   d_counter);
+
+            // Check for any errors during kernel execution
+            cudaCheckError();
+
+            // Synchronize the stream to ensure kernel execution is complete
+            cudaXStreamSynchronize(stream);
+
+            // Retrieve the actual number of copied pixels from the device counter
+            cudaXMemcpy(&h_counter, d_counter, sizeof(uint), cudaMemcpyDeviceToHost);
+        }
         else
+        {
+            // Copy the entire image if no specific sub-zone is required
             thrust::copy(thrust::cuda::par.on(stream),
                          gpu_input + offset,
                          gpu_input + offset + frame_res,
                          thrust_gpu_input_copy);
 
-        compute_percentile(thrust_gpu_input_copy, frame_res, h_percent, h_out_percent, size_percent, stream);
+            h_counter = frame_res; // Set counter to the full frame resolution
+        }
+
+        // Compute the percentiles on the filtered/circular data
+        compute_percentile(thrust_gpu_input_copy, h_counter, h_percent, h_out_percent, size_percent, stream);
     }
     catch (const std::exception& e)
     {
+        // Log critical errors and provide a fallback mechanism
         LOG_CRITICAL("{}", e.what());
         LOG_WARN("[Thrust] Error while computing a percentile");
-        fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
+        fill_percentile_float_in_case_of_error(h_out_percent, size_percent); // Fallback: fill percentiles with defaults
     }
+
+    // Free GPU resources
+    if (d_counter != nullptr)
+        cudaXFree(d_counter);
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaSafeCall(cudaFreeAsync(thrust_gpu_input_copy.get(), stream));
 }
@@ -139,8 +228,6 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone,
                                 const cudaStream_t stream)
 {
     uint frame_res = calculate_frame_res(width, height, offset, height);

@@ -3,6 +3,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include <thread>
+#include <chrono>
+
 #include "camera_logger.hh"
 #include "spdlog/spdlog.h"
 #include "camera_exception.hh"

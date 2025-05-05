@@ -5,15 +5,32 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
-#include "rect_overlay.hh"
+#include "circ_overlay.hh"
 
 namespace holovibes::gui
 {
+/*! \class ContrastReticleOverlay
+ *
+ * \brief Class that represents a reticle overlay in the window.
+ */
+class ContrastReticleOverlay : public CircOverlay
+{
+  public:
+    ContrastReticleOverlay(BasicOpenGLWindow* parent);
+    virtual ~ContrastReticleOverlay() {}
+
+    virtual void move(QMouseEvent* e) override {}
+    virtual void release(ushort frameside) override {}
+
+  protected:
+    void setBuffer() override;
+};
+
 /*! \class ReticleOverlay
  *
  * \brief Class that represents a reticle overlay in the window.
  */
-class ReticleOverlay : public RectOverlay
+class ReticleOverlay : public CircOverlay
 {
   public:
     ReticleOverlay(BasicOpenGLWindow* parent);

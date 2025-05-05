@@ -39,6 +39,7 @@
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::FrameSkip,                              \
+    holovibes::settings::ContrastReticleDisplayEnabled,                  \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::SignalZone,                             \
@@ -53,7 +54,8 @@
     holovibes::settings::ContrastLowerThreshold,                 \
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
-    holovibes::settings::ReticleZone,                            \
+    holovibes::settings::ContrastReticleScale,                           \
+    holovibes::settings::ReticleScale,                           \
     holovibes::settings::CutsContrastPOffset
 
 #define PIPE_REFRESH_SETTINGS                                    \

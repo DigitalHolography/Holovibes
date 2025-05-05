@@ -62,44 +62,11 @@ void Filter2DWindow::initializeGL()
     Program->bind();
 
 #pragma region Texture
-    glGenTextures(1, &Tex);
-    glBindTexture(GL_TEXTURE_2D, Tex);
-
-    size_t size = fd_.get_frame_size();
-    ushort* mTexture = new ushort[size];
-    std::memset(mTexture, 0, size * sizeof(ushort));
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fd_.width, fd_.height, 0, GL_RG, GL_UNSIGNED_SHORT, mTexture);
-
-    Program->setUniformValue(Program->uniformLocation("tex"), 0);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    if (fd_.depth == camera::PixelDepth::Complex)
+    cudaTexture = new CudaTexture(fd_.width, fd_.height, fd_.depth, cuStream);
+    if (!cudaTexture->init())
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+        LOG_ERROR("Failed to initialize CUDA Texture");
     }
-    else
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-    }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    delete[] mTexture;
-    cudaGraphicsGLRegisterImage(&cuResource,
-                                Tex,
-                                GL_TEXTURE_2D,
-                                cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
-    cudaGraphicsMapResources(1, &cuResource, cuStream);
-    cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
-    cuArrRD.resType = cudaResourceTypeArray;
-    cuArrRD.res.array.array = cuArray;
-    cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 #pragma endregion
 
 #pragma region Vertex Buffer Object
@@ -157,8 +124,8 @@ void Filter2DWindow::initializeGL()
 
 void Filter2DWindow::paintGL()
 {
-    void* last = output_->get_last_image();
-    if (!last)
+    void* frame = output_->get_last_image();
+    if (!frame)
         return;
 
     makeCurrent();
@@ -166,9 +133,9 @@ void Filter2DWindow::paintGL()
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface, last, output_->get_fd(), cuStream);
+    cudaTexture->update(frame, output_->get_fd());
 
-    glBindTexture(GL_TEXTURE_2D, Tex);
+    glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
     glEnableVertexAttribArray(0);

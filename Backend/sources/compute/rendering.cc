@@ -321,24 +321,15 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   setting<settings::ReticleZone>(),
-                                   (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
+                                   setting<settings::ContrastReticleScale>(),
+                                   (view == WindowKind::Filter2D) ? false
+                                                                  : setting<settings::ContrastReticleDisplayEnabled>(),
                                    stream_);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
-        compute_percentile_yz_view(input,
-                                   width,
-                                   height,
-                                   offset,
-                                   percent_in,
-                                   percent_min_max_,
-                                   percent_size,
-                                   setting<settings::ReticleZone>(),
-                                   setting<settings::ReticleDisplayEnabled>(),
-                                   stream_);
+        compute_percentile_yz_view(input, width, height, offset, percent_in, percent_min_max_, percent_size, stream_);
         break;
     }
-
     API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
 }
 } // namespace holovibes::compute

@@ -103,6 +103,12 @@ void active_noise_zone();
 /*! \brief Creates Signal overlay */
 void active_signal_zone();
 
+/*! \brief Show or hide the contrast reticle overlay
+ *
+ * \param[in] value Whether to display the reticle overlay or not
+ */
+void set_contrast_reticle_overlay_visible(bool value);
+
 /*! \brief Show or hide the reticle overlay
  *
  * \param[in] value Whether to display the reticle overlay or not

@@ -119,8 +119,10 @@ DECLARE_SETTING(RegistrationEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
+DECLARE_SETTING(ContrastReticleScale, float);
 DECLARE_SETTING(ReticleScale, float);
 DECLARE_SETTING(RegistrationZone, float);
+DECLARE_SETTING(ContrastReticleDisplayEnabled, bool);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
 
 /*! \name Filter2D Cache */
@@ -189,9 +191,6 @@ DECLARE_SETTING(NoiseZone, units::RectFd);
 
 /*! \brief The area on which we'll normalize the colors */
 DECLARE_SETTING(CompositeZone, units::RectFd);
-
-/*! \brief The zone of the reticle area */
-DECLARE_SETTING(ReticleZone, units::RectFd);
 
 /*! \name CompositeCache */
 DECLARE_SETTING(CompositeKind, holovibes::CompositeKind);
