@@ -46,8 +46,8 @@ void Windows::Update()
 
 void Reticle::Update()
 {
-    this->display_enabled = GET_SETTING(ReticleDisplayEnabled);
-    this->scale = GET_SETTING(ReticleScale);
+    this->display_enabled = GET_SETTING(ContrastReticleDisplayEnabled);
+    this->scale = GET_SETTING(ContrastReticleScale);
 }
 
 void Registration::Update()
@@ -220,8 +220,8 @@ void Windows::Load()
 
 void Reticle::Load()
 {
-    UPDATE_SETTING(ReticleDisplayEnabled, this->display_enabled);
-    UPDATE_SETTING(ReticleScale, this->scale);
+    UPDATE_SETTING(ContrastReticleDisplayEnabled, this->display_enabled);
+    UPDATE_SETTING(ContrastReticleScale, this->scale);
 }
 
 void Registration::Load()

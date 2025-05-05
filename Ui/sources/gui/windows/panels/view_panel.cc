@@ -107,6 +107,10 @@ void ViewPanel::on_notify()
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
 
+    // Display Reticle
+    ui_->DisplayReticleDoubleSpinbox->setEnabled(ui_->DisplayReticleCheckbox->isChecked());
+    ui_->DisplayReticleDoubleSpinbox->setValue(api_.contrast.get_reticle_scale());
+
     // Enable only row that are actually displayed on the screen
     QListView* window_selection_view = qobject_cast<QListView*>(window_selection->view());
     window_selection_view->setRowHidden(1, !api_.window_pp.get_enabled(WindowKind::XZview));
@@ -234,9 +238,9 @@ void ViewPanel::on_notify()
     ui_->YAccLabel->setVisible(xy_visible);
 
     ui_->RenormalizeCheckBox->setChecked(api_.global_pp.get_renorm_enabled());
-    ui_->ReticleScaleDoubleSpinBox->setEnabled(api_.contrast.get_reticle_display_enabled());
-    ui_->ReticleScaleDoubleSpinBox->setValue(api_.contrast.get_reticle_scale());
-    ui_->DisplayReticleCheckBox->setChecked(api_.contrast.get_reticle_display_enabled());
+    ui_->ContrastReticleScaleDoubleSpinBox->setEnabled(api_.contrast.get_contrast_reticle_display_enabled());
+    ui_->ContrastReticleScaleDoubleSpinBox->setValue(api_.contrast.get_contrast_reticle_scale());
+    ui_->DisplayContrastReticleCheckBox->setChecked(api_.contrast.get_contrast_reticle_display_enabled());
 }
 
 void ViewPanel::load_gui(const json& j_us)
@@ -389,6 +393,19 @@ void ViewPanel::set_contrast_min(const double value) { api_.contrast.set_contras
 void ViewPanel::set_contrast_max(const double value) { api_.contrast.set_contrast_max(value); }
 
 void ViewPanel::toggle_renormalize(bool value) { api_.global_pp.set_renorm_enabled(value); }
+
+void ViewPanel::display_contrast_reticle(bool value)
+{
+    api_.contrast.set_contrast_reticle_display_enabled(value);
+    gui::set_contrast_reticle_overlay_visible(value);
+    parent_->notify();
+}
+
+void ViewPanel::contrast_reticle_scale(double value)
+{
+    api_.contrast.set_contrast_reticle_scale(value);
+    gui::set_contrast_reticle_overlay_visible(true);
+}
 
 void ViewPanel::display_reticle(bool value)
 {

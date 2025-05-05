@@ -146,6 +146,8 @@ std::shared_ptr<Overlay> OverlayManager::create_overlay(KindOfOverlay ko)
         return std::make_shared<CompositeAreaOverlay>(parent_);
     case Rainbow:
         return std::make_shared<RainbowOverlay>(parent_);
+    case ContrastReticle:
+        return std::make_shared<ContrastReticleOverlay>(parent_);
     case Reticle:
         return std::make_shared<ReticleOverlay>(parent_);
     default:

@@ -36,6 +36,7 @@ enum KindOfOverlay
 {
     Zoom,
     Reticle,
+    ContrastReticle,
     // Registration
     Registration,
     // Chart

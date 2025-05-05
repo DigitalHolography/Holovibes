@@ -156,11 +156,24 @@ class ViewPanel : public Panel
      */
     void toggle_renormalize(bool value);
 
+    /*! \brief Creates or Removes the contrast reticle overlay
+     *
+     * \param value true: create, false: remove
+     */
+    void display_contrast_reticle(bool value);
+
+    /*! \brief Modifies reticle scale in ]0, 1[
+     *
+     * \param value The new contrast reticle scale
+     */
+    void contrast_reticle_scale(double value);
+
     /*! \brief Creates or Removes the reticle overlay
      *
      * \param value true: create, false: remove
      */
     void display_reticle(bool value);
+
     /*! \brief Modifies reticle scale in ]0, 1[
      *
      * \param value The new reticle scale
