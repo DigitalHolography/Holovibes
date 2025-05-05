@@ -1,5 +1,11 @@
 ## Changelog
 
+### 14.8.2
+
+- New display and contrast reticle layout.
+
+- Revamped processholofiles.ps1.
+
 ### 14.8.1
 
 - Revert changes on ametek camera BufferPartCount in ini files.
