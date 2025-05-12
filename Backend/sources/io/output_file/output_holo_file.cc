@@ -1,3 +1,6 @@
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
 #include "output_holo_file.hh"
 #include "file_exception.hh"
 #include "logger.hh"
@@ -44,19 +47,88 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
     try
     {
         auto& api = API;
+        // Determine camera FPS (fallback to input_fps if unavailable)
         int camera_fps = api.input.get_camera_fps() == 0 ? input_fps : api.input.get_camera_fps();
-        auto j_fi = json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
-                         {"input_fps", api.input.can_get_camera_fps() ? camera_fps : input_fps},
-                         {"camera_fps", camera_fps},
-                         {"eye_type", api.record.get_recorded_eye()},
-                         {"contiguous", contiguous},
-                         {"holovibes_version", __HOLOVIBES_VERSION__}};
+        // Prepare the "camera" object: null if no camera, otherwise with three fields
+        nlohmann::json camera_info = nullptr;
 
-        meta_data_ = json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
+        if (api.input.can_get_camera_fps())
+        {
+            int period = 0;
+            int nb_grabbers = 0;
+            int exposure_time = 0;
+            int buffer_part_count = 0;
+            int nb_buffers = 0;
+            float gain = 0.00;
+            std::string trigger_source = "";
+
+            CameraKind kind = api.input.get_camera_kind();
+            if (kind == CameraKind::Phantom || kind == CameraKind::AmetekS711EuresysCoaxlinkQSFP ||
+                kind == CameraKind::AmetekS991EuresysCoaxlinkQSFP)
+            {
+                boost::property_tree::ptree params;
+                try
+                {
+                    boost::property_tree::ini_parser::read_ini(api.input.get_camera_ini_name(), params);
+                }
+                catch (const boost::property_tree::ini_parser_error& e)
+                {
+                    LOG_ERROR("Failed to parse camera INI '{}': {}", api.input.get_camera_ini_name(), e.what());
+                }
+                std::string section;
+                switch (kind)
+                {
+                case CameraKind::Phantom:
+                    section = "s710";
+                    break;
+
+                case CameraKind::AmetekS711EuresysCoaxlinkQSFP:
+                    section = "s711";
+                    break;
+
+                case CameraKind::AmetekS991EuresysCoaxlinkQSFP:
+                    section = "s991";
+                    break;
+
+                default:
+                    section = "";
+                    break;
+                }
+
+                period = params.get<int>(section + ".CycleMinimumPeriod", 0);
+                exposure_time = params.get<int>(section + ".ExposureTime", 0);
+                nb_grabbers = params.get<int>(section + ".NbGrabbers", 0);
+                nb_buffers = params.get<int>(section + ".NbBuffers", 0);
+                buffer_part_count = params.get<int>(section + ".BufferPartCount", 0);
+                gain = params.get<float>(section + ".Gain", 0);
+                trigger_source = params.get<std::string>(section + ".TriggerSource", "");
+            }
+
+            camera_info = nlohmann::json{{"Camera_type", api.input.camera_kind_to_string(api.input.get_camera_kind())},
+                                         {"CycleMinimumPeriod", period},
+                                         {"NbGrabbers", nb_grabbers},
+                                         {"TriggerSource", trigger_source},
+                                         {"NbBuffers", nb_buffers},
+                                         {"BufferPartCount", buffer_part_count},
+                                         {"Gain", gain},
+                                         {"ExposureTime", exposure_time}};
+        }
+
+        // Build the info JSON without top-level camera_fps
+        auto j_fi =
+            nlohmann::json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
+                           {"input_fps", api.input.can_get_camera_fps() ? camera_fps : input_fps},
+                           {"camera_fps", camera_fps}, // camera frames per second
+                           {"eye_type", api.record.get_recorded_eye()},
+                           {"contiguous", contiguous},
+                           {"holovibes_version", __HOLOVIBES_VERSION__},
+                           {"camera", camera_info}};
+
+        meta_data_ = nlohmann::json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
-    catch (const json::exception& e)
+    catch (const nlohmann::json::exception& e)
     {
-        meta_data_ = json();
+        meta_data_ = nlohmann::json();
         LOG_WARN("An error was encountered while trying to export compute settings");
         LOG_WARN("Exception: {}", e.what());
     }
