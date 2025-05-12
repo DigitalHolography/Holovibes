@@ -27,7 +27,7 @@ ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
     LOG_FUNC();
 
     display_ = true;
-    color_ = {0.f, 0.f, 1.f};
+    color_ = {0.f, 1.f, 1.f};
 }
 
 void ReticleOverlay::setBuffer()
