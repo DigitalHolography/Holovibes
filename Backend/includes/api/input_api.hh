@@ -241,6 +241,51 @@ class InputApi : public IApi
      */
     inline void set_pixel_size(float value) const { UPDATE_SETTING(PixelSize, value); }
 
+    /*! \brief Return the name of the of the CameraKind
+     *
+     * Ex: camera_kind_to_string(3) == "AmetekS711"
+     *
+     * \param[in] kind a CameraKind object
+     */
+    static std::string camera_kind_to_string(CameraKind kind)
+    {
+        switch (kind)
+        {
+        case CameraKind::NONE:
+            return "NONE";
+        case CameraKind::Adimec:
+            return "Adimec";
+        case CameraKind::IDS:
+            return "IDS";
+        case CameraKind::Phantom:
+            return "AmetekS710";
+        case CameraKind::BitflowCyton:
+            return "BitflowCyton";
+        case CameraKind::Hamamatsu:
+            return "Hamamatsu";
+        case CameraKind::xiQ:
+            return "xiQ";
+        case CameraKind::xiB:
+            return "xiB";
+        case CameraKind::OpenCV:
+            return "OpenCV";
+        case CameraKind::AmetekS991EuresysCoaxlinkQSFP:
+            return "AmetekS991EuresysCoaxlinkQSFP";
+        case CameraKind::AmetekS711EuresysCoaxlinkQSFP:
+            return "AmetekS711EuresysCoaxlinkQSFP";
+        case CameraKind::Ametek:
+            return "Ametek";
+        case CameraKind::Alvium:
+            return "Alvium";
+        case CameraKind::AutoDetectionPhantom:
+            return "AutoDetectionPhantom";
+        case CameraKind::ASI:
+            return "ASI";
+        default:
+            return "Unknown";
+        }
+    }
+
 #pragma endregion
 
     /*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
