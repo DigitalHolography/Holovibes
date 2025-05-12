@@ -1,5 +1,11 @@
 ## Changelog
 
+### 14.8.3
+
+- Display reticle default size and color changed.
+
+- Camera information are now written in the footer.
+
 ### 14.8.2
 
 - New display and contrast reticle layout.
