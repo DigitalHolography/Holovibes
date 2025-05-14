@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.8.4
+
+- .ps1 script now add a "\_p" for processed files.
+
 ### 14.8.3
 
 - Display reticle default size and color changed.
