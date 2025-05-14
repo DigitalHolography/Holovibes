@@ -150,7 +150,7 @@ foreach ($file in $holoFiles) {
     $in   = $file.FullName
     $base = $file.BaseName
     if ($modeChoice -eq 1) {
-        $out = Join-Path $holoFolderPath "$base$outputExtension"
+        $out = Join-Path $holoFolderPath "${base}_p${outputExtension}"
         Execute-Holovibes $in $out $frameSkip $input_fps $configFileNormal $false
     } else {
         $out = Join-Path $holoFolderPath "${base}_moments.holo"
