@@ -114,8 +114,8 @@
         "image_type": "MODULUS",
         "renorm": true,
         "reticle": {
-            "display_enabled": false,
-            "scale": 0.5
+            "display_enabled": true,
+            "scale": 0.9
         },
         "window": {
             "filter2d": {
@@ -130,7 +130,7 @@
             },
             "xy": {
                 "contrast": {
-                    "auto_refresh": false,
+                    "auto_refresh": true,
                     "enabled": true,
                     "invert": false,
                     "max": 35.90232849121094,
@@ -144,7 +144,7 @@
             },
             "xz": {
                 "contrast": {
-                    "auto_refresh": false,
+                    "auto_refresh": true,
                     "enabled": true,
                     "invert": false,
                     "max": 65535.0,
