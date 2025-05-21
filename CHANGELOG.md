@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.8.5
+
+- Standard preset now have auto_contrast enabled by default.
+
 ### 14.8.4
 
 - .ps1 script now add a "\_p" for processed files.
