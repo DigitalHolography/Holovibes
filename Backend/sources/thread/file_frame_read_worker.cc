@@ -20,18 +20,17 @@ void FileFrameReadWorker::open_file()
 {
     auto file_path = setting<settings::InputFilePath>();
 
-    // Détecte si c'est un .mraw
-    std::string file_path_str = file_path; // ou .toStdString() si QString, adapte !
+    // mraw logic
+    std::string file_path_str = file_path;
     std::string cih_path;
 
+    // find the path of the cih or cihx file
     if (file_path_str.size() >= 5 && file_path_str.substr(file_path_str.size() - 5) == ".mraw")
     {
-        // Recherche le .cih ou .cihx associé
         std::string base = file_path_str.substr(0, file_path_str.size() - 5);
         std::string try_cih = base + ".cih";
         std::string try_cihx = base + ".cihx";
 
-        // Vérifie si les fichiers existent
         if (std::ifstream(try_cih))
             cih_path = try_cih;
         else if (std::ifstream(try_cihx))
@@ -39,12 +38,10 @@ void FileFrameReadWorker::open_file()
         else
             throw std::runtime_error("No associated .cih or .cihx file found for mraw file: " + file_path_str);
 
-        // Appelle la factory avec 2 arguments
         input_file_.reset(io_files::InputFrameFileFactory::open_mraw(file_path_str, cih_path));
     }
     else
     {
-        // Cas standard
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_str));
     }
 

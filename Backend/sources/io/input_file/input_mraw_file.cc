@@ -19,6 +19,7 @@
 #include "holovibes_config.hh"
 #include "logger.hh"
 
+// the cihx file format is not a pure xml so we need to process it beforhand.
 bool extract_xml_from_cihx(const std::string& path, std::string& xml)
 {
     std::ifstream fin(path, std::ios::binary);
@@ -26,10 +27,9 @@ bool extract_xml_from_cihx(const std::string& path, std::string& xml)
         return false;
 
     std::string content((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
-    // On cherche le tout premier '<?xml' (souvent le vrai début)
     size_t xml_start = content.find("<?xml");
     if (xml_start == std::string::npos)
-        xml_start = content.find("<cih"); // Parfois ils zappent la déclaration XML
+        xml_start = content.find("<cih");
 
     size_t xml_end = content.rfind("</cih>");
     if (xml_start == std::string::npos || xml_end == std::string::npos)
@@ -38,7 +38,6 @@ bool extract_xml_from_cihx(const std::string& path, std::string& xml)
 
     xml = content.substr(xml_start, xml_end - xml_start);
 
-    // Enlève tout ce qui suit le XML (zéro, retour-chariot, binaire)
     while (!xml.empty() && (xml.back() == 0 || xml.back() == '\r' || xml.back() == '\n'))
         xml.pop_back();
 
@@ -71,19 +70,18 @@ void InputMrawFile::load_cih(const std::string& cih)
 {
     LOG_FUNC();
 
-    // Initialisation des valeurs
     img_nb = 0;
     fd_.byteEndian = camera::Endianness::LittleEndian;
     fd_.width = 0;
     fd_.height = 0;
     fd_.depth = camera::PixelDepth::Bits0;
 
-    // Détecter l'extension
+    // find if cih or cihx
     auto ext_pos = cih.find_last_of('.');
     std::string ext = (ext_pos == std::string::npos) ? "" : cih.substr(ext_pos + 1);
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-    if (ext == "cihx") // Format XML
+    if (ext == "cihx")
     {
         std::string xml;
         if (extract_xml_from_cihx(cih, xml))
@@ -92,8 +90,6 @@ void InputMrawFile::load_cih(const std::string& cih)
             {
                 std::stringstream ss(xml);
                 boost::property_tree::ptree pt;
-                LOG_INFO("First 200 chars: {}", xml.substr(0, 200));
-                LOG_INFO("Last 200 chars: {}", xml.substr(xml.length() - 200));
                 boost::property_tree::read_xml(ss, pt);
 
                 boost::optional<int> totalFrame = pt.get_optional<int>("cih.frameInfo.totalFrame");
@@ -131,7 +127,7 @@ void InputMrawFile::load_cih(const std::string& cih)
             LOG_ERROR("Cannot extract XML from CIHX: {}", cih);
         }
     }
-    else // Format texte .cih
+    else // cih case
     {
         std::ifstream fin(cih);
         if (!fin)
@@ -143,11 +139,9 @@ void InputMrawFile::load_cih(const std::string& cih)
         std::string line;
         while (std::getline(fin, line))
         {
-            // Enlève les commentaires éventuels ou espaces
             line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
             line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 
-            // Split clé: valeur
             std::size_t sep = line.find(':');
             if (sep == std::string::npos)
                 continue;
@@ -155,13 +149,11 @@ void InputMrawFile::load_cih(const std::string& cih)
             std::string key = line.substr(0, sep);
             std::string value = line.substr(sep + 1);
 
-            // Trim key et value
             key.erase(key.find_last_not_of(" \t") + 1);
             key.erase(0, key.find_first_not_of(" \t"));
             value.erase(value.find_last_not_of(" \t") + 1);
             value.erase(0, value.find_first_not_of(" \t"));
 
-            // Cas insensible à la casse sur la clé
             std::string lkey = key;
             std::transform(lkey.begin(), lkey.end(), lkey.begin(), ::tolower);
 
@@ -179,8 +171,8 @@ void InputMrawFile::load_cih(const std::string& cih)
         }
     }
 
-    LOG_ERROR("img_nb={}, width={}, height={}, depth={}", img_nb, fd_.width, fd_.height, static_cast<int>(fd_.depth));
-    LOG_ERROR("Exiting");
+    LOG_TRACE("img_nb={}, width={}, height={}, depth={}", img_nb, fd_.width, fd_.height, static_cast<int>(fd_.depth));
+    LOG_TRACE("Exiting");
 }
 
 json InputMrawFile::import_compute_settings(void) { return json{}; }
