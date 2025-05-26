@@ -1,8 +1,21 @@
 #include <cassert>
 #include "logger.hh"
 #include "holovibes.hh"
-
+#include <nvtx3/nvToolsExt.h>
 #include "batch_input_queue.hh"
+
+class ScopedNvtxRange
+{
+  public:
+    explicit ScopedNvtxRange(const char* msg)
+        : id_(nvtxRangeStartA(msg))
+    {
+    }
+    ~ScopedNvtxRange() { nvtxRangeEnd(id_); }
+
+  private:
+    nvtxRangeId_t id_;
+};
 
 namespace holovibes
 {
@@ -123,6 +136,7 @@ void BatchInputQueue::stop_producer()
 
 void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind memcpy_kind, const int nb_frame)
 {
+    ScopedNvtxRange rng("BatchInputQueue::enqueue");
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
 
@@ -203,6 +217,7 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
 
 void BatchInputQueue::dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func)
 {
+    ScopedNvtxRange rng("BatchInputQueue::dequeue");
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -237,7 +252,7 @@ void BatchInputQueue::dequeue(void* const dest, const camera::PixelDepth depth, 
 void BatchInputQueue::dequeue()
 {
     // CHECK(size_ > 0);
-
+    ScopedNvtxRange rng("BatchInputQueue::dequeue_simple");
     if (size_ > 0)
     {
         // Order cannot be guaranteed because of the try lock because a producer
