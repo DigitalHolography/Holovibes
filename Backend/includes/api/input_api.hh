@@ -176,6 +176,20 @@ class InputApi : public IApi
     import_file(const std::string& filename,
                 const std::string& json_path = holovibes::settings::compute_settings_filepath) const;
 
+    /*! \brief Load the .mraw file at the given filename. This function will set the file path, the start index to 0,
+     * the end index to the number of frames in the file and the frame descriptor.
+     *
+     * - no compute settings will be loaded.
+     *
+     * \param[in] filename the given filename to open
+     * \param[in] cih the path to the .cih or .cihx file that contains the resolution, the size, and the frequency of
+     * the file
+     *
+     * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
+     */
+    std::optional<io_files::InputFrameFile*> import_mraw_file(const std::string& filename,
+                                                              const std::string& cih) const;
+
 #pragma endregion
 
 #pragma region Cameras

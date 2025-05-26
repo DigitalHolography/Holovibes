@@ -1,6 +1,9 @@
 /*! \file
  *
  */
+#include <QFileInfo>
+#include <QDir>
+
 #include "import_panel.hh"
 
 #include "API.hh"
@@ -59,12 +62,11 @@ void ImportPanel::set_start_stop_buttons(bool value)
 
 void ImportPanel::import_browse_file()
 {
-    QString filename =
-        QFileDialog::getOpenFileName(this,
-                                     tr("import file"),
-                                     QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
-                                     tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
-                                        "(*.cine)"));
+    QString filename = QFileDialog::getOpenFileName(
+        this,
+        tr("import file"),
+        QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
+        tr("All files (*.holo *.cine *.mraw);; Holo files (*.holo);; Cine files (*.cine);; MRAW files (*.mraw)"));
 
     // Start importing the chosen
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
@@ -81,9 +83,49 @@ void ImportPanel::import_file(const QString& filename)
     if (filename.isEmpty())
         return;
 
+    // .mraw file logic
+    QString cih_to_use;
+    QFileInfo file_info(filename);
+    if (file_info.suffix().compare("mraw", Qt::CaseInsensitive) == 0)
+    {
+        QString base_name = file_info.completeBaseName();
+        QDir dir = file_info.absoluteDir();
+
+        QString cih_path = dir.filePath(base_name + ".cih");
+        QString cihx_path = dir.filePath(base_name + ".cihx");
+
+        if (QFileInfo::exists(cih_path))
+        {
+            cih_to_use = cih_path;
+        }
+        else if (QFileInfo::exists(cihx_path))
+        {
+            cih_to_use = cihx_path;
+        }
+
+        if (!cih_to_use.isEmpty())
+        {
+            LOG_INFO("Found CIH(X) file:");
+        }
+        else
+        {
+            LOG_ERROR("No CIH or CIHX file found for");
+            return;
+        }
+    }
+
     // Start importing the chosen
     gui::close_windows();
-    std::optional<io_files::InputFrameFile*> input_file_opt = api_.input.import_file(filename.toStdString());
+    std::optional<io_files::InputFrameFile*> input_file_opt;
+
+    if (!cih_to_use.isEmpty())
+    {
+        input_file_opt = api_.input.import_mraw_file(filename.toStdString(), cih_to_use.toStdString());
+    }
+    else
+    {
+        input_file_opt = api_.input.import_file(filename.toStdString());
+    }
 
     if (input_file_opt)
     {

@@ -131,6 +131,47 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     return input;
 }
 
+std::optional<io_files::InputFrameFile*> InputApi::import_mraw_file(const std::string& filename,
+                                                                    const std::string& cih) const
+{
+    if (filename.empty())
+    {
+        LOG_ERROR("Empty filename");
+        return std::nullopt;
+    }
+
+    io_files::InputFrameFile* input = nullptr;
+
+    // Try to open the file
+    try
+    {
+        input = io_files::InputFrameFileFactory::open_mraw(filename, cih);
+    }
+    catch (const io_files::FileException& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+        return std::nullopt;
+    }
+
+    // Stop any computation currently running
+    camera_none();
+
+    // Set settings
+    set_input_fd(input->get_frame_descriptor());
+    set_input_file_path(filename);
+    set_input_file_start_index(0);
+    set_input_file_end_index(input->get_total_nb_frames());
+    set_import_type(ImportType::File);
+    api_->record.set_record_mode(RecordMode::HOLOGRAM);
+
+    // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+    // record
+    auto input_buffer_size = get_input_buffer_size();
+    auto record_buffer_size = api_->record.get_record_buffer_size();
+
+    return input;
+}
+
 #pragma endregion
 
 #pragma region Cameras

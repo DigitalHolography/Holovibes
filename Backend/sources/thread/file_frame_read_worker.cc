@@ -19,7 +19,35 @@ namespace holovibes::worker
 void FileFrameReadWorker::open_file()
 {
     auto file_path = setting<settings::InputFilePath>();
-    input_file_.reset(io_files::InputFrameFileFactory::open(file_path));
+
+    // Détecte si c'est un .mraw
+    std::string file_path_str = file_path; // ou .toStdString() si QString, adapte !
+    std::string cih_path;
+
+    if (file_path_str.size() >= 5 && file_path_str.substr(file_path_str.size() - 5) == ".mraw")
+    {
+        // Recherche le .cih ou .cihx associé
+        std::string base = file_path_str.substr(0, file_path_str.size() - 5);
+        std::string try_cih = base + ".cih";
+        std::string try_cihx = base + ".cihx";
+
+        // Vérifie si les fichiers existent
+        if (std::ifstream(try_cih))
+            cih_path = try_cih;
+        else if (std::ifstream(try_cihx))
+            cih_path = try_cihx;
+        else
+            throw std::runtime_error("No associated .cih or .cihx file found for mraw file: " + file_path_str);
+
+        // Appelle la factory avec 2 arguments
+        input_file_.reset(io_files::InputFrameFileFactory::open_mraw(file_path_str, cih_path));
+    }
+    else
+    {
+        // Cas standard
+        input_file_.reset(io_files::InputFrameFileFactory::open(file_path_str));
+    }
+
     fd_ = input_file_->get_frame_descriptor();
     frame_size_ = fd_.value().get_frame_size();
 }
