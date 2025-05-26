@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.8.6
+
+- .mraw support added (a .cih or .cihx file with the exact same name is needed in the directory).
+
 ### 14.8.5
 
 - Standard preset now have auto_contrast enabled by default.
