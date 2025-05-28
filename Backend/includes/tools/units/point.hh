@@ -29,6 +29,10 @@ class PointFd
     {
     }
 
+    void set_x(int x) { x_ = x; }
+
+    void set_y(int y) { y_ = y; }
+
     int& x() { return x_; }
 
     int& y() { return y_; }

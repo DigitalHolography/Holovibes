@@ -409,7 +409,7 @@ class Holovibes
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::InputBufferSize{512},
+                                             settings::InputBufferSize{4096},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.02f},
                                              settings::RawBitshift{0},
