@@ -92,6 +92,7 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
     {
         api_->view.change_window(WindowKind::XYview);
         api_->contrast.set_contrast_enabled(true);
+        api_->transform.set_time_stride(api_->transform.get_time_stride());
     }
     else
         api_->record.set_record_mode(

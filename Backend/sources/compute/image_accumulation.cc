@@ -65,6 +65,7 @@ void ImageAccumulation::init()
                                     setting<settings::XY>().output_image_accumulation,
                                     new_fd);
     }
+    ImageAccumulation::init_cuts_queue();
 }
 
 void ImageAccumulation::init_cuts_queue()
