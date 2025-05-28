@@ -1,5 +1,11 @@
 ## Changelog
 
+### 14.8.7
+
+- Fix multiples issues and crashs involving 3d cuts.
+
+- Default input buffer size is now 4096 due to issues when batch size is close to input buffer size.
+
 ### 14.8.6
 
 - .mraw support added (a .cih or .cihx file with the exact same name is needed in the directory).
