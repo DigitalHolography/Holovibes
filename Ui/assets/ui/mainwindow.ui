@@ -2873,6 +2873,16 @@ It's a post-processing step to remove noise</string>
                   <string>3D Cuts YZ</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>OCT CUBE</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>OCT CUBE FLOAT</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>

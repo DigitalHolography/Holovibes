@@ -75,6 +75,16 @@ void Holovibes::init_record_queue()
 
         break;
     }
+    case RecordMode::OCT_CUBE:
+    {
+        fd.depth = camera::PixelDepth::Complex; // float2
+        break;
+    }
+    case RecordMode::OCT_CUBE_FLOAT:
+    {
+        fd.depth = camera::PixelDepth::Bits32; // float
+        break;
+    }
     default:
     {
         LOG_DEBUG("RecordMode = None");

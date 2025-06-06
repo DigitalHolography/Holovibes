@@ -332,6 +332,9 @@ void Pipe::refresh()
 
         // time transform
         fourier_transforms_->insert_time_transform();
+        insert_oct_record();
+        // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
+        // return;
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
@@ -343,6 +346,7 @@ void Pipe::refresh()
 
         converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
 
+        insert_oct_record_float();
         insert_moments();
         insert_moments_record();
     }
@@ -642,6 +646,44 @@ void Pipe::insert_cuts_record()
                 return;
 
             record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+        });
+}
+
+void Pipe::insert_oct_record()
+{
+    // Only if your "OCT record" is enabled in settings, similar to other record conditions
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE)
+        return;
+
+    // How many elements? It will be: Nx*Ny*Nt
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
+    fn_compute_vect_->push_back(
+        [this, N, oct_buffer_ptr]()
+        {
+            if (!can_insert_to_record_queue(1))
+                return;
+            record_queue_.enqueue_multiple(oct_buffer_ptr, N, stream_, cudaMemcpyDeviceToDevice);
+        });
+}
+
+void Pipe::insert_oct_record_float()
+{
+    // Only if your "OCT record" is enabled in settings, similar to other record conditions
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE_FLOAT)
+        return;
+
+    // How many elements? It will be: Nx*Ny*Nt
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
+    fn_compute_vect_->push_back(
+        [this, N, oct_buffer_ptr]()
+        {
+            if (!can_insert_to_record_queue(1))
+                return;
+            record_queue_.enqueue_multiple(oct_buffer_ptr, N, stream_, cudaMemcpyDeviceToDevice);
         });
 }
 

@@ -371,7 +371,6 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
         size_.store(max_size_.load());
         has_overwritten_ = true;
     }
-
     return true;
 }
 
