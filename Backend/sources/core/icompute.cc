@@ -76,6 +76,7 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
 
         // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
+        time_transformation_env_.gpu_oct_float_buffer.resize(frame_res * size);
 
         if (setting<holovibes::settings::DataType>() != RecordedDataType::MOMENTS)
         {

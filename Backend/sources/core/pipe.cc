@@ -651,11 +651,9 @@ void Pipe::insert_cuts_record()
 
 void Pipe::insert_oct_record()
 {
-    // Only if your "OCT record" is enabled in settings, similar to other record conditions
     if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE)
         return;
 
-    // How many elements? It will be: Nx*Ny*Nt
     size_t N = setting<settings::TimeTransformationSize>();
 
     auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
@@ -664,26 +662,37 @@ void Pipe::insert_oct_record()
         {
             if (!can_insert_to_record_queue(1))
                 return;
-            record_queue_.enqueue_multiple(oct_buffer_ptr, N, stream_, cudaMemcpyDeviceToDevice);
+            record_queue_.enqueue_multiple(oct_buffer_ptr,
+                                           N,
+                                           stream_,
+                                           get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
 void Pipe::insert_oct_record_float()
 {
-    // Only if your "OCT record" is enabled in settings, similar to other record conditions
     if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE_FLOAT)
         return;
 
-    // How many elements? It will be: Nx*Ny*Nt
     size_t N = setting<settings::TimeTransformationSize>();
 
-    auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
+    auto float_buffer = time_transformation_env_.gpu_oct_float_buffer.get();
+
+    auto fd = input_queue_.get_fd();
     fn_compute_vect_->push_back(
-        [this, N, oct_buffer_ptr]()
+        [this, N, float_buffer, fd]()
         {
-            if (!can_insert_to_record_queue(1))
+            if (!can_insert_to_record_queue(N))
                 return;
-            record_queue_.enqueue_multiple(oct_buffer_ptr, N, stream_, cudaMemcpyDeviceToDevice);
+
+            complex_to_modulus_moments(float_buffer,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd.get_frame_res(),
+                                       0,
+                                       N - 1,
+                                       stream_);
+
+            record_queue_.enqueue_multiple(float_buffer, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
