@@ -179,14 +179,14 @@ QString ExportPanel::browse_record_output_file()
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
-                                                tr("Holo files (*.holo)"));
+                                                tr("Holo files (*.holo);; H5 files (*.h5);;"));
     }
     else if (record_mode == RecordMode::OCT_CUBE_FLOAT)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
-                                                tr("Holo files (*.holo)"));
+                                                tr("Holo files (*.holo);; H5 files (*.h5);;"));
     }
 
     if (filepath.isEmpty())

@@ -333,6 +333,7 @@ void Pipe::refresh()
         // time transform
         fourier_transforms_->insert_time_transform();
         insert_oct_record();
+        insert_oct_record_float();
         // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
         // return;
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
@@ -346,7 +347,6 @@ void Pipe::refresh()
 
         converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
 
-        insert_oct_record_float();
         insert_moments();
         insert_moments_record();
     }
@@ -660,7 +660,7 @@ void Pipe::insert_oct_record()
     fn_compute_vect_->push_back(
         [this, N, oct_buffer_ptr]()
         {
-            if (!can_insert_to_record_queue(1))
+            if (!can_insert_to_record_queue(N))
                 return;
             record_queue_.enqueue_multiple(oct_buffer_ptr,
                                            N,

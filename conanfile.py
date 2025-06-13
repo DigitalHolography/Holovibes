@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMakeToolchain
 
+
 class HolovibesRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
@@ -21,6 +22,7 @@ class HolovibesRecipe(ConanFile):
         self.requires("opencv/4.5.5")
         self.requires("opengl/system")
         self.requires("spdlog/1.12.0")
+        self.requires("hdf5/1.14.5")
 
         # Override requirements to resolve dependencies
         # versions conflicts
@@ -35,5 +37,5 @@ class HolovibesRecipe(ConanFile):
         self.folders.build = "build/bin"
 
     def generate(self):
-        toolchain = CMakeToolchain(self, 'Ninja')
+        toolchain = CMakeToolchain(self, "Ninja")
         toolchain.generate()

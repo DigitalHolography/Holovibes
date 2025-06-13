@@ -38,8 +38,8 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
         {RecordMode::MOMENTS, {OutputFormat::HOLO}},
         {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
         {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::OCT_CUBE, {OutputFormat::HOLO}},
-        {RecordMode::OCT_CUBE_FLOAT, {OutputFormat::HOLO}},
+        {RecordMode::OCT_CUBE, {OutputFormat::HOLO, OutputFormat::H5}},
+        {RecordMode::OCT_CUBE_FLOAT, {OutputFormat::HOLO, OutputFormat::H5}},
         {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
 
     return extension_index_map.at(mode);

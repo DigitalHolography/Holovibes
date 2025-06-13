@@ -50,6 +50,7 @@ target_link_libraries(Backend PRIVATE
     cublas
     cusolver
     nvml
+    HDF5::HDF5
 )
 
 target_include_directories(Backend PRIVATE

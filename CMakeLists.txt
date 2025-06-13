@@ -24,7 +24,9 @@ find_package(OpenCV REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(HDF5 REQUIRED)
 find_package(Threads)
+
 
 # Setup individual targets
 add_subdirectory(Camera)

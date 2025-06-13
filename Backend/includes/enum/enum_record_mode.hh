@@ -58,6 +58,7 @@ enum OutputFormat
     MP4,    /*!< .mp4 file */
     CSV,    /*!< .csv file */
     TXT,    /*!< .txt file */
+    H5,   /*!< .h5 file */
 };
 
 // clang-format on

@@ -3043,6 +3043,11 @@ It's a post-processing step to remove noise</string>
                      <string>.txt</string>
                     </property>
                    </item>
+                   <item>
+                    <property name="text">
+                     <string>.h5</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item>
