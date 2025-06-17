@@ -151,6 +151,12 @@ struct TimeTransformationEnv
      */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
 
+    /*! \brief OCT float buffer. Contains the result of the modulus of the gpu_p_acc_buffer.
+     *
+     * Contains time_transformation_size frames.
+     */
+    cuda_tools::CudaUniquePtr<float> gpu_oct_float_buffer = nullptr;
+
     /*! \brief STFT XZ Queue. Contains the ouput of the STFT on slice XZ.
      *
      * Enqueued with gpu_float_buffer or gpu_ushort_buffer.

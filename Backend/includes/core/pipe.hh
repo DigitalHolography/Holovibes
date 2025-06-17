@@ -248,6 +248,10 @@ class Pipe : public ICompute
 
     void insert_cuts_record();
 
+    void insert_oct_record();
+
+    void insert_oct_record_float();
+
     /*! \}*/
 
     /*! \brief Iterates and executes function of the pipe.

@@ -332,6 +332,10 @@ void Pipe::refresh()
 
         // time transform
         fourier_transforms_->insert_time_transform();
+        insert_oct_record();
+        insert_oct_record_float();
+        // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
+        // return;
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
@@ -642,6 +646,53 @@ void Pipe::insert_cuts_record()
                 return;
 
             record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+        });
+}
+
+void Pipe::insert_oct_record()
+{
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE)
+        return;
+
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
+    fn_compute_vect_->push_back(
+        [this, N, oct_buffer_ptr]()
+        {
+            if (!can_insert_to_record_queue(N))
+                return;
+            record_queue_.enqueue_multiple(oct_buffer_ptr,
+                                           N,
+                                           stream_,
+                                           get_memcpy_kind<settings::RecordQueueLocation>());
+        });
+}
+
+void Pipe::insert_oct_record_float()
+{
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE_FLOAT)
+        return;
+
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto float_buffer = time_transformation_env_.gpu_oct_float_buffer.get();
+
+    auto fd = input_queue_.get_fd();
+    fn_compute_vect_->push_back(
+        [this, N, float_buffer, fd]()
+        {
+            if (!can_insert_to_record_queue(N))
+                return;
+
+            complex_to_modulus_moments(float_buffer,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd.get_frame_res(),
+                                       0,
+                                       N - 1,
+                                       stream_);
+
+            record_queue_.enqueue_multiple(float_buffer, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 

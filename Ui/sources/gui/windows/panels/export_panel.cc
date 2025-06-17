@@ -88,6 +88,8 @@ void ExportPanel::on_notify()
     const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_XZ), hide_cuts);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_YZ), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::OCT_CUBE), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::OCT_CUBE_FLOAT), hide_cuts);
 
     // Chart buttons
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
@@ -172,6 +174,20 @@ QString ExportPanel::browse_record_output_file()
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Mp4 files (*.mp4);; Avi Files (*.avi);;"));
     }
+    else if (record_mode == RecordMode::OCT_CUBE)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("Holo files (*.holo);; H5 files (*.h5);;"));
+    }
+    else if (record_mode == RecordMode::OCT_CUBE_FLOAT)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("Holo files (*.holo);; H5 files (*.h5);;"));
+    }
 
     if (filepath.isEmpty())
         return QString::fromStdString(api_.record.get_record_file_path());
@@ -230,7 +246,6 @@ void ExportPanel::start_record()
 {
     if (!api_.record.start_record_preconditions()) // Check if the record can be started
         return;
-
     // Start record
     gui::get_raw_window().reset(nullptr);
     ui_->ViewPanel->update_raw_view(false);

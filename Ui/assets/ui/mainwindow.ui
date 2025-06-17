@@ -2873,6 +2873,16 @@ It's a post-processing step to remove noise</string>
                   <string>3D Cuts YZ</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>OCT CUBE</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>OCT CUBE FLOAT</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
@@ -3031,6 +3041,11 @@ It's a post-processing step to remove noise</string>
                    <item>
                     <property name="text">
                      <string>.txt</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.h5</string>
                     </property>
                    </item>
                   </widget>

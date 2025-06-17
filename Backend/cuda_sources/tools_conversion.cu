@@ -50,6 +50,27 @@ static __global__ void kernel_complex_to_modulus(
     }
 }
 
+/* Kernel function wrapped by complex_to_modulus. */
+static __global__ void kernel_complex_to_modulus_oct(
+    float* output, const cuComplex* input, const size_t frame_res, const ushort f_start, const ushort f_end)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= frame_res)
+        return;
+
+    for (int i = f_start; i <= f_end; i++)
+    {
+        const cuComplex* current_p_frame = input + i * frame_res;
+        float* output_frame = output + i * frame_res;
+
+        const float real = current_p_frame[index].x;
+        const float im = current_p_frame[index].y;
+
+        output_frame[index] = hypotf(real, im);
+    }
+}
+
 void complex_to_modulus_moments(float* output,
                                 const cuComplex* input,
                                 const size_t frame_res,
@@ -61,6 +82,21 @@ void complex_to_modulus_moments(float* output,
     const uint blocks = map_blocks_to_problem(frame_res, threads); // FIXME
 
     kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(output, input, frame_res, f_start, f_end);
+    // No sync needed since everything is run on stream 0
+    cudaCheckError();
+}
+
+void complex_to_modulus_oct(float* output,
+                            const cuComplex* input,
+                            const size_t frame_res,
+                            const ushort f_start,
+                            const ushort f_end,
+                            const cudaStream_t stream)
+{
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(frame_res, threads); // FIXME
+
+    kernel_complex_to_modulus_oct<<<blocks, threads, 0, stream>>>(output, input, frame_res, f_start, f_end);
     // No sync needed since everything is run on stream 0
     cudaCheckError();
 }

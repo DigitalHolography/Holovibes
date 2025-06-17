@@ -109,8 +109,24 @@ void FrameRecordWorker::run()
     auto frame_count = setting<settings::RecordFrameCount>();
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
 
+    auto fd = record_queue_.load()->get_fd();
+
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
+
+    const size_t depth = API.transform.get_time_transformation_size();
+
+    const size_t cube_size = depth * output_frame_size;
+
+    char* cube_buffer = nullptr;
+    size_t current_cube_slice = 0;
+
+    if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
+        API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+    {
+        cube_buffer = new char[cube_size];
+        current_cube_slice = 0;
+    }
 
     while (!API.record.get_frame_acquisition_enabled())
         continue;
@@ -175,10 +191,26 @@ void FrameRecordWorker::run()
                                           API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
-            output_frame_file->write_frame(frame_buffer, output_frame_size);
+            if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
+                API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+            {
+                std::memcpy(cube_buffer + current_cube_slice * output_frame_size, frame_buffer, output_frame_size);
+                current_cube_slice++;
+                (*processed_fps)++;
+                nb_frames_recorded++;
 
-            (*processed_fps)++;
-            nb_frames_recorded++;
+                if (current_cube_slice == depth)
+                {
+                    output_frame_file->write_frame(cube_buffer, cube_size);
+                    current_cube_slice = 0;
+                }
+            }
+            else
+            {
+                output_frame_file->write_frame(frame_buffer, output_frame_size);
+                (*processed_fps)++;
+                nb_frames_recorded++;
+            }
 
             integrate_fps_average();
         }
