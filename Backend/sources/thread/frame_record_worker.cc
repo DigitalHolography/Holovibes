@@ -175,9 +175,6 @@ void FrameRecordWorker::run()
                 continue;
 
             // Stop the record when all frames has been aquired and written
-            LOG_ERROR((int)nb_frames_acquired);
-            LOG_ERROR((int)nb_frames_recorded);
-            LOG_ERROR((int)nb_frames_to_record);
             if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
                 break;
 
