@@ -145,6 +145,10 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
     }
     else if (opts.moments_record)
         api.record.set_record_mode(holovibes::RecordMode::MOMENTS);
+    else if (opts.oct_cube_record)
+        api.record.set_record_mode(holovibes::RecordMode::OCT_CUBE);
+    else if (opts.oct_cube_float_record)
+        api.record.set_record_mode(holovibes::RecordMode::OCT_CUBE_FLOAT);
     else
     {
         api.compute.set_compute_mode(holovibes::Computation::Hologram);
@@ -188,7 +192,7 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
     // Value used in more than 1 thread
     size_t input_nb_frames = api.input.get_input_file_end_index() - api.input.get_input_file_start_index();
     uint record_nb_frames;
-    if (opts.record_raw)
+    if (opts.record_raw || opts.oct_cube_record || opts.oct_cube_float_record)
         record_nb_frames = opts.n_rec.value_or(input_nb_frames);
     else
         record_nb_frames = opts.n_rec.value_or(input_nb_frames / api.transform.get_time_stride());

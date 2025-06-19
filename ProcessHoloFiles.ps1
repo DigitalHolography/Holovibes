@@ -34,7 +34,7 @@ Write-Host " 2) Interactive setup" -ForegroundColor Yellow
 $useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
 
 if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
-    # Standard defaults
+    # --- Standard defaults
     Write-Host "Using standard configuration. Processing with defaults..." -ForegroundColor Cyan
     $modeChoice      = 1
     $frameSkip       = 8
@@ -51,8 +51,9 @@ if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq 
         Write-Host "Preset config not found. Skipping config file." -ForegroundColor Yellow
     }
     $configFileMoments = $null
-} else {
-    # Interactive setup
+}
+else {
+    # --- Interactive setup ---
     function Select-File([string]$description, [string]$filter) {
         Write-Host $description -ForegroundColor Green
         $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -64,7 +65,7 @@ if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq 
     }
 
     function Select-OutputExtension {
-        $options = @('.holo', '.mp4', '.avi')
+        $options = @('.holo', '.mp4', '.avi', '.h5')
         Write-Host "Select the output file extension:" -ForegroundColor Cyan
         for ($i = 0; $i -lt $options.Length; $i++) {
             Write-Host "  $($i+1). $($options[$i])" -ForegroundColor Yellow
@@ -101,25 +102,32 @@ if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq 
         }
     }
 
-    # Recording mode
+    # Recording mode 
     Write-Host "Select recording mode:" -ForegroundColor Cyan
     Write-Host " 1. Image rendering" -ForegroundColor Yellow
     Write-Host " 2. Statistical moments" -ForegroundColor Yellow
+    Write-Host " 3. OCT" -ForegroundColor Yellow
+    Write-Host " 4. OCT_FLOAT" -ForegroundColor Yellow
     $modeChoice = Read-Host "Enter choice (default 1)"
-    if ($modeChoice -notmatch '^[1-2]$') { $modeChoice = 1 }
+    if ($modeChoice -notmatch '^[1-4]$') { $modeChoice = 1 }
 
     # Config files
     if ($modeChoice -eq 1) {
         $configFileNormal  = Get-ConfigFileOption
         $configFileMoments = $null
-    } else {
+    }
+    elseif ($modeChoice -eq 2) {
         $configFileNormal  = $null
         $configFileMoments = Get-ConfigFileOption
     }
+    else {
+        $configFileNormal  = Get-ConfigFileOption
+        $configFileMoments = $null
+    }
 
-    # Frame skip and input fps
-    $frameSkip   = Read-Host "Enter frame skip (default 8)";     if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
-    $input_fps   = Read-Host "Enter input fps (optional)";         if ($input_fps -notmatch '^[0-9]+$') { $input_fps = -1 }
+    # Frame skip et input fps
+    $frameSkip       = Read-Host "Enter frame skip (default 8)"; if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
+    $input_fps       = Read-Host "Enter input fps (optional)";    if ($input_fps -notmatch '^[0-9]+$') { $input_fps = -1 }
     $outputExtension = Select-OutputExtension
 }
 
@@ -134,13 +142,28 @@ if (-not $holoFiles) {
 $exePath = if (Test-Path 'Holovibes.exe') { 'Holovibes.exe' } else { 'build/bin/Holovibes.exe' }
 Write-Host "Using executable: $exePath" -ForegroundColor Cyan
 
-# Function to run Holovibes
+# Function to run Holovibes 
 function Execute-Holovibes {
-    param($inputFile, $outputFile, $skip, $fps, $config, $moments)
+    param(
+        $inputFile,
+        $outputFile,
+        $skip,
+        $fps,
+        $config,
+        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT
+    )
     $args = "-i `"$inputFile`" -o `"$outputFile`""
     if ($fps -ne -1) { $args += " -f $fps" }
-    if ($moments)    { $args += ' --moments_record' } else { $args += " --frame_skip $skip" }
-    if ($config)     { $args += " -c `"$config`"" }
+
+    switch ($mode) {
+        1 { $args += " --frame_skip $skip" }
+        2 { $args += " --moments_record" }
+        3 { $args += " --oct_cube_record" }
+        4 { $args += " --oct_cube_float_record" }
+    }
+
+    if ($config) { $args += " -c `"$config`"" }
+
     Write-Host "Running: $exePath $args" -ForegroundColor Yellow
     Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
 }
@@ -149,13 +172,23 @@ function Execute-Holovibes {
 foreach ($file in $holoFiles) {
     $in   = $file.FullName
     $base = $file.BaseName
-    if ($modeChoice -eq 1) {
-        $out = Join-Path $holoFolderPath "${base}_p${outputExtension}"
-        Execute-Holovibes $in $out $frameSkip $input_fps $configFileNormal $false
-    } else {
-        $out = Join-Path $holoFolderPath "${base}_moments.holo"
-        Execute-Holovibes $in $out $frameSkip $input_fps $configFileMoments $true
+
+    switch ($modeChoice) {
+        1 {
+            $out = Join-Path $holoFolderPath "${base}_p${outputExtension}"
+        }
+        2 {
+            $out = Join-Path $holoFolderPath "${base}_moments.holo"
+        }
+        3 {
+            $out = Join-Path $holoFolderPath "${base}_oct.h5"
+        }
+        4 {
+            $out = Join-Path $holoFolderPath "${base}_oct_float.h5"
+        }
     }
+
+    Execute-Holovibes $in $out $frameSkip $input_fps $configFileNormal $modeChoice
 }
 
 Write-Host "Processing complete." -ForegroundColor Green
