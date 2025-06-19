@@ -1,5 +1,13 @@
 ## Changelog
 
+### 14.9.0
+
+- Add a .h5 record format for 3D OCT frames (Complex or float).
+
+- Add timestamps in footer info.
+
+- .ps1 updated to allow OCT recordings
+
 ### 14.8.7
 
 - Fix multiples issues and crashs involving 3d cuts.
