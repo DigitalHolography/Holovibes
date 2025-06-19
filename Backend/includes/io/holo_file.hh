@@ -98,6 +98,9 @@ class HoloFile
     /*! \brief The json meta data present in the footer */
     json meta_data_;
 
+    /*! \brief Timestamp of the creation of the files before write_frame() */
+    std::string file_creation_timestamp_;
+
     /*! \brief Current version of the holo file, update it when changing version */
     static constexpr uint16_t current_version_ = 7;
 

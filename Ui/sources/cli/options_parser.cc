@@ -91,6 +91,16 @@ OptionsParser::OptionsParser()
         "Record moments (default = false)"
     )
     (
+        "oct_cube_record",
+        po::bool_switch()->default_value(false),
+        "Record oct cube (default = false)"
+    )
+    (
+        "oct_cube_float_record",
+        po::bool_switch()->default_value(false),
+        "Record oct cube float (default = false)"
+    )
+    (
         "benchmark,b",
         po::bool_switch()->default_value(false),
         "Benchmark: record application data into a file at runtime (default = false)"
@@ -189,6 +199,8 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             }
         }
         options_.moments_record = vm_["moments_record"].as<bool>();
+        options_.oct_cube_record = vm_["oct_cube_record"].as<bool>();
+        options_.oct_cube_float_record = vm_["oct_cube_float_record"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();
     }
     catch (std::exception& e)

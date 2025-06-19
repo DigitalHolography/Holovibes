@@ -1,5 +1,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <chrono>
+#include <ctime>
+#include <sstream>
+#include <iomanip>
 
 #include "output_holo_file.hh"
 #include "file_exception.hh"
@@ -35,6 +39,14 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 
     meta_data_ = json();
+
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm local_tm = *std::localtime(&now_c);
+
+    std::ostringstream ss;
+    ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+    file_creation_timestamp_ = ss.str();
 }
 
 // Optimisation removed to avoid some values in memory to be set to 0 during compilation.
@@ -114,6 +126,14 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                                          {"ExposureTime", exposure_time}};
         }
 
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+        std::tm local_tm = *std::localtime(&now_c);
+
+        std::ostringstream ss;
+        ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+        std::string record_timestamp = ss.str();
+
         // Build the info JSON without top-level camera_fps
         auto j_fi =
             nlohmann::json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
@@ -122,7 +142,9 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                            {"eye_type", api.record.get_recorded_eye()},
                            {"contiguous", contiguous},
                            {"holovibes_version", __HOLOVIBES_VERSION__},
-                           {"camera", camera_info}};
+                           {"camera", camera_info},
+                           {"file_create_timestamp", file_creation_timestamp_},
+                           {"file_record_timestamp", record_timestamp}};
 
         meta_data_ = nlohmann::json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
