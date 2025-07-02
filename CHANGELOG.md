@@ -1,5 +1,21 @@
 ## Changelog
 
+### 14.9.1
+
+- .ps1 script now correctly handle recursive folders.
+
+- Multiple crash cases have been resolved
+
+- The Batch input queue can no longer underflow
+
+- The Batch input queue is no longer overflown when in raw mode.
+
+- If fps is lower than the time stride the program no longer pauses forever.
+
+- OCT output can only be .h5 when using the .ps1 script
+
+- A race and deadlock issue has been fixed in the batch input queue.
+
 ### 14.9.0
 
 - Add a .h5 record format for 3D OCT frames (Complex or float).
