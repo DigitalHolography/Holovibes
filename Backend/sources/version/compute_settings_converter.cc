@@ -85,7 +85,33 @@ ApiCode ComputeSettingsConverter::convert_compute_settings(json& input)
 
         try
         {
-            it->converter(input, patch);
+            for (const auto& operation : patch)
+            {
+                try
+                {
+                    json single_patch = json::array({operation});
+                    input = input.patch(single_patch);
+                }
+                catch (const nlohmann::json::out_of_range& e)
+                {
+                    if (operation.contains("op") && operation["op"] == "remove")
+                    {
+                        LOG_WARN("Ignored removal of non-existent key at path: {}",
+                                 operation["path"].get<std::string>());
+                        continue;
+                    }
+                    else if (operation.contains("op") && operation["op"] == "add")
+                    {
+                        LOG_WARN("Ignored add operation for existing key at path: {}",
+                                 operation["path"].get<std::string>());
+                        continue;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
         }
         catch (const std::exception& e)
         {

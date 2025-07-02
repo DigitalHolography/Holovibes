@@ -65,7 +65,14 @@ else {
     }
 
     function Select-OutputExtension {
-        $options = @('.holo', '.mp4', '.avi', '.h5')
+    param([int]$modeChoice)
+
+    if ($modeChoice -eq 3 -or $modeChoice -eq 4) {
+        Write-Host "For OCT/OCT_FLOAT mode, output extension is fixed to .h5" -ForegroundColor Cyan
+        return '.h5'
+    }
+    else {
+        $options = @('.holo', '.mp4', '.avi')
         Write-Host "Select the output file extension:" -ForegroundColor Cyan
         for ($i = 0; $i -lt $options.Length; $i++) {
             Write-Host "  $($i+1). $($options[$i])" -ForegroundColor Yellow
@@ -74,6 +81,7 @@ else {
         if ([string]::IsNullOrEmpty($sel) -or $sel -lt 1 -or $sel -gt $options.Length) { return '.avi' }
         return $options[$sel - 1]
     }
+}
 
     function Get-ConfigFileOption {
         Write-Host "Select the configuration file option:" -ForegroundColor Cyan
@@ -128,7 +136,7 @@ else {
     # Frame skip et input fps
     $frameSkip       = Read-Host "Enter frame skip (default 8)"; if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
     $input_fps       = Read-Host "Enter input fps (optional)";    if ($input_fps -notmatch '^[0-9]+$') { $input_fps = -1 }
-    $outputExtension = Select-OutputExtension
+    $outputExtension = Select-OutputExtension -modeChoice $modeChoice
 }
 
 # Find all .holo files
@@ -172,19 +180,20 @@ function Execute-Holovibes {
 foreach ($file in $holoFiles) {
     $in   = $file.FullName
     $base = $file.BaseName
+    $outDir = $file.DirectoryName  # dossier d'origine du fichier
 
     switch ($modeChoice) {
         1 {
-            $out = Join-Path $holoFolderPath "${base}_p${outputExtension}"
+            $out = Join-Path $outDir "${base}_p${outputExtension}"
         }
         2 {
-            $out = Join-Path $holoFolderPath "${base}_moments.holo"
+            $out = Join-Path $outDir "${base}_moments.holo"
         }
         3 {
-            $out = Join-Path $holoFolderPath "${base}_oct.h5"
+            $out = Join-Path $outDir "${base}_oct.h5"
         }
         4 {
-            $out = Join-Path $holoFolderPath "${base}_oct_float.h5"
+            $out = Join-Path $outDir "${base}_oct_float.h5"
         }
     }
 

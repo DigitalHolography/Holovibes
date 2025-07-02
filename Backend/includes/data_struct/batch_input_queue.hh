@@ -161,7 +161,6 @@ class BatchInputQueue final : public DisplayQueue
 
         if (device_ == Device::GPU)
         {
-            const std::lock_guard<std::mutex> lock(m_producer_busy_);
             sync_current_batch();
         }
         // Return the previous enqueued frame
