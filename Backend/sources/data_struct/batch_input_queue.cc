@@ -257,7 +257,10 @@ void BatchInputQueue::dequeue_update_attr()
 {
     start_index_ = (start_index_ + 1) % max_size_;
     size_--;
-    curr_nb_frames_ -= batch_size_;
+    if (curr_nb_frames_ < batch_size_)
+        curr_nb_frames_ = 0;
+    else
+        curr_nb_frames_ -= batch_size_;
 }
 
 void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
