@@ -35,7 +35,7 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
         {RecordMode::RAW, {OutputFormat::HOLO}},
         {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
         {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::MOMENTS, {OutputFormat::HOLO, OutputFormat::H5}},
         {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
         {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
         {RecordMode::OCT_CUBE, {OutputFormat::HOLO, OutputFormat::H5}},

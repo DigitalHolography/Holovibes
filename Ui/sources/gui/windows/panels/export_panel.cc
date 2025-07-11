@@ -153,12 +153,19 @@ QString ExportPanel::browse_record_output_file()
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
+    else if (record_mode == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
+    }
+    else if (record_mode == RecordMode::MOMENTS)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("Holo files (*.holo);; H5 files (*.h5)"));
     }
     else if (record_mode == RecordMode::HOLOGRAM)
     {
