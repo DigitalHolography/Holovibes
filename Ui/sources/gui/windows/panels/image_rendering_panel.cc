@@ -40,7 +40,7 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
-    const bool is_data_not_moments = !(api_.input.get_data_type() == RecordedDataType::MOMENTS);
+    const bool is_data_not_moments = true;
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
