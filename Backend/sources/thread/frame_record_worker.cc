@@ -95,37 +95,46 @@ void FrameRecordWorker::run()
     onrestart_settings_.apply_updates();
     LOG_FUNC();
 
-    // Progress recording FastUpdatesHolder entry
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
     std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
     std::atomic<uint>& nb_frames_recorded = std::get<1>(*fast_update_progress_entry);
     std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
 
-    // Processed FPS FastUpdatesHolder entry
-    std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
+    auto processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
 
     size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
-    auto frame_count = setting<settings::RecordFrameCount>();
+    uint total_to_record = nb_frames_to_record.load();
+
+    // for MOMENTS, 3 plans = 1 frame
+    uint img_count = total_to_record;
+    if (API.record.get_record_mode() == RecordMode::MOMENTS)
+    {
+        img_count = total_to_record / 3;
+    }
+
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
 
-    auto fd = record_queue_.load()->get_fd();
-
+    // buffers initialisation
     io_files::OutputFrameFile* output_frame_file = nullptr;
-    char* frame_buffer = nullptr;
+    char* frame_buffer = new char[output_frame_size];
+    char* moments_buffer = nullptr;
+    int moment_idx = 0;
 
-    const size_t depth = API.transform.get_time_transformation_size();
-
-    const size_t cube_size = depth * output_frame_size;
-
+    // Buffer cube for OCT_CUBE / OCT_CUBE_FLOAT
     char* cube_buffer = nullptr;
+    size_t cube_size = 0;
     size_t current_cube_slice = 0;
-
-    if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
-        API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+    if (API.record.get_record_mode() == RecordMode::MOMENTS)
     {
+        moments_buffer = new char[output_frame_size * 3];
+    }
+    else if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
+             API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+    {
+        size_t depth = API.transform.get_time_transformation_size();
+        cube_size = depth * output_frame_size;
         cube_buffer = new char[cube_size];
-        current_cube_slice = 0;
     }
 
     while (!API.record.get_frame_acquisition_enabled())
@@ -133,55 +142,25 @@ void FrameRecordWorker::run()
 
     try
     {
-        output_frame_file = open_output_file(nb_frames_to_record.load());
+        output_frame_file = open_output_file(img_count);
         output_frame_file->write_header();
 
         std::optional<int> contiguous_frames = std::nullopt;
 
-        frame_buffer = new char[output_frame_size];
-
         while (true)
         {
-            if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
-            {
-                // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
-                if (!contiguous_frames.has_value())
-                {
-                    contiguous_frames =
-                        std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
-
-                    if (record_queue_.load()->has_overwritten())
-                        LOG_WARN(
-                            "The record queue has been saturated ; the record will stop once all contiguous frames "
-                            "are written");
-
-                    if (has_input_queue_overwritten())
-                        LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
-                                 "are written");
-                }
-            }
-
-            // Stop the record when all frames has been aquired and written
-            if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+            if (!API.record.get_frame_acquisition_enabled() && nb_frames_recorded.load() >= nb_frames_to_record.load())
                 break;
 
-            // Stop the record if a queue has overwritten and when all contiguous frames are written
-            if (contiguous_frames.has_value() &&
-                (std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value()) ||
-                 nb_frames_recorded >= nb_frames_to_record))
-                break;
-
-            while (record_queue_.load()->get_size() == 0 && !all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+            while (record_queue_.load()->get_size() == 0 && (API.record.get_frame_acquisition_enabled() ||
+                                                             nb_frames_recorded.load() < nb_frames_to_record.load()))
                 continue;
 
-            // Stop the record when all frames has been aquired and written
-            if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
-                break;
-
+            // Skip initial frames
             if (nb_frames_to_skip > 0)
             {
                 record_queue_.load()->dequeue();
-                nb_frames_to_skip--;
+                --nb_frames_to_skip;
                 continue;
             }
             nb_frames_to_skip = setting<settings::FrameSkip>();
@@ -191,32 +170,56 @@ void FrameRecordWorker::run()
                                           API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
-            if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
-                API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+
+            // MOMENTS
+            if (API.record.get_record_mode() == RecordMode::MOMENTS)
+            {
+                auto in_f = reinterpret_cast<float*>(frame_buffer);
+                auto out_f = reinterpret_cast<float*>(moments_buffer);
+                size_t npix = output_frame_size / sizeof(float); // # pixels = H×W
+                for (size_t i = 0; i < npix; ++i)
+                {
+                    out_f[i * 3 + moment_idx] = in_f[i];
+                }
+                moment_idx++;
+
+                if (moment_idx == 3)
+                {
+                    // [H×W×3]
+                    output_frame_file->write_frame(moments_buffer, output_frame_size * 3);
+                    (*processed_fps)++;
+                    nb_frames_recorded += 3;
+                    moment_idx = 0;
+                }
+            }
+            // OCT_CUBE / OCT_CUBE_FLOAT
+            else if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
+                     API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
             {
                 std::memcpy(cube_buffer + current_cube_slice * output_frame_size, frame_buffer, output_frame_size);
                 current_cube_slice++;
                 (*processed_fps)++;
                 nb_frames_recorded++;
 
+                size_t depth = API.transform.get_time_transformation_size();
                 if (current_cube_slice == depth)
                 {
                     output_frame_file->write_frame(cube_buffer, cube_size);
                     current_cube_slice = 0;
                 }
             }
+            // RAW, PROCESSED
             else
             {
                 output_frame_file->write_frame(frame_buffer, output_frame_size);
                 (*processed_fps)++;
                 nb_frames_recorded++;
             }
-
             integrate_fps_average();
         }
 
-        LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
-        output_frame_file->correct_number_of_frames(nb_frames_recorded);
+        LOG_INFO("Recording stopped, written frames: {}", nb_frames_recorded.load());
+        output_frame_file->correct_number_of_frames(nb_frames_recorded.load());
 
         if (contiguous_frames.has_value() && std::cmp_less(contiguous_frames.value(), nb_frames_recorded.load()))
         {
@@ -226,8 +229,7 @@ void FrameRecordWorker::run()
         else
             LOG_INFO("Record is contiguous!");
 
-        auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        // Change the fps according to the frame skip
+        size_t contiguous = contiguous_frames.value_or(nb_frames_recorded.load());
         output_frame_file->export_compute_settings(
             static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)),
             contiguous);
@@ -241,9 +243,12 @@ void FrameRecordWorker::run()
 
     delete output_frame_file;
     delete[] frame_buffer;
+    if (moments_buffer)
+        delete[] moments_buffer;
+    if (cube_buffer)
+        delete[] cube_buffer;
 
     reset_record_queue();
-
     FastUpdatesMap::map<IntType>.remove_entry(IntType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");

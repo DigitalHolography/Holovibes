@@ -67,8 +67,8 @@ else {
     function Select-OutputExtension {
     param([int]$modeChoice)
 
-    if ($modeChoice -eq 3 -or $modeChoice -eq 4) {
-        Write-Host "For OCT/OCT_FLOAT mode, output extension is fixed to .h5" -ForegroundColor Cyan
+    if ($modeChoice -eq 2 -or $modeChoice -eq 3 -or $modeChoice -eq 4) {
+        Write-Host "For Moments and OCT/OCT_FLOAT records, output extension is fixed to .h5" -ForegroundColor Cyan
         return '.h5'
     }
     else {
@@ -187,7 +187,7 @@ foreach ($file in $holoFiles) {
             $out = Join-Path $outDir "${base}_p${outputExtension}"
         }
         2 {
-            $out = Join-Path $outDir "${base}_moments.holo"
+            $out = Join-Path $outDir "${base}_moments.h5"
         }
         3 {
             $out = Join-Path $outDir "${base}_oct.h5"

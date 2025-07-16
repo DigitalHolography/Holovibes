@@ -30,10 +30,6 @@ void InputApi::camera_none() const
 
 void InputApi::set_input_file_start_index(size_t value) const
 {
-    // Ensures that moments are read 3 by 3
-    if (get_data_type() == RecordedDataType::MOMENTS)
-        value -= value % 3;
-
     UPDATE_SETTING(InputFileStartIndex, value);
     if (value >= get_input_file_end_index())
         set_input_file_end_index(value + 1);
@@ -43,11 +39,6 @@ void InputApi::set_input_file_end_index(size_t value) const
 {
     if (value <= 0)
         value = 1; // Cannot read no frames, so end index can't be 0
-    // Ensures that moments are read 3 by 3, and at least 3 (hence the value < 3 check)
-    // In moments mode, the end index must at least be
-    uchar mod = value % 3;
-    if (get_data_type() == RecordedDataType::MOMENTS && (mod != 0 || value < 3))
-        value += 3 - mod; // 'ceiling' moments
 
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
@@ -108,13 +99,6 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     }
 
     input->import_info();
-
-    // When reading moments, the batch size must be forced to 3. Because they are 3 moments per frame.
-    if (get_data_type() == RecordedDataType::MOMENTS)
-    {
-        api_->transform.set_batch_size(3);
-        api_->transform.set_time_stride(3);
-    }
 
     // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
     // buffers used when the file was recorded

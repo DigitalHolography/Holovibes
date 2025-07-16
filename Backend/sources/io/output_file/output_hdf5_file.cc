@@ -27,9 +27,15 @@ void OutputHdf5File::write_header()
 {
     try
     {
-        hsize_t depth = API.transform.get_time_transformation_size();
-        hsize_t cube_nb = img_nb_ / depth;
-        hsize_t dims[4] = {cube_nb, fd_.height, fd_.width, depth};
+        hsize_t depth =
+            (API.record.get_record_mode() == RecordMode::MOMENTS) ? 3 : API.transform.get_time_transformation_size();
+
+        hsize_t img_count = (API.record.get_record_mode() == RecordMode::MOMENTS)
+                                ? img_nb_
+                                : img_nb_ / API.transform.get_time_transformation_size();
+
+        // [#images, height, width, depth]
+        hsize_t dims[4] = {img_count, fd_.height, fd_.width, depth};
 
         H5::DataSpace dataspace(4, dims);
 
@@ -42,19 +48,23 @@ void OutputHdf5File::write_header()
             H5::CompType complex_type(sizeof(std::complex<float>));
             complex_type.insertMember("r", 0, H5::PredType::NATIVE_FLOAT);
             complex_type.insertMember("i", sizeof(float), H5::PredType::NATIVE_FLOAT);
-
             dataset_ = h5_file_.createDataSet("frames", complex_type, dataspace, plist);
         }
         else if (API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
         {
             dataset_ = h5_file_.createDataSet("frames", H5::PredType::NATIVE_FLOAT, dataspace, plist);
         }
+        else if (API.record.get_record_mode() == RecordMode::MOMENTS)
+        {
+            // [#images, height, width, 3]
+            dataset_ = h5_file_.createDataSet("moments", H5::PredType::NATIVE_FLOAT, dataspace, plist);
+        }
         else
         {
             throw FileException("Unsupported record mode for HDF5 output", false);
         }
-        current_cube_ = 0;
-        current_depth_ = 0;
+
+        current_frame_ = 0;
     }
     catch (const H5::Exception&)
     {
@@ -66,31 +76,31 @@ size_t OutputHdf5File::write_frame(const char* frame, size_t frame_size)
 {
     try
     {
-        hsize_t depth = API.transform.get_time_transformation_size();
+        H5::DataSpace filespace = dataset_.getSpace();
+        hsize_t dims[4];
+        filespace.getSimpleExtentDims(dims); // dims[3]
 
-        // Cube entier : [1, height, width, depth] à l'indice current_cube_
-        hsize_t offset[4] = {current_cube_, 0, 0, 0};
-        hsize_t count[4] = {1, fd_.height, fd_.width, depth}; // tout le cube
+        hsize_t offset[4] = {current_frame_, 0, 0, 0};
+        hsize_t count[4] = {1, fd_.height, fd_.width, dims[3]};
 
-        H5::DataSpace dataspace = dataset_.getSpace();
-        dataspace.selectHyperslab(H5S_SELECT_SET, count, offset);
+        filespace.selectHyperslab(H5S_SELECT_SET, count, offset);
 
         H5::DataSpace memspace(4, count);
 
         if (API.record.get_record_mode() == RecordMode::OCT_CUBE)
         {
-            dataset_.write(frame, dataset_.getDataType(), memspace, dataspace);
+            dataset_.write(frame, dataset_.getDataType(), memspace, filespace);
         }
-        else if (API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+        else // OCT_CUBE_FLOAT or MOMENTS
         {
-            dataset_.write(frame, H5::PredType::NATIVE_FLOAT, memspace, dataspace);
+            dataset_.write(frame, H5::PredType::NATIVE_FLOAT, memspace, filespace);
         }
 
-        ++current_cube_;
+        ++current_frame_;
     }
     catch (const H5::Exception&)
     {
-        throw FileException("Unable to write cube to HDF5 file", false);
+        throw FileException("Unable to write frame to HDF5 file", false);
     }
 
     return frame_size;

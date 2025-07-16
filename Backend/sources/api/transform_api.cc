@@ -18,12 +18,6 @@ ApiCode TransformApi::set_batch_size(uint batch_size) const
     if (get_batch_size() == batch_size)
         return ApiCode::NO_CHANGE;
 
-    if (api_->input.get_data_type() == RecordedDataType::MOMENTS)
-    {
-        LOG_WARN("File is in moments mode, batch size is fixed to 3");
-        batch_size = 3;
-    }
-
     if (batch_size > api_->input.get_input_buffer_size())
     {
         batch_size = api_->input.get_input_buffer_size();
