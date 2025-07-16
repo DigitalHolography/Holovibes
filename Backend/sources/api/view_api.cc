@@ -10,7 +10,7 @@ namespace holovibes::api
 bool ViewApi::set_3d_cuts_view(bool enabled) const
 {
     // No 3d cuts in moments mode
-    if (api_->compute.get_is_computation_stopped() || api_->input.get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->compute.get_is_computation_stopped())
         return false;
 
     if (enabled)
@@ -108,8 +108,7 @@ void ViewApi::set_chart_display(bool enabled) const
 
 void ViewApi::set_lens_view(bool enabled) const
 {
-    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw ||
-        api_->input.get_data_type() == RecordedDataType::MOMENTS && enabled)
+    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw && enabled)
         return;
 
     set_lens_view_enabled(enabled);
@@ -128,8 +127,7 @@ void ViewApi::set_lens_view(bool enabled) const
 
 void ViewApi::set_raw_view(bool enabled) const
 {
-    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw ||
-        api_->input.get_data_type() == RecordedDataType::MOMENTS)
+    if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw)
         return;
 
     if (enabled && api_->transform.get_batch_size() > api_->compute.get_output_buffer_size())

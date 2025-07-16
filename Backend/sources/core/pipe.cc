@@ -305,51 +305,38 @@ void Pipe::refresh()
 
     insert_wait_time_stride();
 
-    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
-    {
-        // Dequeuing the 3 moments in a temporary buffer
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
+    insert_raw_view();
 
-        // Splitting them into their respective buffers
-        fourier_transforms_->insert_moments_split();
+    converts_->insert_complex_conversion(input_queue_);
 
-        fourier_transforms_->insert_moments_to_output();
-    }
-    else
-    {
-        insert_raw_view();
+    // Spatial transform
+    fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
 
-        converts_->insert_complex_conversion(input_queue_);
+    // Move frames from gpu_space_transformation_buffer to
+    // gpu_time_transformation_queue (with respect to
+    // time_stride)
+    insert_transfer_for_time_transformation();
+    insert_wait_time_transformation_size();
 
-        // Spatial transform
-        fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
+    // time transform
+    fourier_transforms_->insert_time_transform();
+    insert_oct_record();
+    insert_oct_record_float();
+    // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
+    // return;
+    fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
+                                                              buffers_.gpu_postprocess_frame_xz.get(),
+                                                              buffers_.gpu_postprocess_frame_yz.get());
 
-        // Move frames from gpu_space_transformation_buffer to
-        // gpu_time_transformation_queue (with respect to
-        // time_stride)
-        insert_transfer_for_time_transformation();
-        insert_wait_time_transformation_size();
+    insert_cuts_record();
 
-        // time transform
-        fourier_transforms_->insert_time_transform();
-        insert_oct_record();
-        insert_oct_record_float();
-        // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
-        // return;
-        fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
-                                                                  buffers_.gpu_postprocess_frame_xz.get(),
-                                                                  buffers_.gpu_postprocess_frame_yz.get());
+    // Used for phase increase
+    fourier_transforms_->insert_store_p_frame();
 
-        insert_cuts_record();
+    converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
 
-        // Used for phase increase
-        fourier_transforms_->insert_store_p_frame();
-
-        converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
-
-        insert_moments();
-        insert_moments_record();
-    }
+    insert_moments();
+    insert_moments_record();
 
     insert_filter2d_view();
 
@@ -434,9 +421,8 @@ void Pipe::insert_moments()
 {
     bool recording =
         setting<settings::RecordMode>() == RecordMode::MOMENTS && setting<settings::FrameAcquisitionEnabled>();
-    ImgType type = setting<settings::ImageType>();
 
-    if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
+    if (recording)
     {
         auto p = setting<settings::P>();
         moments_env_.f_start = p.start;
@@ -453,8 +439,6 @@ void Pipe::insert_moments()
             registration_->shift_image(moments_env_.moment1_buffer);
             registration_->shift_image(moments_env_.moment2_buffer);
         }
-
-        fourier_transforms_->insert_moments_to_output();
     }
 }
 

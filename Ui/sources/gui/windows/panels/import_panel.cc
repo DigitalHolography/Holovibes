@@ -24,7 +24,7 @@ void ImportPanel::on_notify()
 {
     ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_start_index() + 1));
     ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api_.input.get_input_file_end_index()));
-    const char step = api_.input.get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
+    const char step = 1;
     ui_->ImportStartIndexSpinBox->setSingleStep(step);
     ui_->ImportEndIndexSpinBox->setSingleStep(step);
 

@@ -1027,21 +1027,6 @@ The range of frequencies kept is [z, z + width]</string>
                <string>Composite image</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>Moments 0</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Moments 1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Moments 2</string>
-              </property>
-             </item>
             </widget>
            </item>
           </layout>
