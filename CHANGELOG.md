@@ -1,5 +1,15 @@
 ## Changelog
 
+### 14.10.0
+
+- Record moments are now done in hdf5 format.
+
+- Moments are no longer viewable in holovibes.
+
+- .ps1 script updated.
+
+- OCT/OCT_FLOAT records can no longer be done in .holo format.
+
 ### 14.9.1
 
 - .ps1 script now correctly handle recursive folders.
