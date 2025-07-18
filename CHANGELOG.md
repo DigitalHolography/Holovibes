@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.10.1
+
+- Zoom overlay is always square even if the input is anamorphic.
+
 ### 14.10.0
 
 - Record moments are now done in hdf5 format.
