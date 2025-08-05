@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.10.3
+
+- Updated Euresys camera drivers.
+
 ### 14.10.1
 
 - Zoom overlay is always square even if the input is anamorphic.

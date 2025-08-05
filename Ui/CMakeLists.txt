@@ -217,6 +217,7 @@ install(FILES
     ${CMAKE_BINARY_DIR}/uEye_api_64.dll
     ${CMAKE_BINARY_DIR}/xiapi64.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft64_11.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
