@@ -11,9 +11,26 @@
 #include "camera_exception.hh"
 
 #include <EGrabber.h>
-#include <EGrabbers.h>
 
 #include <iostream>
+
+namespace
+{
+std::vector<Euresys::EGrabberInfo> find_grabbers(Euresys::EGenTL& gentl)
+{
+    using namespace Euresys;
+
+    EGrabberDiscovery discovery(gentl);
+    discovery.discover();
+    std::vector<Euresys::EGrabberInfo> grabbers;
+    for (int i = 0; i < discovery.egrabberCount(); ++i)
+    {
+        grabbers.push_back(discovery.egrabbers(i));
+    }
+
+    return grabbers;
+}
+} // namespace
 
 namespace camera
 {
@@ -22,10 +39,17 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
                                  unsigned int buffer_part_count,
                                  std::string& pixel_format,
                                  unsigned int nb_grabbers)
-    : grabbers_(gentl)
+    : grabbers_()
     , buffer_part_count_(buffer_part_count)
     , nb_grabbers_(nb_grabbers)
 {
+    // Get the available grabbers
+    auto grabbers = find_grabbers(gentl);
+    for (const auto& info : grabbers)
+    {
+        grabbers_.emplace_back(std::make_unique<Euresys::EGrabber<>>(info));
+    }
+
     // Fetch the first grabber info to determine the width, height and depth
     // of the full image.
     // According to the requirements described above, we assume that the
@@ -36,7 +60,7 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
     // The below loop will check which grabbers are available to use, i.e the ones which are connected to a camera
     // We don't use Euresys::EGrabberDiscovery because it doesn't allow us to detect when a frame grabber is
     // connected to something or not
-    for (size_t ix = 0; ix < grabbers_.length(); ++ix)
+    for (size_t ix = 0; ix < grabbers_.size(); ++ix)
     {
         try
         {
@@ -47,7 +71,7 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
         {
             continue;
         }
-        available_grabbers_.push_back(grabbers_[ix]);
+        available_grabbers_.push_back(grabbers_[ix].get());
     }
 
     for (unsigned i = 0; i < available_grabbers_.size(); ++i)
@@ -219,7 +243,7 @@ void CameraPhantomInt::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
-    Euresys::ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
+    auto buffer = Euresys::ScopedBuffer(*(grabber_->available_grabbers_[0]));
     unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
 
     for (int i = 1; i < nb_grabbers; ++i)
