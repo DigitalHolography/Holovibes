@@ -156,11 +156,44 @@ void FrameRecordWorker::run()
                                                              nb_frames_recorded.load() < nb_frames_to_record.load()))
                 continue;
 
+            if (record_queue_.load()->has_overwritten() || has_input_queue_overwritten())
+            {
+                // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
+                if (!contiguous_frames.has_value())
+                {
+                    contiguous_frames =
+                        std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
+
+                    if (record_queue_.load()->has_overwritten())
+                        LOG_WARN(
+                            "The record queue has been saturated ; the record will stop once all contiguous frames "
+                            "are written");
+
+                    if (has_input_queue_overwritten())
+                        LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
+                                 "are written");
+                }
+            }
+
+            // Stop the record when all frames has been aquired and written
+            if (all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+                break;
+
+            // Stop the record if a queue has overwritten and when all contiguous frames are written
+            if (contiguous_frames.has_value() &&
+                (std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value()) ||
+                 nb_frames_recorded >= nb_frames_to_record))
+                break;
+
+            while (record_queue_.load()->get_size() == 0 && !all_frames_saved(nb_frames_recorded, nb_frames_to_record))
+                continue;
+
             // Skip initial frames
+
             if (nb_frames_to_skip > 0)
             {
                 record_queue_.load()->dequeue();
-                --nb_frames_to_skip;
+                nb_frames_to_skip--;
                 continue;
             }
             nb_frames_to_skip = setting<settings::FrameSkip>();
