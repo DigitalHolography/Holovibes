@@ -57,6 +57,26 @@ struct CapturedFramesDescriptor
 
     /*! \brief Whether data is located in host or device memory (GPU). */
     bool on_gpu;
+
+    /*! \brief Timestamp of the FIRST frame in region1 (hardware if available). */
+    uint64_t first_frame_timestamp_us = 0;
+
+    /*! \brief Nominal period between consecutive frames in this batch (us). If unknown, leave 0. */
+    uint64_t frame_period_us = 0;
+
+    /*! \brief True if first_frame_timestamp_us came from the camera/grabber. */
+    bool has_hw_timestamp = false;
+
+    /*! \brief Compute the timestamp of the nth frame in this batch (us).
+     * If no hardware timestamp is available, this will be an estimate based on the time
+     * the frames were retrieved and the nominal frame period.
+     * \param n Index of the frame in this batch (0 <= n < count1 + count2).
+     * \return Timestamp of the nth frame in microseconds.
+     */
+    inline uint64_t nth_frame_timestamp_us(unsigned int n) const noexcept
+    {
+        return first_frame_timestamp_us + static_cast<uint64_t>(n) * frame_period_us;
+    }
 };
 
 /*! \defgroup CameraInterface Camera Interface
