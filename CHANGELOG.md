@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.0
+
+- Add precise Timestamps in the footer of files recorded with Ametek cameras.
+
 ### 14.10.3
 
 - Updated Euresys camera drivers.
