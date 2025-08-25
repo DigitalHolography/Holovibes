@@ -14,6 +14,51 @@
 
 #include <iostream>
 
+#include <windows.h>
+
+static inline uint64_t qpc_now_us()
+{
+    LARGE_INTEGER qpc, freq;
+    QueryPerformanceCounter(&qpc);
+    QueryPerformanceFrequency(&freq);
+    // Cast to long double to avoid overflow in the division
+    long double us = (long double)qpc.QuadPart * 1e6L / (long double)freq.QuadPart;
+    return (uint64_t)us;
+}
+
+struct SoftClockAlign
+{
+    // Minimal observed offset (host - camera)
+    std::atomic<uint64_t> offset_min_us{UINT64_MAX};
+
+    void observe(uint64_t t_cam_us, uint64_t t_host_us)
+    {
+        // t_host_us >= acquisition_time + latency >= t_cam_us + latency'
+        // Therefore (t_host - t_cam) is an upper bound of the real offset.
+        uint64_t cand = (t_host_us > t_cam_us) ? (t_host_us - t_cam_us) : 0;
+
+        // Keep the minimum offset seen so far
+        uint64_t cur = offset_min_us.load(std::memory_order_relaxed);
+        while (cand < cur && !offset_min_us.compare_exchange_weak(cur, cand))
+        { /* spin */
+        }
+
+        // [DEBUG] Log the current offset estimate
+        // std::cout << "[SoftClockAlign] Candidate offset=" << cand
+        //          << " us, current_min=" << offset_min_us.load(std::memory_order_relaxed) << " us" << std::endl;
+    }
+
+    uint64_t to_host_time(uint64_t t_cam_us) const
+    {
+        uint64_t off = offset_min_us.load(std::memory_order_relaxed);
+        if (off == UINT64_MAX)
+            return t_cam_us; // Not calibrated yet
+        return t_cam_us + off;
+    }
+};
+
+static SoftClockAlign g_align;
+
 namespace
 {
 std::vector<Euresys::EGrabberInfo> find_grabbers(Euresys::EGenTL& gentl)
@@ -243,23 +288,47 @@ void CameraPhantomInt::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
-    auto buffer = Euresys::ScopedBuffer(*(grabber_->available_grabbers_[0]));
-    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
+    // 1) Host timestamp right BEFORE waiting (lower bound)
+    uint64_t host_before_us = qpc_now_us();
 
+    // 2) Blocking wait for a buffer
+    auto buffer = Euresys::ScopedBuffer(*(grabber_->available_grabbers_[0]));
+
+    // 3) Host timestamp right AFTER the buffer (upper bound, better for offset)
+    uint64_t host_after_us = qpc_now_us();
+
+    // Multi-grabber support
+    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
     for (int i = 1; i < nb_grabbers; ++i)
         Euresys::ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
 
-    // process available images
+    // Number of delivered parts
     size_t delivered = buffer.getInfo<size_t>(Euresys::ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
 
-    CapturedFramesDescriptor ret;
+    // 4) Camera (GenTL) timestamp for this frame
+    uint64_t cam_ts_us = buffer.getInfo<uint64_t>(Euresys::gc::BUFFER_INFO_TIMESTAMP);
 
+    // 5) Update offset estimator with the host-after marker
+    g_align.observe(cam_ts_us, host_after_us);
+
+    // 6) Host-synchronized timestamp for this frame
+    uint64_t synced_ts_us = g_align.to_host_time(cam_ts_us);
+
+    // 7) Nominal period (in µs)
+    uint64_t period_us = 0;
+    if (auto cycle_us_opt = params_.get<unsigned int>("CycleMinimumPeriod"))
+        period_us = static_cast<uint64_t>(*cycle_us_opt);
+
+    CapturedFramesDescriptor ret;
     ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
-
     ret.region2 = nullptr;
     ret.count2 = 0;
+
+    ret.first_frame_timestamp_us = synced_ts_us; // Export host-synchronized timestamp
+    ret.frame_period_us = period_us;
+    ret.has_hw_timestamp = (cam_ts_us != 0);
 
     return ret;
 }

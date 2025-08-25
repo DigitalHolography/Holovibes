@@ -7,12 +7,17 @@
 #include "fast_updates_holder.hh"
 #include "API.hh"
 #include "logger.hh"
+#include "time_map.hh"
+#include "id_queue.hh"
+#include "output_holo_file.hh"
 
 #include <tuple>
 #include <spdlog/spdlog.h>
 #include <fstream>
 #include <filesystem>
 
+extern FrameTimeMap g_time_map;
+extern IdQueue g_record_id_queue;
 namespace holovibes::worker
 {
 void FrameRecordWorker::integrate_fps_average()
@@ -94,6 +99,10 @@ void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
     LOG_FUNC();
+
+    std::optional<uint64_t> first_id;
+    uint64_t last_id = 0;
+    uint64_t first_ts_us = 0, last_ts_us = 0;
 
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
     std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
@@ -193,6 +202,10 @@ void FrameRecordWorker::run()
             if (nb_frames_to_skip > 0)
             {
                 record_queue_.load()->dequeue();
+                if (API.record.get_record_mode() == RecordMode::RAW)
+                {
+                    (void)g_record_id_queue.pop_one_blocking(); // consume the corresponding ID
+                }
                 nb_frames_to_skip--;
                 continue;
             }
@@ -203,6 +216,22 @@ void FrameRecordWorker::run()
                                           API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
+
+            uint64_t this_id = 0;
+            if (API.record.get_record_mode() == RecordMode::RAW)
+            {
+                this_id = g_record_id_queue.pop_one_blocking();
+                uint64_t this_ts = g_time_map.lookup(this_id);
+                if (!first_id)
+                {
+                    first_id = this_id;
+                    first_ts_us = this_ts;
+                }
+                last_id = this_id;
+                last_ts_us = this_ts;
+                // LOG_ERROR(this_ts);
+                // LOG_ERROR(this_id);
+            }
 
             // MOMENTS
             if (API.record.get_record_mode() == RecordMode::MOMENTS)
@@ -254,6 +283,25 @@ void FrameRecordWorker::run()
         LOG_INFO("Recording stopped, written frames: {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded.load());
 
+        if (API.record.get_record_mode() == RecordMode::RAW && first_id.has_value())
+        {
+            const uint64_t first_ts_us = g_time_map.lookup(*first_id);
+            const uint64_t last_ts_us = g_time_map.lookup(last_id);
+
+            LOG_INFO("Record timestamps (us): first={} last={}", first_ts_us, last_ts_us);
+
+            const uint64_t duration_us = (last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
+
+            LOG_INFO("Record duration: {} us ({} ms, {:.3f} s)",
+                     duration_us,
+                     duration_us / 1000,
+                     static_cast<double>(duration_us) / 1'000'000.0);
+            if (auto* holo = dynamic_cast<io_files::OutputHoloFile*>(output_frame_file))
+            {
+                holo->set_session_timestamps_us(first_ts_us, last_ts_us);
+            }
+        }
+
         if (contiguous_frames.has_value() && std::cmp_less(contiguous_frames.value(), nb_frames_recorded.load()))
         {
             LOG_WARN("Record lost its contiguousity at frame {}.", contiguous_frames.value());
@@ -291,6 +339,7 @@ void FrameRecordWorker::reset_record_queue()
 {
     auto pipe = API.compute.get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
+    g_record_id_queue.clear();
     record_queue_.load()->reset();
 }
 } // namespace holovibes::worker

@@ -2,6 +2,11 @@
 #include "holovibes.hh"
 #include "fast_updates_holder.hh"
 #include "api.hh"
+#include "time_map.hh"
+#include "id_queue.hh"
+
+extern FrameTimeMap g_time_map;
+extern IdQueue g_record_id_queue;
 
 namespace holovibes::worker
 {
@@ -30,6 +35,7 @@ void CameraFrameReadWorker::run()
 
     try
     {
+        next_frame_id_.store(0, std::memory_order_relaxed);
         camera_->start_acquisition();
         while (!stop_requested_)
         {
@@ -55,20 +61,31 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
                                          const camera::FrameDescriptor& camera_fd)
 {
     cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+
+    // total frames in this callback
+    const unsigned total = captured_fd.count1 + captured_fd.count2;
+
+    // assign a contiguous ID range for this batch
+    const uint64_t base_id = next_frame_id_.fetch_add(total, std::memory_order_relaxed);
+
+    // fill the time map for RAW 1->1
+    g_time_map.write_batch(base_id, captured_fd.first_frame_timestamp_us, captured_fd.frame_period_us, total);
+
+    // enqueue region1 with IDs
     if (captured_fd.count1 > 0)
     {
         auto ptr1 = static_cast<uint8_t*>(captured_fd.region1);
-        input_queue_.load()->enqueue(ptr1, copy_kind, captured_fd.count1);
+        input_queue_.load()->enqueue_with_ids(ptr1, copy_kind, captured_fd.count1, base_id);
     }
+    // enqueue region2 with IDs
     if (captured_fd.count2 > 0)
     {
         auto ptr2 = static_cast<uint8_t*>(captured_fd.region2);
-        input_queue_.load()->enqueue(ptr2, copy_kind, captured_fd.count2);
+        input_queue_.load()->enqueue_with_ids(ptr2, copy_kind, captured_fd.count2, base_id + captured_fd.count1);
     }
 
     *current_fps_ += captured_fd.count1 + captured_fd.count2;
     *temperature_ = camera_->get_temperature();
-
     input_queue_.load()->sync_current_batch();
 }
 

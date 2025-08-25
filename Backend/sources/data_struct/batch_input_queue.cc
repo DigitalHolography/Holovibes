@@ -3,6 +3,11 @@
 #include "holovibes.hh"
 
 #include "batch_input_queue.hh"
+#include "id_queue.hh"
+#include "API.hh"
+#include "enum_record_mode.hh"
+
+extern IdQueue g_record_id_queue;
 
 namespace holovibes
 {
@@ -59,6 +64,8 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     }
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
+
+    ids_.reset(new uint64_t[static_cast<size_t>(max_size_) * batch_size_]);
 }
 
 void BatchInputQueue::sync_current_batch() const
@@ -400,6 +407,13 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 
+    if (API.record.get_frame_acquisition_enabled() && API.record.get_record_mode() == RecordMode::RAW)
+    {
+        const size_t base = static_cast<size_t>(start_index_locked) * batch_size_;
+        const uint64_t base_id = ids_.get()[base]; // consecutive IDs in batch
+        g_record_id_queue.push_range(base_id, nb_elts);
+    }
+
     // Determine destination region info
     struct Queue::QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
@@ -445,4 +459,81 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
         dest.has_overwritten_ = true;
     }
 }
+
+void BatchInputQueue::enqueue_with_ids(const void* const frames,
+                                       const cudaMemcpyKind memcpy_kind,
+                                       const int nb_frame,
+                                       uint64_t base_id)
+{
+    if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
+        throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
+
+    if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
+        throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
+
+    int frames_left = nb_frame;
+    uint64_t next_id = base_id; // incremented as we write
+
+    while (frames_left > 0)
+    {
+        if (curr_batch_counter_ == 0)
+        {
+            m_producer_busy_.lock();
+            batch_mutexes_[end_index_].lock();
+        }
+
+        const uint frames_to_enqueue = std::min(static_cast<uint>(frames_left), batch_size_ - curr_batch_counter_);
+
+        // write image bytes
+        char* const dst_frames = data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
+                                                fd_.get_frame_size());
+
+        cudaXMemcpyAsync(dst_frames,
+                         frames,
+                         sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
+                         memcpy_kind,
+                         batch_streams_[end_index_]);
+
+        // write IDs for these frames (host)
+        uint64_t* const dst_ids = ids_.get() + (static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_);
+
+        for (uint i = 0; i < frames_to_enqueue; ++i)
+            dst_ids[i] = next_id + i;
+        next_id += frames_to_enqueue;
+
+        // bookkeeping
+        curr_batch_counter_ += frames_to_enqueue;
+
+        if (curr_batch_counter_ == batch_size_)
+        {
+            curr_batch_counter_ = 0;
+            const uint prev_end_index = end_index_;
+            end_index_ = (end_index_ + 1) % max_size_;
+
+            if (size_ == max_size_)
+            {
+                has_overwritten_ = true;
+                start_index_ = (start_index_ + 1) % max_size_;
+            }
+            else
+            {
+                size_++;
+                curr_nb_frames_ += batch_size_;
+            }
+
+            batch_mutexes_[prev_end_index].unlock();
+            m_producer_busy_.unlock();
+
+            if (resize_in_progress_)
+            {
+                while (resize_in_progress_)
+                    continue;
+                return;
+            }
+        }
+
+        frames_left -= frames_to_enqueue;
+    }
+}
+
 } // namespace holovibes

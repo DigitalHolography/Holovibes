@@ -59,6 +59,18 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      */
     void correct_number_of_frames(size_t nb_frames_written) override;
 
+    /*! \brief Set the timestamps of the first and last frames of the session
+     *
+     * \param first_us Timestamp in microseconds of the first frame
+     * \param last_us Timestamp in microseconds of the last frame
+     */
+    void set_session_timestamps_us(uint64_t first_us, uint64_t last_us)
+    {
+        session_first_ts_us_ = first_us;
+        session_last_ts_us_ = last_us;
+        has_session_ts_ = true;
+    }
+
   private:
     // Give access to private members to the factory
     friend class OutputFrameFileFactory;
@@ -76,5 +88,9 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
                    const camera::FrameDescriptor& fd,
                    uint64_t img_nb,
                    RecordedDataType data_type);
+
+    bool has_session_ts_ = false;
+    uint64_t session_first_ts_us_ = 0;
+    uint64_t session_last_ts_us_ = 0;
 };
 } // namespace holovibes::io_files

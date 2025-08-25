@@ -37,6 +37,7 @@ class CameraFrameReadWorker final : public FrameReadWorker
     /*! \brief The camera giving the images */
     std::shared_ptr<camera::ICamera> camera_;
     std::shared_ptr<std::atomic<uint>> temperature_;
+    std::atomic<uint64_t> next_frame_id_{0};
 
     void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const camera::FrameDescriptor& camera_fd);
 };

@@ -108,7 +108,7 @@ size_t OutputHdf5File::write_frame(const char* frame, size_t frame_size)
 
 void OutputHdf5File::write_footer()
 {
-    // Optional: flush, add metadata, etc.
+    // Flush and add metadata (Used in OCT to annotate dataset).
     h5_file_.flush(H5F_SCOPE_GLOBAL);
 }
 

@@ -8,6 +8,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+#include <cstdint>
 #include <memory>
 #include <atomic>
 #include <mutex>
@@ -184,6 +185,11 @@ class BatchInputQueue final : public DisplayQueue
 
     const camera::FrameDescriptor& get_fd() const { return fd_; }
 
+    void
+    enqueue_with_ids(const void* const frames, const cudaMemcpyKind memcpy_kind, const int nb_frame, uint64_t base_id);
+
+    const uint64_t* ids_data() const { return ids_.get(); }
+
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
      *
@@ -291,5 +297,7 @@ class BatchInputQueue final : public DisplayQueue
      *
      */
     std::atomic<Device>& device_;
+
+    std::unique_ptr<uint64_t[]> ids_{nullptr};
 };
 } // namespace holovibes
