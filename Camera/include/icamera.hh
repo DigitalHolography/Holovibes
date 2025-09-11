@@ -64,6 +64,9 @@ struct CapturedFramesDescriptor
     /*! \brief Nominal period between consecutive frames in this batch (us). If unknown, leave 0. */
     uint64_t frame_period_us = 0;
 
+    /*! \brief Frame offset between system timestamps and camera timestamps (us). If unknown, leave 0. */
+    uint64_t frame_offset_us = 0;
+
     /*! \brief True if first_frame_timestamp_us came from the camera/grabber. */
     bool has_hw_timestamp = false;
 
