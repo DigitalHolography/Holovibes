@@ -4,18 +4,19 @@
 #include <string>
 namespace holovibes::gui
 {
- 
-CudaGLTextureWindowHelper::CudaGLTextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k): BasicOpenGLWindow(p, s, q, KindOfView::Filter2D){
 
+CudaGLTextureWindowHelper::CudaGLTextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
+{
+    LOG_ERROR("Creating CudaGLTextureWindowHelper");
 }
 
-CudaGLTextureWindowHelper::~CudaGLTextureWindowHelper() {
-    BasicOpenGLWindow::~BasicOpenGLWindow();
- }
- 
+CudaGLTextureWindowHelper::~CudaGLTextureWindowHelper() { LOG_ERROR("Destroying CudaGLTextureWindowHelper"); }
+
 // Initialization
-void CudaGLTextureWindowHelper::initializeGL(const const std::string vertex_shader_path, const const std::string fragment_shader_path)
+void CudaGLTextureWindowHelper::initializeGL()
 {
+
     makeCurrent();
     initializeOpenGLFunctions();
     glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -24,7 +25,7 @@ void CudaGLTextureWindowHelper::initializeGL(const const std::string vertex_shad
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
-    initShaders(vertex_shader_path, fragment_shader_path);
+    initShaders();
     Vao.create();
     Vao.bind();
     Program->bind();
@@ -89,8 +90,10 @@ void CudaGLTextureWindowHelper::initializeGL(const const std::string vertex_shad
     glViewport(0, 0, width(), height());
     startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
 }
-void CudaGLTextureWindowHelper::initShaders(const std::string vertex_shader_path, const std::string fragment_shader_path)
+void CudaGLTextureWindowHelper::initShaders()
 {
+    std::string vertex_shader_path = "vertex.holo.glsl";
+    std::string fragment_shader_path = "fragment.tex.glsl";
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
@@ -101,9 +104,9 @@ void CudaGLTextureWindowHelper::initShaders(const std::string vertex_shader_path
     Program->link();
 }
 // Rendering
-void CudaGLTextureWindowHelper::paintGL(void* frame)
+void CudaGLTextureWindowHelper::paintGL()
 {
-
+    void* frame = output_->get_last_image();
     if (!frame)
         return;
 
@@ -130,10 +133,5 @@ void CudaGLTextureWindowHelper::paintGL(void* frame)
 
     overlay_manager_.draw();
 }
-
-// void CudaGLTextureWindowHelper::cleanup();
-
-// // Accessors
-// GLuint CudaGLTextureWindowHelper::getTextureID() const;
 
 } // namespace holovibes::gui

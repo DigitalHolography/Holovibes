@@ -19,25 +19,16 @@ namespace holovibes::gui
 {
 class CudaGLTextureWindowHelper : public BasicOpenGLWindow
 {
-public:
+  public:
     CudaGLTextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
     virtual ~CudaGLTextureWindowHelper();
 
-    // Initialization
-    void initializeGL( const std::string vertex_shader_path,  const std::string fragment_shader_path);
-    void initShaders( const std::string vertex_shader_path,  const std::string fragment_shader_path);
+    void initializeGL();
+    void initShaders();
+    void paintGL();
 
-    // Rendering
-    void paintGL(void* frame);
-
-    // void cleanup();
-
-    // // Accessors
-    // GLuint getTextureID() const;
-
-protected:
+  protected:
     // OpenGL/CUDA resources
     CudaTexture* cudaTexture = nullptr;
-
 };
-}
+} // namespace holovibes::gui

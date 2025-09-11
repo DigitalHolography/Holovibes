@@ -16,7 +16,7 @@
 namespace holovibes::gui
 {
 SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : CudaGLTextureWindowHelper(p, s, q, KindOfView::Filter2D)
+    : CudaGLTextureWindowHelper(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
 {
@@ -30,22 +30,6 @@ SliceWindow::~SliceWindow()
 {
     cudaDestroySurfaceObject(cuSurface);
     cudaFreeArray(cuArray);
-}
-
-void SliceWindow::initShaders()
-{
-    CudaGLTextureWindowHelper::initializeGL("vertex.holo.glsl","fragment.tex.glsl");
-}
-
-void SliceWindow::initializeGL()
-{
-    CudaGLTextureWindowHelper::initShaders("vertex.holo.glsl","fragment.tex.glsl");
-}
-
-void SliceWindow::paintGL()
-{
-    void* frame = output_->get_last_image();
-    CudaGLTextureWindowHelper::paintGL(frame);
 }
 
 void SliceWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }

@@ -47,10 +47,8 @@ class RawWindow : public CudaGLTextureWindowHelper
 
     const float translation_step_ = 0.05f;
 
-    void initShaders() override;
-    void initializeGL() override;
     void resizeGL(int width, int height) override;
-    void paintGL() override;
+
 
     void mousePressEvent(QMouseEvent* e) override;
     void mouseMoveEvent(QMouseEvent* e) override;

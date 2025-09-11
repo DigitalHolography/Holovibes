@@ -34,7 +34,7 @@ using camera::FrameDescriptor;
 namespace holovibes::gui
 {
 RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
-    : CudaGLTextureWindowHelper(p, s, q, KindOfView::Filter2D)
+    : CudaGLTextureWindowHelper(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {
@@ -63,20 +63,6 @@ RawWindow::~RawWindow()
 #endif
 }
 
-void RawWindow::initShaders()
-{
-    CudaGLTextureWindowHelper::initShaders("vertex.holo.glsl","fragment.tex.glsl");
-}
-
-void RawWindow::initializeGL()
-{
-    CudaGLTextureWindowHelper::initializeGL("vertex.holo.glsl","fragment.tex.glsl");
-}
-
-/* This part of code makes a resizing of the window displaying image to
-   a rectangle format. It also avoids the window to move when resizing.
-   There is no visible calling function since it's overriding Qt function.
-**/
 void RawWindow::resizeGL(int w, int h)
 {
     if (ratio == 0.0f)
@@ -139,12 +125,6 @@ void RawWindow::resizeGL(int w, int h)
     }
     resize(old_width, old_height);
     this->setPosition(point);
-}
-
-void RawWindow::paintGL()
-{
-    void* frame = output_->get_last_image();
-    CudaGLTextureWindowHelper::paintGL(frame);
 }
 
 void RawWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }

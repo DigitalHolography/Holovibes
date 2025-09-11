@@ -26,9 +26,7 @@ class SliceWindow : public CudaGLTextureWindowHelper
     cudaResourceDesc cuArrRD;
     cudaSurfaceObject_t cuSurface;
 
-    void initShaders() override;
-    void initializeGL() override;
-    void paintGL() override;
+
 
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;

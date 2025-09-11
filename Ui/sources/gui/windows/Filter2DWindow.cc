@@ -34,23 +34,6 @@ Filter2DWindow::~Filter2DWindow()
 #endif
 }
 
-void Filter2DWindow::initShaders()
-{
-      CudaGLTextureWindowHelper::initShaders("vertex.holo.glsl","fragment.tex.glsl");
-
-}
-
-void Filter2DWindow::initializeGL()
-{
-    CudaGLTextureWindowHelper::initializeGL("vertex.holo.glsl","fragment.tex.glsl");
-}
-
-void Filter2DWindow::paintGL()
-{
-    void* frame = output_->get_last_image();
-    CudaGLTextureWindowHelper::paintGL(frame);
-}
-
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
