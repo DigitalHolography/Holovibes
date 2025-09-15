@@ -221,7 +221,7 @@ void FrameRecordWorker::run()
             if (API.record.get_record_mode() == RecordMode::RAW)
             {
                 this_id = g_record_id_queue.pop_one_blocking();
-                uint64_t this_ts = g_time_map.lookup(this_id);
+                uint64_t this_ts = g_time_map.lookup_synced(this_id);
                 if (!first_id)
                 {
                     first_id = this_id;
@@ -285,12 +285,17 @@ void FrameRecordWorker::run()
 
         if (API.record.get_record_mode() == RecordMode::RAW && first_id.has_value())
         {
-            const uint64_t first_ts_us = g_time_map.lookup(*first_id);
-            const uint64_t last_ts_us = g_time_map.lookup(last_id);
+            const uint64_t first_ts_us = g_time_map.lookup_synced(*first_id);
+            const uint64_t last_ts_us = g_time_map.lookup_synced(last_id);
 
             LOG_INFO("Record timestamps (us): first={} last={}", first_ts_us, last_ts_us);
 
             const uint64_t duration_us = (last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
+
+            const uint64_t first_camera_ts_us = g_time_map.lookup_camera(*first_id);
+            const uint64_t last_camera_ts_us = g_time_map.lookup_camera(last_id);
+
+            const uint64_t offset_us = g_time_map.lookup_offset(last_id);
 
             LOG_INFO("Record duration: {} us ({} ms, {:.3f} s)",
                      duration_us,
@@ -298,7 +303,11 @@ void FrameRecordWorker::run()
                      static_cast<double>(duration_us) / 1'000'000.0);
             if (auto* holo = dynamic_cast<io_files::OutputHoloFile*>(output_frame_file))
             {
-                holo->set_session_timestamps_us(first_ts_us, last_ts_us);
+                holo->set_session_timestamps_us(first_ts_us,
+                                                last_ts_us,
+                                                first_camera_ts_us,
+                                                last_camera_ts_us,
+                                                offset_us);
             }
         }
 

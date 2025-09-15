@@ -18,7 +18,6 @@
 
 static inline uint64_t unix_now_us()
 {
-    // Prefer GetSystemTimePreciseAsFileTime on Win8+ for better resolution
     FILETIME ft;
 #if defined(NTDDI_WIN8) && (NTDDI_VERSION >= NTDDI_WIN8)
     GetSystemTimePreciseAsFileTime(&ft);
@@ -337,6 +336,9 @@ CapturedFramesDescriptor CameraPhantomInt::get_frames()
     ret.first_frame_timestamp_us = synced_ts_us; // Export host-synchronized timestamp
     ret.frame_period_us = period_us;
     ret.has_hw_timestamp = (cam_ts_us != 0);
+
+    ret.frame_offset_us = (ret.has_hw_timestamp) ? (synced_ts_us - cam_ts_us) : 0;
+    ret.camera_timestamp_us = cam_ts_us;
 
     return ret;
 }

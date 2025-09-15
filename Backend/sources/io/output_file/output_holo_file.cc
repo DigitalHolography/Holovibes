@@ -126,6 +126,7 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                                          {"ExposureTime", exposure_time}};
         }
 
+        // Get current date and time for the record timestamp
         auto now = std::chrono::system_clock::now();
         std::time_t now_c = std::chrono::system_clock::to_time_t(now);
         std::tm local_tm = *std::localtime(&now_c);
@@ -134,22 +135,32 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
         std::string record_timestamp = ss.str();
 
+        // Precise timestamps (us)
         uint64_t first_ts_us = has_session_ts_ ? session_first_ts_us_ : 0;
         uint64_t last_ts_us = has_session_ts_ ? session_last_ts_us_ : 0;
         uint64_t duration_us = (has_session_ts_ && last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
+        uint64_t first_camera_ts_us = has_session_ts_ ? session_first_camera_ts_us_ : 0;
+        uint64_t last_camera_ts_us = has_session_ts_ ? session_last_camera_ts_us_ : 0;
+        uint64_t offset_us = has_session_ts_ ? session_offset_us_ : 0;
 
         // Build the info JSON without top-level camera_fps
-        auto j_fi = nlohmann::json{
-            {"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
-            {"input_fps", api.input.can_get_camera_fps() ? camera_fps : input_fps},
-            {"camera_fps", camera_fps}, // camera frames per second
-            {"eye_type", api.record.get_recorded_eye()},
-            {"contiguous", contiguous},
-            {"holovibes_version", __HOLOVIBES_VERSION__},
-            {"camera", camera_info},
-            {"file_create_timestamp", file_creation_timestamp_},
-            {"file_record_timestamp", record_timestamp},
-            {"timestamps_us", {{"first", first_ts_us}, {"last", last_ts_us}, {"duration", duration_us}}}};
+        auto j_fi =
+            nlohmann::json{{"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
+                           {"input_fps", api.input.can_get_camera_fps() ? camera_fps : input_fps},
+                           {"camera_fps", camera_fps}, // camera frames per second
+                           {"eye_type", api.record.get_recorded_eye()},
+                           {"contiguous", contiguous},
+                           {"holovibes_version", __HOLOVIBES_VERSION__},
+                           {"camera", camera_info},
+                           {"file_create_timestamp", file_creation_timestamp_},
+                           {"file_record_timestamp", record_timestamp},
+                           {"timestamps_us",
+                            {{"first", first_ts_us},
+                             {"last", last_ts_us},
+                             {"duration", duration_us},
+                             {"camera_first", first_camera_ts_us},
+                             {"camera_last", last_camera_ts_us},
+                             {"offset", offset_us}}}};
 
         meta_data_ = nlohmann::json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
