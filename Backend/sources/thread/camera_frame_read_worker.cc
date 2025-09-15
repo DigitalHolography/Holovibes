@@ -68,8 +68,14 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     // assign a contiguous ID range for this batch
     const uint64_t base_id = next_frame_id_.fetch_add(total, std::memory_order_relaxed);
 
-    // fill the time map for RAW 1->1
-    g_time_map.write_batch(base_id, captured_fd.first_frame_timestamp_us, captured_fd.frame_period_us, total);
+    // store timestamps in global time map
+    g_time_map.write_batch(base_id,
+                           captured_fd.first_frame_timestamp_us, // ts0_synced (Unix µs)
+                           captured_fd.frame_period_us,
+                           total,
+                           captured_fd.camera_timestamp_us, // ts0_cam (boot µs) or 0 if not available with this camera
+                           captured_fd.frame_offset_us      // offset applied (µs)
+    );
 
     // enqueue region1 with IDs
     if (captured_fd.count1 > 0)

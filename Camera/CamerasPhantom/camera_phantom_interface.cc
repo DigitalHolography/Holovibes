@@ -16,14 +16,23 @@
 
 #include <windows.h>
 
-static inline uint64_t qpc_now_us()
+static inline uint64_t unix_now_us()
 {
-    LARGE_INTEGER qpc, freq;
-    QueryPerformanceCounter(&qpc);
-    QueryPerformanceFrequency(&freq);
-    // Cast to long double to avoid overflow in the division
-    long double us = (long double)qpc.QuadPart * 1e6L / (long double)freq.QuadPart;
-    return (uint64_t)us;
+    FILETIME ft;
+#if defined(NTDDI_WIN8) && (NTDDI_VERSION >= NTDDI_WIN8)
+    GetSystemTimePreciseAsFileTime(&ft);
+#else
+    GetSystemTimeAsFileTime(&ft);
+#endif
+
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    // FILETIME is 100-ns ticks since 1601-01-01; convert to Unix epoch µs
+    static constexpr uint64_t EPOCH_DIFF_US = 11644473600000000ULL; // 1601->1970
+    uint64_t us = (uli.QuadPart / 10ULL);                           // 100ns -> µs
+    return us - EPOCH_DIFF_US;
 }
 
 struct SoftClockAlign
@@ -33,19 +42,17 @@ struct SoftClockAlign
 
     void observe(uint64_t t_cam_us, uint64_t t_host_us)
     {
-        // t_host_us >= acquisition_time + latency >= t_cam_us + latency'
-        // Therefore (t_host - t_cam) is an upper bound of the real offset.
+        // Upper bound candidate
         uint64_t cand = (t_host_us > t_cam_us) ? (t_host_us - t_cam_us) : 0;
 
-        // Keep the minimum offset seen so far
+        // Try to update the minimum offset
         uint64_t cur = offset_min_us.load(std::memory_order_relaxed);
         while (cand < cur && !offset_min_us.compare_exchange_weak(cur, cand))
         { /* spin */
         }
 
-        // [DEBUG] Log the current offset estimate
-        // std::cout << "[SoftClockAlign] Candidate offset=" << cand
-        //          << " us, current_min=" << offset_min_us.load(std::memory_order_relaxed) << " us" << std::endl;
+        uint64_t min_off = offset_min_us.load(std::memory_order_relaxed);
+        uint64_t extra_latency = (cand >= min_off) ? (cand - min_off) : 0;
     }
 
     uint64_t to_host_time(uint64_t t_cam_us) const
@@ -289,13 +296,13 @@ void CameraPhantomInt::shutdown_camera() { return; }
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
     // 1) Host timestamp right BEFORE waiting (lower bound)
-    uint64_t host_before_us = qpc_now_us();
+    uint64_t host_before_us = unix_now_us();
 
     // 2) Blocking wait for a buffer
     auto buffer = Euresys::ScopedBuffer(*(grabber_->available_grabbers_[0]));
 
     // 3) Host timestamp right AFTER the buffer (upper bound, better for offset)
-    uint64_t host_after_us = qpc_now_us();
+    uint64_t host_after_us = unix_now_us();
 
     // Multi-grabber support
     unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
@@ -329,6 +336,9 @@ CapturedFramesDescriptor CameraPhantomInt::get_frames()
     ret.first_frame_timestamp_us = synced_ts_us; // Export host-synchronized timestamp
     ret.frame_period_us = period_us;
     ret.has_hw_timestamp = (cam_ts_us != 0);
+
+    ret.frame_offset_us = (ret.has_hw_timestamp) ? (synced_ts_us - cam_ts_us) : 0;
+    ret.camera_timestamp_us = cam_ts_us;
 
     return ret;
 }
