@@ -6,7 +6,7 @@
 
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
-#include "CudaGLTextureWindowHelper.hh"
+#include "TextureWindowHelper.hh"
 namespace holovibes::gui
 {
 class MainWindow;
@@ -15,7 +15,7 @@ class MainWindow;
  *
  * \brief Class that represents a Filter2D window in the GUI.
  */
-class Filter2DWindow : public CudaGLTextureWindowHelper
+class Filter2DWindow : public TextureWindowHelper
 {
   public:
     Filter2DWindow(QPoint p, QSize s, DisplayQueue* q);

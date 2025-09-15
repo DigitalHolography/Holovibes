@@ -1,4 +1,4 @@
-#include "CudaGLTextureWindowHelper.hh"
+#include "TextureWindowHelper.hh"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -34,7 +34,7 @@ using camera::FrameDescriptor;
 namespace holovibes::gui
 {
 RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
-    : CudaGLTextureWindowHelper(p, s, q, k)
+    : TextureWindowHelper(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {

@@ -16,7 +16,7 @@
 namespace holovibes::gui
 {
 SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : CudaGLTextureWindowHelper(p, s, q, k)
+    : TextureWindowHelper(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
 {

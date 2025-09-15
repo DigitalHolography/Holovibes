@@ -15,7 +15,7 @@
 namespace holovibes::gui
 {
 Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
-    : CudaGLTextureWindowHelper(p, s, q, KindOfView::Filter2D)
+    : TextureWindowHelper(p, s, q, KindOfView::Filter2D)
 {
     LOG_FUNC();
 

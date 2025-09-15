@@ -7,7 +7,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
 #include "rect.hh"
-#include "CudaGLTextureWindowHelper.hh"
+#include "TextureWindowHelper.hh"
 namespace holovibes::gui
 {
 
@@ -17,7 +17,7 @@ class SliceWindow;
  *
  * \brief Class that represents a raw window in the GUI.
  */
-class RawWindow : public CudaGLTextureWindowHelper
+class RawWindow : public TextureWindowHelper
 {
   public:
     RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio = 0.f, KindOfView k = KindOfView::Raw);

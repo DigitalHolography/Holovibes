@@ -1,20 +1,20 @@
-#include "CudaGLTextureWindowHelper.hh"
+#include "TextureWindowHelper.hh"
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
 #include <string>
 namespace holovibes::gui
 {
 
-CudaGLTextureWindowHelper::CudaGLTextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+TextureWindowHelper::TextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
 {
-    LOG_ERROR("Creating CudaGLTextureWindowHelper");
+    LOG_ERROR("Creating TextureWindowHelper");
 }
 
-CudaGLTextureWindowHelper::~CudaGLTextureWindowHelper() { LOG_ERROR("Destroying CudaGLTextureWindowHelper"); }
+TextureWindowHelper::~TextureWindowHelper() { LOG_ERROR("Destroying TextureWindowHelper"); }
 
 // Initialization
-void CudaGLTextureWindowHelper::initializeGL()
+void TextureWindowHelper::initializeGL()
 {
 
     makeCurrent();
@@ -90,7 +90,7 @@ void CudaGLTextureWindowHelper::initializeGL()
     glViewport(0, 0, width(), height());
     startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
 }
-void CudaGLTextureWindowHelper::initShaders()
+void TextureWindowHelper::initShaders()
 {
     std::string vertex_shader_path = "vertex.holo.glsl";
     std::string fragment_shader_path = "fragment.tex.glsl";
@@ -104,7 +104,7 @@ void CudaGLTextureWindowHelper::initShaders()
     Program->link();
 }
 // Rendering
-void CudaGLTextureWindowHelper::paintGL()
+void TextureWindowHelper::paintGL()
 {
     void* frame = output_->get_last_image();
     if (!frame)

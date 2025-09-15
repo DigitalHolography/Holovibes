@@ -17,11 +17,11 @@
 
 namespace holovibes::gui
 {
-class CudaGLTextureWindowHelper : public BasicOpenGLWindow
+class TextureWindowHelper : public BasicOpenGLWindow
 {
   public:
-    CudaGLTextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
-    virtual ~CudaGLTextureWindowHelper();
+    TextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
+    virtual ~TextureWindowHelper();
 
     void initializeGL();
     void initShaders();

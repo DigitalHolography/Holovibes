@@ -6,7 +6,7 @@
 
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
-#include "CudaGLTextureWindowHelper.hh"
+#include "TextureWindowHelper.hh"
 namespace holovibes::gui
 {
 class MainWindow;
@@ -15,7 +15,7 @@ class MainWindow;
  *
  * \brief Class that represents a slice window in the GUI.
  */
-class SliceWindow : public CudaGLTextureWindowHelper
+class SliceWindow : public TextureWindowHelper
 {
   public:
     SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
