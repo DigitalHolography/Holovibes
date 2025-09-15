@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.1
+
+- Precise timestamps are now synced with the unix system time, added more pertinent timestamps in the footer.
+
 ### 14.11.0
 
 - Add precise Timestamps in the footer of files recorded with Ametek cameras.
