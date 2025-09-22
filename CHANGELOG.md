@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.2
+
+- Added a second offset timestamp and renamed timestamps in footer
+
 ### 14.11.1
 
 - Precise timestamps are now synced with the unix system time, added more pertinent timestamps in the footer.
