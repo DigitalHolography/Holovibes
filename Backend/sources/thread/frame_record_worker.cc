@@ -295,7 +295,8 @@ void FrameRecordWorker::run()
             const uint64_t first_camera_ts_us = g_time_map.lookup_camera(*first_id);
             const uint64_t last_camera_ts_us = g_time_map.lookup_camera(last_id);
 
-            const uint64_t offset_us = g_time_map.lookup_offset(last_id);
+            const uint64_t first_offset_us = g_time_map.lookup_offset(*first_id);
+            const uint64_t last_offset_us = g_time_map.lookup_offset(last_id);
 
             LOG_INFO("Record duration: {} us ({} ms, {:.3f} s)",
                      duration_us,
@@ -307,7 +308,8 @@ void FrameRecordWorker::run()
                                                 last_ts_us,
                                                 first_camera_ts_us,
                                                 last_camera_ts_us,
-                                                offset_us);
+                                                first_offset_us,
+                                                last_offset_us);
             }
         }
 

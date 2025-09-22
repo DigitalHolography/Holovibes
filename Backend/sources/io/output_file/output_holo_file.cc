@@ -141,7 +141,8 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         uint64_t duration_us = (has_session_ts_ && last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
         uint64_t first_camera_ts_us = has_session_ts_ ? session_first_camera_ts_us_ : 0;
         uint64_t last_camera_ts_us = has_session_ts_ ? session_last_camera_ts_us_ : 0;
-        uint64_t offset_us = has_session_ts_ ? session_offset_us_ : 0;
+        uint64_t first_offset_us = has_session_ts_ ? session_first_offset_us_ : 0;
+        uint64_t last_offset_us = has_session_ts_ ? session_last_offset_us_ : 0;
 
         // Build the info JSON without top-level camera_fps
         auto j_fi =
@@ -155,12 +156,13 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                            {"file_create_timestamp", file_creation_timestamp_},
                            {"file_record_timestamp", record_timestamp},
                            {"timestamps_us",
-                            {{"first", first_ts_us},
-                             {"last", last_ts_us},
+                            {{"unix_first", first_ts_us},
+                             {"unix_last", last_ts_us},
                              {"duration", duration_us},
                              {"camera_first", first_camera_ts_us},
                              {"camera_last", last_camera_ts_us},
-                             {"offset", offset_us}}}};
+                             {"offset_first", first_offset_us},
+                             {"offset_last", last_offset_us}}}};
 
         meta_data_ = nlohmann::json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
