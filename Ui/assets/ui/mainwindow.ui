@@ -373,7 +373,12 @@
              </item>
              <item>
               <property name="text">
-               <string>SSA_STFT</string>
+               <string>SSA+STFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>STFT+SSA</string>
               </property>
              </item>
             </widget>
