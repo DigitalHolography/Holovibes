@@ -430,7 +430,6 @@ void FourierTransform::insert_stft_ssa()
 
             stft(H, H,
                  plan1d); // H now contains the STFT of the input data, size: [frames × nb_freq_bins]
-
             // cov = H' * H
             cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
 
