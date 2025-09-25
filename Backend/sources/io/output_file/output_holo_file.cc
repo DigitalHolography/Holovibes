@@ -47,6 +47,11 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     std::ostringstream ss;
     ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
     file_creation_timestamp_ = ss.str();
+
+    prealloc_.io_buf_size = 4u << 20;   // 4 MiB setvbuf
+    prealloc_.grow_chunk = 1ull << 30;  // 1 GiB prealloc steps
+    prealloc_.durable_on_close = false; // if _commit on close
+    prealloc_.attach(file_);            // sets setvbuf; initializes sizes
 }
 
 // Optimisation removed to avoid some values in memory to be set to 0 during compilation.
@@ -184,25 +189,37 @@ void OutputHoloFile::write_header()
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
+    // Grow file in big NTFS chunks when needed, using current logical end.
+    prealloc_.ensure_capacity(file_, prealloc_.logical_size + frame_size);
+
     const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
-
-    // std::fflush(file_);
-
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
 
+    // Track logical file growth
+    prealloc_.on_bytes_written(written_bytes);
     return written_bytes;
 }
 
 void OutputHoloFile::write_footer()
 {
     LOG_FUNC();
-    std::string meta_data_str;
+
     try
     {
-        meta_data_str = meta_data_.dump();
+        std::string meta_data_str = meta_data_.dump();
+
+        // Ensure capacity for footer at EOF, then write it
+        prealloc_.ensure_capacity(file_, prealloc_.logical_size + meta_data_str.size());
+
         if (std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), file_) != meta_data_str.size())
             throw FileException("Unable to write output holo file footer");
+
+        prealloc_.on_bytes_written(meta_data_str.size());
+
+        // Flush stdio, trim any over-allocation to exact logical size,
+        // and (optionally) commit to disk (durable_on_close).
+        prealloc_.finalize(file_);
     }
     catch (const std::exception& e)
     {

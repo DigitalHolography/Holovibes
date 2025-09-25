@@ -8,6 +8,7 @@
 #include "output_frame_file.hh"
 #include "holo_file.hh"
 #include "enum_recorded_data_type.hh"
+#include "WinBufferedPreallocator.hh"
 
 namespace holovibes::io_files
 {
@@ -108,5 +109,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
     uint64_t session_last_camera_ts_us_ = 0;
     uint64_t session_first_offset_us_ = 0;
     uint64_t session_last_offset_us_ = 0;
+
+    WinBufferedPreallocator prealloc_;
 };
 } // namespace holovibes::io_files
