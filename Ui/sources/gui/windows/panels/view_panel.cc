@@ -168,7 +168,7 @@ void ViewPanel::on_notify()
 
     // q accu
     bool is_q_visible =
-        api_.transform.get_time_transformation() == TimeTransformation::SSA_STFT && !is_raw && is_data_not_moments;
+        (api_.transform.get_time_transformation() == TimeTransformation::SSA_STFT || api_.transform.get_time_transformation() == TimeTransformation::STFT_SSA) && !is_raw && is_data_not_moments;
     ui_->Q_AccSpinBox->setVisible(is_q_visible);
     ui_->Q_SpinBox->setVisible(is_q_visible);
     ui_->Q_Label->setVisible(is_q_visible);
@@ -309,6 +309,7 @@ void ViewPanel::set_y_accu() { api_.transform.set_y_accu_level(ui_->YAccSpinBox-
 
 void ViewPanel::set_p(int value)
 {
+    LOG_ERROR("Set p index");
     api_.transform.set_p_index(value);
     parent_->notify();
 }
@@ -319,18 +320,24 @@ void ViewPanel::decrement_p() { set_p(api_.transform.get_p_index() - 1); }
 
 void ViewPanel::set_p_accu()
 {
+    LOG_ERROR("Set p accu");
+
     api_.transform.set_p_accu_level(ui_->PAccSpinBox->value());
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
+    LOG_ERROR("Set q index");
+
     api_.transform.set_q_index(value);
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
+    LOG_ERROR("Set q accu");
+
     api_.transform.set_q_accu_level(ui_->Q_AccSpinBox->value());
     parent_->notify();
 }

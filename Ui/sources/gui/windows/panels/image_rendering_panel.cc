@@ -232,12 +232,16 @@ void ImageRenderingPanel::set_time_transformation_size()
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
+    LOG_ERROR("Set lambda");
+
     if (api_.transform.set_lambda(static_cast<float>(value) * 1.0e-9f) == ApiCode::OK)
         ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
+    LOG_ERROR("Set z distance slider");
+
     api_.transform.set_z_distance(value / 1000.0f);
 
     // Keep consistency between the slider and double box
@@ -247,8 +251,9 @@ void ImageRenderingPanel::set_z_distance_slider(int value)
 
 void ImageRenderingPanel::set_z_distance(const double value)
 {
-    api_.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
+    LOG_ERROR("Set z distance");
 
+    api_.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
     ui_->ZDoubleSpinBox->setValue(value);
