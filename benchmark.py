@@ -6,6 +6,8 @@ import shutil
 import argparse
 import pandas as pd
 
+sys.stdout.reconfigure(encoding='utf-8')
+
 def benchmark():
     if len(sys.argv) < 1:
         print("Usage: ./script.py <input_file.holo>")
@@ -20,19 +22,19 @@ def benchmark():
         sys.exit(1)
 
     def run_holovibes():
-        os.makedirs("benchmark", exist_ok=True)
+        os.makedirs(args.output, exist_ok=True)
 
-        cmd = ["nsys", "profile", "--stats=true", "--output=benchmark/benchmark_report", "build/bin/Holovibes.exe"]
+        cmd = ["nsys", "profile", "--stats=true", "--output", args.output + "/benchmark_report", "build/bin/Holovibes.exe"]
 
         if args.input:
             cmd.append("--input", args.input)
         
         process = subprocess.Popen(cmd)
         process.wait()
-        process = subprocess.Popen(["nsys", "stats", "benchmark/benchmark_report.nsys-rep", "--format=csv", "--output=benchmark/benchmark_report", "--force-overwrite=true", "--force-export=true"])
+        process = subprocess.Popen(["nsys", "stats", args.output + "/benchmark_report.nsys-rep", "--format=csv", "--output", args.output  + "/benchmark_report", "--force-overwrite=true", "--force-export=true"])
         process.wait()
-        os.remove("benchmark/benchmark_report.nsys-rep",)
-        os.remove("benchmark/benchmark_report.sqlite",)
+        os.remove(args.output + "/benchmark_report.nsys-rep")
+        os.remove(args.output + "/benchmark_report.sqlite")
 
     thread = threading.Thread(target=run_holovibes)
     thread.start()
@@ -41,14 +43,14 @@ def benchmark():
 
     print("Holovibes benchmark terminated.")
 
-def preview(csv_dir="benchmark"):
+def preview(csv_dir):
     def list_csv_files(directory):
         return [f for f in os.listdir(directory) if f.endswith(".csv")]
 
     def view_csv_file(filepath):
         try:
             df = pd.read_csv(filepath)
-            print(f"\n📄 File: {filepath}")
+            print(f"\nFile: {filepath}")
             print(f"Rows: {len(df)}, Columns: {len(df.columns)}")
             print(f"Column names: {list(df.columns)}")
             if df.empty:
@@ -80,7 +82,8 @@ def preview(csv_dir="benchmark"):
         idx = int(choice) - 1
         if 0 <= idx < len(files):
             filepath = os.path.join(csv_dir, files[idx])
-            view_csv_file(filepath, args.nrows)
+            print("\n" + filepath)
+            view_csv_file(filepath)
         else:
             print("Invalid choice.")
 
@@ -90,10 +93,11 @@ def main():
 
     bench_parsers = subparsers.add_parser("benchmark", help="Run Holovibes benchmark")
     preview_parsers = subparsers.add_parser("preview", help="View CSV report files interactively")
-    subparsers.add_parser("clean", help="Clean the benchmark directory")
 
     bench_parsers.add_argument("--input", type=str, help="Input file for Holovibes")
+    bench_parsers.add_argument("--output", type=str, help="Duration of the benchmark in seconds (default: 60)", default=60)
     preview_parsers.add_argument("--nrows", type=int, help="Number of rows to preview from CSV files (default: 10)")
+    preview_parsers.add_argument("--folder", type=str, help="Folder containing CSV files (default: benchmark)", default="benchmark")
 
     global args 
     args = parser.parse_args()
@@ -101,11 +105,7 @@ def main():
     if args.command == "benchmark":
         benchmark()
     elif args.command == "preview":
-        preview()
-    elif args.command == "clean":
-        if os.path.exists("benchmark"):
-            shutil.rmtree("benchmark")
-            print("Benchmark directory cleaned.")
+        preview(args.folder)
     else:
         parser.print_help()
 
