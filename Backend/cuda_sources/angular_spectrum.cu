@@ -28,7 +28,7 @@ void angular_spectrum_lens(cuFloatComplex* output,
     kernel_spectral_lens<<<lblocks, lthreads, 0, stream>>>(output, Nx, Ny, z, lambda, x_step, y_step);
     cudaXStreamSynchronize(stream);
     cudaCheckError();
-}
+} 
 
 void angular_spectrum(cuComplex* input,
                       cuComplex* output,
@@ -48,6 +48,7 @@ void angular_spectrum(cuComplex* input,
 
     // Lens and Mask already shifted
     // thus we don't have to shift the 'input' buffer each time
+
     apply_mask(input, lens, output, frame_res, batch_size, stream);
     if (store_frame)
     {

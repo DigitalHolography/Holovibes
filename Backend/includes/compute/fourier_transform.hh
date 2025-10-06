@@ -174,6 +174,7 @@ class FourierTransform
     void insert_pca();
 
     void insert_ssa_stft();
+    void insert_stft_ssa();
 
     /*!
      * \brief Helper function to get a settings value.

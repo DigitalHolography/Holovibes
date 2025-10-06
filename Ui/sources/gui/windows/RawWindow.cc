@@ -63,69 +63,71 @@ RawWindow::~RawWindow()
 #endif
 }
 
+void RawWindow::initShaders()
+{
+    Program = new QOpenGLShaderProgram();
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
+    Program->link();
+    overlay_manager_.create_default();
+}
+
+
+/* This part of code makes a resizing of the window displaying image to
+   a rectangle format. It also avoids the window to move when resizing.
+   There is no visible calling function since it's overriding Qt function.
+**/
 void RawWindow::resizeGL(int w, int h)
 {
+    LOG_ERROR("Dam in resizegl");
     if (ratio == 0.0f)
-        return;
-    int tmp_width = old_width;
-    int tmp_height = old_height;
+         return;
 
-    auto point = this->position();
+     auto point = this->position();
 
-    if ((API.compute.get_compute_mode() == Computation::Hologram &&
-         API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
-        API.compute.get_compute_mode() == Computation::Raw)
-    {
-        if (w != old_width)
-        {
-            old_width = w;
-            old_height = w / ratio;
-        }
-        else if (h != old_height)
-        {
-            old_width = h * ratio;
-            old_height = h;
-        }
-    }
-    else
-    {
-        if (is_resize)
-        {
-            if (w != old_width)
-            {
-                old_height = w;
-                old_width = w;
-            }
-            else if (h != old_height)
-            {
-                old_height = h;
-                old_width = h;
-            }
-        }
-        else
-        {
-            old_height = std::max(h, w);
-            old_width = old_height;
-        }
-        is_resize = true;
+     if ((API.compute.get_compute_mode() == Computation::Hologram &&
+          API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
+         API.compute.get_compute_mode() == Computation::Raw || API.transform.get_space_transformation() == SpaceTransformation::ANGULARSP)
+     {
+        LOG_ERROR("Damdamdeo in reiszeglt rectangel {}",  static_cast<int>(API.transform.get_space_transformation()));
+         if (w != old_width)
+         {
+             old_width = w;
+             old_height = w / ratio;
+         }
+         else if (h != old_height)
+         {
+             old_width = h * ratio;
+             old_height = h;
+         }
+     }
+     else
+     {
+        LOG_ERROR("Damdamdeo in reiszeglt square {}",  static_cast<int>(API.transform.get_space_transformation()));
+        old_height = std::max(h, w);
+        old_width = old_height;
 
-        if (old_height < 140 || old_width < 140)
-        {
-            old_height = tmp_height;
-            old_width = tmp_width;
-        }
-        is_resize = true;
-    }
+     }
 
-    QRect screen = QGuiApplication::primaryScreen()->geometry();
-    if (old_height > screen.height() || old_width > screen.width())
-    {
-        old_height = tmp_height;
-        old_width = tmp_width;
-    }
-    resize(old_width, old_height);
-    this->setPosition(point);
+     QRect screen = QGuiApplication::primaryScreen()->geometry();
+     if (old_height > screen.height() || old_width > screen.width())
+     {
+         old_height = screen.height() - 10;
+         old_width = screen.width() - 10;
+     }
+     resize(old_width, old_height);
+     this->setPosition(point); 
 }
+
+void RawWindow::forceResizeGL(int w, int h)
+{
+    resizeGL(w, h);
+}
+
 
 void RawWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
 

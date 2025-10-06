@@ -29,6 +29,7 @@ class RawWindow : public TextureWindowHelper
     void set_is_resize(bool b);
 
     void save_gui(std::string window);
+    void forceResizeGL(int w, int h);
 
   protected:
     int texDepth, texType;
@@ -55,6 +56,7 @@ class RawWindow : public TextureWindowHelper
     void mouseReleaseEvent(QMouseEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
+    void initShaders() override;
 
     void closeEvent(QCloseEvent* event) override;
 };
