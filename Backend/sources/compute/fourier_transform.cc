@@ -423,9 +423,13 @@ void FourierTransform::insert_stft_ssa()
             cuComplex* V = nullptr;
 
             cuda_tools::CufftHandle plan1d(fd_.width, fd_.height, CUFFT_C2C);
+            LOG_ERROR("Dam STFT-SSA before stft");
 
-            stft(time_transformation_env_.gpu_p_acc_buffer, H, plan1d); // H now contains the STFT of the input data, size: [frames × nb_freq_bins]
-            /* 
+             stft(H,
+                 H,
+                 time_transformation_env_.stft_plan);
+            // stft(H, H, plan1d); // H now contains the STFT of the input data, size: [frames × nb_freq_bins]
+            
             // cov = H' * H
             cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
 
@@ -466,7 +470,7 @@ void FourierTransform::insert_stft_ssa()
                                     static_cast<int>(fd_.get_frame_res()),
                                     time_transformation_size,
                                     time_transformation_size,
-                                    time_transformation_env_.gpu_p_acc_buffer); */
+                                    time_transformation_env_.gpu_p_acc_buffer); 
         });
 }
 
