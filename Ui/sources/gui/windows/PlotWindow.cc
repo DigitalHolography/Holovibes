@@ -39,7 +39,7 @@ void PlotWindow::start_drawing() { curve_plot_.start(); }
 
 void PlotWindow::stop_drawing() { curve_plot_.stop(); }
 
-void PlotWindow::auto_scale() { curve_plot_.auto_scale(); }
+void PlotWindow::auto_scale() { curve_plot_.auto_scale();}
 
 void PlotWindow::change_points_nb(int n) { curve_plot_.set_points_nb(n); }
 

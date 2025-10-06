@@ -212,6 +212,16 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
     if (api_.transform.set_space_transformation(st) == ApiCode::OK)
         parent_->notify();
+    
+    auto& api = API;
+    const camera::FrameDescriptor& fd = api.input.get_input_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    LOG_ERROR("Dam set_space_transformation force reisize {},{}",width,height);
+
+    auto raw = dynamic_cast<gui::RawWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
+    if (raw)
+        raw->forceResizeGL(width, height);
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)

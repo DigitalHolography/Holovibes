@@ -121,6 +121,7 @@ void FourierTransform::insert_fresnel_transform()
 void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 {
     LOG_FUNC();
+    LOG_ERROR("Dam angular spatial transformation size: {}", fd_.height * fd_.width);
 
     angular_spectrum_lens(gpu_lens_.get(),
                           fd_.width,
@@ -141,7 +142,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
     fn_compute_vect_->push_back(
         [=]()
         {
-            angular_spectrum(static_cast<cuComplex*>(input_output),
+    angular_spectrum(static_cast<cuComplex*>(input_output),
                              static_cast<cuComplex*>(input_output),
                              setting<settings::BatchSize>(),
                              gpu_lens_.get(),
@@ -300,6 +301,7 @@ void FourierTransform::insert_pca()
     LOG_FUNC();
 
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
+    LOG_ERROR("Dam PCA time transformation size: {}", fd_.get_frame_res());
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 

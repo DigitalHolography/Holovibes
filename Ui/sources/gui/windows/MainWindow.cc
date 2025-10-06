@@ -258,6 +258,8 @@ void MainWindow::on_notify()
 
     resize(baseSize());
     adjustSize();
+
+ 
 }
 
 void MainWindow::notify_error(const std::exception& e)
