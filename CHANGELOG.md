@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.3
+
+- Updated a dependency to avoid a security risk
+
 ### 14.11.2
 
 - Added a second offset timestamp and renamed timestamps in footer
