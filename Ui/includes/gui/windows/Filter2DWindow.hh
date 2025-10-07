@@ -27,7 +27,7 @@ class Filter2DWindow : public TextureWindowHelper
     cudaSurfaceObject_t cuSurface;
 
 
-
+    void initShaders() override;
     void focusInEvent(QFocusEvent*) override;
     void closeEvent(QCloseEvent*) override;
 };

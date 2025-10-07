@@ -34,6 +34,12 @@ Filter2DWindow::~Filter2DWindow()
 #endif
 }
 
+
+void Filter2DWindow::initShaders()
+{
+    TextureWindowHelper::initShaders();
+}
+
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);

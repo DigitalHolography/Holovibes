@@ -65,14 +65,7 @@ RawWindow::~RawWindow()
 
 void RawWindow::initShaders()
 {
-    Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Vertex,
-        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Fragment,
-        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
-    Program->link();
+    TextureWindowHelper::initShaders();
     overlay_manager_.create_default();
 }
 

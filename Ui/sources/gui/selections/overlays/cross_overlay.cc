@@ -140,8 +140,11 @@ void CrossOverlay::press(QMouseEvent* e) {}
 
 void CrossOverlay::keyPress(QKeyEvent* e)
 {
+    LOG_ERROR("Dam in CrossOverlay::keyPress ");
     if (e->key() == Qt::Key_Space)
     {
+        LOG_ERROR("Dam in CrossOverlay::keyPress keys_space");
+
         locked_ = !locked_;
         parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
     }

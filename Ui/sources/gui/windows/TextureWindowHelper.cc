@@ -2,11 +2,13 @@
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
 #include <string>
+#include "API.hh"
+
 namespace holovibes::gui
 {
 
 TextureWindowHelper::TextureWindowHelper(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
+    : BasicOpenGLWindow(p, s, q, k)
 {
     LOG_ERROR("Creating TextureWindowHelper");
 }
@@ -92,6 +94,8 @@ void TextureWindowHelper::initializeGL()
 }
 void TextureWindowHelper::initShaders()
 {
+    LOG_ERROR("Dam base::initShaders");
+
     std::string vertex_shader_path = "vertex.holo.glsl";
     std::string fragment_shader_path = "fragment.tex.glsl";
     Program = new QOpenGLShaderProgram();
@@ -102,6 +106,7 @@ void TextureWindowHelper::initShaders()
         QOpenGLShader::Fragment,
         gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / fragment_shader_path).string()));
     Program->link();
+
 }
 // Rendering
 void TextureWindowHelper::paintGL()

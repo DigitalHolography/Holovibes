@@ -9,7 +9,6 @@
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
-#include "API.hh"
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
 
@@ -30,6 +29,16 @@ SliceWindow::~SliceWindow()
 {
     cudaDestroySurfaceObject(cuSurface);
     cudaFreeArray(cuArray);
+}
+
+void SliceWindow::initShaders()
+{
+    LOG_ERROR("Dam SliceWindow::initShaders");
+    TextureWindowHelper::initShaders();
+    if (API.compute.get_img_type() == ImgType::Composite)
+        overlay_manager_.enable<Rainbow>();
+    else
+        overlay_manager_.create_default();
 }
 
 void SliceWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
