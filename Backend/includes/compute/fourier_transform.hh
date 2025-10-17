@@ -167,6 +167,9 @@ class FourierTransform
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
 
+    /*! \brief Enqueue wavelet transform time filtering. */
+    void insert_wavelet_transform();
+
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
      *
      * This should eventually replace stft

@@ -14,6 +14,7 @@
 #include "angular_spectrum.cuh"
 #include "masks.cuh"
 #include "stft.cuh"
+#include "wavelet_transform.cuh"
 #include "frame_reshape.cuh"
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
@@ -205,6 +206,9 @@ void FourierTransform::insert_time_transform()
     case TimeTransformation::STFT:
         insert_stft();
         break;
+    case TimeTransformation::WAVELET:
+        insert_wavelet_transform();
+        break;
     case TimeTransformation::PCA:
         insert_pca();
         break;
@@ -242,6 +246,18 @@ void FourierTransform::insert_stft()
             stft(time_transformation_env_.gpu_p_acc_buffer,
                  reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                  time_transformation_env_.stft_plan);
+        });
+}
+
+void FourierTransform::insert_wavelet_transform() 
+{
+    LOG_FUNC();
+
+    fn_compute_vect_->push_back(
+        [=]()
+        {
+            wavelet_transform(time_transformation_env_.gpu_p_acc_buffer, reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+             time_transformation_env_.stft_plan, fd_, setting<settings::TimeTransformationSize>());
         });
 }
 

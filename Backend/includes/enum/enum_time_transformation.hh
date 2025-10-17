@@ -18,8 +18,9 @@ enum class TimeTransformation
     NONE = 0, /*!< No transformation */
     STFT,     /*!< Short-time Fourier transformation */
     PCA,      /*!< Principal component analysis */
-    SSA_STFT,  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
-    STFT_SSA
+    SSA_STFT, /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
+    STFT_SSA, /*!< Short-time Fourier transformation Self-adaptive Spectrum Analysis */
+    WAVELET   /*!< Wavelet Transform */
 };
 
 // clang-format off
