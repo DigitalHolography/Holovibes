@@ -154,6 +154,25 @@ void FrameRecordWorker::run()
         output_frame_file = open_output_file(img_count);
         output_frame_file->write_header();
 
+        // Prepare CSV logging for per-frame timestamps (RAW mode)
+        std::ofstream timestamps_csv;
+        std::filesystem::path timestamps_csv_path;
+        if (API.record.get_record_mode() == RecordMode::RAW)
+        {
+            const std::filesystem::path recorded_path(output_frame_file->get_file_path());
+            timestamps_csv_path =
+                recorded_path.parent_path() / (recorded_path.stem().string() + std::string("_timestamps.csv"));
+            timestamps_csv.open(timestamps_csv_path, std::ios::out | std::ios::trunc);
+            if (timestamps_csv.is_open())
+            {
+                timestamps_csv << "frame_index,synced_ts_us,camera_ts_us,offset_us" << '\n';
+            }
+            else
+            {
+                LOG_WARN("Failed to open timestamps CSV: {}", timestamps_csv_path.string());
+            }
+        }
+
         std::optional<int> contiguous_frames = std::nullopt;
 
         while (true)
@@ -218,10 +237,14 @@ void FrameRecordWorker::run()
                                               : cudaMemcpyHostToHost);
 
             uint64_t this_id = 0;
+            uint64_t this_ts_us_for_csv = 0;
+
+            // Timestamps
             if (API.record.get_record_mode() == RecordMode::RAW)
             {
                 this_id = g_record_id_queue.pop_one_blocking();
                 uint64_t this_ts = g_time_map.lookup_synced(this_id);
+                this_ts_us_for_csv = this_ts;
                 if (!first_id)
                 {
                     first_id = this_id;
@@ -276,6 +299,19 @@ void FrameRecordWorker::run()
                 output_frame_file->write_frame(frame_buffer, output_frame_size);
                 (*processed_fps)++;
                 nb_frames_recorded++;
+
+                // Log timestamp to CSV for RAW recordings
+                if (API.record.get_record_mode() == RecordMode::RAW)
+                {
+                    if (timestamps_csv.is_open())
+                    {
+                        const uint64_t camera_ts = g_time_map.lookup_camera(this_id);
+                        const uint64_t offset_ts = g_time_map.lookup_offset(this_id);
+                        // nb_frames_recorded has been incremented; use (nb_frames_recorded-1) as 0-based index
+                        timestamps_csv << (nb_frames_recorded.load() - 1) << ',' << this_ts_us_for_csv << ','
+                                       << camera_ts << ',' << offset_ts << '\n';
+                    }
+                }
             }
             integrate_fps_average();
         }
@@ -327,6 +363,14 @@ void FrameRecordWorker::run()
             contiguous);
 
         output_frame_file->write_footer();
+
+        // Close CSV stream if used
+        if (timestamps_csv.is_open())
+        {
+            timestamps_csv.flush();
+            timestamps_csv.close();
+            LOG_INFO("Per-frame timestamps saved to {}", timestamps_csv_path.string());
+        }
     }
     catch (const io_files::FileException& e)
     {
