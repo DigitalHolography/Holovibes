@@ -102,7 +102,12 @@ void FrameRecordWorker::run()
 
     std::optional<uint64_t> first_id;
     uint64_t last_id = 0;
+    // Track timestamps as frames are consumed to avoid stale lookups after wraparound
     uint64_t first_ts_us = 0, last_ts_us = 0;
+    uint64_t first_camera_ts_us = 0, last_camera_ts_us = 0;
+    uint64_t first_offset_us = 0, last_offset_us = 0;
+    // Simple running estimate of frame period (us)
+    uint64_t est_period_us = 0;
 
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
     std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
@@ -222,15 +227,37 @@ void FrameRecordWorker::run()
             {
                 this_id = g_record_id_queue.pop_one_blocking();
                 uint64_t this_ts = g_time_map.lookup_synced(this_id);
+                const uint64_t this_cam_ts = g_time_map.lookup_camera(this_id);
+                const uint64_t this_off = g_time_map.lookup_offset(this_id);
+                if (this_ts == 0 && last_ts_us != 0 && est_period_us != 0)
+                {
+                    // Aliased/stale read; synthesize a plausible timestamp
+                    this_ts = last_ts_us + est_period_us;
+                }
                 if (!first_id)
                 {
                     first_id = this_id;
                     first_ts_us = this_ts;
+                    first_camera_ts_us = this_cam_ts;
+                    first_offset_us = this_off;
                 }
                 last_id = this_id;
                 last_ts_us = this_ts;
-                // LOG_ERROR(this_ts);
-                // LOG_ERROR(this_id);
+                last_camera_ts_us = this_cam_ts;
+                last_offset_us = this_off;
+                // Update period estimate when we have two valid points
+                if (this_ts != 0 && first_ts_us != 0 && last_id > *first_id)
+                {
+                    const uint64_t frames_since_first = last_id - *first_id;
+                    const uint64_t total_dt = last_ts_us - first_ts_us;
+                    if (frames_since_first > 0 && total_dt > 0)
+                        est_period_us = total_dt / frames_since_first;
+                }
+                if (this_id % 1000 == 0)
+                {
+                    LOG_ERROR(this_ts);
+                    LOG_ERROR(this_id);
+                }
             }
 
             // MOMENTS
@@ -285,18 +312,10 @@ void FrameRecordWorker::run()
 
         if (API.record.get_record_mode() == RecordMode::RAW && first_id.has_value())
         {
-            const uint64_t first_ts_us = g_time_map.lookup_synced(*first_id);
-            const uint64_t last_ts_us = g_time_map.lookup_synced(last_id);
-
+            // Use the timestamps captured during recording to avoid stale time_map reads
             LOG_INFO("Record timestamps (us): first={} last={}", first_ts_us, last_ts_us);
 
             const uint64_t duration_us = (last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
-
-            const uint64_t first_camera_ts_us = g_time_map.lookup_camera(*first_id);
-            const uint64_t last_camera_ts_us = g_time_map.lookup_camera(last_id);
-
-            const uint64_t first_offset_us = g_time_map.lookup_offset(*first_id);
-            const uint64_t last_offset_us = g_time_map.lookup_offset(last_id);
 
             LOG_INFO("Record duration: {} us ({} ms, {:.3f} s)",
                      duration_us,
