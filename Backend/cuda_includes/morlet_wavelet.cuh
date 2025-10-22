@@ -5,4 +5,4 @@
 #include "complex_utils.cuh"
 
 void createMorletKernel(cuComplex* d_kernel, int N, float dt,
-                        float scale, float omega0);
+                        float scale, float omega0, const cudaStream_t stream);

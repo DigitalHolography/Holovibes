@@ -131,6 +131,10 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         update_stft(size);
         update_pca(0); // Clear the PCA buffer when switching to STFT
         break;
+    case TimeTransformation::WAVELET:
+        update_stft(size);
+        update_pca(0); // Clear the PCA buffer when switching to WAVELET
+        break;
     case TimeTransformation::SSA_STFT:
         update_stft(size);
         update_pca(size);

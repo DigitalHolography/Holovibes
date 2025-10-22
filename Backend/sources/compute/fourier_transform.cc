@@ -143,7 +143,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
     fn_compute_vect_->push_back(
         [=]()
         {
-    angular_spectrum(static_cast<cuComplex*>(input_output),
+            angular_spectrum(static_cast<cuComplex*>(input_output),
                              static_cast<cuComplex*>(input_output),
                              setting<settings::BatchSize>(),
                              gpu_lens_.get(),
@@ -249,15 +249,19 @@ void FourierTransform::insert_stft()
         });
 }
 
-void FourierTransform::insert_wavelet_transform() 
+void FourierTransform::insert_wavelet_transform()
 {
     LOG_FUNC();
 
     fn_compute_vect_->push_back(
         [=]()
         {
-            wavelet_transform(time_transformation_env_.gpu_p_acc_buffer, reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-             time_transformation_env_.stft_plan, fd_, setting<settings::TimeTransformationSize>());
+            wavelet_transform(
+                time_transformation_env_.gpu_p_acc_buffer,
+                static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data()) , //reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+                time_transformation_env_.stft_plan,
+                fd_,
+                setting<settings::TimeTransformationSize>(), stream_);
         });
 }
 
@@ -441,11 +445,9 @@ void FourierTransform::insert_stft_ssa()
             cuda_tools::CufftHandle plan1d(fd_.width, fd_.height, CUFFT_C2C);
             LOG_ERROR("Dam STFT-SSA before stft");
 
-             stft(H,
-                 H,
-                 time_transformation_env_.stft_plan);
+            stft(H, H, time_transformation_env_.stft_plan);
             // stft(H, H, plan1d); // H now contains the STFT of the input data, size: [frames × nb_freq_bins]
-            
+
             // cov = H' * H
             cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
 
@@ -486,7 +488,7 @@ void FourierTransform::insert_stft_ssa()
                                     static_cast<int>(fd_.get_frame_res()),
                                     time_transformation_size,
                                     time_transformation_size,
-                                    time_transformation_env_.gpu_p_acc_buffer); 
+                                    time_transformation_env_.gpu_p_acc_buffer);
         });
 }
 

@@ -30,6 +30,7 @@ SERIALIZE_JSON_ENUM(TimeTransformation, {
     {TimeTransformation::NONE, "NONE"},
     {TimeTransformation::SSA_STFT, "SSA+STFT"},
     {TimeTransformation::STFT_SSA, "STFT+SSA"},
+    {TimeTransformation::WAVELET, "WAVELET"},
     {TimeTransformation::NONE, "None"}, // Compat
 
 })

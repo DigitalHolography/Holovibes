@@ -777,6 +777,9 @@ void MainWindow::init_tooltips()
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::STFT_SSA),
                                                  "Short-Time Fourier Transformation Self-adaptive Spectrum Analysis",
                                                  Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::WAVELET),
+                                                 "Wavelet Transformation",
+                                                 Qt::ToolTipRole);
 }
 
 #pragma endregion

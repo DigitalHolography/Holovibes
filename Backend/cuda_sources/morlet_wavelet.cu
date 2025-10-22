@@ -10,46 +10,37 @@
 
 
 
-// Kernel to compute Morlet wavelet in frequency domain
-__global__ void buildMorletKernel(cuComplex* kernel, 
-                                  int N, float dt, 
-                                  float scale, float omega0) 
+// Kernel to compute Morlet wavelet in frequency domain  (simplified version i dont substract the correction terms)
+__global__ void buildMorletKernel(cuComplex* kernel,
+                                  int N, float dt,
+                                  float scale, float omega0)
 {
     int k = blockIdx.x * blockDim.x + threadIdx.x;
     if (k >= N) return;
-
-    // Compute frequency bin (Hz)
+    
     float freq_hz;
-    if (k <= N/2) {
+    if (k < N/2 + 1) {
+        // Positive frequencies (0 to N/2)
         freq_hz = k / (N * dt);
     } else {
-        freq_hz = -(N - k) / (N * dt);
+        // Negative frequencies (-N/2+1 to -1)
+        freq_hz = (k - N) / (N * dt);
     }
-    float omega = 2.0f * M_PI * freq_hz; // angular frequency
-
-    // Morlet spectrum: Gaussian centered at omega0
+   
+    float omega = 2.0f * M_PI * freq_hz;
     float arg = scale * omega - omega0;
-    float value = expf(-0.5f * arg * arg);
-
-    // Make it analytic: zero negative frequencies
-    if (freq_hz < 0.0f) {
-        value = 0.0f;
-    }
-
-    // Scaling by sqrt(scale) (continuous wavelet convention)
-    value *= sqrtf(scale);
-
-    // Result is purely real (imag = 0)
+    float value = sqrtf(scale) * expf(-0.5f * arg * arg);
+    
+    // FIX: Use symmetric wavelet for real-valued output
+    // This preserves both positive and negative frequencies
     kernel[k] = make_cuComplex(value, 0.0f);
 }
 
-
 void createMorletKernel(cuComplex* d_kernel, int N, float dt,
-                        float scale, float omega0)
+                        float scale, float omega0, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks  = map_blocks_to_problem(N, threads);
 
-    buildMorletKernel<<<blocks, threads>>>(d_kernel, N, dt, scale, omega0);
-    cudaDeviceSynchronize();
+    buildMorletKernel<<<blocks, threads, 0, stream>>>(d_kernel, N, dt, scale, omega0);
 }
