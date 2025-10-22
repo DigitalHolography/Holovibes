@@ -17,7 +17,7 @@ __global__ void mul_conj_kernel(const cuComplex* X,
     if (idx >= total) return;
 
     int frame_res = total / N;
-    int k = idx % frame_res; // freq bin within the transform
+    int k = idx / frame_res; // freq bin within the transform
     float xr = X[idx].x, xi = X[idx].y;
     float pr = Psi[k].x, pi = Psi[k].y;
 
@@ -75,7 +75,9 @@ void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle pl
     // Multiply by wavelet in frequency domain
     int threads = get_max_threads_1d();
     int total = N * fd.get_frame_res();
+
     int blocks = map_blocks_to_problem(total, threads);
+    printf("Wavelet parameters: total=%d, threads=%d, blocks=%d\n", total, threads, blocks);
 
     LOG_ERROR("Dam wavelet before kernel");
     mul_conj_kernel<<<blocks, threads, 0, stream>>>(input, d_kernel, output, N, total);
