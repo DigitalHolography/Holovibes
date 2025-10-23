@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.4
+
+- Fix issue where when the recording contains a lot of frames, sometimes the timestamps where not accurate.
+
 ### 14.11.3
 
 - Updated a dependency to avoid a security risk
