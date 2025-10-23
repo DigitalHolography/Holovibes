@@ -4,10 +4,12 @@
 
 #include "batch_input_queue.hh"
 #include "id_queue.hh"
+#include "stamp_queue.hh"
 #include "API.hh"
 #include "enum_record_mode.hh"
 
 extern IdQueue g_record_id_queue;
+extern StampQueue g_record_stamp_queue;
 
 namespace holovibes
 {
@@ -65,7 +67,11 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
 
-    ids_.reset(new uint64_t[static_cast<size_t>(max_size_) * batch_size_]);
+    const size_t meta_count = static_cast<size_t>(max_size_) * batch_size_;
+    ids_.reset(new uint64_t[meta_count]);
+    synced_ts_.reset(new uint64_t[meta_count]);
+    camera_ts_.reset(new uint64_t[meta_count]);
+    offset_ts_.reset(new uint64_t[meta_count]);
 }
 
 void BatchInputQueue::sync_current_batch() const
@@ -410,8 +416,11 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     if (API.record.get_frame_acquisition_enabled() && API.record.get_record_mode() == RecordMode::RAW)
     {
         const size_t base = static_cast<size_t>(start_index_locked) * batch_size_;
-        const uint64_t base_id = ids_.get()[base]; // consecutive IDs in batch
-        g_record_id_queue.push_range(base_id, nb_elts);
+        g_record_stamp_queue.push_range_from_arrays(ids_.get() + base,
+                                                    synced_ts_.get() + base,
+                                                    camera_ts_.get() + base,
+                                                    offset_ts_.get() + base,
+                                                    nb_elts);
     }
 
     // Determine destination region info
@@ -463,7 +472,11 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
 void BatchInputQueue::enqueue_with_ids(const void* const frames,
                                        const cudaMemcpyKind memcpy_kind,
                                        const int nb_frame,
-                                       uint64_t base_id)
+                                       uint64_t base_id,
+                                       uint64_t ts0_synced_us,
+                                       uint64_t period_us,
+                                       uint64_t ts0_cam_us,
+                                       uint64_t offset_us)
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
@@ -473,6 +486,8 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
 
     int frames_left = nb_frame;
     uint64_t next_id = base_id; // incremented as we write
+    uint64_t next_synced = ts0_synced_us;
+    uint64_t next_cam = ts0_cam_us;
 
     while (frames_left > 0)
     {
@@ -494,12 +509,24 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
                          memcpy_kind,
                          batch_streams_[end_index_]);
 
-        // write IDs for these frames (host)
-        uint64_t* const dst_ids = ids_.get() + (static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_);
+        // write metadata for these frames (host)
+        const size_t meta_base = static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_;
+        uint64_t* const dst_ids = ids_.get() + meta_base;
+        uint64_t* const dst_synced = synced_ts_.get() + meta_base;
+        uint64_t* const dst_cam = camera_ts_.get() + meta_base;
+        uint64_t* const dst_off = offset_ts_.get() + meta_base;
 
         for (uint i = 0; i < frames_to_enqueue; ++i)
+        {
             dst_ids[i] = next_id + i;
+            dst_synced[i] = next_synced + static_cast<uint64_t>(i) * period_us;
+            dst_cam[i] = ts0_cam_us ? (next_cam + static_cast<uint64_t>(i) * period_us) : 0;
+            dst_off[i] = offset_us;
+        }
         next_id += frames_to_enqueue;
+        next_synced += static_cast<uint64_t>(frames_to_enqueue) * period_us;
+        if (ts0_cam_us)
+            next_cam += static_cast<uint64_t>(frames_to_enqueue) * period_us;
 
         // bookkeeping
         curr_batch_counter_ += frames_to_enqueue;
