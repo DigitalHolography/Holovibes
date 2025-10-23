@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "time_map.hh"
 #include "id_queue.hh"
+#include "stamp_queue.hh"
 #include "output_holo_file.hh"
 
 #include <tuple>
@@ -18,6 +19,7 @@
 
 extern FrameTimeMap g_time_map;
 extern IdQueue g_record_id_queue;
+extern StampQueue g_record_stamp_queue;
 namespace holovibes::worker
 {
 void FrameRecordWorker::integrate_fps_average()
@@ -103,6 +105,8 @@ void FrameRecordWorker::run()
     std::optional<uint64_t> first_id;
     uint64_t last_id = 0;
     uint64_t first_ts_us = 0, last_ts_us = 0;
+    uint64_t first_camera_ts_us = 0, last_camera_ts_us = 0;
+    uint64_t first_offset_us = 0, last_offset_us = 0;
 
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
     std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
@@ -204,7 +208,7 @@ void FrameRecordWorker::run()
                 record_queue_.load()->dequeue();
                 if (API.record.get_record_mode() == RecordMode::RAW)
                 {
-                    (void)g_record_id_queue.pop_one_blocking(); // consume the corresponding ID
+                    (void)g_record_stamp_queue.pop_one_blocking(); // consume the corresponding stamp
                 }
                 nb_frames_to_skip--;
                 continue;
@@ -220,15 +224,20 @@ void FrameRecordWorker::run()
             uint64_t this_id = 0;
             if (API.record.get_record_mode() == RecordMode::RAW)
             {
-                this_id = g_record_id_queue.pop_one_blocking();
-                uint64_t this_ts = g_time_map.lookup_synced(this_id);
+                const FrameStamp st = g_record_stamp_queue.pop_one_blocking();
+                this_id = st.id;
+                const uint64_t this_ts = st.synced_us;
                 if (!first_id)
                 {
                     first_id = this_id;
                     first_ts_us = this_ts;
+                    first_camera_ts_us = st.camera_us;
+                    first_offset_us = st.offset_us;
                 }
                 last_id = this_id;
                 last_ts_us = this_ts;
+                last_camera_ts_us = st.camera_us;
+                last_offset_us = st.offset_us;
                 // LOG_ERROR(this_ts);
                 // LOG_ERROR(this_id);
             }
@@ -285,18 +294,9 @@ void FrameRecordWorker::run()
 
         if (API.record.get_record_mode() == RecordMode::RAW && first_id.has_value())
         {
-            const uint64_t first_ts_us = g_time_map.lookup_synced(*first_id);
-            const uint64_t last_ts_us = g_time_map.lookup_synced(last_id);
-
             LOG_INFO("Record timestamps (us): first={} last={}", first_ts_us, last_ts_us);
 
             const uint64_t duration_us = (last_ts_us >= first_ts_us) ? (last_ts_us - first_ts_us) : 0;
-
-            const uint64_t first_camera_ts_us = g_time_map.lookup_camera(*first_id);
-            const uint64_t last_camera_ts_us = g_time_map.lookup_camera(last_id);
-
-            const uint64_t first_offset_us = g_time_map.lookup_offset(*first_id);
-            const uint64_t last_offset_us = g_time_map.lookup_offset(last_id);
 
             LOG_INFO("Record duration: {} us ({} ms, {:.3f} s)",
                      duration_us,
@@ -351,6 +351,7 @@ void FrameRecordWorker::reset_record_queue()
     auto pipe = API.compute.get_compute_pipe();
     pipe->request(ICS::DisableFrameRecord);
     g_record_id_queue.clear();
+    g_record_stamp_queue.clear();
     record_queue_.load()->reset();
 }
 } // namespace holovibes::worker

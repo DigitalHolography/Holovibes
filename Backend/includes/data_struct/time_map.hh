@@ -34,6 +34,7 @@ class FrameTimeMap
   public:
     explicit FrameTimeMap(size_t capacity_pow2 = 1 << 20)
         : mask_(capacity_pow2 - 1)
+        , ring_ids_(capacity_pow2)
         , ring_synced_(capacity_pow2)
         , ring_cam_(capacity_pow2)
         , ring_off_(capacity_pow2)
@@ -49,30 +50,45 @@ class FrameTimeMap
     {
         for (unsigned i = 0; i < count; ++i)
         {
-            const uint64_t id = (base_id + i) & mask_;
+            const uint64_t fid = base_id + i;
+            const size_t idx = static_cast<size_t>(fid) & mask_;
             const uint64_t synced = ts0_synced_us + uint64_t(i) * period_us;
             const uint64_t cam = ts0_cam_us ? (ts0_cam_us + uint64_t(i) * period_us) : 0;
-            ring_synced_[id].store(synced, std::memory_order_relaxed);
-            ring_cam_[id].store(cam, std::memory_order_relaxed);
-            ring_off_[id].store(offset_us, std::memory_order_relaxed);
+            ring_ids_[idx].store(fid, std::memory_order_relaxed);
+            ring_synced_[idx].store(synced, std::memory_order_relaxed);
+            ring_cam_[idx].store(cam, std::memory_order_relaxed);
+            ring_off_[idx].store(offset_us, std::memory_order_relaxed);
         }
     }
 
     inline uint64_t lookup_synced(uint64_t frame_id) const
     {
-        return ring_synced_[frame_id & mask_].load(std::memory_order_relaxed);
+        const size_t idx = static_cast<size_t>(frame_id) & mask_;
+        const uint64_t stored_id = ring_ids_[idx].load(std::memory_order_relaxed);
+        if (stored_id != frame_id)
+            return 0; // overwritten or not produced
+        return ring_synced_[idx].load(std::memory_order_relaxed);
     }
     inline uint64_t lookup_camera(uint64_t frame_id) const
     {
-        return ring_cam_[frame_id & mask_].load(std::memory_order_relaxed);
+        const size_t idx = static_cast<size_t>(frame_id) & mask_;
+        const uint64_t stored_id = ring_ids_[idx].load(std::memory_order_relaxed);
+        if (stored_id != frame_id)
+            return 0;
+        return ring_cam_[idx].load(std::memory_order_relaxed);
     }
     inline uint64_t lookup_offset(uint64_t frame_id) const
     {
-        return ring_off_[frame_id & mask_].load(std::memory_order_relaxed);
+        const size_t idx = static_cast<size_t>(frame_id) & mask_;
+        const uint64_t stored_id = ring_ids_[idx].load(std::memory_order_relaxed);
+        if (stored_id != frame_id)
+            return 0;
+        return ring_off_[idx].load(std::memory_order_relaxed);
     }
 
   private:
     size_t mask_;
+    std::vector<std::atomic<uint64_t>> ring_ids_;
     std::vector<std::atomic<uint64_t>> ring_synced_;
     std::vector<std::atomic<uint64_t>> ring_cam_;
     std::vector<std::atomic<uint64_t>> ring_off_;
