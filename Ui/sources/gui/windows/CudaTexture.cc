@@ -70,7 +70,10 @@ bool CudaTexture::init()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT, mTexture16);
 
         delete[] mTexture16;
-        glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
+        // Generate mipmaps only for power-of-two textures
+        const bool pot = (width > 0 && (width & (width - 1)) == 0) && (height > 0 && (height & (height - 1)) == 0);
+        if (pot)
+            glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
     {
@@ -84,15 +87,20 @@ bool CudaTexture::init()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, mTexture8);
         delete[] mTexture8;
 
-        // Generate mipmap
-        glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
+        // Generate mipmaps only for power-of-two textures
+        const bool pot = (width > 0 && (width & (width - 1)) == 0) && (height > 0 && (height & (height - 1)) == 0);
+        if (pot)
+            glFuncs->glGenerateMipmap(GL_TEXTURE_2D);
     }
 
     // Set texture parameters.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // NPOT textures (common like 1440x1440) require CLAMP_TO_EDGE on many backends (e.g., OpenGL ES).
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // Use mipmaps only when size is power-of-two
+    const bool potParams = (width > 0 && (width & (width - 1)) == 0) && (height > 0 && (height & (height - 1)) == 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, potParams ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 
     // Configure swizzling based on the pixel type.
     if (depth == camera::PixelDepth::Complex)

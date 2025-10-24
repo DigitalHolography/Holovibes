@@ -136,7 +136,10 @@ void Filter2DWindow::paintGL()
     cudaTexture->update(frame, output_->get_fd());
 
     glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
-    glGenerateMipmap(GL_TEXTURE_2D);
+    // Generate mipmaps only for power-of-two textures to avoid NPOT issues on some backends
+    if (fd_.width > 0 && fd_.height > 0 && ((fd_.width & (fd_.width - 1)) == 0) &&
+        ((fd_.height & (fd_.height - 1)) == 0))
+        glGenerateMipmap(GL_TEXTURE_2D);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

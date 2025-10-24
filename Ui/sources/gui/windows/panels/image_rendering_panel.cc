@@ -65,6 +65,7 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_time_transformation()));
+    LOG_ERROR("Time transformation: {}", static_cast<int>(api_.transform.get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
@@ -218,6 +219,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 {
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
+    LOG_ERROR("Selected time transformation: {}", static_cast<int>(tt));
 
     if (api_.transform.set_time_transformation(tt) == ApiCode::OK)
         parent_->notify();
