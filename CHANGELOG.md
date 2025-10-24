@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.5
+
+- Add a new config files for adimec cameras.
+
 ### 14.11.4
 
 - Fix issue where when the recording contains a lot of frames, sometimes the timestamps where not accurate.
