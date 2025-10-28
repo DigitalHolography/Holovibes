@@ -158,6 +158,9 @@ class FourierTransform
     /*! \brief Compute lens and enqueue the call to the angular_spectrum cuda function. */
     void insert_angular_spectrum(bool filter2d_enabled);
 
+    /*! \brief Placeholder for TEST_TR space transform (currently a no-op). */
+    void insert_test_transform();
+
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *
      * It will enqueue the lens, and normalize it, in order to display it correctly later.

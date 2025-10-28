@@ -335,10 +335,15 @@
               </property>
              </item>
              <item>
-              <property name="text">
-               <string>Angular SP.</string>
-              </property>
-             </item>
+             <property name="text">
+              <string>Angular SP.</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Test Tr.</string>
+             </property>
+            </item>
             </widget>
            </item>
            <item row="2" column="0">

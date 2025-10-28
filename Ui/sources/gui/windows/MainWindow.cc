@@ -759,6 +759,9 @@ void MainWindow::init_tooltips()
     ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::ANGULARSP),
                                                   "Angular Spectrum Propagation",
                                                   Qt::ToolTipRole);
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::TEST_TR),
+                                                  "Test transform (no-op)",
+                                                  Qt::ToolTipRole);
 
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::NONE),
                                                  "No time transformation",

@@ -63,12 +63,23 @@ void FourierTransform::insert_fft(const uint width, const uint height)
     if (space_transformation == SpaceTransformation::NONE)
         return;
 
-    if (space_transformation == SpaceTransformation::FRESNELTR)
+    switch (space_transformation)
+    {
+    case SpaceTransformation::FRESNELTR:
         insert_fresnel_transform();
-    else
+        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+        break;
+    case SpaceTransformation::ANGULARSP:
         insert_angular_spectrum(filter2d_enabled);
-
-    fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+        break;
+    case SpaceTransformation::TEST_TR:
+        insert_test_transform();
+        break;
+    default:
+        LOG_ERROR("Unknown space transformation");
+        break;
+    }
 }
 
 void FourierTransform::insert_filter2d()
@@ -150,6 +161,18 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              spatial_transformation_plan_,
                              fd_,
                              stream_);
+        });
+}
+
+void FourierTransform::insert_test_transform()
+{
+    LOG_FUNC();
+    // Currently a no-op: input buffer already contains the data.
+    // Keep as dedicated hook for future TEST_TR implementation.
+    fn_compute_vect_->push_back(
+        [=]()
+        {
+            // Intentionally empty
         });
 }
 
