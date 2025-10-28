@@ -50,16 +50,14 @@ __global__ void fill_gradient(cuComplex* data, int total, float start_val = 0.0f
     data[idx] = make_cuComplex(val, val);
 }
 
-void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle plan1d,  const FrameDescriptor& fd, int tranformation_size, const cudaStream_t stream)
+void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle plan1d,  const FrameDescriptor& fd, int tranformation_size, const cudaStream_t stream, float target_freq)
 {
-    LOG_ERROR("Dam wavelet");
     int N =  tranformation_size; // number of frames in time dimension
     float fs = 1; // sampling rate in Hz (fps) dummy for now
     float dt = 1.0f / fs;
     float omega0 = 6.0f;      // central frequency (standard)
-    float target_freq = 2.0f; 
     float scale = omega0 / (2.0f * M_PI * target_freq);
-    printf("Wavelet parameters: N=%d, fs=%.1f, dt=%.4f, scale=%.4f, target_freq=%.2f Hz\n", N, fs, dt, scale, target_freq);
+    //printf("Wavelet parameters: N=%d, fs=%.1f, dt=%.4f, scale=%.4f, target_freq=%.2f Hz\n", N, fs, dt, scale, target_freq);
 
     // allocate buffer on GPU
     cuComplex* d_kernel;
@@ -77,18 +75,13 @@ void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle pl
     int total = N * fd.get_frame_res();
 
     int blocks = map_blocks_to_problem(total, threads);
-    printf("Wavelet parameters: total=%d, threads=%d, blocks=%d\n", total, threads, blocks);
+    //printf("Wavelet parameters: total=%d, threads=%d, blocks=%d\n", total, threads, blocks);
 
-    LOG_ERROR("Dam wavelet before kernel");
     mul_conj_kernel<<<blocks, threads, 0, stream>>>(input, d_kernel, output, N, total);
-    LOG_ERROR("Dam wavelet after kernel");
 
     // Scale by 1/N to normalize FFT/IFFT
     scale_ifft_kernel<<<blocks, threads, 0,stream>>>(output, N);
 
-    LOG_ERROR("Dam wavelet asfter fill ");
-
-  
     cudaFree(d_kernel);
 }
 

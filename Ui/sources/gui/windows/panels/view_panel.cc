@@ -30,6 +30,10 @@ ViewPanel::ViewPanel(QWidget* parent)
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+    
+    // Connect the target frequency spinbox
+    connect(ui_->TargetFrequencyWaveletDoubleSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ViewPanel::onTargetFrequencyWaveletChanged);
 }
 
 ViewPanel::~ViewPanel()
@@ -415,4 +419,14 @@ void ViewPanel::update_registration_zone(double value)
     if (UserInterfaceDescriptor::instance().mainDisplay)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
 }
+
+void ViewPanel::onTargetFrequencyWaveletChanged(double value)
+{
+    // Handle the value change here
+    // This function will be called whenever the spinbox value changes
+    
+    // Update your backend or processing with the new value
+    api_.transform.set_target_frequency_wavelet(static_cast<float>(value));
+}
+
 } // namespace holovibes::gui

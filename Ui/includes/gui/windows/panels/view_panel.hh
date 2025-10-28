@@ -46,6 +46,12 @@ class ViewPanel : public Panel
      */
     void set_img_type(const QString& value);
 
+    /*! \brief Modifies target frequency for wavelet time transformation
+     *
+     * \param value The new target frequency
+     */
+    void onTargetFrequencyWaveletChanged(double value);
+
     /*! \brief Enables or Disables unwrapping 2d
      *
      * \param value true: enable, false: disable

@@ -21,6 +21,7 @@
 #include "queue.hh"
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
+#include "API.hh"
 #include "matrix_operations.hh"
 #include "logger.hh"
 
@@ -252,16 +253,17 @@ void FourierTransform::insert_stft()
 void FourierTransform::insert_wavelet_transform()
 {
     LOG_FUNC();
-
     fn_compute_vect_->push_back(
         [=]()
         {
+            auto& api = API;
+            LOG_ERROR("Dam target frequency wavelet: {}", api.transform.get_target_frequency_wavelet());
             wavelet_transform(
                 time_transformation_env_.gpu_p_acc_buffer,
                 static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data()) , //reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                 time_transformation_env_.stft_plan,
                 fd_,
-                setting<settings::TimeTransformationSize>(), stream_);
+                setting<settings::TimeTransformationSize>(), stream_, api.transform.get_target_frequency_wavelet());
         });
 }
 
@@ -442,8 +444,6 @@ void FourierTransform::insert_stft_ssa()
             cuComplex* cov = time_transformation_env_.pca_cov.get();
             cuComplex* V = nullptr;
 
-            cuda_tools::CufftHandle plan1d(fd_.width, fd_.height, CUFFT_C2C);
-            LOG_ERROR("Dam STFT-SSA before stft");
 
             stft(H, H, time_transformation_env_.stft_plan);
             // stft(H, H, plan1d); // H now contains the STFT of the input data, size: [frames × nb_freq_bins]

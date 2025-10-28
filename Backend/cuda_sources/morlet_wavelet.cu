@@ -31,8 +31,6 @@ __global__ void buildMorletKernel(cuComplex* kernel,
     float arg = scale * omega - omega0;
     float value = sqrtf(scale) * expf(-0.5f * arg * arg);
     
-    // FIX: Use symmetric wavelet for real-valued output
-    // This preserves both positive and negative frequencies
     kernel[k] = make_cuComplex(value, 0.0f);
 }
 

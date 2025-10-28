@@ -84,6 +84,8 @@ MainWindow::MainWindow(QWidget* parent)
                ui_->ExportPanel,
                ui_->InfoPanel};
 
+
+    
     qRegisterMetaType<std::function<void()>>();
     connect(this,
             SIGNAL(synchronize_thread_signal(std::function<void()>)),

@@ -83,6 +83,11 @@ void ImageRenderingPanel::on_notify()
     ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 
+    //WAVELET
+    bool isWavelet = api_.transform.get_time_transformation() == TimeTransformation::WAVELET;
+    ui_->TargetFrequencyWaveletLabel->setVisible(isWavelet);
+    ui_->TargetFrequencyWaveletDoubleSpinBox->setVisible(isWavelet);
+
     // Filter2D
     bool filter2D_enabled = !is_raw && api_.filter2d.get_filter2d_enabled();
     ui_->Filter2D->setEnabled(!is_raw);

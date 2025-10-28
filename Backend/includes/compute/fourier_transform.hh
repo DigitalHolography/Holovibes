@@ -49,6 +49,7 @@
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
+    holovibes::settings::TargetFrequencyWavelet,   \
     holovibes::settings::PixelSize,                \
     holovibes::settings::SpaceTransformation
 
