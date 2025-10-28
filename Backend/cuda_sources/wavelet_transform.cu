@@ -26,48 +26,27 @@ __global__ void mul_conj_kernel(const cuComplex* X,
     Y[idx].y = xi * pr - xr * pi; 
 }
 
-__global__ void scale_ifft_kernel(cuComplex* data, int total_elements)
+__global__ void scale_kernel(cuComplex* data, int total_elements)
 {
     int k = threadIdx.x + blockIdx.x * blockDim.x;
     if (k >= total_elements) return;
-    float s = 1.0f / float(total_elements); // or use transformation_size
+    float s = 1.0f / float(total_elements);
     data[k].x *= s;
     data[k].y *= s;
 }
 
-__global__ void fill_gradient(cuComplex* data, int total, float start_val = 0.0f, float end_val = 1.0f)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= total) return;
-
-    // Compute gradient factor (0.0 -> 1.0)
-    float t = float(idx) / float(total - 1);
-
-    // Interpolate linearly between start_val and end_val
-    float val = start_val + t * (end_val - start_val);
-
-    // Fill both real and imaginary parts with the same value (or just real if you want)
-    data[idx] = make_cuComplex(val, val);
-}
-
 void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle plan1d,  const FrameDescriptor& fd, int tranformation_size, const cudaStream_t stream, float target_freq)
 {
-    int N =  tranformation_size; // number of frames in time dimension
-    float fs = 1; // sampling rate in Hz (fps) dummy for now
-    float dt = 1.0f / fs;
-    float omega0 = 6.0f;      // central frequency (standard)
+    int N =  tranformation_size;
+    float dt = 1.0f; // time step can be set to 1.0 as we work in normalized units (we dont care about the actual time scale here)
+    float omega0 = 6.0f; // central frequency (standard)
     float scale = omega0 / (2.0f * M_PI * target_freq);
-    //printf("Wavelet parameters: N=%d, fs=%.1f, dt=%.4f, scale=%.4f, target_freq=%.2f Hz\n", N, fs, dt, scale, target_freq);
 
-    // allocate buffer on GPU
     cuComplex* d_kernel;
     cudaMalloc(&d_kernel, N * sizeof(cuComplex));
 
-    // fill with Morlet kernel
     createMorletKernel(d_kernel, N, dt, scale, omega0, stream);
-    // now d_kernel holds the wavelet in frequency domain, ready to multiply with FFT(signal)
 
-    // FFT input in-place
     cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
 
     // Multiply by wavelet in frequency domain
@@ -75,12 +54,11 @@ void wavelet_transform(cuComplex* output, cuComplex* input, const cufftHandle pl
     int total = N * fd.get_frame_res();
 
     int blocks = map_blocks_to_problem(total, threads);
-    //printf("Wavelet parameters: total=%d, threads=%d, blocks=%d\n", total, threads, blocks);
 
     mul_conj_kernel<<<blocks, threads, 0, stream>>>(input, d_kernel, output, N, total);
 
-    // Scale by 1/N to normalize FFT/IFFT
-    scale_ifft_kernel<<<blocks, threads, 0,stream>>>(output, N);
+    // Scale by 1/N to normalize FFT
+    scale_kernel<<<blocks, threads, 0,stream>>>(output, N);
 
     cudaFree(d_kernel);
 }

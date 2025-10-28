@@ -107,7 +107,6 @@ void create_window(Computation window_kind, ushort window_size)
 
     if (window_kind == Computation::Raw)
     {
-        LOG_ERROR("Creating RawWindow in create_window");
         UI.mainDisplay.reset(new holovibes::gui::RawWindow(pos,
                                                            size,
                                                            api.compute.get_gpu_output_queue().get(),

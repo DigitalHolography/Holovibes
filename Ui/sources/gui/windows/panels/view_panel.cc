@@ -313,7 +313,6 @@ void ViewPanel::set_y_accu() { api_.transform.set_y_accu_level(ui_->YAccSpinBox-
 
 void ViewPanel::set_p(int value)
 {
-    LOG_ERROR("Set p index");
     api_.transform.set_p_index(value);
     parent_->notify();
 }
@@ -324,24 +323,18 @@ void ViewPanel::decrement_p() { set_p(api_.transform.get_p_index() - 1); }
 
 void ViewPanel::set_p_accu()
 {
-    LOG_ERROR("Set p accu");
-
     api_.transform.set_p_accu_level(ui_->PAccSpinBox->value());
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    LOG_ERROR("Set q index");
-
     api_.transform.set_q_index(value);
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    LOG_ERROR("Set q accu");
-
     api_.transform.set_q_accu_level(ui_->Q_AccSpinBox->value());
     parent_->notify();
 }

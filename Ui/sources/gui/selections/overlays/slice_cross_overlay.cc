@@ -18,12 +18,8 @@ SliceCrossOverlay::SliceCrossOverlay(BasicOpenGLWindow* parent)
 
 void SliceCrossOverlay::keyPress(QKeyEvent* e)
 {
-    LOG_ERROR("Dam in SliceCrossOverlay::keyPress ");
-
     if (e->key() == Qt::Key_Space)
     {
-        LOG_ERROR("Dam in SliceCrossOverlay::keyPress keys_space");
-
         locked_ = !locked_;
         parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
     }

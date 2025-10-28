@@ -76,7 +76,6 @@ void RawWindow::initShaders()
 **/
 void RawWindow::resizeGL(int w, int h)
 {
-    LOG_ERROR("Dam in resizegl");
     if (ratio == 0.0f)
          return;
 
@@ -86,7 +85,6 @@ void RawWindow::resizeGL(int w, int h)
           API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
          API.compute.get_compute_mode() == Computation::Raw || API.transform.get_space_transformation() == SpaceTransformation::ANGULARSP)
      {
-        LOG_ERROR("Damdamdeo in reiszeglt rectangel {}",  static_cast<int>(API.transform.get_space_transformation()));
          if (w != old_width)
          {
              old_width = w;
@@ -100,7 +98,6 @@ void RawWindow::resizeGL(int w, int h)
      }
      else
      {
-        LOG_ERROR("Damdamdeo in reiszeglt square {}",  static_cast<int>(API.transform.get_space_transformation()));
         old_height = std::max(h, w);
         old_width = old_height;
 

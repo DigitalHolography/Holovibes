@@ -222,7 +222,6 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     const camera::FrameDescriptor& fd = api.input.get_input_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
-    LOG_ERROR("Dam set_space_transformation force reisize {},{}",width,height);
 
     auto raw = dynamic_cast<gui::RawWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
     if (raw)
@@ -247,15 +246,12 @@ void ImageRenderingPanel::set_time_transformation_size()
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
-    LOG_ERROR("Set lambda");
-
     if (api_.transform.set_lambda(static_cast<float>(value) * 1.0e-9f) == ApiCode::OK)
         ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
-    LOG_ERROR("Set z distance slider");
 
     api_.transform.set_z_distance(value / 1000.0f);
 
@@ -266,8 +262,6 @@ void ImageRenderingPanel::set_z_distance_slider(int value)
 
 void ImageRenderingPanel::set_z_distance(const double value)
 {
-    LOG_ERROR("Set z distance");
-
     api_.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);

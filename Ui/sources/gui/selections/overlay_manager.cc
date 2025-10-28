@@ -86,11 +86,9 @@ void OverlayManager::press(QMouseEvent* e)
 
 void OverlayManager::keyPress(QKeyEvent* e)
 {
-    LOG_ERROR("Dam in OverlayManager::keyPress");
     // Reserving space for moving the cross
     if (e->key() == Qt::Key_Space)
     {
-        LOG_ERROR("Dam in OverlayManager::keyPress keys_space");
         for (auto o : overlays_)
             if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
                 o->keyPress(e);

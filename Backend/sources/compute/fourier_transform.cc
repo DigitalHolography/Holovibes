@@ -123,7 +123,6 @@ void FourierTransform::insert_fresnel_transform()
 void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 {
     LOG_FUNC();
-    LOG_ERROR("Dam angular spatial transformation size: {}", fd_.height * fd_.width);
 
     angular_spectrum_lens(gpu_lens_.get(),
                           fd_.width,
@@ -154,6 +153,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              fd_,
                              stream_);
         });
+
 }
 
 void FourierTransform::init_lens_queue()
@@ -213,11 +213,11 @@ void FourierTransform::insert_time_transform()
     case TimeTransformation::PCA:
         insert_pca();
         break;
-    case TimeTransformation::SSA_STFT:
+    case TimeTransformation::STFT_SSA:
         insert_ssa_stft();
         break;
-    case TimeTransformation::STFT_SSA:
-        insert_stft_ssa();
+    case TimeTransformation::SSA_STFT:
+        insert_ssa_stft();
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
@@ -257,7 +257,6 @@ void FourierTransform::insert_wavelet_transform()
         [=]()
         {
             auto& api = API;
-            LOG_ERROR("Dam target frequency wavelet: {}", api.transform.get_target_frequency_wavelet());
             wavelet_transform(
                 time_transformation_env_.gpu_p_acc_buffer,
                 static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data()) , //reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
@@ -323,7 +322,6 @@ void FourierTransform::insert_pca()
     LOG_FUNC();
 
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    LOG_ERROR("Dam PCA time transformation size: {}", fd_.get_frame_res());
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 

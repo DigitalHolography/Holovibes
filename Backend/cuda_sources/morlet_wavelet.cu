@@ -10,7 +10,7 @@
 
 
 
-// Kernel to compute Morlet wavelet in frequency domain  (simplified version i dont substract the correction terms)
+// Kernel to compute Morlet wavelet in frequency domain (simplified version correction terms omitted)
 __global__ void buildMorletKernel(cuComplex* kernel,
                                   int N, float dt,
                                   float scale, float omega0)

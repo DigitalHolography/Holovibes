@@ -33,7 +33,6 @@ SliceWindow::~SliceWindow()
 
 void SliceWindow::initShaders()
 {
-    LOG_ERROR("Dam SliceWindow::initShaders");
     TextureWindowHelper::initShaders();
     if (API.compute.get_img_type() == ImgType::Composite)
         overlay_manager_.enable<Rainbow>();
