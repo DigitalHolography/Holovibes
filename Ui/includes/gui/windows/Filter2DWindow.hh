@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <QMouseEvent>
+
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
 
@@ -21,6 +23,9 @@ class Filter2DWindow : public BasicOpenGLWindow
     Filter2DWindow(QPoint p, QSize s, DisplayQueue* q);
     virtual ~Filter2DWindow();
 
+    void refresh_off_axis_overlay();
+    void set_off_axis_overlay_enabled(bool enabled);
+
   protected:
     cudaArray_t cuArray;
     cudaResourceDesc cuArrRD;
@@ -33,5 +38,9 @@ class Filter2DWindow : public BasicOpenGLWindow
 
     void focusInEvent(QFocusEvent*) override;
     void closeEvent(QCloseEvent*) override;
+
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
 };
 } // namespace holovibes::gui

@@ -44,6 +44,14 @@
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::Filter2dOffAxisEnabled,  \
+    holovibes::settings::Filter2dOffAxisAutoCenter,\
+    holovibes::settings::Filter2dOffAxisXMin,     \
+    holovibes::settings::Filter2dOffAxisXMax,     \
+    holovibes::settings::Filter2dOffAxisYMin,     \
+    holovibes::settings::Filter2dOffAxisYMax,     \
+    holovibes::settings::Filter2dOffAxisShiftX,   \
+    holovibes::settings::Filter2dOffAxisShiftY,   \
     holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::TimeTransformation,       \

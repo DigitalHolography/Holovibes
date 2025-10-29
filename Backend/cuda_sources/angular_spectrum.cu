@@ -6,6 +6,7 @@
 #include "cuda_memory.cuh"
 #include "frame_desc.hh"
 #include "masks.cuh"
+#include "off_axis_mask.cuh"
 #include "shift_corners.cuh"
 #include "tools_compute.cuh"
 
@@ -35,7 +36,9 @@ void angular_spectrum(cuComplex* input,
                       const uint batch_size,
                       const cuComplex* lens,
                       cuComplex* mask_output,
+                      cuComplex* off_axis_buffer,
                       bool store_frame,
+                      const AngularOffAxisOptions& off_axis,
                       const cufftHandle plan2d,
                       const FrameDescriptor& fd,
                       const cudaStream_t stream)
@@ -49,9 +52,41 @@ void angular_spectrum(cuComplex* input,
     // Lens and Mask already shifted
     // thus we don't have to shift the 'input' buffer each time
     apply_mask(input, lens, output, frame_res, batch_size, stream);
-    if (store_frame)
+
+    if (off_axis.enabled)
     {
-        cudaXMemcpyAsync(mask_output, input, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
+        apply_off_axis_phase_mask_and_shift(output,
+                                            off_axis_buffer,
+                                            fd.width,
+                                            fd.height,
+                                            frame_res,
+                                            batch_size,
+                                            off_axis.x_min,
+                                            off_axis.x_max,
+                                            off_axis.y_min,
+                                            off_axis.y_max,
+                                            off_axis.shift_x,
+                                            off_axis.shift_y,
+                                            stream);
+
+        cudaXMemcpyAsync(output,
+                         off_axis_buffer,
+                         static_cast<size_t>(frame_res) * batch_size * sizeof(cuComplex),
+                         cudaMemcpyDeviceToDevice,
+                         stream);
+
+        if (store_frame)
+        {
+            cudaXMemcpyAsync(mask_output,
+                             off_axis_buffer,
+                             frame_res * sizeof(cuComplex),
+                             cudaMemcpyDeviceToDevice,
+                             stream);
+        }
+    }
+    else if (store_frame)
+    {
+        cudaXMemcpyAsync(mask_output, output, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
     }
 
     cudaCheckError();

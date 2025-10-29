@@ -96,17 +96,48 @@ class Filter2dApi : public IApi
 
     /*! \brief Returns the smooth size of the first circle used to construct the mask for the filter 2D.
      *
+     *
      * \return int the smooth size of the first circle
      */
     inline int get_filter2d_smooth_low() const { return GET_SETTING(Filter2dSmoothLow); }
 
     /*! \brief Sets the smooth size of the first circle used to construct the mask for the filter 2D.
      *
+     *
      * \param[in] value the new value of the smooth size
      *
-     * \return ApiCode NO_CHANGE if the value is the same, WRONG_COMP_MODE if mode is Raw, OK otherwise
+     * \return ApiCode NO_CHANGE if the value is the
+     * same, WRONG_COMP_MODE if mode is Raw, OK otherwise
      */
     ApiCode set_filter2d_smooth_low(int value) const;
+
+#pragma endregion
+
+#pragma region Filter Off - Axis
+
+    inline bool get_filter2d_off_axis_enabled() const { return GET_SETTING(Filter2dOffAxisEnabled); }
+    ApiCode set_filter2d_off_axis_enabled(bool value) const;
+
+    inline bool get_filter2d_off_axis_auto_center() const { return GET_SETTING(Filter2dOffAxisAutoCenter); }
+    ApiCode set_filter2d_off_axis_auto_center(bool value) const;
+
+    inline int get_filter2d_off_axis_x_min() const { return GET_SETTING(Filter2dOffAxisXMin); }
+    ApiCode set_filter2d_off_axis_x_min(int value) const;
+
+    inline int get_filter2d_off_axis_x_max() const { return GET_SETTING(Filter2dOffAxisXMax); }
+    ApiCode set_filter2d_off_axis_x_max(int value) const;
+
+    inline int get_filter2d_off_axis_y_min() const { return GET_SETTING(Filter2dOffAxisYMin); }
+    ApiCode set_filter2d_off_axis_y_min(int value) const;
+
+    inline int get_filter2d_off_axis_y_max() const { return GET_SETTING(Filter2dOffAxisYMax); }
+    ApiCode set_filter2d_off_axis_y_max(int value) const;
+
+    inline int get_filter2d_off_axis_shift_x() const { return GET_SETTING(Filter2dOffAxisShiftX); }
+    ApiCode set_filter2d_off_axis_shift_x(int value) const;
+
+    inline int get_filter2d_off_axis_shift_y() const { return GET_SETTING(Filter2dOffAxisShiftY); }
+    ApiCode set_filter2d_off_axis_shift_y(int value) const;
 
 #pragma endregion
 

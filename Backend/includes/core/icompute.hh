@@ -77,6 +77,14 @@
     holovibes::settings::Filter2dN2,                             \
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::Filter2dOffAxisEnabled,                \
+    holovibes::settings::Filter2dOffAxisAutoCenter,             \
+    holovibes::settings::Filter2dOffAxisXMin,                   \
+    holovibes::settings::Filter2dOffAxisXMax,                   \
+    holovibes::settings::Filter2dOffAxisYMin,                   \
+    holovibes::settings::Filter2dOffAxisYMax,                   \
+    holovibes::settings::Filter2dOffAxisShiftX,                 \
+    holovibes::settings::Filter2dOffAxisShiftY,                 \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::SpaceTransformation,                    \
@@ -161,6 +169,7 @@ class ICompute
         err += !buffers_.gpu_postprocess_frame.resize(zone_size);
         err += !time_transformation_env_.gpu_p_frame.resize(zone_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_off_axis_buffer.resize(zone_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);

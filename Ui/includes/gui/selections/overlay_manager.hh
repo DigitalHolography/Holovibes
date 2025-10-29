@@ -55,6 +55,10 @@ class OverlayManager
     /*! \brief Get the kind of the current overlay. */
     inline KindOfOverlay getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
 
+    /*! \brief Returns the overlay corresponding to the given kind, if any. */
+    std::shared_ptr<Overlay> get_overlay(KindOfOverlay ko);
+    std::shared_ptr<const Overlay> get_overlay(KindOfOverlay ko) const;
+
 #ifdef _DEBUG
     /*! \brief Prints every overlay in the vector. Debug purpose. */
     void printVector();

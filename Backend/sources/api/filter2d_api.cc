@@ -74,6 +74,106 @@ ApiCode Filter2dApi::set_filter2d_smooth_low(int value) const
 
 #pragma endregion
 
+#pragma region Filter Off - Axis
+
+ApiCode Filter2dApi::set_filter2d_off_axis_enabled(bool value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_enabled(), value);
+
+    UPDATE_SETTING(Filter2dOffAxisEnabled, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_auto_center(bool value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_auto_center(), value);
+
+    UPDATE_SETTING(Filter2dOffAxisAutoCenter, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_x_min(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_x_min(), value);
+
+    if (value < 0)
+    {
+        LOG_WARN("Filter2dOffAxisXMin must be non-negative");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(Filter2dOffAxisXMin, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_x_max(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_x_max(), value);
+
+    if (value < 0)
+    {
+        LOG_WARN("Filter2dOffAxisXMax must be non-negative");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(Filter2dOffAxisXMax, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_y_min(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_y_min(), value);
+
+    if (value < 0)
+    {
+        LOG_WARN("Filter2dOffAxisYMin must be non-negative");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(Filter2dOffAxisYMin, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_y_max(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_y_max(), value);
+
+    if (value < 0)
+    {
+        LOG_WARN("Filter2dOffAxisYMax must be non-negative");
+        return ApiCode::INVALID_VALUE;
+    }
+
+    UPDATE_SETTING(Filter2dOffAxisYMax, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_shift_x(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_shift_x(), value);
+
+    UPDATE_SETTING(Filter2dOffAxisShiftX, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode Filter2dApi::set_filter2d_off_axis_shift_y(int value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_filter2d_off_axis_shift_y(), value);
+
+    UPDATE_SETTING(Filter2dOffAxisShiftY, value);
+
+    return ApiCode::OK;
+}
+
+#pragma endregion
+
 #pragma region Filter File
 
 inline static const std::filesystem::path dir(GET_EXE_DIR);

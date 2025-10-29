@@ -3,6 +3,7 @@
  */
 
 #include <filesystem>
+#include <algorithm>
 
 #include "image_rendering_panel.hh"
 #include "MainWindow.hh"
@@ -14,6 +15,7 @@
 #include "user_interface_descriptor.hh"
 
 #include <map>
+#include <QSignalBlocker>
 
 namespace holovibes::gui
 {
@@ -97,6 +99,41 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN2SpinBox->setValue(api_.filter2d.get_filter2d_n2());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
 
+    ui_->Filter2DOffAxisGroupBox->setVisible(filter2D_enabled);
+    const bool off_axis_enabled = filter2D_enabled && api_.filter2d.get_filter2d_off_axis_enabled();
+
+    ui_->Filter2DOffAxisEnableCheckBox->setEnabled(filter2D_enabled);
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisEnableCheckBox);
+        ui_->Filter2DOffAxisEnableCheckBox->setChecked(off_axis_enabled);
+    }
+
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisAutoCenterCheckBox);
+        ui_->Filter2DOffAxisAutoCenterCheckBox->setChecked(api_.filter2d.get_filter2d_off_axis_auto_center());
+    }
+
+    const auto& fd = api_.input.get_input_fd();
+    const int max_x = std::max(0, static_cast<int>(fd.width) - 1);
+    const int max_y = std::max(0, static_cast<int>(fd.height) - 1);
+
+    ui_->Filter2DOffAxisXMinSpinBox->setRange(0, max_x);
+    ui_->Filter2DOffAxisXMaxSpinBox->setRange(0, max_x);
+    ui_->Filter2DOffAxisYMinSpinBox->setRange(0, max_y);
+    ui_->Filter2DOffAxisYMaxSpinBox->setRange(0, max_y);
+
+    ui_->Filter2DOffAxisShiftXSpinBox->setRange(-static_cast<int>(fd.width), static_cast<int>(fd.width));
+    ui_->Filter2DOffAxisShiftYSpinBox->setRange(-static_cast<int>(fd.height), static_cast<int>(fd.height));
+
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisXMinSpinBox, api_.filter2d.get_filter2d_off_axis_x_min());
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisXMaxSpinBox, api_.filter2d.get_filter2d_off_axis_x_max());
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisYMinSpinBox, api_.filter2d.get_filter2d_off_axis_y_min());
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisYMaxSpinBox, api_.filter2d.get_filter2d_off_axis_y_max());
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisShiftXSpinBox, api_.filter2d.get_filter2d_off_axis_shift_x());
+    Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisShiftYSpinBox, api_.filter2d.get_filter2d_off_axis_shift_y());
+
+    update_off_axis_controls_state(filter2D_enabled, off_axis_enabled);
+
     // Filter
     ui_->InputFilterLabel->setVisible(filter2D_enabled);
     ui_->InputFilterQuickSelectComboBox->setVisible(filter2D_enabled);
@@ -116,6 +153,8 @@ void ImageRenderingPanel::on_notify()
             QString::fromStdString(api_.global_pp.get_convolution_file_name()));
 
     ui_->KernelQuickSelectComboBox->setCurrentIndex(index);
+
+    update_off_axis_overlay();
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -193,6 +232,78 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
     api_.filter2d.set_filter2d_n2(n);
 }
 
+void ImageRenderingPanel::set_filter2d_off_axis_enabled(bool checked)
+{
+    api_.filter2d.set_filter2d_off_axis_enabled(checked);
+    parent_->notify();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_auto_center(bool checked)
+{
+    api_.filter2d.set_filter2d_off_axis_auto_center(checked);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_x_min(int value)
+{
+    if (value > ui_->Filter2DOffAxisXMaxSpinBox->value())
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisXMaxSpinBox);
+        ui_->Filter2DOffAxisXMaxSpinBox->setValue(value);
+        api_.filter2d.set_filter2d_off_axis_x_max(value);
+    }
+    api_.filter2d.set_filter2d_off_axis_x_min(value);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_x_max(int value)
+{
+    if (value < ui_->Filter2DOffAxisXMinSpinBox->value())
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisXMinSpinBox);
+        ui_->Filter2DOffAxisXMinSpinBox->setValue(value);
+        api_.filter2d.set_filter2d_off_axis_x_min(value);
+    }
+    api_.filter2d.set_filter2d_off_axis_x_max(value);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_y_min(int value)
+{
+    if (value > ui_->Filter2DOffAxisYMaxSpinBox->value())
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisYMaxSpinBox);
+        ui_->Filter2DOffAxisYMaxSpinBox->setValue(value);
+        api_.filter2d.set_filter2d_off_axis_y_max(value);
+    }
+    api_.filter2d.set_filter2d_off_axis_y_min(value);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_y_max(int value)
+{
+    if (value < ui_->Filter2DOffAxisYMinSpinBox->value())
+    {
+        QSignalBlocker blocker(ui_->Filter2DOffAxisYMinSpinBox);
+        ui_->Filter2DOffAxisYMinSpinBox->setValue(value);
+        api_.filter2d.set_filter2d_off_axis_y_min(value);
+    }
+    api_.filter2d.set_filter2d_off_axis_y_max(value);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_shift_x(int value)
+{
+    api_.filter2d.set_filter2d_off_axis_shift_x(value);
+    update_off_axis_overlay();
+}
+
+void ImageRenderingPanel::set_filter2d_off_axis_shift_y(int value)
+{
+    api_.filter2d.set_filter2d_off_axis_shift_y(value);
+    update_off_axis_overlay();
+}
+
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     std::string v = value.toStdString();
@@ -204,6 +315,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
     api_.view.set_filter2d_view(checked);
     gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
+    update_off_axis_overlay();
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
@@ -269,6 +381,31 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
     api_.global_pp.set_divide_convolution_enabled(value);
     parent_->notify();
+}
+
+void ImageRenderingPanel::update_off_axis_controls_state(bool filter2d_enabled, bool off_axis_enabled)
+{
+    ui_->Filter2DOffAxisGroupBox->setEnabled(filter2d_enabled);
+    ui_->Filter2DOffAxisAutoCenterCheckBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisXMinSpinBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisXMaxSpinBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisYMinSpinBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisYMaxSpinBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisShiftXSpinBox->setEnabled(off_axis_enabled);
+    ui_->Filter2DOffAxisShiftYSpinBox->setEnabled(off_axis_enabled);
+}
+
+void ImageRenderingPanel::update_off_axis_overlay()
+{
+    auto& window = gui::get_filter2d_window();
+    if (window)
+    {
+        const bool filter_enabled = api_.filter2d.get_filter2d_enabled();
+        const bool off_axis_enabled = filter_enabled && api_.filter2d.get_filter2d_off_axis_enabled();
+        window->set_off_axis_overlay_enabled(off_axis_enabled);
+        if (off_axis_enabled)
+            window->refresh_off_axis_overlay();
+    }
 }
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }

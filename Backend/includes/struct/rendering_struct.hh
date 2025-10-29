@@ -31,13 +31,41 @@ struct Rendering
         int inner_radius = 0;
         int outer_radius = 1;
 
+        struct OffAxis
+        {
+            bool enabled = false;
+            bool auto_center = true;
+            int x_min = 0;
+            int x_max = 0;
+            int y_min = 0;
+            int y_max = 0;
+            int shift_x = 0;
+            int shift_y = 0;
+
+            /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+            SERIALIZE_JSON_STRUCT(OffAxis, enabled, auto_center, x_min, x_max, y_min, y_max, shift_x, shift_y);
+
+            /*!
+             * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+
+             * * synchronize variables of OffAxis with the one in GSH, update variables of GSH
+             * with the
+             * one of OffAxis and assert that the OffAxis variables are valid
+             */
+            SETTING_RELATED_FUNCTIONS();
+        };
+
+        OffAxis off_axis;
+
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-        SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius);
+        SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius, off_axis);
 
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         *
          * synchronize variables of Filter2D with the one in GSH, update variables of GSH
-         * with the one of Filter2D and assert that the Filter2D variables are valid
+         * with the one of
+         * Filter2D and assert that the Filter2D variables are valid
          */
         SETTING_RELATED_FUNCTIONS();
     };

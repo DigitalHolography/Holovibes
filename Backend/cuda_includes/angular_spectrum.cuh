@@ -7,18 +7,27 @@
 #include "common.cuh"
 #include "frame_desc.hh"
 
+struct AngularOffAxisOptions
+{
+    bool enabled = false;
+    int x_min = 0;
+    int x_max = 0;
+    int y_min = 0;
+    int y_max = 0;
+    int shift_x = 0;
+    int shift_y = 0;
+};
+
 /*! \brief Compute the lens to apply to the image during the angular spectrum process.
- *  The `x_step` and `y_step` params ar equals for now since they are computed from pixel_size.
- *  However, for the futur we may want them to be unequal.
+ *  The `x_step` and `y_step`
+ * params ar equals for now since they are computed from pixel_size.
+ *  However, for the futur we may want them to be
+ * unequal.
  *
  * \param[out] output The buffer to store the lens.
- * \param[in] Nx The width of the buffer.
- * \param[in] Ny The height of the buffer.
- * \param[in] z The Z distance setting
- * \param[in] lambda The lambda setting
- * \param[in] x_step The pixel width.
- * \param[in] y_step The pixel height.
- * \param[in] stream The input (and output) stream
+ * \param[in] Nx The width of the buffer. \param[in]
+ * Ny The height of the buffer. \param[in] z The Z distance setting \param[in] lambda The lambda setting \param[in]
+ * x_step The pixel width. \param[in] y_step The pixel height. \param[in] stream The input (and output) stream
  */
 void angular_spectrum_lens(cuFloatComplex* output,
                            const int Nx,
@@ -46,7 +55,9 @@ void angular_spectrum(cuComplex* input,
                       const uint batch_size,
                       const cuComplex* lens,
                       cuComplex* mask_output,
+                      cuComplex* off_axis_buffer,
                       bool store_frame,
+                      const AngularOffAxisOptions& off_axis,
                       const cufftHandle plan2d,
                       const camera::FrameDescriptor& fd,
                       const cudaStream_t stream);

@@ -138,6 +138,50 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
+    AngularOffAxisOptions off_axis_options{};
+    if (filter2d_enabled && setting<settings::Filter2dOffAxisEnabled>())
+    {
+        off_axis_options.enabled = true;
+
+        const int width = static_cast<int>(fd_.width);
+        const int height = static_cast<int>(fd_.height);
+
+        const auto clamp_to_bounds = [](int value, int min_value, int max_value)
+        { return std::clamp(value, min_value, max_value); };
+
+        if (width > 0 && height > 0)
+        {
+            const int max_x = width - 1;
+            const int max_y = height - 1;
+
+            off_axis_options.x_min = clamp_to_bounds(setting<settings::Filter2dOffAxisXMin>(), 0, max_x);
+            off_axis_options.x_max = clamp_to_bounds(setting<settings::Filter2dOffAxisXMax>(), 0, max_x);
+            off_axis_options.y_min = clamp_to_bounds(setting<settings::Filter2dOffAxisYMin>(), 0, max_y);
+            off_axis_options.y_max = clamp_to_bounds(setting<settings::Filter2dOffAxisYMax>(), 0, max_y);
+
+            if (off_axis_options.x_min > off_axis_options.x_max)
+                std::swap(off_axis_options.x_min, off_axis_options.x_max);
+            if (off_axis_options.y_min > off_axis_options.y_max)
+                std::swap(off_axis_options.y_min, off_axis_options.y_max);
+        }
+
+        off_axis_options.shift_x = setting<settings::Filter2dOffAxisShiftX>();
+        off_axis_options.shift_y = setting<settings::Filter2dOffAxisShiftY>();
+
+        if (setting<settings::Filter2dOffAxisAutoCenter>() && width > 0 && height > 0)
+        {
+            const int center_x = (off_axis_options.x_min + off_axis_options.x_max) / 2;
+            const int center_y = (off_axis_options.y_min + off_axis_options.y_max) / 2;
+            off_axis_options.shift_x += (width / 2) - center_x;
+            off_axis_options.shift_y += (height / 2) - center_y;
+        }
+
+        if (width > 0 && (off_axis_options.shift_x <= -width || off_axis_options.shift_x >= width))
+            off_axis_options.shift_x %= width;
+        if (height > 0 && (off_axis_options.shift_y <= -height || off_axis_options.shift_y >= height))
+            off_axis_options.shift_y %= height;
+    }
+
     fn_compute_vect_->push_back(
         [=]()
         {
@@ -145,8 +189,10 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              static_cast<cuComplex*>(input_output),
                              setting<settings::BatchSize>(),
                              gpu_lens_.get(),
-                             buffers_.gpu_complex_filter2d_frame,
+                             buffers_.gpu_complex_filter2d_frame.get(),
+                             buffers_.gpu_off_axis_buffer.get(),
                              filter2d_enabled,
+                             off_axis_options,
                              spatial_transformation_plan_,
                              fd_,
                              stream_);

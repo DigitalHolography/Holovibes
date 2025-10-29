@@ -68,6 +68,14 @@
 - filter2d_n2
 - filter2d_smooth_low
 - filter2d_smooth_high
+- filter2d_off_axis_enabled
+- filter2d_off_axis_auto_center
+- filter2d_off_axis_x_min
+- filter2d_off_axis_x_max
+- filter2d_off_axis_y_min
+- filter2d_off_axis_y_max
+- filter2d_off_axis_shift_x
+- filter2d_off_axis_shift_y
 
 ### FileRead settins
 - file_buffer_size

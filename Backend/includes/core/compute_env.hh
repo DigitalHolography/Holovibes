@@ -56,6 +56,9 @@ struct CoreBuffersEnv
     /*! \brief Complex filter2d frame used to store the output_frame */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
 
+    /*! \brief Temporary buffer used for off-axis filter2d operations */
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_off_axis_buffer = nullptr;
+
     /*! \brief Float Filter2d frame used to store the gpu_complex_filter2d_frame */
     cuda_tools::CudaUniquePtr<float> gpu_float_filter2d_frame = nullptr;
 

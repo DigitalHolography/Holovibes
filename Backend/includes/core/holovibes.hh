@@ -85,6 +85,14 @@
     holovibes::settings::Filter2dN2,                             \
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::Filter2dOffAxisEnabled,                \
+    holovibes::settings::Filter2dOffAxisAutoCenter,             \
+    holovibes::settings::Filter2dOffAxisXMin,                   \
+    holovibes::settings::Filter2dOffAxisXMax,                   \
+    holovibes::settings::Filter2dOffAxisYMin,                   \
+    holovibes::settings::Filter2dOffAxisYMax,                   \
+    holovibes::settings::Filter2dOffAxisShiftX,                 \
+    holovibes::settings::Filter2dOffAxisShiftY,                 \
     holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameAcquisitionEnabled,                \
     holovibes::settings::ChartRecordEnabled,                     \
@@ -406,6 +414,14 @@ class Holovibes
                                              settings::Filter2dN2{1},
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
+                                             settings::Filter2dOffAxisEnabled{false},
+                                             settings::Filter2dOffAxisAutoCenter{true},
+                                             settings::Filter2dOffAxisXMin{0},
+                                             settings::Filter2dOffAxisXMax{0},
+                                             settings::Filter2dOffAxisYMin{0},
+                                             settings::Filter2dOffAxisYMax{0},
+                                             settings::Filter2dOffAxisShiftX{0},
+                                             settings::Filter2dOffAxisShiftY{0},
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},

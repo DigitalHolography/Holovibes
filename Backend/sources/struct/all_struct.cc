@@ -83,6 +83,19 @@ void Rendering::Filter2D::Update()
     this->enabled = GET_SETTING(Filter2dEnabled);
     this->inner_radius = GET_SETTING(Filter2dN1);
     this->outer_radius = GET_SETTING(Filter2dN2);
+    this->off_axis.Update();
+}
+
+void Rendering::Filter2D::OffAxis::Update()
+{
+    this->enabled = GET_SETTING(Filter2dOffAxisEnabled);
+    this->auto_center = GET_SETTING(Filter2dOffAxisAutoCenter);
+    this->x_min = GET_SETTING(Filter2dOffAxisXMin);
+    this->x_max = GET_SETTING(Filter2dOffAxisXMax);
+    this->y_min = GET_SETTING(Filter2dOffAxisYMin);
+    this->y_max = GET_SETTING(Filter2dOffAxisYMax);
+    this->shift_x = GET_SETTING(Filter2dOffAxisShiftX);
+    this->shift_y = GET_SETTING(Filter2dOffAxisShiftY);
 }
 
 void Rendering::Update()
@@ -257,6 +270,19 @@ void Rendering::Filter2D::Load()
     UPDATE_SETTING(Filter2dEnabled, this->enabled);
     UPDATE_SETTING(Filter2dN1, this->inner_radius);
     UPDATE_SETTING(Filter2dN2, this->outer_radius);
+    this->off_axis.Load();
+}
+
+void Rendering::Filter2D::OffAxis::Load()
+{
+    UPDATE_SETTING(Filter2dOffAxisEnabled, this->enabled);
+    UPDATE_SETTING(Filter2dOffAxisAutoCenter, this->auto_center);
+    UPDATE_SETTING(Filter2dOffAxisXMin, this->x_min);
+    UPDATE_SETTING(Filter2dOffAxisXMax, this->x_max);
+    UPDATE_SETTING(Filter2dOffAxisYMin, this->y_min);
+    UPDATE_SETTING(Filter2dOffAxisYMax, this->y_max);
+    UPDATE_SETTING(Filter2dOffAxisShiftX, this->shift_x);
+    UPDATE_SETTING(Filter2dOffAxisShiftY, this->shift_y);
 }
 
 void Rendering::Load()
@@ -305,6 +331,18 @@ void Rendering::Filter2D::Assert() const
 {
     if (this->inner_radius >= this->outer_radius)
         throw std::exception("Inner radius is greater than outer radius");
+    this->off_axis.Assert();
+}
+
+void Rendering::Filter2D::OffAxis::Assert() const
+{
+    if (this->enabled)
+    {
+        if (this->x_min > this->x_max)
+            throw std::exception("Filter2D off-axis x_min greater than x_max");
+        if (this->y_min > this->y_max)
+            throw std::exception("Filter2D off-axis y_min greater than y_max");
+    }
 }
 
 void Rendering::Assert() const // TODO: check for a more appropriate upper bound, abose is probably a negative value

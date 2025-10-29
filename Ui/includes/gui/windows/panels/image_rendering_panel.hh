@@ -69,6 +69,15 @@ class ImageRenderingPanel : public Panel
      */
     void set_filter2d_n2(int n);
 
+    void set_filter2d_off_axis_enabled(bool checked);
+    void set_filter2d_off_axis_auto_center(bool checked);
+    void set_filter2d_off_axis_x_min(int value);
+    void set_filter2d_off_axis_x_max(int value);
+    void set_filter2d_off_axis_y_min(int value);
+    void set_filter2d_off_axis_y_max(int value);
+    void set_filter2d_off_axis_shift_x(int value);
+    void set_filter2d_off_axis_shift_y(int value);
+
     /*! \brief Modifies input filter
      *
      * \param value The new filter to apply
@@ -124,6 +133,9 @@ class ImageRenderingPanel : public Panel
     double get_z_step();
 
   private:
+    void update_off_axis_controls_state(bool filter2d_enabled, bool off_axis_enabled);
+    void update_off_axis_overlay();
+
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 

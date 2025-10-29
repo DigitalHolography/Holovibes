@@ -11,6 +11,10 @@
 #include "API.hh"
 #include "GUI.hh"
 #include "user_interface_descriptor.hh"
+#include "filter2d_off_axis_overlay.hh"
+#include "overlay_manager.hh"
+
+#include <memory>
 
 namespace holovibes::gui
 {
@@ -120,6 +124,9 @@ void Filter2DWindow::initializeGL()
 
     glViewport(0, 0, width(), height());
     startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
+
+    const bool off_axis_active = API.filter2d.get_filter2d_enabled() && API.filter2d.get_filter2d_off_axis_enabled();
+    set_off_axis_overlay_enabled(off_axis_active);
 }
 
 void Filter2DWindow::paintGL()
@@ -152,10 +159,57 @@ void Filter2DWindow::paintGL()
     overlay_manager_.draw();
 }
 
+void Filter2DWindow::refresh_off_axis_overlay()
+{
+    auto overlay = overlay_manager_.get_overlay(Filter2DOffAxis);
+    if (!overlay)
+    {
+        overlay_manager_.enable<Filter2DOffAxis>();
+        overlay = overlay_manager_.get_overlay(Filter2DOffAxis);
+    }
+
+    if (overlay)
+    {
+        if (auto mask_overlay = std::dynamic_pointer_cast<Filter2DOffAxisOverlay>(overlay))
+            mask_overlay->apply_settings();
+    }
+}
+
+void Filter2DWindow::set_off_axis_overlay_enabled(bool enabled)
+{
+    if (enabled)
+    {
+        overlay_manager_.enable<Filter2DOffAxis>();
+        refresh_off_axis_overlay();
+    }
+    else
+        overlay_manager_.disable(Filter2DOffAxis);
+}
+
+void Filter2DWindow::mousePressEvent(QMouseEvent* e)
+{
+    overlay_manager_.press(e);
+    QOpenGLWindow::mousePressEvent(e);
+}
+
+void Filter2DWindow::mouseMoveEvent(QMouseEvent* e)
+{
+    overlay_manager_.move(e);
+    QOpenGLWindow::mouseMoveEvent(e);
+}
+
+void Filter2DWindow::mouseReleaseEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+        overlay_manager_.release(fd_.width);
+    QOpenGLWindow::mouseReleaseEvent(e);
+}
+
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
     API.view.change_window(WindowKind::Filter2D);
+    refresh_off_axis_overlay();
     NotifierManager::notify("notify", true);
 }
 

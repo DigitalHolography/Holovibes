@@ -131,9 +131,17 @@ DECLARE_SETTING(Filter2dN2, int);
 DECLARE_SETTING(Filter2dSmoothLow, int);
 DECLARE_SETTING(Filter2dSmoothHigh, int);
 DECLARE_SETTING(FilterFileName, std::string);
+DECLARE_SETTING(Filter2dOffAxisEnabled, bool);
+DECLARE_SETTING(Filter2dOffAxisAutoCenter, bool);
+DECLARE_SETTING(Filter2dOffAxisXMin, int);
+DECLARE_SETTING(Filter2dOffAxisXMax, int);
+DECLARE_SETTING(Filter2dOffAxisYMin, int);
+DECLARE_SETTING(Filter2dOffAxisYMax, int);
+DECLARE_SETTING(Filter2dOffAxisShiftX, int);
+DECLARE_SETTING(Filter2dOffAxisShiftY, int);
 
 /*! \name FileReadCache */
-/*!
+/*! 
  * \brief The size of the buffer in CPU memory used to read a file
  * when `FileLoadKind` is not set to GPU.
  */

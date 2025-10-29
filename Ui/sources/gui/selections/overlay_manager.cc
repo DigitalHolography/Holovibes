@@ -9,6 +9,7 @@
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
+#include "filter2d_off_axis_overlay.hh"
 #include "logger.hh"
 
 #include <QDateTime>
@@ -150,9 +151,27 @@ std::shared_ptr<Overlay> OverlayManager::create_overlay(KindOfOverlay ko)
         return std::make_shared<ContrastReticleOverlay>(parent_);
     case Reticle:
         return std::make_shared<ReticleOverlay>(parent_);
+    case Filter2DOffAxis:
+        return std::make_shared<Filter2DOffAxisOverlay>(parent_);
     default:
         return nullptr;
     }
+}
+
+std::shared_ptr<Overlay> OverlayManager::get_overlay(KindOfOverlay ko)
+{
+    for (auto& overlay : overlays_)
+        if (overlay->getKind() == ko)
+            return overlay;
+    return nullptr;
+}
+
+std::shared_ptr<const Overlay> OverlayManager::get_overlay(KindOfOverlay ko) const
+{
+    for (auto& overlay : overlays_)
+        if (overlay->getKind() == ko)
+            return overlay;
+    return nullptr;
 }
 
 #ifdef _DEBUG
