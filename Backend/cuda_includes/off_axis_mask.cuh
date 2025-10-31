@@ -6,10 +6,11 @@
 
 #include "common.cuh"
 
-/*! \brief Apply a rectangular off-axis phase mask and optional circular shift.
+/*! \brief Apply a rectangular off-axis phase mask and optional phase-centering ramp.
  *
  * \param input[in] Pointer to the input complex frames in frequency domain.
- * \param output[out] Pointer where the masked (and shifted) frames will be written.
+ * \param scratch[out] Temporary buffer (one frame) used while rewriting complex samples.
+ * \param destination[out] Pointer where the masked (and phase-adjusted) frames will be written.
  * \param width The frame width.
  * \param height The frame height.
  * \param frame_res The number of pixels in a frame (width * height).
@@ -18,8 +19,8 @@
  * \param x_max Right bound of the retained zone (inclusive).
  * \param y_min Top bound of the retained zone (inclusive).
  * \param y_max Bottom bound of the retained zone (inclusive).
- * \param shift_x Horizontal circular shift applied after masking.
- * \param shift_y Vertical circular shift applied after masking.
+ * \param shift_x Horizontal phase ramp applied after masking (in pixels).
+ * \param shift_y Vertical phase ramp applied after masking (in pixels).
  * \param stream CUDA stream used for the operation.
  */
 void apply_off_axis_phase_mask_and_shift(const cuComplex* input,

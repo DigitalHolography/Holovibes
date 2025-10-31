@@ -3,8 +3,8 @@
 #include "cuda_memory.cuh"
 #include "tools_compute.cuh"
 
-static __global__ void kernel_off_axis_phase_mask_and_shift_frame(cuComplex* output,
-                                                                  const cuComplex* input,
+static __global__ void kernel_off_axis_phase_mask_and_shift_frame(const cuComplex* input,
+                                                                  cuComplex* scratch,
                                                                   uint width,
                                                                   uint height,
                                                                   int x_min,
@@ -27,26 +27,32 @@ static __global__ void kernel_off_axis_phase_mask_and_shift_frame(cuComplex* out
     const bool inside = (static_cast<int>(x) >= x_min && static_cast<int>(x) <= x_max && static_cast<int>(y) >= y_min &&
                          static_cast<int>(y) <= y_max);
 
-    if (!inside)
+    float magnitude = hypotf(value.x, value.y);
+    float phase = 0.0f;
+
+    if (inside)
     {
-        const float magnitude = sqrtf(value.x * value.x + value.y * value.y);
-        value.x = magnitude;
-        value.y = 0.0f;
+        phase = magnitude > 0.0f ? atan2f(value.y, value.x) : 0.0f;
+
+        if (shift_x != 0 || shift_y != 0)
+        {
+            const float normalized_x =
+                static_cast<float>(static_cast<int>(x) - static_cast<int>(width) / 2) / static_cast<float>(width);
+            const float normalized_y =
+                static_cast<float>(static_cast<int>(y) - static_cast<int>(height) / 2) / static_cast<float>(height);
+
+            const float phase_delta =
+                -2.0f * static_cast<float>(M_PI) *
+                (static_cast<float>(shift_x) * normalized_x + static_cast<float>(shift_y) * normalized_y);
+            phase += phase_delta;
+        }
     }
 
-    int new_x = static_cast<int>(x) + shift_x;
-    int new_y = static_cast<int>(y) + shift_y;
+    const float sine = sinf(phase);
+    const float cosine = cosf(phase);
 
-    new_x %= static_cast<int>(width);
-    new_y %= static_cast<int>(height);
-
-    if (new_x < 0)
-        new_x += static_cast<int>(width);
-    if (new_y < 0)
-        new_y += static_cast<int>(height);
-
-    const size_t dest_index = static_cast<size_t>(new_y) * width + static_cast<uint>(new_x);
-    output[dest_index] = value;
+    scratch[index].x = magnitude * cosine;
+    scratch[index].y = magnitude * sine;
 }
 
 void apply_off_axis_phase_mask_and_shift(const cuComplex* input,
@@ -77,8 +83,8 @@ void apply_off_axis_phase_mask_and_shift(const cuComplex* input,
         const cuComplex* input_frame = input + offset;
         cuComplex* destination_frame = destination + offset;
 
-        kernel_off_axis_phase_mask_and_shift_frame<<<lblocks, lthreads, 0, stream>>>(scratch,
-                                                                                     input_frame,
+        kernel_off_axis_phase_mask_and_shift_frame<<<lblocks, lthreads, 0, stream>>>(input_frame,
+                                                                                     scratch,
                                                                                      width,
                                                                                      height,
                                                                                      x_min,
