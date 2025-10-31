@@ -3,27 +3,24 @@
 #include "cuda_memory.cuh"
 #include "tools_compute.cuh"
 
-static __global__ void kernel_off_axis_phase_mask_and_shift(cuComplex* output,
-                                                            const cuComplex* input,
-                                                            uint width,
-                                                            uint height,
-                                                            uint frame_res,
-                                                            int x_min,
-                                                            int x_max,
-                                                            int y_min,
-                                                            int y_max,
-                                                            int shift_x,
-                                                            int shift_y)
+static __global__ void kernel_off_axis_phase_mask_and_shift_frame(cuComplex* output,
+                                                                  const cuComplex* input,
+                                                                  uint width,
+                                                                  uint height,
+                                                                  int x_min,
+                                                                  int x_max,
+                                                                  int y_min,
+                                                                  int y_max,
+                                                                  int shift_x,
+                                                                  int shift_y)
 {
-    const uint batch = blockIdx.z;
     const uint x = blockIdx.x * blockDim.x + threadIdx.x;
     const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x >= width || y >= height)
         return;
 
-    const size_t base_index = static_cast<size_t>(batch) * frame_res;
-    const size_t index = base_index + static_cast<size_t>(y) * width + x;
+    const size_t index = static_cast<size_t>(y) * width + x;
 
     cuComplex value = input[index];
 
@@ -48,12 +45,13 @@ static __global__ void kernel_off_axis_phase_mask_and_shift(cuComplex* output,
     if (new_y < 0)
         new_y += static_cast<int>(height);
 
-    const size_t dest_index = base_index + static_cast<size_t>(new_y) * width + static_cast<uint>(new_x);
+    const size_t dest_index = static_cast<size_t>(new_y) * width + static_cast<uint>(new_x);
     output[dest_index] = value;
 }
 
 void apply_off_axis_phase_mask_and_shift(const cuComplex* input,
-                                         cuComplex* output,
+                                         cuComplex* scratch,
+                                         cuComplex* destination,
                                          uint width,
                                          uint height,
                                          uint frame_res,
@@ -71,19 +69,31 @@ void apply_off_axis_phase_mask_and_shift(const cuComplex* input,
 
     const uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
-    dim3 lblocks((width + threads_2d - 1) / threads_2d, (height + threads_2d - 1) / threads_2d, batch_size);
+    dim3 lblocks((width + threads_2d - 1) / threads_2d, (height + threads_2d - 1) / threads_2d);
 
-    kernel_off_axis_phase_mask_and_shift<<<lblocks, lthreads, 0, stream>>>(output,
-                                                                           input,
-                                                                           width,
-                                                                           height,
-                                                                           frame_res,
-                                                                           x_min,
-                                                                           x_max,
-                                                                           y_min,
-                                                                           y_max,
-                                                                           shift_x,
-                                                                           shift_y);
+    for (uint batch = 0; batch < batch_size; ++batch)
+    {
+        const size_t offset = static_cast<size_t>(batch) * frame_res;
+        const cuComplex* input_frame = input + offset;
+        cuComplex* destination_frame = destination + offset;
 
-    cudaCheckError();
+        kernel_off_axis_phase_mask_and_shift_frame<<<lblocks, lthreads, 0, stream>>>(scratch,
+                                                                                     input_frame,
+                                                                                     width,
+                                                                                     height,
+                                                                                     x_min,
+                                                                                     x_max,
+                                                                                     y_min,
+                                                                                     y_max,
+                                                                                     shift_x,
+                                                                                     shift_y);
+
+        cudaCheckError();
+
+        cudaXMemcpyAsync(destination_frame,
+                         scratch,
+                         static_cast<size_t>(frame_res) * sizeof(cuComplex),
+                         cudaMemcpyDeviceToDevice,
+                         stream);
+    }
 }

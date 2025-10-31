@@ -57,6 +57,7 @@ void angular_spectrum(cuComplex* input,
     {
         apply_off_axis_phase_mask_and_shift(output,
                                             off_axis_buffer,
+                                            output,
                                             fd.width,
                                             fd.height,
                                             frame_res,
@@ -69,19 +70,9 @@ void angular_spectrum(cuComplex* input,
                                             off_axis.shift_y,
                                             stream);
 
-        cudaXMemcpyAsync(output,
-                         off_axis_buffer,
-                         static_cast<size_t>(frame_res) * batch_size * sizeof(cuComplex),
-                         cudaMemcpyDeviceToDevice,
-                         stream);
-
         if (store_frame)
         {
-            cudaXMemcpyAsync(mask_output,
-                             off_axis_buffer,
-                             frame_res * sizeof(cuComplex),
-                             cudaMemcpyDeviceToDevice,
-                             stream);
+            cudaXMemcpyAsync(mask_output, output, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
         }
     }
     else if (store_frame)

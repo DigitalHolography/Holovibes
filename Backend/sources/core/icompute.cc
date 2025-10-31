@@ -156,6 +156,7 @@ void ICompute::update_spatial_transformation_parameters()
     // We avoid the depth in the multiplication because the resize already take
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() * input_queue_fd.get_frame_res());
+    buffers_.gpu_off_axis_buffer.resize(input_queue_fd.get_frame_res());
 
     long long int n[] = {input_queue_fd.height, input_queue_fd.width};
 

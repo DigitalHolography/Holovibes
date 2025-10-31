@@ -23,7 +23,8 @@
  * \param stream CUDA stream used for the operation.
  */
 void apply_off_axis_phase_mask_and_shift(const cuComplex* input,
-                                         cuComplex* output,
+                                         cuComplex* scratch,
+                                         cuComplex* destination,
                                          uint width,
                                          uint height,
                                          uint frame_res,
