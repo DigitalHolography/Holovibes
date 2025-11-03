@@ -99,10 +99,13 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN2SpinBox->setValue(api_.filter2d.get_filter2d_n2());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
 
-    ui_->Filter2DOffAxisGroupBox->setVisible(filter2D_enabled);
-    const bool off_axis_enabled = filter2D_enabled && api_.filter2d.get_filter2d_off_axis_enabled();
+    const bool is_angular_spectrum = api_.transform.get_space_transformation() == SpaceTransformation::ANGULARSP;
+    const bool off_axis_controls_visible = filter2D_enabled && is_angular_spectrum;
+    const bool off_axis_enabled = off_axis_controls_visible && api_.filter2d.get_filter2d_off_axis_enabled();
 
-    ui_->Filter2DOffAxisEnableCheckBox->setEnabled(filter2D_enabled);
+    ui_->Filter2DOffAxisGroupBox->setVisible(off_axis_controls_visible);
+
+    ui_->Filter2DOffAxisEnableCheckBox->setEnabled(off_axis_controls_visible);
     {
         QSignalBlocker blocker(ui_->Filter2DOffAxisEnableCheckBox);
         ui_->Filter2DOffAxisEnableCheckBox->setChecked(off_axis_enabled);
@@ -132,7 +135,7 @@ void ImageRenderingPanel::on_notify()
     Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisShiftXSpinBox, api_.filter2d.get_filter2d_off_axis_shift_x());
     Panel::QSpinBoxQuietSetValue(ui_->Filter2DOffAxisShiftYSpinBox, api_.filter2d.get_filter2d_off_axis_shift_y());
 
-    update_off_axis_controls_state(filter2D_enabled, off_axis_enabled);
+    update_off_axis_controls_state(off_axis_controls_visible, off_axis_enabled);
 
     // Filter
     ui_->InputFilterLabel->setVisible(filter2D_enabled);
@@ -383,9 +386,9 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     parent_->notify();
 }
 
-void ImageRenderingPanel::update_off_axis_controls_state(bool filter2d_enabled, bool off_axis_enabled)
+void ImageRenderingPanel::update_off_axis_controls_state(bool controls_visible, bool off_axis_enabled)
 {
-    ui_->Filter2DOffAxisGroupBox->setEnabled(filter2d_enabled);
+    ui_->Filter2DOffAxisGroupBox->setEnabled(controls_visible);
     ui_->Filter2DOffAxisAutoCenterCheckBox->setEnabled(off_axis_enabled);
     ui_->Filter2DOffAxisXMinSpinBox->setEnabled(off_axis_enabled);
     ui_->Filter2DOffAxisXMaxSpinBox->setEnabled(off_axis_enabled);
@@ -401,7 +404,9 @@ void ImageRenderingPanel::update_off_axis_overlay()
     if (window)
     {
         const bool filter_enabled = api_.filter2d.get_filter2d_enabled();
-        const bool off_axis_enabled = filter_enabled && api_.filter2d.get_filter2d_off_axis_enabled();
+        const bool is_angular_spectrum = api_.transform.get_space_transformation() == SpaceTransformation::ANGULARSP;
+        const bool off_axis_enabled =
+            filter_enabled && is_angular_spectrum && api_.filter2d.get_filter2d_off_axis_enabled();
         window->set_off_axis_overlay_enabled(off_axis_enabled);
         if (off_axis_enabled)
             window->refresh_off_axis_overlay();

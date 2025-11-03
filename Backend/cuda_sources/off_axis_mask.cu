@@ -3,6 +3,23 @@
 #include "cuda_memory.cuh"
 #include "tools_compute.cuh"
 
+// Compose an off-axis filtered spectrum by freezing amplitudes and shifting only the phase.
+
+static __device__ __forceinline__ bool is_inside(int x, int y, int x_min, int x_max, int y_min, int y_max)
+{
+    // Simple bounding-box test; isolated for readability.
+    return x >= x_min && x <= x_max && y >= y_min && y <= y_max;
+}
+
+static __device__ __forceinline__ int wrap_index(int coordinate, int dimension)
+{
+    // Wrap shift coordinates in Fourier space to stay within the image lattice.
+    coordinate %= dimension;
+    if (coordinate < 0)
+        coordinate += dimension;
+    return coordinate;
+}
+
 static __global__ void kernel_off_axis_phase_mask_and_shift_frame(const cuComplex* input,
                                                                   cuComplex* scratch,
                                                                   uint width,
@@ -14,6 +31,7 @@ static __global__ void kernel_off_axis_phase_mask_and_shift_frame(const cuComple
                                                                   int shift_x,
                                                                   int shift_y)
 {
+    // Each thread builds one complex pixel after masking and phase-only shifting.
     const uint x = blockIdx.x * blockDim.x + threadIdx.x;
     const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -22,37 +40,48 @@ static __global__ void kernel_off_axis_phase_mask_and_shift_frame(const cuComple
 
     const size_t index = static_cast<size_t>(y) * width + x;
 
-    cuComplex value = input[index];
+    const cuComplex amplitude_sample = input[index];
+    const float amplitude = hypotf(amplitude_sample.x, amplitude_sample.y);
+    const bool inside_current = is_inside(static_cast<int>(x), static_cast<int>(y), x_min, x_max, y_min, y_max);
 
-    const bool inside = (static_cast<int>(x) >= x_min && static_cast<int>(x) <= x_max && static_cast<int>(y) >= y_min &&
-                         static_cast<int>(y) <= y_max);
+    // Sample the phase from the shifted location while leaving the magnitude in place.
+    const int source_x = wrap_index(static_cast<int>(x) - shift_x, static_cast<int>(width));
+    const int source_y = wrap_index(static_cast<int>(y) - shift_y, static_cast<int>(height));
+    const size_t source_index = static_cast<size_t>(source_y) * width + static_cast<uint>(source_x);
 
-    float magnitude = hypotf(value.x, value.y);
-    float phase = 0.0f;
+    const cuComplex phase_sample = input[source_index];
+    const bool phase_inside = is_inside(source_x, source_y, x_min, x_max, y_min, y_max);
 
-    if (inside)
+    float phase_unit_x = 1.0f;
+    float phase_unit_y = 0.0f;
+
+    if (phase_inside)
     {
-        phase = magnitude > 0.0f ? atan2f(value.y, value.x) : 0.0f;
-
-        if (shift_x != 0 || shift_y != 0)
+        // Normalize the shifted complex value to extract a pure phase factor.
+        const float phase_magnitude = hypotf(phase_sample.x, phase_sample.y);
+        if (phase_magnitude > 0.0f)
         {
-            const float normalized_x =
-                static_cast<float>(static_cast<int>(x) - static_cast<int>(width) / 2) / static_cast<float>(width);
-            const float normalized_y =
-                static_cast<float>(static_cast<int>(y) - static_cast<int>(height) / 2) / static_cast<float>(height);
-
-            const float phase_delta =
-                -2.0f * static_cast<float>(M_PI) *
-                (static_cast<float>(shift_x) * normalized_x + static_cast<float>(shift_y) * normalized_y);
-            phase += phase_delta;
+            const float inv_phase_magnitude = 1.0f / phase_magnitude;
+            phase_unit_x = phase_sample.x * inv_phase_magnitude;
+            phase_unit_y = phase_sample.y * inv_phase_magnitude;
         }
     }
 
-    const float sine = sinf(phase);
-    const float cosine = cosf(phase);
+    cuComplex result;
+    if (!inside_current)
+    {
+        // Outside the mask we zero the phase but keep energy for continuity.
+        result.x = amplitude;
+        result.y = 0.0f;
+    }
+    else
+    {
+        // Recombine local magnitude with shifted phase.
+        result.x = amplitude * phase_unit_x;
+        result.y = amplitude * phase_unit_y;
+    }
 
-    scratch[index].x = magnitude * cosine;
-    scratch[index].y = magnitude * sine;
+    scratch[index] = result;
 }
 
 void apply_off_axis_phase_mask_and_shift(const cuComplex* input,

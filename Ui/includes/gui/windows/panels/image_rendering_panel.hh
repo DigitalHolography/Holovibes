@@ -133,7 +133,7 @@ class ImageRenderingPanel : public Panel
     double get_z_step();
 
   private:
-    void update_off_axis_controls_state(bool filter2d_enabled, bool off_axis_enabled);
+    void update_off_axis_controls_state(bool controls_visible, bool off_axis_enabled);
     void update_off_axis_overlay();
 
     QShortcut* z_up_shortcut_;
