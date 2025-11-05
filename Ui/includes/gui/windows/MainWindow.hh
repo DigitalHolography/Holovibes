@@ -96,6 +96,7 @@ class MainWindow : public QMainWindow
     void configure_camera();
     void camera_none();
     void camera_adimec();
+    void camera_PCO_Edge4_2lt();
     void camera_ids();
     void camera_phantom();
     void camera_bitflow_cyton();
@@ -123,6 +124,7 @@ class MainWindow : public QMainWindow
     void camera_euresys_egrabber_settings();
     void camera_alvium_settings();
     void camera_asi_settings();
+    void camera_PCO_Edge4_2lt_settings();
 
     /*! \brief Opens the credit display */
     void credits();

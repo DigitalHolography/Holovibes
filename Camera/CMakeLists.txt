@@ -4,7 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Idealy create a FindBitflow.cmake file
 set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
-
+set(PCO_SDK "C:/Program Files/PCO Digital Camera Toolbox/pco.cpp")
 set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
 set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
 set(ASI_SDK "C:/Program Files/ASI SDK")
@@ -21,6 +21,18 @@ find_file(HAVE_EGrabbers "EGrabbers.h" PATHS "${EURESYS_SDK}/include")
 find_file(HAVE_VIMBAX "VmbCPP.h" PATHS "${VIMBAX_SDK}/api/include/VmbCPP")
 
 find_file(HAVE_ASI "ASICamera2.h" PATHS "${ASI_SDK}/include")
+
+
+find_file(HAVE_PCO_CAMERA "camera.h" PATHS "${PCO_SDK}/pco.camera")
+
+if (HAVE_PCO_CAMERA)
+    add_subdirectory(CameraPCO)
+else()
+    message(WARNING "######################################################\n"
+                    "PCO SDK not found, CameraPCO will not be built\n"
+                    "######################################################")
+endif()
+
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     add_subdirectory(BitflowCyton)

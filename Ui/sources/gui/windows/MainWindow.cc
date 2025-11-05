@@ -582,6 +582,8 @@ void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
 void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
 
+void MainWindow::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
+
 void open_file(const std::string& filename)
 {
     if (filename.empty())
@@ -624,6 +626,8 @@ void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_eur
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 void MainWindow::camera_asi_settings() { open_file("asi.ini"); }
+
+void MainWindow::camera_PCO_Edge4_2lt_settings() { open_file("pco_edge_4.2lt.ini"); }
 
 #pragma endregion
 
