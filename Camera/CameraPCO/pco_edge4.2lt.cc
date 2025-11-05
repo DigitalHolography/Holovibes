@@ -39,7 +39,7 @@ CapturedFramesDescriptor CameraPCO_Edge4_2lt::get_frames()
 {
     try
     {
-        Logger::camera()->debug("pco get_frames called");
+        //Logger::camera()->info("pco get_frames called");
         pco_camera_.waitForNewImage(true, FRAME_TIMEOUT / 1000.0); // Timeout in seconds
         pco_camera_.image(current_image_,
                           PCO_RECORDER_LATEST_IMAGE,
