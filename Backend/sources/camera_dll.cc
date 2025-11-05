@@ -17,11 +17,13 @@ namespace camera
 std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
 {
     LOG_FUNC(dll_filepath);
+    LOG_ERROR(dll_filepath);
     HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
 
     if (!dll_handle)
         throw std::runtime_error("unable to load DLL camera");
 
+    LOG_ERROR("DLL loaded");
     FnInit init = nullptr;
     init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_camera_device"));
 

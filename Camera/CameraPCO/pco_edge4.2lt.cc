@@ -12,7 +12,7 @@ namespace camera
 {
 
 CameraPCO_Edge4_2lt::CameraPCO_Edge4_2lt()
-    : Camera("pco_edge4_2lt.ini")
+    : Camera("pco_edge_4.2lt.ini")
 {
 
     try
@@ -39,32 +39,33 @@ CapturedFramesDescriptor CameraPCO_Edge4_2lt::get_frames()
 {
     try
     {
-        pco::Image image;
+        Logger::camera()->debug("pco get_frames called");
         pco_camera_.waitForNewImage(true, FRAME_TIMEOUT / 1000.0); // Timeout in seconds
-        pco_camera_.image(image, PCO_RECORDER_LATEST_IMAGE, 
-                         (fd_.depth == PixelDepth::Bits8) ? pco::DataFormat::Mono8 : pco::DataFormat::Mono16);
-        
+        pco_camera_.image(current_image_,
+                          PCO_RECORDER_LATEST_IMAGE,
+                          (fd_.depth == PixelDepth::Bits8) ? pco::DataFormat::Mono8 : pco::DataFormat::Mono16);
+
         auto now = std::chrono::steady_clock::now();
-        uint64_t system_timestamp_us = std::chrono::duration_cast<std::chrono::microseconds>(
-            now.time_since_epoch()).count();
-        
+        uint64_t system_timestamp_us =
+            std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+
         uint64_t camera_timestamp_us = 0;
         bool has_hw_timestamp = false;
-        if (image.getTimestampPtr() != nullptr)
+        if (current_image_.getTimestampPtr() != nullptr)
         {
-            camera_timestamp_us = *reinterpret_cast<const uint64_t*>(image.getTimestampPtr());
+            camera_timestamp_us = *reinterpret_cast<const uint64_t*>(current_image_.getTimestampPtr());
             has_hw_timestamp = true;
         }
-        
+
         CapturedFramesDescriptor frames;
-        frames.region1 = image.data().first;
+        frames.region1 = current_image_.data().first;
         frames.count1 = 1;
         frames.on_gpu = false;
         frames.first_frame_timestamp_us = has_hw_timestamp ? camera_timestamp_us : system_timestamp_us;
         frames.frame_period_us = static_cast<uint64_t>(frame_period_ * 1e6);
         frames.camera_timestamp_us = camera_timestamp_us;
         frames.has_hw_timestamp = has_hw_timestamp;
-        
+
         return frames;
     }
     catch (const pco::CameraException& e)
@@ -102,7 +103,7 @@ void CameraPCO_Edge4_2lt::stop_acquisition()
         throw CameraException(CameraException::CANT_STOP_ACQUISITION);
     }
 }
-const char* CameraPCO_Edge4_2lt::get_name() const { return "PCO_Edge4_2lt";}
+const char* CameraPCO_Edge4_2lt::get_name() const { return "PCO_Edge4_2lt"; }
 
 const char* CameraPCO_Edge4_2lt::get_ini_name() const { return "pco_edge4_2lt.ini"; }
 
@@ -170,9 +171,15 @@ CameraPCO_Edge4_2lt::~CameraPCO_Edge4_2lt()
     Logger::camera()->debug("PCO Edge 4.2 LT destroyed");
 }
 
-void CameraPCO_Edge4_2lt::shutdown_camera() { 
-    try {pco_camera_.stop();}
-    catch (...) {}
+void CameraPCO_Edge4_2lt::shutdown_camera()
+{
+    try
+    {
+        pco_camera_.stop();
+    }
+    catch (...)
+    {
+    }
 }
 
 void CameraPCO_Edge4_2lt::load_default_params()
@@ -215,14 +222,14 @@ void CameraPCO_Edge4_2lt::load_ini_params()
     roi_y_ = pt.get<unsigned int>("pco.roi_y", roi_y_);
     roi_width_ = pt.get<unsigned int>("pco.roi_width", roi_width_);
     roi_height_ = pt.get<unsigned int>("pco.roi_height", roi_height_);
-    
-    //fd params
+
+    // fd params
     pixel_format_ = pt.get<std::string>("pco.pixel_format", "Mono16");
     fd_.width = roi_width_;
     fd_.height = roi_height_;
     fd_.depth = (pixel_format_ == "Mono8") ? PixelDepth::Bits8 : PixelDepth::Bits16;
 
-    //other params
+    // other params
     trigger_mode_ = pt.get<unsigned int>("pco.trigger_mode", trigger_mode_);
     pixel_rate_ = pt.get<unsigned int>("pco.pixel_rate", pixel_rate_);
 
@@ -279,5 +286,8 @@ void CameraPCO_Edge4_2lt::bind_params()
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }
 }
-
+ICamera* new_camera_device() 
+{
+    return new CameraPCO_Edge4_2lt(); 
+}
 } // namespace camera

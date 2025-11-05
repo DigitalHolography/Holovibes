@@ -84,6 +84,11 @@ MainWindow::MainWindow(QWidget* parent)
                ui_->ExportPanel,
                ui_->InfoPanel};
 
+    if (ui_->actionPCO_Edge4_2lt)
+        connect(ui_->actionPCO_Edge4_2lt, &QAction::triggered, this, &MainWindow::camera_PCO_Edge4_2lt);
+    if (ui_->actionPCO_Edge4_2ltSettings)
+        connect(ui_->actionPCO_Edge4_2ltSettings, &QAction::triggered, this, &MainWindow::camera_PCO_Edge4_2lt_settings);
+
     qRegisterMetaType<std::function<void()>>();
     connect(this,
             SIGNAL(synchronize_thread_signal(std::function<void()>)),
@@ -576,13 +581,21 @@ void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
 
-void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
+void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); } // a doube check avec maxime
 
-void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
+void MainWindow::camera_alvium()
+{
+    LOG_ERROR("main.cc Switching to Alvium camera");
+    change_camera(CameraKind::Alvium);
+}
 
 void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
 
-void MainWindow::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
+void MainWindow::camera_PCO_Edge4_2lt()
+{
+    LOG_ERROR("main.cc Switching to PCO Edge 4.2 LT camera");
+    change_camera(CameraKind::PCO_Edge4_2lt);
+}
 
 void open_file(const std::string& filename)
 {

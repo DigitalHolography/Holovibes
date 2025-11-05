@@ -10,7 +10,8 @@ class CameraPCO_Edge4_2lt : public Camera
   public:
     CameraPCO_Edge4_2lt();
     virtual ~CameraPCO_Edge4_2lt();
-
+    
+    pco::Image current_image_;
     pco::Camera pco_camera_; // PCO camera object
     // Camera parameters
     unsigned int roi_x_;        // ROI X start position (0-based)
