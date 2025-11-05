@@ -39,11 +39,24 @@ CapturedFramesDescriptor CameraPCO_Edge4_2lt::get_frames()
 {
     try
     {
-        //Logger::camera()->info("pco get_frames called");
-        pco_camera_.waitForNewImage(true, FRAME_TIMEOUT / 1000.0); // Timeout in seconds
+        // Use rolling buffer to get the NEXT available image, not the latest
+        pco_camera_.waitForNewImage(true, FRAME_TIMEOUT / 1000.0);
         pco_camera_.image(current_image_,
-                          PCO_RECORDER_LATEST_IMAGE,
+                          0,
                           (fd_.depth == PixelDepth::Bits8) ? pco::DataFormat::Mono8 : pco::DataFormat::Mono16);
+
+        // Add frame counter and timing diagnostics
+        static uint64_t frame_count = 0;
+        static auto last_frame_time = std::chrono::steady_clock::now();
+        auto current_time = std::chrono::steady_clock::now();
+        auto time_diff = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_frame_time).count();
+        frame_count++;
+        
+        if (frame_count % 100 == 0) {
+            Logger::camera()->info("Frame {} - Time since last: {}ms, Buffer size: {} bytes", 
+                                   frame_count, time_diff, current_image_.data().second);
+        }
+        last_frame_time = current_time;
 
         auto now = std::chrono::steady_clock::now();
         uint64_t system_timestamp_us =
@@ -79,10 +92,9 @@ void CameraPCO_Edge4_2lt::start_acquisition()
 {
     try
     {
-        // Mode ring_buffer - plus robuste pour l'acquisition continue
-        // Le buffer fait 10 images, les anciennes sont écrasées automatiquement
-        pco_camera_.record(10, pco::RecordMode::ring_buffer);
-        Logger::camera()->info("PCO Edge 4.2 LT acquisition started in ring_buffer mode (10 frames buffer)");
+
+        pco_camera_.record(100, pco::RecordMode::fifo);
+        Logger::camera()->info("PCO Edge 4.2 LT acquisition started in fifo mode (10 frame buffer)");
     }
     catch (const pco::CameraException& e)
     {
@@ -184,15 +196,14 @@ void CameraPCO_Edge4_2lt::shutdown_camera()
 
 void CameraPCO_Edge4_2lt::load_default_params()
 {
-
     pco::Configuration config = pco_camera_.getConfiguration();
     pco::Description desc = pco_camera_.getDescription();
 
-    // fd params
     fd_.width = config.roi.width();
     fd_.height = config.roi.height();
     fd_.depth = PixelDepth::Bits16;
     fd_.byteEndian = Endianness::LittleEndian;
+    
     pixel_size_ = get_pixel_size();
     exposure_time_ = config.exposure_time_s;
 
@@ -203,11 +214,12 @@ void CameraPCO_Edge4_2lt::load_default_params()
     roi_height_ = config.roi.height();
 
     // other params
-    frame_period_ = exposure_time_ + 0.01;
+    frame_period_ = 1.0 / get_camera_fps();
     trigger_mode_ = config.trigger_mode;
     pixel_rate_ = config.pixelrate;
 
-    Logger::camera()->debug("Loaded camera defaults: {}x{} ROI, {}s exposure", roi_width_, roi_height_, exposure_time_);
+    Logger::camera()->debug("Loaded camera defaults: {}x{} ROI, {}s exposure",
+                           roi_width_, roi_height_, exposure_time_);
 }
 
 void CameraPCO_Edge4_2lt::load_ini_params()
@@ -247,20 +259,19 @@ void CameraPCO_Edge4_2lt::bind_params()
     {
         pco::Configuration config = pco_camera_.getConfiguration();
 
+        // Set exposure time
         config.exposure_time_s = exposure_time_;
         Logger::camera()->info("Setting exposure time to: {}s", exposure_time_);
 
-        // Apply ROI if different from current
+        // Apply ROI
         pco::Roi desired_roi{roi_x_ + 1, roi_y_ + 1, roi_x_ + roi_width_, roi_y_ + roi_height_};
-
         config.roi = desired_roi;
         Logger::camera()->info("Setting ROI to: {}x{} at ({},{})", roi_width_, roi_height_, roi_x_, roi_y_);
 
-        config.trigger_mode = trigger_mode_;
-        config.pixelrate = pixel_rate_;
 
         pco_camera_.setConfiguration(config);
 
+        // Verify configuration
         config = pco_camera_.getConfiguration();
         fd_.width = config.roi.width();
         fd_.height = config.roi.height();
@@ -271,14 +282,11 @@ void CameraPCO_Edge4_2lt::bind_params()
         roi_width_ = config.roi.width();
         roi_height_ = config.roi.height();
 
-        Logger::camera()->info("PCO Camera configured: {}x{}, {}s exposure, ROI: ({},{})-({},{})",
-                               fd_.width,
-                               fd_.height,
-                               exposure_time_,
-                               roi_x_,
-                               roi_y_,
-                               roi_x_ + roi_width_,
-                               roi_y_ + roi_height_);
+        // Calculate expected frame rate
+        double expected_fps = 1.0 / (exposure_time_ + 0.001); // Add readout time
+        Logger::camera()->info("PCO Camera configured: {}x{}, {}s exposure, Expected FPS: {:.1f}",
+                               fd_.width, fd_.height, exposure_time_, expected_fps);
+
     }
     catch (const pco::CameraException e)
     {
