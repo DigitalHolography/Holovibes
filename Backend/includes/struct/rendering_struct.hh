@@ -9,6 +9,7 @@
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
+#include "rect.hh"
 #include "all_struct.hh"
 
 namespace holovibes
@@ -90,6 +91,7 @@ struct Rendering
     unsigned time_transformation_size = 1;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
+    units::RectFd delete_twin_image_rectangle;
     Convolution convolution;
     Filter input_filter;
 
@@ -105,6 +107,7 @@ struct Rendering
                           time_transformation_size,
                           lambda,
                           propagation_distance,
+                          delete_twin_image_rectangle,
                           convolution);
 
     /*!

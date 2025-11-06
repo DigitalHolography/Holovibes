@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common_api.hh"
+#include "rect.hh"
 
 namespace holovibes::api
 {
@@ -86,18 +87,31 @@ class TransformApi : public IApi
 
 #pragma region Space Tr.
 
-    /*! \brief Returns the space transformation algorithm used (either Fresnel or Angular Spectrum).
+    /*! \brief Returns the current space transformation algorithm.
      *
      * \return SpaceTransformation the space transformation algorithm
      */
     inline SpaceTransformation get_space_transformation() const { return GET_SETTING(SpaceTransformation); }
 
-    /*! \brief Modifies the space transformation algorithm used (either Fresnel or Angular Spectrum).
+    /*! \brief Modifies the space transformation algorithm used.
      *
      * \param[in] value the new value
      * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
      */
     ApiCode set_space_transformation(const SpaceTransformation value) const;
+
+    /*! \brief Returns the rectangle used for the delete twin image masks. */
+    inline units::RectFd get_delete_twin_image_rectangle() const
+    {
+        return GET_SETTING(DeleteTwinImageRectangle);
+    }
+
+    /*! \brief Updates the rectangle used to build the delete twin image masks.
+     *
+     * \param[in] rect The new rectangle coordinates in frequency space.
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
+     */
+    ApiCode set_delete_twin_image_rectangle(const units::RectFd& rect) const;
 
     /*! \brief Returns the wave length of the laser (in nm).
      *

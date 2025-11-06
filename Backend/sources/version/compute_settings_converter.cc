@@ -9,6 +9,7 @@ void ComputeSettingsConverter::init()
 {
     converters_ = {
         {ComputeSettingsVersion::NONE, "patch_v1.json", convert_default},
+        {ComputeSettingsVersion::V1, "patch_v2.json", convert_default},
     };
 }
 

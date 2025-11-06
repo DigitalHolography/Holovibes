@@ -102,6 +102,7 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
+    holovibes::settings::DeleteTwinImageRectangle,               \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ConvolutionFileName,                    \
@@ -423,6 +424,7 @@ class Holovibes
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
                                              settings::ZDistance{0.0f},
+                                             settings::DeleteTwinImageRectangle{units::RectFd{}},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ConvolutionFileName{std::string("")},

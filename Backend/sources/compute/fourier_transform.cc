@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 
 #include "fourier_transform.hh"
@@ -21,11 +22,53 @@
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
 #include "matrix_operations.hh"
+#include "delete_twin_image_masks.cuh"
 #include "logger.hh"
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
+
+namespace
+{
+struct RectBounds
+{
+    int x_min;
+    int x_max;
+    int y_min;
+    int y_max;
+};
+
+RectBounds sanitize_rect(const holovibes::units::RectFd& rect, int width, int height)
+{
+    int x1 = std::clamp(rect.x(), 0, width);
+    int x2 = std::clamp(rect.right(), 0, width);
+    int y1 = std::clamp(rect.y(), 0, height);
+    int y2 = std::clamp(rect.bottom(), 0, height);
+
+    if (x1 > x2)
+        std::swap(x1, x2);
+    if (y1 > y2)
+        std::swap(y1, y2);
+
+    return RectBounds{x1, x2, y1, y2};
+}
+
+RectBounds build_symmetric_rect(const RectBounds& rect, int width, int height)
+{
+    int x_min = std::clamp(width - rect.x_max, 0, width);
+    int x_max = std::clamp(width - rect.x_min, 0, width);
+    int y_min = std::clamp(height - rect.y_max, 0, height);
+    int y_max = std::clamp(height - rect.y_min, 0, height);
+
+    if (x_min > x_max)
+        std::swap(x_min, x_max);
+    if (y_min > y_max)
+        std::swap(y_min, y_max);
+
+    return RectBounds{x_min, x_max, y_min, y_max};
+}
+} // namespace
 
 void FourierTransform::insert_fft(const uint width, const uint height)
 {
@@ -63,12 +106,28 @@ void FourierTransform::insert_fft(const uint width, const uint height)
     if (space_transformation == SpaceTransformation::NONE)
         return;
 
-    if (space_transformation == SpaceTransformation::FRESNELTR)
-        insert_fresnel_transform();
-    else
-        insert_angular_spectrum(filter2d_enabled);
+    bool should_enqueue_lens = false;
 
-    fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+    switch (space_transformation)
+    {
+    case SpaceTransformation::FRESNELTR:
+        insert_fresnel_transform();
+        should_enqueue_lens = true;
+        break;
+    case SpaceTransformation::ANGULARSP:
+        insert_angular_spectrum(filter2d_enabled);
+        should_enqueue_lens = true;
+        break;
+    case SpaceTransformation::DELETE_TWIN_IMAGE:
+        insert_delete_twin_image_transform();
+        break;
+    default:
+        LOG_WARN("Unknown space transformation requested");
+        return;
+    }
+
+    if (should_enqueue_lens)
+        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
 }
 
 void FourierTransform::insert_filter2d()
@@ -150,6 +209,36 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              spatial_transformation_plan_,
                              fd_,
                              stream_);
+        });
+}
+
+void FourierTransform::insert_delete_twin_image_transform()
+{
+    LOG_FUNC();
+
+    const int width = fd_.width;
+    const int height = fd_.height;
+
+    fn_compute_vect_->push_back(
+        [=]()
+        {
+            auto rect = setting<settings::DeleteTwinImageRectangle>();
+            RectBounds sanitized = sanitize_rect(rect, width, height);
+            RectBounds symmetric = build_symmetric_rect(sanitized, width, height);
+
+            holovibes::cuda::build_delete_twin_image_masks(buffers_.gpu_delete_twin_image_mp_mask.get(),
+                                                           buffers_.gpu_delete_twin_image_ma_mask.get(),
+                                                           width,
+                                                           height,
+                                                           sanitized.x_min,
+                                                           sanitized.x_max,
+                                                           sanitized.y_min,
+                                                           sanitized.y_max,
+                                                           symmetric.x_min,
+                                                           symmetric.x_max,
+                                                           symmetric.y_min,
+                                                           symmetric.y_max,
+                                                           stream_);
         });
 }
 

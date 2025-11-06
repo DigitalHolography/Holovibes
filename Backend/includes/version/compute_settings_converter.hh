@@ -46,7 +46,7 @@ struct ComputeSettingsConverterEntry
 class ComputeSettingsConverter
 {
   public:
-    inline static const ComputeSettingsVersion latest_version = ComputeSettingsVersion::V1;
+    inline static const ComputeSettingsVersion latest_version = ComputeSettingsVersion::V2;
 
   public:
     /*! \brief Convert a compute settings. If the version is not the latest, it will apply all patches to reach the

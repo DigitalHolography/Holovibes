@@ -1,4 +1,5 @@
 #include "masks.cuh"
+#include "delete_twin_image_masks.cuh"
 
 #include "frame_desc.hh"
 
@@ -94,3 +95,80 @@ void get_circular_mask(float* output,
     cudaXStreamSynchronize(stream);
     cudaCheckError();
 }
+
+namespace
+{
+
+__global__ void kernel_build_delete_twin_image_masks(float* mp_mask,
+                                                     float* ma_mask,
+                                                     int width,
+                                                     int height,
+                                                     int rect_x_min,
+                                                     int rect_x_max,
+                                                     int rect_y_min,
+                                                     int rect_y_max,
+                                                     int sym_x_min,
+                                                     int sym_x_max,
+                                                     int sym_y_min,
+                                                     int sym_y_max)
+{
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= width || y >= height)
+        return;
+
+    const int index = y * width + x;
+
+    const bool inside_primary =
+        x >= rect_x_min && x < rect_x_max && y >= rect_y_min && y < rect_y_max;
+    const bool inside_symmetric =
+        x >= sym_x_min && x < sym_x_max && y >= sym_y_min && y < sym_y_max;
+
+    mp_mask[index] = inside_primary ? 1.0f : 0.0f;
+    ma_mask[index] = (inside_primary || inside_symmetric) ? 0.0f : 1.0f;
+}
+
+} // namespace
+
+namespace holovibes::cuda
+{
+
+void build_delete_twin_image_masks(float* mp_mask,
+                                   float* ma_mask,
+                                   int width,
+                                   int height,
+                                   int rect_x_min,
+                                   int rect_x_max,
+                                   int rect_y_min,
+                                   int rect_y_max,
+                                   int sym_x_min,
+                                   int sym_x_max,
+                                   int sym_y_min,
+                                   int sym_y_max,
+                                   const cudaStream_t stream)
+{
+    if (!mp_mask || !ma_mask || width <= 0 || height <= 0)
+        return;
+
+    const uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    kernel_build_delete_twin_image_masks<<<lblocks, lthreads, 0, stream>>>(mp_mask,
+                                                                           ma_mask,
+                                                                           width,
+                                                                           height,
+                                                                           rect_x_min,
+                                                                           rect_x_max,
+                                                                           rect_y_min,
+                                                                           rect_y_max,
+                                                                           sym_x_min,
+                                                                           sym_x_max,
+                                                                           sym_y_min,
+                                                                           sym_y_max);
+
+    cudaCheckError();
+}
+
+} // namespace holovibes::cuda

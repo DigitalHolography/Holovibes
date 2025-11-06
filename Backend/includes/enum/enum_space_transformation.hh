@@ -18,7 +18,8 @@ enum class SpaceTransformation
 {
     NONE = 0,  /*!< Nothing Applied */
     FRESNELTR, /*!< Fresnel Transform */
-    ANGULARSP  /*!< Angular spectrum propagation */
+    ANGULARSP, /*!< Angular spectrum propagation */
+    DELETE_TWIN_IMAGE /*!< Delete twin image placeholder */
 };
 
 // clang-format off
@@ -39,6 +40,10 @@ SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::ANGULARSP, "Angular SP."}, // | (Retro)compatibility
     {SpaceTransformation::ANGULARSP, "FFT2"},        // |
     {SpaceTransformation::ANGULARSP, "2FFT"},        // v
+    {SpaceTransformation::DELETE_TWIN_IMAGE, "DELETE_TWIN_IMAGE"},     // Actual saved name
+    {SpaceTransformation::DELETE_TWIN_IMAGE, "delete_twin_image"},     // (Retro)compatibility
+    {SpaceTransformation::DELETE_TWIN_IMAGE, "Delete twin image"},     // UI text
+    {SpaceTransformation::DELETE_TWIN_IMAGE, "Delete Twin Image"},     // UI text (capitalized)
 })
 // clang-format on
 } // namespace holovibes

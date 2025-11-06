@@ -1,0 +1,16 @@
+[
+    {
+        "op": "add",
+        "path": "/image_rendering/delete_twin_image_rectangle",
+        "value": {
+            "src_": {
+                "x_": 0,
+                "y_": 0
+            },
+            "dst_": {
+                "x_": 0,
+                "y_": 0
+            }
+        }
+    }
+]

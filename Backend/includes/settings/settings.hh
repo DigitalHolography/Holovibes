@@ -175,6 +175,7 @@ DECLARE_SETTING(ZDistance, float);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionFileName, std::string);
+DECLARE_SETTING(DeleteTwinImageRectangle, holovibes::units::RectFd);
 
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);

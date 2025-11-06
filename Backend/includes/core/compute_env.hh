@@ -67,6 +67,12 @@ struct CoreBuffersEnv
 
     /*! \brief InputFilter mask */
     cuda_tools::CudaUniquePtr<float> gpu_input_filter_mask = nullptr;
+
+    /*! \brief Delete twin image phase mask (Mp) */
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_image_mp_mask = nullptr;
+
+    /*! \brief Delete twin image amplitude mask (Ma) */
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_image_ma_mask = nullptr;
 };
 
 /*! \struct MomentsEnv

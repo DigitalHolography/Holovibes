@@ -50,7 +50,8 @@
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
-    holovibes::settings::SpaceTransformation
+    holovibes::settings::SpaceTransformation,      \
+    holovibes::settings::DeleteTwinImageRectangle
 
 #define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -157,6 +158,8 @@ class FourierTransform
 
     /*! \brief Compute lens and enqueue the call to the angular_spectrum cuda function. */
     void insert_angular_spectrum(bool filter2d_enabled);
+    /*! \brief Prepare masks used by the delete twin image transform. */
+    void insert_delete_twin_image_transform();
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *

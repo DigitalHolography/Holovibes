@@ -165,6 +165,8 @@ class ICompute
         err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
+        err += !buffers_.gpu_delete_twin_image_mp_mask.resize(zone_size);
+        err += !buffers_.gpu_delete_twin_image_ma_mask.resize(zone_size);
 
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));

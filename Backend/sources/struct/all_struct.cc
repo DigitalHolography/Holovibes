@@ -96,6 +96,7 @@ void Rendering::Update()
     this->time_transformation_size = GET_SETTING(TimeTransformationSize);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
+    this->delete_twin_image_rectangle = GET_SETTING(DeleteTwinImageRectangle);
     this->convolution.Update();
     this->input_filter.Update();
 }
@@ -270,6 +271,7 @@ void Rendering::Load()
     UPDATE_SETTING(TimeTransformationSize, this->time_transformation_size);
     UPDATE_SETTING(Lambda, this->lambda);
     UPDATE_SETTING(ZDistance, this->propagation_distance);
+    UPDATE_SETTING(DeleteTwinImageRectangle, this->delete_twin_image_rectangle);
     this->convolution.Load();
     this->input_filter.Load();
 }

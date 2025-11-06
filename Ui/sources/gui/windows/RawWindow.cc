@@ -163,8 +163,12 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((API.compute.get_compute_mode() == Computation::Hologram &&
-         API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
+    const auto current_space_transformation = API.transform.get_space_transformation();
+    const bool is_passthrough_space_transformation =
+        current_space_transformation == SpaceTransformation::NONE ||
+        current_space_transformation == SpaceTransformation::DELETE_TWIN_IMAGE;
+
+    if ((API.compute.get_compute_mode() == Computation::Hologram && is_passthrough_space_transformation) ||
         API.compute.get_compute_mode() == Computation::Raw)
     {
         if (w != old_width)

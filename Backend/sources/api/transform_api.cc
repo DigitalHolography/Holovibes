@@ -1,5 +1,7 @@
 #include "transform_api.hh"
 
+#include <algorithm>
+
 #include "API.hh"
 
 #define NOT_SAME_AND_NOT_RAW(old_val, new_val)                                                                         \
@@ -81,6 +83,28 @@ ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) 
     NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
 
     UPDATE_SETTING(SpaceTransformation, value);
+
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_delete_twin_image_rectangle(const units::RectFd& rect) const
+{
+    NOT_SAME_AND_NOT_RAW(get_delete_twin_image_rectangle(), rect);
+
+    const auto& fd = api_->input.get_input_fd();
+
+    auto clamp_axis = [](int value, int limit) { return std::clamp(value, 0, limit); };
+
+    units::RectFd sanitized = rect;
+    auto& src = sanitized.src_ref();
+    auto& dst = sanitized.dst_ref();
+
+    src.x() = clamp_axis(src.x(), fd.width);
+    src.y() = clamp_axis(src.y(), fd.height);
+    dst.x() = clamp_axis(dst.x(), fd.width);
+    dst.y() = clamp_axis(dst.y(), fd.height);
+
+    UPDATE_SETTING(DeleteTwinImageRectangle, sanitized);
 
     return ApiCode::OK;
 }

@@ -15,6 +15,7 @@
 - time_stride
 - time_transformation_size
 - space_transformation
+- delete_twin_image_rectangle
 - time_transformation
 - lambda
 - z_distance

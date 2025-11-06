@@ -19,6 +19,7 @@ enum class ComputeSettingsVersion
     NONE = 0, /*!< No version, for old compute settings that does not have a version */
     V1, /*!< Version 1: introduce version, image registration and deletion of the enabled field for convolution and
            input filter */
+    V2, /*!< Version 2: add delete twin image rectangle configuration */
 };
 
 // clang-format off
@@ -32,6 +33,7 @@ SERIALIZE_JSON_ENUM(ComputeSettingsVersion, {
     {ComputeSettingsVersion::NONE, "None"},
     {ComputeSettingsVersion::NONE, "v0"},
     {ComputeSettingsVersion::V1, "v1"},
+    {ComputeSettingsVersion::V2, "v2"},
 })
 // clang-format on
 } // namespace holovibes
