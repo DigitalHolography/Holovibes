@@ -47,7 +47,8 @@ enum KindOfOverlay
     SliceCross,
     // Composite overlays
     CompositeArea,
-    Rainbow
+    Rainbow,
+    DeleteTwinMask
 };
 
 class BasicOpenGLWindow;

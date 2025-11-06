@@ -73,6 +73,7 @@ qt_add_executable(Holovibes
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
+    sources/gui/selections/overlays/delete_twin_overlay.cc
     assets/ui/mainwindow.ui
     assets/ui/advancedsettingswindow.ui
     assets/ui/plotwindow.ui

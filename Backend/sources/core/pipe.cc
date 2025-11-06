@@ -513,22 +513,40 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (setting<settings::Filter2dEnabled>() && setting<settings::Filter2dViewEnabled>())
+    const bool delete_twin_active =
+        setting<settings::SpaceTransformation>() == SpaceTransformation::DELETE_TWIN_IMAGE &&
+        setting<settings::Filter2dViewEnabled>();
+
+    if ((setting<settings::Filter2dEnabled>() && setting<settings::Filter2dViewEnabled>()) || delete_twin_active)
     {
         fn_compute_vect_->push_back(
-            [this]()
+            [this, delete_twin_active]()
             {
-                int width = buffers_.gpu_output_queue->get_fd().width;
-                int height = buffers_.gpu_output_queue->get_fd().height;
+                const bool filter2d_enabled = setting<settings::Filter2dEnabled>();
 
-                shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
+                if (delete_twin_active && !filter2d_enabled)
+                {
+                    cudaXMemcpyAsync(buffers_.gpu_complex_filter2d_frame.get(),
+                                     buffers_.gpu_spatial_transformation_buffer.get(),
+                                     buffers_.gpu_postprocess_frame_size * sizeof(cufftComplex),
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                }
 
-                complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
-                                   buffers_.gpu_complex_filter2d_frame.get(),
-                                   0,
-                                   0,
-                                   buffers_.gpu_postprocess_frame_size,
-                                   stream_);
+                if (filter2d_enabled || delete_twin_active)
+                {
+                    int width = buffers_.gpu_output_queue->get_fd().width;
+                    int height = buffers_.gpu_output_queue->get_fd().height;
+
+                    shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
+
+                    complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
+                                       buffers_.gpu_complex_filter2d_frame.get(),
+                                       0,
+                                       0,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+                }
             });
     }
 }

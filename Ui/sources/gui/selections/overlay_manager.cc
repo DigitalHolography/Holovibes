@@ -9,6 +9,7 @@
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
+#include "delete_twin_overlay.hh"
 #include "logger.hh"
 
 #include <QDateTime>
@@ -150,6 +151,8 @@ std::shared_ptr<Overlay> OverlayManager::create_overlay(KindOfOverlay ko)
         return std::make_shared<ContrastReticleOverlay>(parent_);
     case Reticle:
         return std::make_shared<ReticleOverlay>(parent_);
+    case DeleteTwinMask:
+        return std::make_shared<DeleteTwinMaskOverlay>(parent_);
     default:
         return nullptr;
     }

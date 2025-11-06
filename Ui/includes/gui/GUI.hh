@@ -60,6 +60,8 @@ void refresh_window(ushort window_size);
  * \param[in] auxiliary_window_max_size the maximum size of the window
  */
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size);
+void ensure_delete_twin_overlay(uint auxiliary_window_max_size);
+void disable_delete_twin_overlay();
 
 /*! \brief Open or close the lens view
  *

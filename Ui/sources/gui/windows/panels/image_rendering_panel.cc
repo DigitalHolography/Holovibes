@@ -65,6 +65,8 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_time_transformation()));
+    const bool using_delete_twin =
+        api_.transform.get_space_transformation() == SpaceTransformation::DELETE_TWIN_IMAGE;
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
@@ -88,7 +90,8 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2D->setEnabled(!is_raw);
     ui_->Filter2D->setChecked(filter2D_enabled);
 
-    ui_->Filter2DView->setVisible(filter2D_enabled);
+    ui_->Filter2DView->setVisible(filter2D_enabled || using_delete_twin);
+    ui_->Filter2DView->setEnabled(!is_raw);
     ui_->Filter2DView->setChecked(!is_raw && api_.view.get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setVisible(filter2D_enabled);
     ui_->Filter2DN1SpinBox->setValue(api_.filter2d.get_filter2d_n1());
@@ -203,6 +206,10 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
     api_.view.set_filter2d_view(checked);
     gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    if (checked && api_.transform.get_space_transformation() == SpaceTransformation::DELETE_TWIN_IMAGE)
+        gui::ensure_delete_twin_overlay(parent_->auxiliary_window_max_size);
+    else if (!checked)
+        gui::disable_delete_twin_overlay();
     parent_->notify();
 }
 
@@ -211,7 +218,21 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     SpaceTransformation st = json{value.toStdString()}[0].get<SpaceTransformation>();
 
     if (api_.transform.set_space_transformation(st) == ApiCode::OK)
+    {
+        if (st == SpaceTransformation::DELETE_TWIN_IMAGE)
+            gui::ensure_delete_twin_overlay(parent_->auxiliary_window_max_size);
+        else
+        {
+            gui::disable_delete_twin_overlay();
+            if (!api_.filter2d.get_filter2d_enabled() && api_.view.get_filter2d_view_enabled())
+            {
+                api_.view.set_filter2d_view(false);
+                gui::set_filter2d_view(false, 0);
+            }
+        }
+
         parent_->notify();
+    }
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)

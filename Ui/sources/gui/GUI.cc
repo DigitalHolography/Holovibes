@@ -2,6 +2,7 @@
 #include "user_interface_descriptor.hh"
 #include "API.hh"
 
+#include <optional>
 #include <regex>
 #include <string>
 
@@ -12,6 +13,11 @@
 
 namespace holovibes::gui
 {
+namespace
+{
+std::optional<bool> g_previous_filter2d_view_enabled;
+std::optional<bool> g_previous_filter2d_enabled;
+}
 
 void start(ushort window_size)
 {
@@ -167,7 +173,66 @@ void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
         UI.filter2d_window->setTitle("Filter2D view");
     }
     else
+    {
+        disable_delete_twin_overlay();
         UI.filter2d_window.reset(nullptr);
+    }
+}
+
+void ensure_delete_twin_overlay(uint auxiliary_window_max_size)
+{
+    if (!UI.mainDisplay || API.compute.get_is_computation_stopped() || API.compute.get_compute_mode() == Computation::Raw ||
+        !API.compute.get_compute_pipe())
+        return;
+
+    if (!g_previous_filter2d_view_enabled.has_value())
+        g_previous_filter2d_view_enabled = API.view.get_filter2d_view_enabled();
+
+    if (!g_previous_filter2d_enabled.has_value())
+        g_previous_filter2d_enabled = API.filter2d.get_filter2d_enabled();
+
+    if (!API.filter2d.get_filter2d_enabled())
+        API.filter2d.set_filter2d_enabled(true);
+
+    if (!API.view.get_filter2d_view_enabled())
+    {
+        API.view.set_filter2d_view(true);
+        gui::set_filter2d_view(true, auxiliary_window_max_size);
+    }
+    else if (!UI.filter2d_window)
+    {
+        gui::set_filter2d_view(true, auxiliary_window_max_size);
+    }
+
+    if (UI.filter2d_window)
+        UI.filter2d_window->getOverlayManager().enable<gui::DeleteTwinMask>();
+}
+
+void disable_delete_twin_overlay()
+{
+    if (UI.filter2d_window)
+        UI.filter2d_window->getOverlayManager().disable(gui::DeleteTwinMask);
+
+    const bool should_close =
+        g_previous_filter2d_view_enabled.has_value() && !g_previous_filter2d_view_enabled.value() &&
+        API.view.get_filter2d_view_enabled();
+    g_previous_filter2d_view_enabled.reset();
+
+    if (g_previous_filter2d_enabled.has_value())
+    {
+        const bool should_disable_filter =
+            !g_previous_filter2d_enabled.value() && API.filter2d.get_filter2d_enabled();
+        g_previous_filter2d_enabled.reset();
+
+        if (should_disable_filter)
+            API.filter2d.set_filter2d_enabled(false);
+    }
+
+    if (should_close)
+    {
+        API.view.set_filter2d_view(false);
+        gui::set_filter2d_view(false, 0);
+    }
 }
 
 void set_lens_view(bool enabled, uint auxiliary_window_max_size)

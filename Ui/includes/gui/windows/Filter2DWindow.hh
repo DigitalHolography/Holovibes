@@ -7,6 +7,8 @@
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
 
+class QMouseEvent;
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -33,5 +35,9 @@ class Filter2DWindow : public BasicOpenGLWindow
 
     void focusInEvent(QFocusEvent*) override;
     void closeEvent(QCloseEvent*) override;
+
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
 };
 } // namespace holovibes::gui

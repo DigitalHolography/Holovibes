@@ -6,6 +6,7 @@
 
 #include "texture_update.cuh"
 #include "Filter2DWindow.hh"
+#include <QMouseEvent>
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
@@ -157,6 +158,8 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     API.view.change_window(WindowKind::Filter2D);
     NotifierManager::notify("notify", true);
+    if (API.transform.get_space_transformation() == SpaceTransformation::DELETE_TWIN_IMAGE)
+        overlay_manager_.enable<gui::DeleteTwinMask>();
 }
 
 void Filter2DWindow::closeEvent(QCloseEvent* e)
@@ -164,5 +167,15 @@ void Filter2DWindow::closeEvent(QCloseEvent* e)
     API.view.set_filter2d_view(false);
     gui::set_filter2d_view(false, 0);
     NotifierManager::notify("notify", true);
+}
+
+void Filter2DWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
+
+void Filter2DWindow::mouseMoveEvent(QMouseEvent* e) { overlay_manager_.move(e); }
+
+void Filter2DWindow::mouseReleaseEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+        overlay_manager_.release(fd_.width);
 }
 } // namespace holovibes::gui
