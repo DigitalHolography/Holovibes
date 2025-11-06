@@ -593,7 +593,6 @@ void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
 
 void MainWindow::camera_PCO_Edge4_2lt()
 {
-    LOG_ERROR("main.cc Switching to PCO Edge 4.2 LT camera");
     change_camera(CameraKind::PCO_Edge4_2lt);
 }
 
