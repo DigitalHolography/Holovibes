@@ -32,30 +32,23 @@ CameraPCO_Edge4_2lt::CameraPCO_Edge4_2lt()
     catch (const pco::CameraException e)
     {
         Logger::camera()->error("Failed to initialize PCO camera in constructor: {}", e.what());
-        throw CameraException(CameraException::NOT_INITIALIZED);
+        throw CameraException(CameraException::NOT_CONNECTED);
     }
 }
 CapturedFramesDescriptor CameraPCO_Edge4_2lt::get_frames()
 {
     try
     {
-        // Use rolling buffer to get the NEXT available image, not the latest
         pco_camera_.waitForNewImage(true, FRAME_TIMEOUT / 1000.0);
         pco_camera_.image(current_image_,
                           0,
                           (fd_.depth == PixelDepth::Bits8) ? pco::DataFormat::Mono8 : pco::DataFormat::Mono16);
 
-        // Add frame counter and timing diagnostics
-        static uint64_t frame_count = 0;
         static auto last_frame_time = std::chrono::steady_clock::now();
         auto current_time = std::chrono::steady_clock::now();
         auto time_diff = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_frame_time).count();
-        frame_count++;
+
         
-        if (frame_count % 100 == 0) {
-            Logger::camera()->info("Frame {} - Time since last: {}ms, Buffer size: {} bytes", 
-                                   frame_count, time_diff, current_image_.data().second);
-        }
         last_frame_time = current_time;
 
         auto now = std::chrono::steady_clock::now();
@@ -226,24 +219,24 @@ void CameraPCO_Edge4_2lt::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    exposure_time_ = pt.get<double>("pco.exposure_time", exposure_time_);
-    frame_period_ = pt.get<double>("pco.frame_period", frame_period_);
+    exposure_time_ = pt.get<double>("pco_edge.exposure_time", exposure_time_);
+    frame_period_ = pt.get<double>("pco_edge.frame_period", frame_period_);
 
     // roi params
-    roi_x_ = pt.get<unsigned int>("pco.roi_x", roi_x_);
-    roi_y_ = pt.get<unsigned int>("pco.roi_y", roi_y_);
-    roi_width_ = pt.get<unsigned int>("pco.roi_width", roi_width_);
-    roi_height_ = pt.get<unsigned int>("pco.roi_height", roi_height_);
+    roi_x_ = pt.get<unsigned int>("pco_edge.roi_x", roi_x_);
+    roi_y_ = pt.get<unsigned int>("pco_edge.roi_y", roi_y_);
+    roi_width_ = pt.get<unsigned int>("pco_edge.roi_width", roi_width_);
+    roi_height_ = pt.get<unsigned int>("pco_edge.roi_height", roi_height_);
 
     // fd params
-    pixel_format_ = pt.get<std::string>("pco.pixel_format", "Mono16");
+    pixel_format_ = pt.get<std::string>("pco_edge.pixel_format", "Mono16");
     fd_.width = roi_width_;
     fd_.height = roi_height_;
     fd_.depth = (pixel_format_ == "Mono8") ? PixelDepth::Bits8 : PixelDepth::Bits16;
 
     // other params
-    trigger_mode_ = pt.get<unsigned int>("pco.trigger_mode", trigger_mode_);
-    pixel_rate_ = pt.get<unsigned int>("pco.pixel_rate", pixel_rate_);
+    trigger_mode_ = pt.get<unsigned int>("pco_edge.trigger_mode", trigger_mode_);
+    pixel_rate_ = pt.get<unsigned int>("pco_edge.pixel_rate", pixel_rate_);
 
     Logger::camera()->debug("Loaded INI params: {}x{} ROI at ({},{}), {}s exposure",
                             roi_width_,
