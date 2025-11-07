@@ -295,6 +295,8 @@ class InputApi : public IApi
             return "AutoDetectionPhantom";
         case CameraKind::ASI:
             return "ASI";
+        case CameraKind::PCO_Edge4_2lt:
+            return "PCO_Edge4_2lt";
         default:
             return "Unknown";
         }

@@ -1,5 +1,25 @@
 ## Changelog
 
+### 14.11.5
+
+- Add a new config files for adimec cameras.
+
+### 14.11.4
+
+- Fix issue where when the recording contains a lot of frames, sometimes the timestamps where not accurate.
+
+### 14.11.3
+
+- Updated a dependency to avoid a security risk
+
+### 14.11.2
+
+- Added a second offset timestamp and renamed timestamps in footer
+
+### 14.11.1
+
+- Precise timestamps are now synced with the unix system time, added more pertinent timestamps in the footer.
+
 ### 14.11.0
 
 - Add precise Timestamps in the footer of files recorded with Ametek cameras.

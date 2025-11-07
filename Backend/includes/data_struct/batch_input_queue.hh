@@ -185,8 +185,16 @@ class BatchInputQueue final : public DisplayQueue
 
     const camera::FrameDescriptor& get_fd() const { return fd_; }
 
-    void
-    enqueue_with_ids(const void* const frames, const cudaMemcpyKind memcpy_kind, const int nb_frame, uint64_t base_id);
+    // Enqueue frames with IDs and timing base info (for RAW record stamping)
+    // ts0_* correspond to the first frame (base_id) of this call.
+    void enqueue_with_ids(const void* const frames,
+                          const cudaMemcpyKind memcpy_kind,
+                          const int nb_frame,
+                          uint64_t base_id,
+                          uint64_t ts0_synced_us,
+                          uint64_t period_us,
+                          uint64_t ts0_cam_us,
+                          uint64_t offset_us);
 
     const uint64_t* ids_data() const { return ids_.get(); }
 
@@ -298,6 +306,10 @@ class BatchInputQueue final : public DisplayQueue
      */
     std::atomic<Device>& device_;
 
+    // Per-frame metadata, parallel to stored frames
     std::unique_ptr<uint64_t[]> ids_{nullptr};
+    std::unique_ptr<uint64_t[]> synced_ts_{nullptr};
+    std::unique_ptr<uint64_t[]> camera_ts_{nullptr};
+    std::unique_ptr<uint64_t[]> offset_ts_{nullptr};
 };
 } // namespace holovibes
