@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.6
+
+- Add PCO_edge 4.2 LT camera.
+
 ### 14.11.5
 
 - Add a new config files for adimec cameras.
