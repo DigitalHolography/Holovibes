@@ -171,6 +171,8 @@ void LightUI::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind
 
 void LightUI::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void LightUI::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
+
 void LightUI::configure_camera()
 {
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(API.input.get_camera_ini_name())));

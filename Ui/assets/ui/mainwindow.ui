@@ -3349,6 +3349,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
      <addaction name="AutoDetectionPhantom"/>
      <addaction name="actionASI"/>
+     <addaction name="actionPCO_Edge4_2lt"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3366,6 +3367,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionASISettings"/>
+     <addaction name="actionPCO_Edge4_2ltSettings"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3728,6 +3730,17 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+F</string>
    </property>
   </action>
+<!-- Ajoutez ces deux actions à la fin de la section des actions -->
+<action name="actionPCO_Edge4_2lt">
+  <property name="text">
+    <string>PCO Edge 4.2 LT</string>
+  </property>
+</action>
+<action name="actionPCO_Edge4_2ltSettings">
+  <property name="text">
+    <string>PCO Edge 4.2 LT</string>
+  </property>
+</action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -3925,6 +3938,7 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  
   <connection>
    <sender>actionAdimec</sender>
    <signal>triggered()</signal>
