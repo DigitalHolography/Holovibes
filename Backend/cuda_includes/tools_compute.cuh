@@ -16,9 +16,13 @@
 __global__ void
 kernel_complex_divide(cuComplex* image, const uint frame_res, const float divider, const uint batch_size);
 
+void complex_divide(
+    cuComplex* image, const uint frame_res, const float divider, const uint batch_size, const cudaStream_t stream);
+
 /*! \brief  divide pixels value of numerator float input images by denominator
  *
- * The images to divide should have the same size.
+ * The images to divide should have
+ * the same size.
  * The result is given in output.
  * Output should have the same size of inputs.
  */

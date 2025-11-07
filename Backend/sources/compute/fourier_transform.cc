@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <cmath>
 #include <sstream>
+#include <vector>
 
 #include "fourier_transform.hh"
 
@@ -9,6 +11,7 @@
 
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
+#include "tools_unwrap.cuh"
 #include "filter2D.cuh"
 #include "input_filter.cuh"
 #include "fresnel_transform.cuh"
@@ -22,7 +25,9 @@
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
 #include "matrix_operations.hh"
+#include "delete_twin_image.cuh"
 #include "delete_twin_image_masks.cuh"
+#include "compute_bundles_2d.hh"
 #include "logger.hh"
 
 using holovibes::FunctionVector;
@@ -31,6 +36,8 @@ using holovibes::compute::FourierTransform;
 
 namespace
 {
+constexpr float kDeleteTwinPhaseGaussianSigma = 60.0f;
+
 struct RectBounds
 {
     int x_min;
@@ -69,6 +76,58 @@ RectBounds build_symmetric_rect(const RectBounds& rect, int width, int height)
     return RectBounds{x_min, x_max, y_min, y_max};
 }
 } // namespace
+
+void FourierTransform::ensure_delete_twin_image_resources(size_t total_elements)
+{
+    if (total_elements == 0)
+        return;
+
+    if (delete_twin_elements_capacity_ < total_elements)
+    {
+        gpu_delete_twin_frequency_buffer_.resize(total_elements);
+        gpu_delete_twin_phase_buffer_.resize(total_elements);
+        gpu_delete_twin_phase_blurred_buffer_.resize(total_elements);
+        gpu_delete_twin_gaussian_temp_buffer_.resize(total_elements);
+        gpu_delete_twin_amplitude_buffer_.resize(total_elements);
+        delete_twin_elements_capacity_ = total_elements;
+    }
+
+    const size_t frame_res = fd_.get_frame_res();
+    if (!delete_twin_unwrap_res_)
+        delete_twin_unwrap_res_ = std::make_unique<UnwrappingResources_2d>(frame_res, stream_);
+    else if (delete_twin_unwrap_res_->image_resolution_ != frame_res)
+        delete_twin_unwrap_res_->reallocate(frame_res);
+}
+
+void FourierTransform::prepare_delete_twin_gaussian_kernel(float sigma)
+{
+    if (sigma <= 0.0f)
+        return;
+
+    delete_twin_gaussian_radius_ = static_cast<int>(std::ceil(3.0f * sigma));
+    const int kernel_size = 2 * delete_twin_gaussian_radius_ + 1;
+    std::vector<float> host_kernel(kernel_size);
+    const float denom = 2.0f * sigma * sigma;
+    float sum = 0.0f;
+    for (int i = -delete_twin_gaussian_radius_; i <= delete_twin_gaussian_radius_; ++i)
+    {
+        const float value = std::exp(-(static_cast<float>(i * i)) / denom);
+        const int idx = i + delete_twin_gaussian_radius_;
+        host_kernel[idx] = value;
+        sum += value;
+    }
+    for (float& value : host_kernel)
+        value /= sum;
+
+    if (gpu_delete_twin_gaussian_kernel_.get_size() < static_cast<size_t>(kernel_size) * sizeof(float))
+        gpu_delete_twin_gaussian_kernel_.resize(kernel_size);
+
+    cudaXMemcpyAsync(gpu_delete_twin_gaussian_kernel_.get(),
+                     host_kernel.data(),
+                     kernel_size * sizeof(float),
+                     cudaMemcpyHostToDevice,
+                     stream_);
+}
 
 void FourierTransform::insert_fft(const uint width, const uint height)
 {
@@ -120,6 +179,7 @@ void FourierTransform::insert_fft(const uint width, const uint height)
         break;
     case SpaceTransformation::DELETE_TWIN_IMAGE:
         insert_delete_twin_image_transform();
+        should_enqueue_lens = true;
         break;
     default:
         LOG_WARN("Unknown space transformation requested");
@@ -218,6 +278,25 @@ void FourierTransform::insert_delete_twin_image_transform()
 
     const int width = fd_.width;
     const int height = fd_.height;
+    const size_t frame_res = fd_.get_frame_res();
+    const uint batch_size = setting<settings::BatchSize>();
+    const size_t total_elements = frame_res * static_cast<size_t>(batch_size);
+    ensure_delete_twin_image_resources(total_elements);
+    prepare_delete_twin_gaussian_kernel(kDeleteTwinPhaseGaussianSigma);
+
+    angular_spectrum_lens(gpu_lens_.get(),
+                          width,
+                          height,
+                          setting<settings::ZDistance>(),
+                          setting<settings::Lambda>(),
+                          setting<settings::PixelSize>() * 1e-6f,
+                          setting<settings::PixelSize>() * 1e-6f,
+                          stream_);
+
+    shift_corners(gpu_lens_.get(), 1, width, height, stream_);
+
+    if (setting<settings::Filter2dEnabled>())
+        apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), width * height, 1, stream_);
 
     fn_compute_vect_->push_back(
         [=]()
@@ -259,6 +338,81 @@ void FourierTransform::insert_delete_twin_image_transform()
                      symmetric.y_max,
                      symmetric_width,
                      symmetric_height);
+        });
+
+    fn_compute_vect_->push_back(
+        [=]()
+        {
+            const uint batch_size = setting<settings::BatchSize>();
+            if (batch_size == 0)
+                return;
+
+            const size_t frame_res = fd_.get_frame_res();
+            const size_t total_elements = frame_res * static_cast<size_t>(batch_size);
+            ensure_delete_twin_image_resources(total_elements);
+
+            cuComplex* spatial = static_cast<cuComplex*>(buffers_.gpu_spatial_transformation_buffer.get());
+            cuComplex* freq_copy = gpu_delete_twin_frequency_buffer_.get();
+            float* phase_buffer = gpu_delete_twin_phase_buffer_.get();
+            float* phase_blurred = gpu_delete_twin_phase_blurred_buffer_.get();
+            float* gaussian_temp = gpu_delete_twin_gaussian_temp_buffer_.get();
+            float* amplitude = gpu_delete_twin_amplitude_buffer_.get();
+
+            cufftSafeCall(cufftXtExec(spatial_transformation_plan_, spatial, spatial, CUFFT_FORWARD));
+
+            cudaXMemcpyAsync(freq_copy, spatial, total_elements * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream_);
+
+            apply_mask(spatial, buffers_.gpu_delete_twin_image_mp_mask.get(), frame_res, batch_size, stream_);
+            shift_corners(spatial, batch_size, fd_.width, fd_.height, stream_);
+            cufftSafeCall(cufftXtExec(spatial_transformation_plan_, spatial, spatial, CUFFT_INVERSE));
+            complex_divide(spatial, frame_res, static_cast<float>(frame_res), batch_size, stream_);
+
+            apply_mask(freq_copy, buffers_.gpu_delete_twin_image_ma_mask.get(), frame_res, batch_size, stream_);
+            cufftSafeCall(cufftXtExec(spatial_transformation_plan_, freq_copy, freq_copy, CUFFT_INVERSE));
+            complex_divide(freq_copy, frame_res, static_cast<float>(frame_res), batch_size, stream_);
+
+            for (uint batch_idx = 0; batch_idx < batch_size; ++batch_idx)
+            {
+                cuComplex* ma_frame = freq_copy + batch_idx * frame_res;
+                float* amplitude_frame = amplitude + batch_idx * frame_res;
+                complex_to_modulus_oct(amplitude_frame, ma_frame, frame_res, 0, 0, stream_);
+
+                cuComplex* mp_frame = spatial + batch_idx * frame_res;
+                float* phase_frame = phase_buffer + batch_idx * frame_res;
+                complex_to_argument(phase_frame, mp_frame, 0, 0, frame_res, stream_);
+                unwrap_2d(phase_frame,
+                          phase_frame,
+                          delete_twin_plan_unwrap_2d_,
+                          delete_twin_unwrap_res_.get(),
+                          fd_,
+                          stream_);
+            }
+
+            if (delete_twin_gaussian_radius_ > 0 && gpu_delete_twin_gaussian_kernel_.get())
+            {
+                gaussian_blur_batch(phase_buffer,
+                                    gaussian_temp,
+                                    phase_blurred,
+                                    gpu_delete_twin_gaussian_kernel_.get(),
+                                    delete_twin_gaussian_radius_,
+                                    fd_.width,
+                                    fd_.height,
+                                    batch_size,
+                                    stream_);
+                subtract_arrays(phase_buffer, phase_buffer, phase_blurred, total_elements, stream_);
+            }
+
+            combine_amplitude_phase(spatial, amplitude, phase_buffer, total_elements, true, stream_);
+
+            angular_spectrum(spatial,
+                             spatial,
+                             batch_size,
+                             gpu_lens_.get(),
+                             buffers_.gpu_complex_filter2d_frame,
+                             false,
+                             spatial_transformation_plan_,
+                             fd_,
+                             stream_);
         });
 }
 

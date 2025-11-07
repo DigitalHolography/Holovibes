@@ -64,6 +64,7 @@ struct BatchEnv;
 struct TimeTransformationEnv;
 struct CoreBuffersEnv;
 struct MomentsEnv;
+struct UnwrappingResources_2d;
 } // namespace holovibes
 
 namespace holovibes::compute
@@ -99,6 +100,7 @@ class FourierTransform
         , pipe_refresh_settings_(settings)
     {
         gpu_lens_.resize(fd_.get_frame_res());
+        delete_twin_plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
     }
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
@@ -160,10 +162,13 @@ class FourierTransform
     void insert_angular_spectrum(bool filter2d_enabled);
     /*! \brief Prepare masks used by the delete twin image transform. */
     void insert_delete_twin_image_transform();
+    void ensure_delete_twin_image_resources(size_t total_elements);
+    void prepare_delete_twin_gaussian_kernel(float sigma);
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *
-     * It will enqueue the lens, and normalize it, in order to display it correctly later.
+     * It will enqueue the lens, and normalize it,
+     * in order to display it correctly later.
      */
     void enqueue_lens(SpaceTransformation space_transformation);
 
@@ -221,6 +226,17 @@ class FourierTransform
     MomentsEnv& moments_env_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
+
+    cuda_tools::CudaUniquePtr<cuComplex> gpu_delete_twin_frequency_buffer_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_phase_buffer_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_phase_blurred_buffer_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_gaussian_temp_buffer_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_amplitude_buffer_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_delete_twin_gaussian_kernel_ = nullptr;
+    int delete_twin_gaussian_radius_ = 0;
+    size_t delete_twin_elements_capacity_ = 0;
+    std::unique_ptr<UnwrappingResources_2d> delete_twin_unwrap_res_;
+    cuda_tools::CufftHandle delete_twin_plan_unwrap_2d_;
 
     DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;

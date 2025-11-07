@@ -24,6 +24,15 @@ kernel_complex_divide(cuComplex* image, const uint frame_res, const float divide
     }
 }
 
+void complex_divide(
+    cuComplex* image, const uint frame_res, const float divider, const uint batch_size, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_complex_divide<<<blocks, threads, 0, stream>>>(image, frame_res, divider, batch_size);
+    cudaCheckError();
+}
+
 __global__ void
 kernel_divide_frames_float(float* output, const float* numerator, const float* denominator, const uint size)
 {
