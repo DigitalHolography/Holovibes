@@ -28,7 +28,8 @@
 #define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
-    holovibes::settings::Q
+    holovibes::settings::Q,                        \
+    holovibes::settings::DeleteTwinImageRectangle
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \
@@ -50,8 +51,7 @@
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
-    holovibes::settings::SpaceTransformation,      \
-    holovibes::settings::DeleteTwinImageRectangle
+    holovibes::settings::SpaceTransformation
 
 #define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPEREFRESH_SETTINGS
 

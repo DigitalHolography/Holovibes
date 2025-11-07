@@ -239,6 +239,26 @@ void FourierTransform::insert_delete_twin_image_transform()
                                                            symmetric.y_min,
                                                            symmetric.y_max,
                                                            stream_);
+
+            const int rect_width = sanitized.x_max - sanitized.x_min;
+            const int rect_height = sanitized.y_max - sanitized.y_min;
+            const int symmetric_width = symmetric.x_max - symmetric.x_min;
+            const int symmetric_height = symmetric.y_max - symmetric.y_min;
+
+            LOG_INFO("Delete twin masks rebuilt. Primary rect x:[{}:{}), y:[{}:{}), size:{}x{} px. "
+                     "Symmetric rect x:[{}:{}), y:[{}:{}), size:{}x{} px.",
+                     sanitized.x_min,
+                     sanitized.x_max,
+                     sanitized.y_min,
+                     sanitized.y_max,
+                     rect_width,
+                     rect_height,
+                     symmetric.x_min,
+                     symmetric.x_max,
+                     symmetric.y_min,
+                     symmetric.y_max,
+                     symmetric_width,
+                     symmetric_height);
         });
 }
 

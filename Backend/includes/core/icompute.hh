@@ -45,6 +45,7 @@
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
+    holovibes::settings::DeleteTwinImageRectangle,               \
     holovibes::settings::CompositeKind,                          \
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
