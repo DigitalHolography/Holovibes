@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.7
+
+- Fix Convolution crashes in view mode.
+
 ### 14.11.6
 
 - Add PCO_edge 4.2 LT camera.
