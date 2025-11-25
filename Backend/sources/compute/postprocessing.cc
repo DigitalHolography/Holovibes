@@ -29,9 +29,16 @@ void Postprocessing::init()
 
     gpu_kernel_buffer_.resize(frame_res);
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+
+    const auto& convolution_matrix_setting = std::get<settings::ConvolutionMatrix>(pipe_refresh_settings_.settings_);
+    const auto& convolution_matrix = convolution_matrix_setting.value;
+    if (convolution_matrix.empty())
+        return;
+
+    // Use the settings storage directly so the host buffer stays valid until the async copy completes.
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   setting<settings::ConvolutionMatrix>().data(),
+                                   convolution_matrix.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
