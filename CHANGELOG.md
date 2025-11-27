@@ -1,8 +1,8 @@
 ## Changelog
 
-### 14.11.7
+### 14.11.9
 
-- Add a new way to launch processholofile script using a .bat file instead of powershell directly.
+- Add a new ways to launch processholofile script using a .exe file instead of powershell directly.
 
 ### 14.11.7
 
