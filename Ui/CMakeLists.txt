@@ -202,7 +202,9 @@ install(DIRECTORY "${UI_DIR}/assets/style/"
     COMPONENT application
 )
 
-install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
+install(PROGRAMS
+    "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
+    "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.bat"
     DESTINATION scripts
     COMPONENT process
 )
@@ -338,7 +340,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${EndIf}
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
-        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.bat\\\" \\\"\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
         CreateShortCut \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
 ")
