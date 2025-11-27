@@ -1,8 +1,9 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
-# Determine the script's directory
-$scriptPath = Split-Path -Parent -Path $PSScriptRoot
+# Determine directories relative to this script
+$scriptDir  = $PSScriptRoot
+$scriptPath = Split-Path -Parent -Path $scriptDir  # install root if script lives in "scripts/"
 
 # Function to select folder
 function Select-Folder([string]$description, [string]$initial = '') {
@@ -146,8 +147,20 @@ if (-not $holoFiles) {
     exit
 }
 
-# Determine executable path
-$exePath = if (Test-Path 'Holovibes.exe') { 'Holovibes.exe' } else { 'build/bin/Holovibes.exe' }
+# Determine executable path relative to the script location first, then fall back to CWD
+$exeCandidates = @(
+    (Join-Path $scriptDir 'Holovibes.exe')
+    (Join-Path $scriptPath 'Holovibes.exe')
+    (Join-Path $scriptPath 'build/bin/Holovibes.exe')
+    'Holovibes.exe'
+    'build/bin/Holovibes.exe'
+)
+
+$exePath = $exeCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $exePath) {
+    Write-Host "Unable to locate Holovibes.exe." -ForegroundColor Red
+    exit
+}
 Write-Host "Using executable: $exePath" -ForegroundColor Cyan
 
 # Function to run Holovibes 
