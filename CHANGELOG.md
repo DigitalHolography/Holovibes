@@ -2,6 +2,10 @@
 
 ### 14.11.7
 
+- Add a new way to launch processholofile script using a .bat file instead of powershell directly.
+
+### 14.11.7
+
 - Fix Convolution crashes in view mode.
 
 ### 14.11.6
