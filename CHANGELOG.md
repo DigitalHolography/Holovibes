@@ -1,6 +1,10 @@
 ## Changelog
 
-### 14.11.9
+### 14.11.11
+
+- Update the default setting to record 163840 frames or about 4.42 seconds at 37 frames per second (doppler_8b_384_384_37.json).
+
+### 14.11.10
 
 - Add a new ways to launch processholofile script using a .exe file instead of powershell directly.
 

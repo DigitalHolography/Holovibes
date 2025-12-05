@@ -4,7 +4,7 @@
             "file": 1024,
             "input": 131072,
             "output": 1024,
-            "record": 131072,
+            "record": 163840,
             "time_transformation_cuts": 512
         },
         "contrast": {
@@ -16,7 +16,7 @@
             "high": 1,
             "low": 0
         },
-        "nb_frames_to_record": 131072,
+        "nb_frames_to_record": 163840,
         "raw_bitshift": 0,
         "renorm_constant": 5
     },

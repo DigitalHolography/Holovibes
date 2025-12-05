@@ -87,7 +87,10 @@ MainWindow::MainWindow(QWidget* parent)
     if (ui_->actionPCO_Edge4_2lt)
         connect(ui_->actionPCO_Edge4_2lt, &QAction::triggered, this, &MainWindow::camera_PCO_Edge4_2lt);
     if (ui_->actionPCO_Edge4_2ltSettings)
-        connect(ui_->actionPCO_Edge4_2ltSettings, &QAction::triggered, this, &MainWindow::camera_PCO_Edge4_2lt_settings);
+        connect(ui_->actionPCO_Edge4_2ltSettings,
+                &QAction::triggered,
+                this,
+                &MainWindow::camera_PCO_Edge4_2lt_settings);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -591,10 +594,7 @@ void MainWindow::camera_alvium()
 
 void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
 
-void MainWindow::camera_PCO_Edge4_2lt()
-{
-    change_camera(CameraKind::PCO_Edge4_2lt);
-}
+void MainWindow::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
 
 void open_file(const std::string& filename)
 {
@@ -728,7 +728,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_37.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
