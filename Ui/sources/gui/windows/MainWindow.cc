@@ -95,10 +95,7 @@ MainWindow::MainWindow(QWidget* parent)
     if (ui_->actionPCO_Edge5_5)
         connect(ui_->actionPCO_Edge5_5, &QAction::triggered, this, &MainWindow::camera_PCO_Edge5_5);
     if (ui_->actionPCO_Edge5_5Settings)
-        connect(ui_->actionPCO_Edge5_5Settings,
-                &QAction::triggered,
-                this,
-                &MainWindow::camera_PCO_Edge5_5_settings);
+        connect(ui_->actionPCO_Edge5_5Settings, &QAction::triggered, this, &MainWindow::camera_PCO_Edge5_5_settings);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -651,7 +648,7 @@ void MainWindow::camera_asi_settings() { open_file("asi.ini"); }
 
 void MainWindow::camera_PCO_Edge4_2lt_settings() { open_file("pco_edge_4.2lt.ini"); }
 
-void MainWindow::camera_PCO_Edge5_5_settings() { open_file("pco_edge5.5.ini"); }
+void MainWindow::camera_PCO_Edge5_5_settings() { open_file("pco_edge_5.5.ini"); }
 
 #pragma endregion
 

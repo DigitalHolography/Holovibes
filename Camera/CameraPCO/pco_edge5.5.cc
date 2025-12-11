@@ -12,7 +12,7 @@ namespace camera
 {
 
 CameraPCO_Edge5_5::CameraPCO_Edge5_5()
-    : Camera("pco_edge_5_5.ini")
+    : Camera("pco_edge_5.5.ini")
 {
     try
     {
@@ -167,7 +167,7 @@ int CameraPCO_Edge5_5::get_camera_fps() const
     }
     
     // Fallback: conservative pixel-based estimation (with warning)
-    Logger::camera()->warn("Using approximate FPS estimation for {}x{} ROI", width, height);
+    Logger::camera()->warn("Pco edge 5.5 Using approximate FPS estimation for {}x{} ROI", width, height);
     double reference_pixels = 2560.0 * 2160.0;
     double current_pixels = width * height;
     double pixel_ratio = reference_pixels / current_pixels;
@@ -332,8 +332,4 @@ void CameraPCO_Edge5_5::bind_params()
     }
 }
 
-ICamera* new_camera_device() 
-{
-    return new CameraPCO_Edge5_5(); 
-}
 } // namespace camera

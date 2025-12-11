@@ -1,6 +1,7 @@
 project(CameraPCO CXX)
 
 add_library("${PROJECT_NAME}" SHARED
+    pco_detection.cc
     pco_edge4.2lt.cc
     pco_edge5.5.cc
     ../Camera/camera_logger.cc

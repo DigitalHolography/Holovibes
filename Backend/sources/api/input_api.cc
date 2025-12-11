@@ -214,6 +214,10 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
 
         // Load the camera
         auto active_camera = camera::CameraDLL::load_camera(camera_dictionary.at(c));
+        
+        if (!active_camera)
+            throw std::runtime_error("Camera is none");
+        
         Holovibes::instance().active_camera_ = active_camera;
 
         set_pixel_size(active_camera->get_pixel_size());

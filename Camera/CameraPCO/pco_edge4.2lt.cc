@@ -287,8 +287,5 @@ void CameraPCO_Edge4_2lt::bind_params()
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }
 }
-ICamera* new_camera_device() 
-{
-    return new CameraPCO_Edge4_2lt(); 
-}
+
 } // namespace camera

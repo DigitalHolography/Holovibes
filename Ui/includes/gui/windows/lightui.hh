@@ -172,9 +172,6 @@ class LightUI : public QMainWindow
     /*! \brief Load the PCO Edge 4.2lt camera */
     void camera_PCO_Edge4_2lt();
 
-    /*! \brief Load the PCO Edge 4.2lt camera */
-    void camera_PCO_Edge4_2lt();
-
     /*! \brief Load the PCO Edge 5.5 camera */
     void camera_PCO_Edge5_5();
 
