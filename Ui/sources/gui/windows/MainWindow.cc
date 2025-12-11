@@ -92,6 +92,14 @@ MainWindow::MainWindow(QWidget* parent)
                 this,
                 &MainWindow::camera_PCO_Edge4_2lt_settings);
 
+    if (ui_->actionPCO_Edge5_5)
+        connect(ui_->actionPCO_Edge5_5, &QAction::triggered, this, &MainWindow::camera_PCO_Edge5_5);
+    if (ui_->actionPCO_Edge5_5Settings)
+        connect(ui_->actionPCO_Edge5_5Settings,
+                &QAction::triggered,
+                this,
+                &MainWindow::camera_PCO_Edge5_5_settings);
+
     qRegisterMetaType<std::function<void()>>();
     connect(this,
             SIGNAL(synchronize_thread_signal(std::function<void()>)),
@@ -596,6 +604,8 @@ void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
 
 void MainWindow::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
 
+void MainWindow::camera_PCO_Edge5_5() { change_camera(CameraKind::PCO_Edge5_5); }
+
 void open_file(const std::string& filename)
 {
     if (filename.empty())
@@ -640,6 +650,8 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 void MainWindow::camera_asi_settings() { open_file("asi.ini"); }
 
 void MainWindow::camera_PCO_Edge4_2lt_settings() { open_file("pco_edge_4.2lt.ini"); }
+
+void MainWindow::camera_PCO_Edge5_5_settings() { open_file("pco_edge5.5.ini"); }
 
 #pragma endregion
 

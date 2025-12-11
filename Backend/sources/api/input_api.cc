@@ -167,7 +167,8 @@ bool InputApi::can_get_camera_fps() const
                                                                CameraKind::AmetekS711EuresysCoaxlinkQSFP,
                                                                CameraKind::AmetekS991EuresysCoaxlinkQSFP,
                                                                CameraKind::Ametek,
-                                                               CameraKind::PCO_Edge4_2lt};
+                                                               CameraKind::PCO_Edge4_2lt,
+                                                               CameraKind::PCO_Edge5_5};
     return (std::find(compatible_cameras.begin(), compatible_cameras.end(), api_->input.get_camera_kind()) !=
             compatible_cameras.end());
 }
@@ -208,7 +209,8 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
             {CameraKind::Alvium, "CameraAlvium.dll"},
             {CameraKind::AutoDetectionPhantom, "CameraPhantomAutoDetection.dll"},
             {CameraKind::ASI, "CameraASI.dll"},
-            {CameraKind::PCO_Edge4_2lt, "CameraPCO.dll"}};
+            {CameraKind::PCO_Edge4_2lt, "CameraPCO.dll"},
+            {CameraKind::PCO_Edge5_5, "CameraPCO.dll"}};
 
         // Load the camera
         auto active_camera = camera::CameraDLL::load_camera(camera_dictionary.at(c));

@@ -3350,6 +3350,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="AutoDetectionPhantom"/>
      <addaction name="actionASI"/>
      <addaction name="actionPCO_Edge4_2lt"/>
+     <addaction name="actionPCO_Edge5_5"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3368,6 +3369,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionASISettings"/>
      <addaction name="actionPCO_Edge4_2ltSettings"/>
+     <addaction name="actionPCO_Edge5_5Settings"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3739,6 +3741,16 @@ p, li { white-space: pre-wrap; }
 <action name="actionPCO_Edge4_2ltSettings">
   <property name="text">
     <string>PCO Edge 4.2 LT</string>
+  </property>
+</action>
+<action name="actionPCO_Edge5_5">
+  <property name="text">
+    <string>PCO Edge 5.5</string>
+  </property>
+</action>
+<action name="actionPCO_Edge5_5Settings">
+  <property name="text">
+    <string>PCO Edge 5.5</string>
   </property>
 </action>
  </widget>

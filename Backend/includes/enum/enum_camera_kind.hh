@@ -27,6 +27,7 @@ enum class CameraKind
     Alvium,                        /*!< Alvium-1800-u/2050 */
     AutoDetectionPhantom,          /*!< Auto detection of Euresys' cameras */
     ASI,                           /*!< ASI camera */
-    PCO_Edge4_2lt                  /*!< PCO Edge 4.2 LT camera */
+    PCO_Edge4_2lt,                 /*!< PCO Edge 4.2 LT camera */
+    PCO_Edge5_5                    /*!< PCO Edge 5.5 camera */
 };
 } // namespace holovibes

@@ -297,6 +297,8 @@ class InputApi : public IApi
             return "ASI";
         case CameraKind::PCO_Edge4_2lt:
             return "PCO_Edge4_2lt";
+        case CameraKind::PCO_Edge5_5:
+            return "PCO_Edge5_5";
         default:
             return "Unknown";
         }
