@@ -478,38 +478,52 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
                                        uint64_t ts0_cam_us,
                                        uint64_t offset_us)
 {
+    // Validate copy direction vs. queue device
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
-        throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
+        throw std::runtime_error("Input queue: cannot cudaMemcpy to device when the queue is on CPU");
 
     if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
-        throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
+        throw std::runtime_error("Input queue: cannot cudaMemcpy to host when the queue is on GPU");
+
+    // Source base pointer and sizes
+    const size_t bytes_per_frame = static_cast<size_t>(fd_.get_frame_size());
+    const char* const src_frames_base = static_cast<const char*>(frames);
 
     int frames_left = nb_frame;
-    uint64_t next_id = base_id; // incremented as we write
+    size_t frames_copied = 0; // how many source frames have already been copied
+
+    // IDs/timestamps to write for the next frame
+    uint64_t next_id = base_id;
     uint64_t next_synced = ts0_synced_us;
     uint64_t next_cam = ts0_cam_us;
 
     while (frames_left > 0)
     {
+        // Lock once when starting a new batch
         if (curr_batch_counter_ == 0)
         {
             m_producer_busy_.lock();
             batch_mutexes_[end_index_].lock();
         }
 
+        // Number of frames to enqueue in this iteration
         const uint frames_to_enqueue = std::min(static_cast<uint>(frames_left), batch_size_ - curr_batch_counter_);
 
-        // write image bytes
-        char* const dst_frames = data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
-                                                fd_.get_frame_size());
+        // Destination pointer for this slice
+        char* const dst_frames =
+            data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * bytes_per_frame);
 
+        // advance the source pointer according to already-copied frames
+        const char* const src_frames = src_frames_base + frames_copied * bytes_per_frame;
+
+        // Async copy of image bytes
         cudaXMemcpyAsync(dst_frames,
-                         frames,
-                         sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
+                         src_frames,
+                         bytes_per_frame * static_cast<size_t>(frames_to_enqueue),
                          memcpy_kind,
                          batch_streams_[end_index_]);
 
-        // write metadata for these frames (host)
+        // Write metadata (host)
         const size_t meta_base = static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_;
         uint64_t* const dst_ids = ids_.get() + meta_base;
         uint64_t* const dst_synced = synced_ts_.get() + meta_base;
@@ -523,12 +537,18 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
             dst_cam[i] = ts0_cam_us ? (next_cam + static_cast<uint64_t>(i) * period_us) : 0;
             dst_off[i] = offset_us;
         }
+
+        // Advance ID/time cursors for the next slice
         next_id += frames_to_enqueue;
         next_synced += static_cast<uint64_t>(frames_to_enqueue) * period_us;
         if (ts0_cam_us)
             next_cam += static_cast<uint64_t>(frames_to_enqueue) * period_us;
 
-        // bookkeeping
+        // Advance source-frame counters and remaining frames
+        frames_copied += static_cast<size_t>(frames_to_enqueue);
+        frames_left -= static_cast<int>(frames_to_enqueue);
+
+        // Batch bookkeeping
         curr_batch_counter_ += frames_to_enqueue;
 
         if (curr_batch_counter_ == batch_size_)
@@ -548,18 +568,18 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
                 curr_nb_frames_ += batch_size_;
             }
 
+            // copies are async; the consumer must synchronize the corresponding stream
             batch_mutexes_[prev_end_index].unlock();
             m_producer_busy_.unlock();
 
             if (resize_in_progress_)
             {
+                // Busy-wait until the resize finishes, then exit early
                 while (resize_in_progress_)
                     continue;
                 return;
             }
         }
-
-        frames_left -= frames_to_enqueue;
     }
 }
 
