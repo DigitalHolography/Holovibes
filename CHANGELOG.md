@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.11.12
+
+- Fixed a bug where images can be duplicaded when BufferPartCount greater than BatchSize.
+
 ### 14.11.11
 
 - Update the default setting to record 163840 frames or about 4.42 seconds at 37 frames per second (doppler_8b_384_384_37.json).
