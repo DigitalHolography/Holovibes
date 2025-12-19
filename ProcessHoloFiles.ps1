@@ -163,6 +163,23 @@ if (-not $exePath) {
 }
 Write-Host "Using executable: $exePath" -ForegroundColor Cyan
 
+# Build an output path and, if it already exists, append a counter without extra underscores.
+function Get-UniqueOutputPath {
+    param(
+        [string]$basePath,     # full path without extension
+        [string]$extension     # extension including dot (e.g. ".avi")
+    )
+    $candidate = "$basePath$extension"
+    if (-not (Test-Path $candidate)) { return $candidate }
+
+    $idx = 1
+    while ($true) {
+        $candidate = "$basePath$idx$extension"
+        if (-not (Test-Path $candidate)) { return $candidate }
+        $idx++
+    }
+}
+
 # Function to run Holovibes 
 function Execute-Holovibes {
     param(
@@ -197,18 +214,24 @@ foreach ($file in $holoFiles) {
 
     switch ($modeChoice) {
         1 {
-            $out = Join-Path $outDir "${base}_p${outputExtension}"
+            $outBase = Join-Path $outDir "${base}_p"
+            $ext     = $outputExtension
         }
         2 {
-            $out = Join-Path $outDir "${base}_moments.h5"
+            $outBase = Join-Path $outDir "${base}_moments"
+            $ext     = '.h5'
         }
         3 {
-            $out = Join-Path $outDir "${base}_oct.h5"
+            $outBase = Join-Path $outDir "${base}_oct"
+            $ext     = '.h5'
         }
         4 {
-            $out = Join-Path $outDir "${base}_oct_float.h5"
+            $outBase = Join-Path $outDir "${base}_oct_float"
+            $ext     = '.h5'
         }
     }
+
+    $out = Get-UniqueOutputPath -basePath $outBase -extension $ext
 
     Execute-Holovibes $in $out $frameSkip $input_fps $configFileNormal $modeChoice
 }
