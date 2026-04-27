@@ -18,8 +18,8 @@ set(CAMERA_LIB_DIR "${CMAKE_SOURCE_DIR}/Camera/libs")
 set(PRESET_DIR "${UI_DIR}/assets/preset")
 
 # Common libraries for all targets
-find_package(CUDA 12.2 REQUIRED)
-find_package(CUDAToolkit 12.2 REQUIRED)
+find_package(CUDA 13.0 REQUIRED)
+find_package(CUDAToolkit 13.0 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
@@ -27,6 +27,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(HDF5 REQUIRED)
 find_package(Threads)
 
+set(HOLOVIBES_CUDA_ARCHITECTURES "75;86;89")
 
 # Setup individual targets
 add_subdirectory(Camera)

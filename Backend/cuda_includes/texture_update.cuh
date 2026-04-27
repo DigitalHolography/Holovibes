@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <surface_functions.h>
+#include <surface_indirect_functions.h>
 #include "common.cuh"
 #include "frame_desc.hh"
 

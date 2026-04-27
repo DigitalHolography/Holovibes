@@ -17,6 +17,7 @@
 #include "logger.hh"
 #include "camera_dll.hh"
 #include "image_rendering_panel.hh"
+#include "record_trigger_tcp_server.hh"
 
 #include "API.hh"
 #include "GUI.hh"
@@ -467,6 +468,18 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().file_input_directory_,
                             "files",
                             "file input directory");
+    UserInterfaceDescriptor::instance().matlab_record_signal_enabled_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                            "matlab",
+                            "record signal enabled");
+    UserInterfaceDescriptor::instance().matlab_record_signal_port_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().matlab_record_signal_port_,
+                            "matlab",
+                            "record signal port");
+    RecordTriggerTcpServer::instance().configure(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                                                 UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
@@ -515,6 +528,8 @@ void MainWindow::save_gui()
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
+    j_us["matlab"]["record signal enabled"] = UserInterfaceDescriptor::instance().matlab_record_signal_enabled_;
+    j_us["matlab"]["record signal port"] = UserInterfaceDescriptor::instance().matlab_record_signal_port_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
