@@ -3,9 +3,9 @@
  * \brief Starts the application in CLI mode or GUI mode (light ui mode if previously
  * closed in light ui mode) in function of passed parameters.
  *
- * This file also check if a GPU in installed and if the CUDA version is greater than 3.5.
- * On each run in release mode, data from the local AppData (preset, camera ini, shaders, ...)
- * are copied to the user AppData.
+ * This file also check if a GPU in installed and if the CUDA compute capability is greater than 7.5.
+ * On each run in
+ * release mode, data from the local AppData (preset, camera ini, shaders, ...) are copied to the user AppData.
  */
 
 #include <QApplication>
@@ -24,8 +24,6 @@
 #include "cli.hh"
 
 #include <spdlog/spdlog.h>
-
-#define MIN_CUDA_VERSION 35
 
 static void check_cuda_graphic_card(holovibes::api::Api& api, bool gui)
 {

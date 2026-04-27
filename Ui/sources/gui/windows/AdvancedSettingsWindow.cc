@@ -1,6 +1,7 @@
 #include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
 #include "API.hh"
+#include "record_trigger_tcp_server.hh"
 #include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
@@ -52,6 +53,11 @@ void AdvancedSettingsWindow::set_ui_values()
     UserInterfaceDescriptor::instance().output_filename_ = ui.OutputNameLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().matlab_record_signal_enabled_ = ui.MatlabRecordSignalCheckBox->isChecked();
+    UserInterfaceDescriptor::instance().matlab_record_signal_port_ =
+        static_cast<unsigned short>(ui.MatlabRecordSignalPortSpinBox->value());
+    RecordTriggerTcpServer::instance().configure(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                                                 UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
@@ -105,6 +111,8 @@ void AdvancedSettingsWindow::set_current_values()
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
     ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
+    ui.MatlabRecordSignalCheckBox->setChecked(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_);
+    ui.MatlabRecordSignalPortSpinBox->setValue(UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));

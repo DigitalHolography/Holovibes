@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Libraries only used by the UI
 # ---------------------------------------------------------------------
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets Network)
 find_package(opengl_system REQUIRED)
 find_package(glm REQUIRED)
 
@@ -99,6 +99,7 @@ target_link_libraries(Holovibes PRIVATE
     Qt6::Charts
     Qt6::Core
     Qt6::Gui
+    Qt6::Network
     Qt6::Widgets
     opengl::opengl
     Backend
@@ -111,7 +112,7 @@ target_include_directories(Holovibes PRIVATE
 )
 
 set_target_properties(Holovibes PROPERTIES
-    CUDA_ARCHITECTURES "61;75;86;89"
+    CUDA_ARCHITECTURES "${HOLOVIBES_CUDA_ARCHITECTURES}"
     CUDA_STANDARD 17
     AUTOUIC_SEARCH_PATHS "assets/ui"
 )
@@ -230,6 +231,48 @@ if(TARGET ProcessHoloFilesLauncher)
     )
 endif()
 
+set(CUDA_RUNTIME_BIN_DIRS
+    "${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/bin"
+    "${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/bin/x64"
+    "${CUDAToolkit_BIN_DIR}"
+    "${CUDAToolkit_BIN_DIR}/x64"
+    "${CUDA_TOOLKIT_ROOT_DIR}/bin"
+    "${CUDA_TOOLKIT_ROOT_DIR}/bin/x64"
+)
+list(REMOVE_DUPLICATES CUDA_RUNTIME_BIN_DIRS)
+
+function(append_cuda_runtime_dll pattern)
+    set(cuda_runtime_matches)
+    foreach(cuda_runtime_bin_dir IN LISTS CUDA_RUNTIME_BIN_DIRS)
+        if(IS_DIRECTORY "${cuda_runtime_bin_dir}")
+            file(GLOB cuda_runtime_bin_matches CONFIGURE_DEPENDS "${cuda_runtime_bin_dir}/${pattern}")
+            list(APPEND cuda_runtime_matches ${cuda_runtime_bin_matches})
+        endif()
+    endforeach()
+
+    list(REMOVE_DUPLICATES cuda_runtime_matches)
+    if(NOT cuda_runtime_matches)
+        message(FATAL_ERROR "Could not find CUDA runtime DLL matching ${pattern}")
+    endif()
+
+    list(SORT cuda_runtime_matches)
+    list(GET cuda_runtime_matches -1 cuda_runtime_dll)
+    set(CUDA_RUNTIME_DLLS ${CUDA_RUNTIME_DLLS} "${cuda_runtime_dll}" PARENT_SCOPE)
+endfunction()
+
+set(CUDA_RUNTIME_DLLS)
+foreach(cuda_runtime_dll_pattern IN ITEMS
+    cublas64_*.dll
+    cublasLt64_*.dll
+    cudart64_*.dll
+    cufft64_*.dll
+    cusolver64_*.dll
+    cusparse64_*.dll
+    nvJitLink_*.dll
+)
+    append_cuda_runtime_dll("${cuda_runtime_dll_pattern}")
+endforeach()
+
 install(FILES
     ${CMAKE_BINARY_DIR}/CameraHamamatsu.dll
     ${CMAKE_BINARY_DIR}/CameraIds.dll
@@ -239,13 +282,7 @@ install(FILES
     ${CMAKE_BINARY_DIR}/dcamapi.dll
     ${CMAKE_BINARY_DIR}/uEye_api_64.dll
     ${CMAKE_BINARY_DIR}/xiapi64.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft64_11.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
-    ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
+    ${CUDA_RUNTIME_DLLS}
     DESTINATION .
     COMPONENT application
 )

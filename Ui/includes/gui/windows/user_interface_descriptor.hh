@@ -61,5 +61,8 @@ class UserInterfaceDescriptor
     std::string output_filename_{"capture"};
     std::string record_output_directory_;
     std::string file_input_directory_{"C:\\"};
+
+    bool matlab_record_signal_enabled_ = false;
+    unsigned short matlab_record_signal_port_ = 50000;
 };
 } // namespace holovibes

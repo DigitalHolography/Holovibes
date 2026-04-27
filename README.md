@@ -43,8 +43,8 @@ Download the Windows installer from the [latest release](https://github.com/Digi
 
 ### Requirements
 
-- Microsoft Windows 7 x64 (or later).
-- NVIDIA graphic card supporting CUDA 12.0 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
+- Microsoft Windows 10 22H2, Windows 11, Windows Server 2022, or Windows Server 2025 x64.
+- NVIDIA graphic card supporting CUDA 13.0, compute capability 7.5 or newer ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
 ## Documentation
 

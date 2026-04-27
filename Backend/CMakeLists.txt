@@ -59,7 +59,7 @@ target_include_directories(Backend PRIVATE
 )
 
 set_target_properties(Backend PROPERTIES
-    CUDA_ARCHITECTURES "61;75;86;89"
+    CUDA_ARCHITECTURES "${HOLOVIBES_CUDA_ARCHITECTURES}"
     CUDA_STANDARD 17
 )
 
