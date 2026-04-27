@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.12.0
+
+- Migrate to cuda 13
+- Add an advanced settings to open a tcp server and send signal on record.
+
 ### 14.11.12
 
 - Fixed a bug where images can be duplicaded when BufferPartCount greater than BatchSize.
