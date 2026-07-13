@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.12.1
+
+- Add all frames timestamps option.
+
 ### 14.12.0
 
 - Migrate to cuda 13
