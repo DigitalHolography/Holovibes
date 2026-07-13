@@ -27,6 +27,8 @@ class ExportPanel : public Panel
 
     void init() override;
     void on_notify() override;
+    void load_gui(const json& j_us) override;
+    void save_gui(json& j_us) override;
 
     void set_record_frame_step(int step);
     int get_record_frame_step();
@@ -75,6 +77,14 @@ class ExportPanel : public Panel
      * \brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
+
+    /*!
+     * \brief Enables or disables saving a timestamp for every recorded frame.
+     *
+     * \param[in] enabled
+     * Whether per-frame timestamps should be saved in the .holo footer.
+     */
+    void update_record_frame_timestamps_enabled(bool enabled);
 
     /*!
      * \brief Handles the update of the record file path setting line edit.

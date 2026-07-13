@@ -124,11 +124,32 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
+    ui_->RecordFrameTimestampsCheckBox->blockSignals(true);
+    ui_->RecordFrameTimestampsCheckBox->setChecked(api_.record.get_record_frame_timestamps_enabled());
+    ui_->RecordFrameTimestampsCheckBox->blockSignals(false);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(api_.record.get_record_mode() == RecordMode::RAW &&
+                                                   API.input.get_import_type() == ImportType::Camera &&
+                                                   !api_.record.is_recording());
+
     bool is_eye_modifiable = API.input.get_import_type() == ImportType::Camera;
     ui_->RecordedEyePushButton->setEnabled(is_eye_modifiable);
     ui_->RecordedEyeLabel->setEnabled(is_eye_modifiable);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
+}
+
+void ExportPanel::load_gui(const json& j_us)
+{
+    const bool enabled = json_get_or_default(j_us,
+                                             api_.record.get_record_frame_timestamps_enabled(),
+                                             "record",
+                                             "save per-frame timestamps");
+    api_.record.set_record_frame_timestamps_enabled(enabled);
+}
+
+void ExportPanel::save_gui(json& j_us)
+{
+    j_us["record"]["save per-frame timestamps"] = api_.record.get_record_frame_timestamps_enabled();
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -245,6 +266,8 @@ void ExportPanel::record_finished()
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(record_mode == RecordMode::RAW &&
+                                                   API.input.get_import_type() == ImportType::Camera);
     ui_->InfoPanel->set_visible_record_progress(false);
 
     parent_->light_ui_->notify();
@@ -267,6 +290,7 @@ void ExportPanel::start_record()
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(false);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
@@ -318,6 +342,11 @@ void ExportPanel::update_record_frame_count_enabled()
         api_.record.set_record_frame_count(std::nullopt);
     else
         api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+}
+
+void ExportPanel::update_record_frame_timestamps_enabled(bool enabled)
+{
+    api_.record.set_record_frame_timestamps_enabled(enabled);
 }
 
 void ExportPanel::update_record_file_path()

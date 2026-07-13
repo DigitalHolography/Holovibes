@@ -48,6 +48,7 @@
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::RecordFrameTimestampsEnabled,           \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordedEye,                            \
     holovibes::settings::RecordFrameOffset,                      \
@@ -369,6 +370,7 @@ class Holovibes
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
+                                             settings::RecordFrameTimestampsEnabled{false},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordedEye{RecordedEyeType::NONE},
                                              settings::RecordFrameOffset{0},

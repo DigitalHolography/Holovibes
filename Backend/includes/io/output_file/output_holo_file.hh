@@ -5,12 +5,26 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <utility>
+#include <vector>
+
 #include "output_frame_file.hh"
 #include "holo_file.hh"
 #include "enum_recorded_data_type.hh"
 
 namespace holovibes::io_files
 {
+/*! \brief Per-frame timestamps stored while recording, kept compact in the recording hot path. */
+struct FrameTimestampUs
+{
+    uint64_t unix_us;
+    uint64_t camera_us;
+    uint64_t offset_us;
+};
+
+static_assert(sizeof(FrameTimestampUs) == 3 * sizeof(uint64_t));
+
 /*! \class OutputHoloFile
  *
  * \brief Class responsible for exporting data to a .holo file. The saved file can be reopend with Holovibes since both
@@ -83,6 +97,12 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
         has_session_ts_ = true;
     }
 
+    /*! \brief Move the recorded per-frame timestamps into the output file metadata builder. */
+    void set_frame_timestamps_us(std::vector<FrameTimestampUs>&& timestamps) noexcept
+    {
+        session_frame_timestamps_us_ = std::move(timestamps);
+    }
+
   private:
     // Give access to private members to the factory
     friend class OutputFrameFileFactory;
@@ -108,5 +128,6 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
     uint64_t session_last_camera_ts_us_ = 0;
     uint64_t session_first_offset_us_ = 0;
     uint64_t session_last_offset_us_ = 0;
+    std::vector<FrameTimestampUs> session_frame_timestamps_us_;
 };
 } // namespace holovibes::io_files

@@ -68,6 +68,9 @@ DECLARE_SETTING(RecordFilePath, std::string);
  */
 DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
 
+/*! \brief Whether every recorded RAW camera frame timestamp is stored in the holo footer. */
+DECLARE_SETTING(RecordFrameTimestampsEnabled, bool);
+
 /*!
  * \brief The setting that specifies the mode of the record.
  */

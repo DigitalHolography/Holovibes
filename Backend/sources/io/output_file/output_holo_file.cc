@@ -164,6 +164,30 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                              {"offset_first", first_offset_us},
                              {"offset_last", last_offset_us}}}};
 
+        if (!session_frame_timestamps_us_.empty())
+        {
+            nlohmann::json per_frame = {{"unix", nlohmann::json::array()},
+                                        {"camera", nlohmann::json::array()},
+                                        {"offset", nlohmann::json::array()}};
+
+            auto& unix_timestamps = per_frame["unix"].get_ref<nlohmann::json::array_t&>();
+            auto& camera_timestamps = per_frame["camera"].get_ref<nlohmann::json::array_t&>();
+            auto& offsets = per_frame["offset"].get_ref<nlohmann::json::array_t&>();
+            unix_timestamps.reserve(session_frame_timestamps_us_.size());
+            camera_timestamps.reserve(session_frame_timestamps_us_.size());
+            offsets.reserve(session_frame_timestamps_us_.size());
+
+            for (const auto& timestamp : session_frame_timestamps_us_)
+            {
+                unix_timestamps.emplace_back(timestamp.unix_us);
+                camera_timestamps.emplace_back(timestamp.camera_us);
+                offsets.emplace_back(timestamp.offset_us);
+            }
+
+            j_fi["timestamps_us"]["per_frame"] = std::move(per_frame);
+            std::vector<FrameTimestampUs>().swap(session_frame_timestamps_us_);
+        }
+
         meta_data_ = nlohmann::json{{"compute_settings", api.settings.compute_settings_to_json()}, {"info", j_fi}};
     }
     catch (const nlohmann::json::exception& e)

@@ -3105,6 +3105,19 @@ It's a post-processing step to remove noise</string>
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="RecordFrameTimestampsCheckBox">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>Save timestamps for every recorded frame in the footer. Available only for RAW camera .holo recordings and increases the footer size. Cameras without timestamp support store zero values.</string>
+                 </property>
+                 <property name="text">
+                  <string>Per-frame timestamps</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="recordPushButtonsLayout">
                  <item>
                   <widget class="QPushButton" name="ExportRecPushButton">
@@ -5924,6 +5937,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>RecordFrameTimestampsCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_frame_timestamps_enabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>OutputFilePathLineEdit</sender>
    <signal>textChanged()</signal>
    <receiver>ExportPanel</receiver>
@@ -6244,6 +6273,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(int)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
+  <slot>update_record_frame_timestamps_enabled(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>
   <slot>set_filter2d_n2(int)</slot>

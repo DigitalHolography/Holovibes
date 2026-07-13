@@ -20,15 +20,16 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS                    \
-  holovibes::settings::IsCli,                 \
-  holovibes::settings::RecordFilePath,        \
-  holovibes::settings::RecordFrameCount,      \
-  holovibes::settings::RecordMode,            \
-  holovibes::settings::RecordFrameOffset,     \
-  holovibes::settings::OutputBufferSize,      \
-  holovibes::settings::FrameSkip,             \
-  holovibes::settings::RecordedEye,           \
+#define ONRESTART_SETTINGS                              \
+  holovibes::settings::IsCli,                           \
+  holovibes::settings::RecordFilePath,                  \
+  holovibes::settings::RecordFrameCount,                \
+  holovibes::settings::RecordFrameTimestampsEnabled,    \
+  holovibes::settings::RecordMode,                      \
+  holovibes::settings::RecordFrameOffset,               \
+  holovibes::settings::OutputBufferSize,                \
+  holovibes::settings::FrameSkip,                       \
+  holovibes::settings::RecordedEye,                     \
   holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS

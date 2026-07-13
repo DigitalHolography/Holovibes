@@ -102,6 +102,19 @@ class RecordApi : public IApi
      */
     inline void set_record_frame_count(std::optional<size_t> value) const { UPDATE_SETTING(RecordFrameCount, value); }
 
+    /*! \brief Return whether per-frame RAW camera timestamps are stored in the holo footer. */
+    inline bool get_record_frame_timestamps_enabled() const { return GET_SETTING(RecordFrameTimestampsEnabled); }
+
+    /*! \brief Enable or disable storing per-frame RAW camera timestamps in the holo footer.
+     *
+     * \note If a
+     * record is already in progress, the new value will be used for the next record.
+     */
+    inline void set_record_frame_timestamps_enabled(bool value) const
+    {
+        UPDATE_SETTING(RecordFrameTimestampsEnabled, value);
+    }
+
     /*! \brief Return the number of frames that will be skipped at the beginning of the recording.
      *
      * Ex: `get_record_frame_offset() == 10` means that the first 10 frames will be skipped.

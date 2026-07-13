@@ -107,6 +107,10 @@ void FrameRecordWorker::run()
     uint64_t first_ts_us = 0, last_ts_us = 0;
     uint64_t first_camera_ts_us = 0, last_camera_ts_us = 0;
     uint64_t first_offset_us = 0, last_offset_us = 0;
+    const bool capture_frame_timestamps = setting<settings::RecordFrameTimestampsEnabled>() &&
+                                          API.record.get_record_mode() == RecordMode::RAW &&
+                                          API.input.get_import_type() == ImportType::Camera;
+    std::vector<io_files::FrameTimestampUs> frame_timestamps_us;
 
     auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
     std::atomic<uint>& nb_frames_acquired = std::get<0>(*fast_update_progress_entry);
@@ -125,6 +129,9 @@ void FrameRecordWorker::run()
     {
         img_count = total_to_record / 3;
     }
+
+    if (capture_frame_timestamps && img_count > 0)
+        frame_timestamps_us.reserve(img_count);
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
 
@@ -227,6 +234,9 @@ void FrameRecordWorker::run()
                 const FrameStamp st = g_record_stamp_queue.pop_one_blocking();
                 this_id = st.id;
                 const uint64_t this_ts = st.synced_us;
+                if (capture_frame_timestamps && frame_timestamps_us.empty() && this_ts == 0)
+                    LOG_WARN("The current camera does not provide frame timestamps; per-frame footer values will be "
+                             "zero");
                 if (!first_id)
                 {
                     first_id = this_id;
@@ -283,6 +293,8 @@ void FrameRecordWorker::run()
             else
             {
                 output_frame_file->write_frame(frame_buffer, output_frame_size);
+                if (capture_frame_timestamps)
+                    frame_timestamps_us.push_back({last_ts_us, last_camera_ts_us, last_offset_us});
                 (*processed_fps)++;
                 nb_frames_recorded++;
             }
@@ -310,6 +322,8 @@ void FrameRecordWorker::run()
                                                 last_camera_ts_us,
                                                 first_offset_us,
                                                 last_offset_us);
+                if (!frame_timestamps_us.empty())
+                    holo->set_frame_timestamps_us(std::move(frame_timestamps_us));
             }
         }
 
