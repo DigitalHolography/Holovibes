@@ -23,9 +23,10 @@ ExportPanel::ExportPanel(QWidget* parent)
     , browse_record_output_file_subscriber_("browse_record_output_file",
                                             [this](bool _unused) { return browse_record_output_file().toStdString(); })
 {
+    RecordTriggerTcpServer::instance().set_record_start_callback([this]() { start_record(); });
 }
 
-ExportPanel::~ExportPanel() {}
+ExportPanel::~ExportPanel() { RecordTriggerTcpServer::instance().set_record_start_callback({}); }
 
 void ExportPanel::init()
 {
@@ -275,6 +276,18 @@ void ExportPanel::record_finished()
 
 void ExportPanel::start_record()
 {
+    if (api_.record.is_recording())
+    {
+        LOG_WARN("[RECORDER] Ignoring recording start request: a recording is already in progress");
+        return;
+    }
+
+    if (!ui_->ExportRecPushButton->isEnabled())
+    {
+        LOG_WARN("[RECORDER] Ignoring recording start request: recording is currently unavailable");
+        return;
+    }
+
     if (!api_.record.start_record_preconditions()) // Check if the record can be started
         return;
     // Start record
@@ -297,7 +310,10 @@ void ExportPanel::start_record()
     auto callback = [this]() { parent_->synchronize_thread([=]() { record_finished(); }); };
 
     if (api_.record.start_record(callback) == ApiCode::OK)
+    {
         RecordTriggerTcpServer::instance().notify_record_started();
+        parent_->light_ui_->notify();
+    }
 }
 
 void ExportPanel::activeSignalZone()

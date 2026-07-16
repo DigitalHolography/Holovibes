@@ -3,6 +3,7 @@
 ### 14.12.1
 
 - Add all frames timestamps option.
+- Allow the TCP record trigger server to start a recording when it receives `RECORD_START`.
 
 ### 14.12.0
 

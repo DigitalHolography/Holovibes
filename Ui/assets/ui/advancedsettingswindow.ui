@@ -642,7 +642,7 @@ threshold</string>
         </font>
        </property>
        <property name="title">
-        <string>Trig on record</string>
+        <string>TCP record trigger</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -655,6 +655,9 @@ threshold</string>
          <widget class="QCheckBox" name="MatlabRecordSignalCheckBox">
           <property name="text">
            <string>Activate TCP server</string>
+          </property>
+          <property name="toolTip">
+           <string>Send RECORD_START when recording begins, or receive RECORD_START followed by a newline to begin recording.</string>
           </property>
          </widget>
         </item>
