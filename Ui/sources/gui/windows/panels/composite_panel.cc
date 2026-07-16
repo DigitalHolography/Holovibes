@@ -117,6 +117,8 @@ void CompositePanel::on_notify()
 
 void CompositePanel::click_z_fft_shift(bool checked)
 {
+    LOG_ERROR("Set z FFT shift");
+
     api_.composite.set_z_fft_shift(checked);
     parent_->notify();
 }

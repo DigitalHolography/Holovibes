@@ -29,6 +29,7 @@ class RawWindow : public BasicOpenGLWindow
     void set_is_resize(bool b);
 
     void save_gui(std::string window);
+    void forceResizeGL(int w, int h);
 
   protected:
     int texDepth, texType;

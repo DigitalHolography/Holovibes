@@ -107,6 +107,7 @@ void create_window(Computation window_kind, ushort window_size)
 
     if (window_kind == Computation::Raw)
     {
+        LOG_ERROR("Creating RawWindow in create_window");
         UI.mainDisplay.reset(new holovibes::gui::RawWindow(pos,
                                                            size,
                                                            api.compute.get_gpu_output_queue().get(),
@@ -145,6 +146,7 @@ void refresh_window(ushort window_size)
 
     UI.mainDisplay->setScale(old_scale);
     UI.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+ 
 }
 
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)

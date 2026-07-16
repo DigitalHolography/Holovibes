@@ -135,6 +135,10 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         update_stft(size);
         update_pca(size);
         break;
+    case TimeTransformation::STFT_SSA:
+        update_pca(size);
+        update_stft(size);
+        break;
     case TimeTransformation::PCA:
         update_pca(size);
         time_transformation_env_.stft_plan.reset(); // Clear memory used by the FFT plan

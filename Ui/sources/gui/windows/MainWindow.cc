@@ -267,6 +267,8 @@ void MainWindow::on_notify()
 
     resize(baseSize());
     adjustSize();
+
+ 
 }
 
 void MainWindow::notify_error(const std::exception& e)
@@ -802,6 +804,9 @@ void MainWindow::init_tooltips()
                                                  Qt::ToolTipRole);
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::SSA_STFT),
                                                  "Self-adaptive Spectrum Analysis Short-Time Fourier Transformation",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::STFT_SSA),
+                                                 "Short-Time Fourier Transformation Self-adaptive Spectrum Analysis",
                                                  Qt::ToolTipRole);
 }
 

@@ -142,11 +142,12 @@ void RawWindow::initializeGL()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #pragma endregion
 
+    LOG_ERROR("Dam initGl");
     setTransform();
 
     Program->release();
     Vao.release();
-    glViewport(0, 0, width(), height());
+    glViewport(0, 0,width() , height());// fd_.width, fd_.height ? doesnt work
     startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
 }
 
@@ -154,58 +155,81 @@ void RawWindow::initializeGL()
    a rectangle format. It also avoids the window to move when resizing.
    There is no visible calling function since it's overriding Qt function.
 **/
+void RawWindow::resizeGL(int w, int h) //this function forces a square on the eye display window it can mess with the aspect ratio if the input is not zero padded at the filter level 
+                                        // look commented function for non square alternative 
+{
+    LOG_ERROR("Dam in resizegl");
+    if (ratio == 0.0f)
+         return;
+
+     auto point = this->position();
+
+     if ((API.compute.get_compute_mode() == Computation::Hologram &&
+          API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
+         API.compute.get_compute_mode() == Computation::Raw || API.transform.get_space_transformation() == SpaceTransformation::ANGULARSP)
+     {
+        LOG_ERROR("Damdamdeo in reiszeglt rectangel {}",  static_cast<int>(API.transform.get_space_transformation()));
+         if (w != old_width)
+         {
+             old_width = w;
+             old_height = w / ratio;
+         }
+         else if (h != old_height)
+         {
+             old_width = h * ratio;
+             old_height = h;
+         }
+     }
+     else
+     {
+        LOG_ERROR("Damdamdeo in reiszeglt square {}",  static_cast<int>(API.transform.get_space_transformation()));
+        old_height = std::max(h, w);
+        old_width = old_height;
+
+     }
+
+     QRect screen = QGuiApplication::primaryScreen()->geometry();
+     if (old_height > screen.height() || old_width > screen.width())
+     {
+         old_height = screen.height() - 10;
+         old_width = screen.width() - 10;
+     }
+     resize(old_width, old_height);
+     this->setPosition(point); 
+}
+
+void RawWindow::forceResizeGL(int w, int h)
+{
+    resizeGL(w, h);
+}
+ /*
 void RawWindow::resizeGL(int w, int h)
 {
+    LOG_ERROR("Dam in resizegl");
+
     if (ratio == 0.0f)
         return;
+
     int tmp_width = old_width;
     int tmp_height = old_height;
 
     auto point = this->position();
 
-    if ((API.compute.get_compute_mode() == Computation::Hologram &&
-         API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
-        API.compute.get_compute_mode() == Computation::Raw)
+    if (w != old_width)
     {
-        if (w != old_width)
-        {
-            old_width = w;
-            old_height = w / ratio;
-        }
-        else if (h != old_height)
-        {
-            old_width = h * ratio;
-            old_height = h;
-        }
+        old_width = w;
+        old_height = static_cast<int>(w / ratio);
     }
-    else
+    else if (h != old_height)
     {
-        if (is_resize)
-        {
-            if (w != old_width)
-            {
-                old_height = w;
-                old_width = w;
-            }
-            else if (h != old_height)
-            {
-                old_height = h;
-                old_width = h;
-            }
-        }
-        else
-        {
-            old_height = std::max(h, w);
-            old_width = old_height;
-        }
-        is_resize = true;
+        old_height = h;
+        old_width = static_cast<int>(h * ratio);
+    }
 
-        if (old_height < 140 || old_width < 140)
-        {
-            old_height = tmp_height;
-            old_width = tmp_width;
-        }
-        is_resize = true;
+    if (old_height < 140 || old_width < 140)
+    {
+        old_height = tmp_height;
+        old_width = tmp_width;
     }
 
     QRect screen = QGuiApplication::primaryScreen()->geometry();
@@ -214,9 +238,11 @@ void RawWindow::resizeGL(int w, int h)
         old_height = tmp_height;
         old_width = tmp_width;
     }
+
     resize(old_width, old_height);
     this->setPosition(point);
 }
+*/
 
 void RawWindow::paintGL()
 {
