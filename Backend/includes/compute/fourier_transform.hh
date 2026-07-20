@@ -49,6 +49,7 @@
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
+    holovibes::settings::TargetFrequencyWavelet,   \
     holovibes::settings::PixelSize,                \
     holovibes::settings::SpaceTransformation
 
@@ -167,6 +168,9 @@ class FourierTransform
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
 
+    /*! \brief Enqueue wavelet transform time filtering. */
+    void insert_wavelet_transform();
+
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
      *
      * This should eventually replace stft
@@ -174,6 +178,7 @@ class FourierTransform
     void insert_pca();
 
     void insert_ssa_stft();
+    void insert_stft_ssa();
 
     /*!
      * \brief Helper function to get a settings value.

@@ -30,6 +30,10 @@ ViewPanel::ViewPanel(QWidget* parent)
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+    
+    // Connect the target frequency spinbox
+    connect(ui_->TargetFrequencyWaveletDoubleSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ViewPanel::onTargetFrequencyWaveletChanged);
 }
 
 ViewPanel::~ViewPanel()
@@ -168,7 +172,7 @@ void ViewPanel::on_notify()
 
     // q accu
     bool is_q_visible =
-        api_.transform.get_time_transformation() == TimeTransformation::SSA_STFT && !is_raw && is_data_not_moments;
+        (api_.transform.get_time_transformation() == TimeTransformation::SSA_STFT || api_.transform.get_time_transformation() == TimeTransformation::STFT_SSA) && !is_raw && is_data_not_moments;
     ui_->Q_AccSpinBox->setVisible(is_q_visible);
     ui_->Q_SpinBox->setVisible(is_q_visible);
     ui_->Q_Label->setVisible(is_q_visible);
@@ -408,4 +412,14 @@ void ViewPanel::update_registration_zone(double value)
     if (UserInterfaceDescriptor::instance().mainDisplay)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
 }
+
+void ViewPanel::onTargetFrequencyWaveletChanged(double value)
+{
+    // Handle the value change here
+    // This function will be called whenever the spinbox value changes
+    
+    // Update your backend or processing with the new value
+    api_.transform.set_target_frequency_wavelet(static_cast<float>(value));
+}
+
 } // namespace holovibes::gui

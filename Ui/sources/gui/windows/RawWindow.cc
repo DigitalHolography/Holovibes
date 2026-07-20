@@ -1,3 +1,4 @@
+#include "TextureWindowHelper.hh"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -33,7 +34,7 @@ using camera::FrameDescriptor;
 namespace holovibes::gui
 {
 RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, k)
+    : TextureWindowHelper(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {
@@ -64,91 +65,10 @@ RawWindow::~RawWindow()
 
 void RawWindow::initShaders()
 {
-    Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Vertex,
-        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Fragment,
-        gui::create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
-    Program->link();
+    TextureWindowHelper::initShaders();
     overlay_manager_.create_default();
 }
 
-void RawWindow::initializeGL()
-{
-    makeCurrent();
-    initializeOpenGLFunctions();
-    glClearColor(0.f, 0.f, 0.f, 1.0f);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
-
-    initShaders();
-    Vao.create();
-    Vao.bind();
-    Program->bind();
-
-#pragma region Texture
-    cudaTexture = new CudaTexture(fd_.width, fd_.height, fd_.depth, cuStream);
-    if (!cudaTexture->init())
-    {
-        LOG_ERROR("Failed to initialize CUDA Texture");
-    }
-
-#pragma endregion
-
-#pragma region Vertex Buffer Object
-    const float data[16] = {// Top-left
-                            -1.f,
-                            1.f, // vertex coord (-1.0f <-> 1.0f)
-                            0.f,
-                            0.f, // texture coord (0.0f <-> 1.0f)
-                                 // Top-right
-                            1.f,
-                            1.f,
-                            1.f,
-                            0.f,
-                            // Bottom-right
-                            1.f,
-                            -1.f,
-                            1.f,
-                            1.f,
-                            // Bottom-left
-                            -1.f,
-                            -1.f,
-                            0.f,
-                            1.f};
-    glGenBuffers(1, &Vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-    glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(2 * sizeof(float)));
-
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-#pragma endregion
-
-#pragma region Element Buffer Object
-    const GLuint elements[6] = {0, 1, 2, 2, 3, 0};
-    glGenBuffers(1, &Ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#pragma endregion
-
-    setTransform();
-
-    Program->release();
-    Vao.release();
-    glViewport(0, 0, width(), height());
-    startTimer(1000 / UserInterfaceDescriptor::instance().display_rate_);
-}
 
 /* This part of code makes a resizing of the window displaying image to
    a rectangle format. It also avoids the window to move when resizing.
@@ -157,100 +77,47 @@ void RawWindow::initializeGL()
 void RawWindow::resizeGL(int w, int h)
 {
     if (ratio == 0.0f)
-        return;
-    int tmp_width = old_width;
-    int tmp_height = old_height;
+         return;
 
-    auto point = this->position();
+     auto point = this->position();
 
-    if ((API.compute.get_compute_mode() == Computation::Hologram &&
-         API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
-        API.compute.get_compute_mode() == Computation::Raw)
-    {
-        if (w != old_width)
-        {
-            old_width = w;
-            old_height = w / ratio;
-        }
-        else if (h != old_height)
-        {
-            old_width = h * ratio;
-            old_height = h;
-        }
-    }
-    else
-    {
-        if (is_resize)
-        {
-            if (w != old_width)
-            {
-                old_height = w;
-                old_width = w;
-            }
-            else if (h != old_height)
-            {
-                old_height = h;
-                old_width = h;
-            }
-        }
-        else
-        {
-            old_height = std::max(h, w);
-            old_width = old_height;
-        }
-        is_resize = true;
+     if ((API.compute.get_compute_mode() == Computation::Hologram &&
+          API.transform.get_space_transformation() == SpaceTransformation::NONE) ||
+         API.compute.get_compute_mode() == Computation::Raw || API.transform.get_space_transformation() == SpaceTransformation::ANGULARSP)
+     {
+         if (w != old_width)
+         {
+             old_width = w;
+             old_height = w / ratio;
+         }
+         else if (h != old_height)
+         {
+             old_width = h * ratio;
+             old_height = h;
+         }
+     }
+     else
+     {
+        old_height = std::max(h, w);
+        old_width = old_height;
 
-        if (old_height < 140 || old_width < 140)
-        {
-            old_height = tmp_height;
-            old_width = tmp_width;
-        }
-        is_resize = true;
-    }
+     }
 
-    QRect screen = QGuiApplication::primaryScreen()->geometry();
-    if (old_height > screen.height() || old_width > screen.width())
-    {
-        old_height = tmp_height;
-        old_width = tmp_width;
-    }
-    resize(old_width, old_height);
-    this->setPosition(point);
+     QRect screen = QGuiApplication::primaryScreen()->geometry();
+     if (old_height > screen.height() || old_width > screen.width())
+     {
+         old_height = screen.height() - 10;
+         old_width = screen.width() - 10;
+     }
+     resize(old_width, old_height);
+     this->setPosition(point); 
 }
 
-void RawWindow::paintGL()
+void RawWindow::forceResizeGL(int w, int h)
 {
-    void* frame = output_->get_last_image();
-    if (!frame)
-        return;
-
-    glViewport(0, 0, width(), height());
-    makeCurrent();
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    Vao.bind();
-    Program->bind();
-
-    cudaTexture->update(frame, fd_);
-
-    glBindTexture(GL_TEXTURE_2D, cudaTexture->getTextureID());
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    Program->release();
-    Vao.release();
-
-    overlay_manager_.draw();
+    resizeGL(w, h);
 }
+
 
 void RawWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
 

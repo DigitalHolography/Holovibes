@@ -83,6 +83,11 @@ void ImageRenderingPanel::on_notify()
     ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 
+    //WAVELET
+    bool isWavelet = api_.transform.get_time_transformation() == TimeTransformation::WAVELET;
+    ui_->TargetFrequencyWaveletLabel->setVisible(isWavelet);
+    ui_->TargetFrequencyWaveletDoubleSpinBox->setVisible(isWavelet);
+
     // Filter2D
     bool filter2D_enabled = !is_raw && api_.filter2d.get_filter2d_enabled();
     ui_->Filter2D->setEnabled(!is_raw);
@@ -212,6 +217,15 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
     if (api_.transform.set_space_transformation(st) == ApiCode::OK)
         parent_->notify();
+    
+    auto& api = API;
+    const camera::FrameDescriptor& fd = api.input.get_input_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+
+    auto raw = dynamic_cast<gui::RawWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
+    if (raw)
+        raw->forceResizeGL(width, height);
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -238,6 +252,7 @@ void ImageRenderingPanel::set_lambda(const double value)
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
+
     api_.transform.set_z_distance(value / 1000.0f);
 
     // Keep consistency between the slider and double box
@@ -248,7 +263,6 @@ void ImageRenderingPanel::set_z_distance_slider(int value)
 void ImageRenderingPanel::set_z_distance(const double value)
 {
     api_.transform.set_z_distance(static_cast<float>(value) / 1000.0f);
-
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
     ui_->ZDoubleSpinBox->setValue(value);

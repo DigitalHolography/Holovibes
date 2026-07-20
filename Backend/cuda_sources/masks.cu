@@ -4,6 +4,9 @@
 
 using camera::FrameDescriptor;
 
+#define PI_F 3.14159265358979323846f
+#include <math_constants.h>  // for M_PI
+
 __global__ void kernel_quadratic_lens(
     cuComplex* output, const uint lens_side_size, const float lambda, const float dist, const float pixel_size)
 {
@@ -39,6 +42,46 @@ __global__ void kernel_spectral_lens(cuFloatComplex* output,
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
+    if (x >= Nx || y >= Ny)
+        return;
+
+    // Physical frequencies in cycles per meter
+    float u_step = 1.0f / (Nx * x_step);
+    float v_step = 1.0f / (Ny * y_step);
+
+    // Center the frequency grid
+    float u = (x - Nx / 2.0f) * u_step;
+    float v = (y - Ny / 2.0f) * v_step;
+
+    // Convert to angular spatial frequencies
+    float kx = 2.0f * M_PI * u;
+    float ky = 2.0f * M_PI * v;
+
+    // Wave number
+    float k = 2.0f * M_PI / lambda;
+
+    // Compute kz (propagation along z)
+    float kz2 = k * k - kx * kx - ky * ky;
+    float kz = (kz2 > 0.0f) ? sqrtf(kz2) : 0.0f;
+
+    // Compute phase
+    float phase = kz * z;
+
+    // Store as complex exponential
+    output[y * Nx + x] = make_cuFloatComplex(cosf(phase), sinf(phase));
+}
+
+/* __global__ void kernel_spectral_lens(cuFloatComplex* output,
+                                     const int Nx,
+                                     const int Ny,
+                                     const float z,
+                                     const float lambda,
+                                     const float x_step,
+                                     const float y_step)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
     if (x < Nx && y < Ny)
     {
         float u_step = 1.0f / (Nx * x_step);
@@ -56,8 +99,7 @@ __global__ void kernel_spectral_lens(cuFloatComplex* output,
         // Store result as complex exponential.
         output[y * Nx + x] = make_cuFloatComplex(cosf(phase), sinf(phase));
     }
-}
-
+} */
 __global__ void
 kernel_circular_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {

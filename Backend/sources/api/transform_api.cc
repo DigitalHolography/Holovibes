@@ -117,6 +117,21 @@ ApiCode TransformApi::set_z_distance(float value) const
 
 #pragma region Time Tr.
 
+ApiCode TransformApi::set_target_frequency_wavelet(float value) const
+{
+    NOT_SAME_AND_NOT_RAW(get_target_frequency_wavelet(), value);
+
+    if (value < 0)
+    {
+        LOG_WARN("Target frequency for wavelet cannot be negative. Setting it to 0");
+        value = 0;
+    }
+
+    UPDATE_SETTING(TargetFrequencyWavelet, value);
+
+    return ApiCode::OK;
+}
+
 ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size) const
 {
     NOT_SAME_AND_NOT_RAW(get_time_transformation_size(), time_transformation_size);

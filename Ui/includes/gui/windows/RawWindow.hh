@@ -7,7 +7,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "CudaTexture.hh"
 #include "rect.hh"
-
+#include "TextureWindowHelper.hh"
 namespace holovibes::gui
 {
 
@@ -17,7 +17,7 @@ class SliceWindow;
  *
  * \brief Class that represents a raw window in the GUI.
  */
-class RawWindow : public BasicOpenGLWindow
+class RawWindow : public TextureWindowHelper
 {
   public:
     RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio = 0.f, KindOfView k = KindOfView::Raw);
@@ -29,13 +29,14 @@ class RawWindow : public BasicOpenGLWindow
     void set_is_resize(bool b);
 
     void save_gui(std::string window);
+    void forceResizeGL(int w, int h);
 
   protected:
     int texDepth, texType;
     cudaArray_t cuArray;
     cudaResourceDesc cuArrRD;
     cudaSurfaceObject_t cuSurface;
-    CudaTexture* cudaTexture;
+    
 
     int old_width = -1;
     int old_height = -1;
@@ -47,16 +48,15 @@ class RawWindow : public BasicOpenGLWindow
 
     const float translation_step_ = 0.05f;
 
-    void initShaders() override;
-    void initializeGL() override;
     void resizeGL(int width, int height) override;
-    void paintGL() override;
+
 
     void mousePressEvent(QMouseEvent* e) override;
     void mouseMoveEvent(QMouseEvent* e) override;
     void mouseReleaseEvent(QMouseEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
+    void initShaders() override;
 
     void closeEvent(QCloseEvent* event) override;
 };

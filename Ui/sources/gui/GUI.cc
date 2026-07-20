@@ -145,6 +145,7 @@ void refresh_window(ushort window_size)
 
     UI.mainDisplay->setScale(old_scale);
     UI.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+ 
 }
 
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)

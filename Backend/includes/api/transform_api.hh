@@ -138,6 +138,20 @@ class TransformApi : public IApi
      */
     inline uint get_time_transformation_size() const { return GET_SETTING(TimeTransformationSize); }
 
+
+     /*! \brief Sets the wavelet transform target frequency.
+     *
+     * \return ApiCode the status of the modification: OK, NO_CHANGE or WRONG_COMP_MODE (if in raw mode).
+     */
+    ApiCode set_target_frequency_wavelet(float value) const;
+
+    /*! \brief Returns the wavelet target frequency.
+     *
+     * \return float the wavelet target frequency
+     */
+    inline float get_target_frequency_wavelet() const { return GET_SETTING(TargetFrequencyWavelet); }
+
+
     /*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must
      * be greater than 0.
      *
