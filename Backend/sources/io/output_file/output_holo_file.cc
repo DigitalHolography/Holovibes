@@ -76,7 +76,7 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
             CameraKind kind = api.input.get_camera_kind();
             if (kind == CameraKind::Phantom || kind == CameraKind::AmetekS711EuresysCoaxlinkQSFP ||
-                kind == CameraKind::AmetekS991EuresysCoaxlinkQSFP)
+                kind == CameraKind::AmetekS991EuresysCoaxlinkQSFP || kind == CameraKind::AmetekS980EuresysCoaxlinkQSFP)
             {
                 boost::property_tree::ptree params;
                 try
@@ -100,6 +100,10 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
                 case CameraKind::AmetekS991EuresysCoaxlinkQSFP:
                     section = "s991";
+                    break;
+
+                case CameraKind::AmetekS980EuresysCoaxlinkQSFP:
+                    section = "s980";
                     break;
 
                 default:

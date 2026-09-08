@@ -287,6 +287,8 @@ class InputApi : public IApi
             return "AmetekS991EuresysCoaxlinkQSFP";
         case CameraKind::AmetekS711EuresysCoaxlinkQSFP:
             return "AmetekS711EuresysCoaxlinkQSFP";
+        case CameraKind::AmetekS980EuresysCoaxlinkQSFP:
+            return "AmetekS980EuresysCoaxlinkQSFP";
         case CameraKind::Ametek:
             return "Ametek";
         case CameraKind::Alvium:

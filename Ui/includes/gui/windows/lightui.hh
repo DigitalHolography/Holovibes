@@ -169,6 +169,9 @@ class LightUI : public QMainWindow
     /*! \brief Load the 991 Phantom camera */
     void camera_ametek_s991_coaxlink_qspf_plus();
 
+    /*! \brief Load the S980 Phantom camera */
+    void camera_ametek_s980_coaxlink_qspf_plus();
+
     /*! \brief Load the PCO Edge 4.2lt camera */
     void camera_PCO_Edge4_2lt();
 

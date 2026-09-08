@@ -23,6 +23,7 @@ enum class CameraKind
     OpenCV,                        /*!< OpenCV camera */
     AmetekS991EuresysCoaxlinkQSFP, /*!< Ametek S991 Euresys Coaxlink QSFP+ */
     AmetekS711EuresysCoaxlinkQSFP, /*!< Ametek S711 Euresys Coaxlink QSFP+ */
+    AmetekS980EuresysCoaxlinkQSFP, /*!< Ametek S980 Euresys CoaxLink QSFP+ */
     Ametek,                        /*!< Ametek camera with EGrabber Studio */
     Alvium,                        /*!< Alvium-1800-u/2050 */
     AutoDetectionPhantom,          /*!< Auto detection of Euresys' cameras */

@@ -3,6 +3,7 @@
 #include "camera_phantom_s711.hh"
 #include "camera_phantom_s710.hh"
 #include "camera_phantom_s991.hh"
+#include "AmetekS980EuresysCoaxlinkQsfp+/camera_phantom_s980.hh"
 #include "camera_exception.hh"
 
 namespace camera
@@ -14,6 +15,8 @@ static auto camera_init_map = std::map<std::string, std::function<ICamera*()>>{
     {"Phantom S710", InitCam<CameraPhantom710>},
     {"Phantom S711", InitCam<CameraPhantom711>},
     {"Phantom S991", InitCam<CameraPhantom991>},
+    {"Phantom S980", InitCam<CameraPhantom980>},
+    {"S980", InitCam<CameraPhantom980>},
 };
 } // namespace
 

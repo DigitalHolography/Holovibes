@@ -166,6 +166,7 @@ bool InputApi::can_get_camera_fps() const
                                                                CameraKind::AutoDetectionPhantom,
                                                                CameraKind::AmetekS711EuresysCoaxlinkQSFP,
                                                                CameraKind::AmetekS991EuresysCoaxlinkQSFP,
+                                                               CameraKind::AmetekS980EuresysCoaxlinkQSFP,
                                                                CameraKind::Ametek,
                                                                CameraKind::PCO_Edge4_2lt};
     return (std::find(compatible_cameras.begin(), compatible_cameras.end(), api_->input.get_camera_kind()) !=
@@ -204,6 +205,7 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
             {CameraKind::Phantom, "AmetekS710EuresysCoaxlinkOcto.dll"},
             {CameraKind::AmetekS711EuresysCoaxlinkQSFP, "AmetekS711EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::AmetekS991EuresysCoaxlinkQSFP, "AmetekS991EuresysCoaxlinkQsfp+.dll"},
+            {CameraKind::AmetekS980EuresysCoaxlinkQSFP, "AmetekS980EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::Ametek, "EuresyseGrabber.dll"},
             {CameraKind::Alvium, "CameraAlvium.dll"},
             {CameraKind::AutoDetectionPhantom, "CameraPhantomAutoDetection.dll"},
