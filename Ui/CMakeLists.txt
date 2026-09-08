@@ -306,6 +306,7 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         ${CMAKE_BINARY_DIR}/AmetekS710EuresysCoaxlinkOcto.dll
         ${CMAKE_BINARY_DIR}/AmetekS711EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/AmetekS991EuresysCoaxlinkQsfp+.dll
+        ${CMAKE_BINARY_DIR}/AmetekS980EuresysCoaxlinkQsfp+.dll
         ${CMAKE_BINARY_DIR}/CameraPhantomAutoDetection.dll
         DESTINATION .
         COMPONENT application

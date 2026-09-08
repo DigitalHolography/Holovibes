@@ -8,12 +8,14 @@ add_library("${PROJECT_NAME}" SHARED
     AmetekS710EuresysCoaxlinkOcto/camera_phantom_s710.cc
     AmetekS711EuresysCoaxlinkQsfp+/camera_phantom_s711.cc
     AmetekS991EuresysCoaxlinkQsfp+/camera_phantom_s991.cc
+    AmetekS980EuresysCoaxlinkQsfp+/camera_phantom_s980.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "AmetekS710EuresysCoaxlinkOcto/"
     "AmetekS711EuresysCoaxlinkQsfp+/"
     "AmetekS991EuresysCoaxlinkQsfp+/"
+    "AmetekS980EuresysCoaxlinkQsfp+/"
     "${EURESYS_SDK}/include/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CAMERA_DIR}/Camera/"
@@ -32,3 +34,4 @@ target_link_libraries("${PROJECT_NAME}"
 add_subdirectory(AmetekS710EuresysCoaxlinkOcto)
 add_subdirectory(AmetekS711EuresysCoaxlinkQsfp+)
 add_subdirectory(AmetekS991EuresysCoaxlinkQsfp+)
+add_subdirectory(AmetekS980EuresysCoaxlinkQsfp+)

@@ -3360,6 +3360,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS980EuresysCoaxlinkQSPF+"/>
      <addaction name="AutoDetectionPhantom"/>
      <addaction name="actionASI"/>
      <addaction name="actionPCO_Edge4_2lt"/>
@@ -3379,6 +3380,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPhantom_S710Settings"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
+     <addaction name="actionAmetekS980EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionASISettings"/>
      <addaction name="actionPCO_Edge4_2ltSettings"/>
     </widget>
@@ -3608,6 +3610,11 @@ p, li { white-space: pre-wrap; }
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
+  <action name="actionAmetekS980EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S980 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
   <action name="AutoDetectionPhantom">
    <property name="text">
     <string>Auto Detection Camera Euresys</string>
@@ -3671,6 +3678,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS980EuresysCoaxlinkQSPF+Settings">
+   <property name="text">
+    <string>Ametek S980 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
   <action name="actionASISettings">
@@ -5569,6 +5581,16 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actionAmetekS980EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s980_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel"><x>-1</x><y>-1</y></hint>
+    <hint type="destinationlabel"><x>604</x><y>397</y></hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>AutoDetectionPhantom</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5774,6 +5796,16 @@ p, li { white-space: pre-wrap; }
      <x>604</x>
      <y>397</y>
     </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS980EuresysCoaxlinkQSPF+Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s980_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel"><x>-1</x><y>-1</y></hint>
+    <hint type="destinationlabel"><x>604</x><y>397</y></hint>
    </hints>
   </connection>
   <connection>
@@ -6183,6 +6215,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_asi()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s980_coaxlink_qspf_plus()</slot>
   <slot>auto_detection_phantom()</slot>
   <slot>camera_alvium()</slot>
   <slot>camera_euresys_egrabber()</slot>
@@ -6206,6 +6239,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_opencv_settings()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_ametek_s980_coaxlink_qspf_plus_settings()</slot>
   <slot>camera_asi_settings()</slot>
   <slot>camera_euresys_egrabber_settings()</slot>
   <slot>camera_alvium_settings()</slot>

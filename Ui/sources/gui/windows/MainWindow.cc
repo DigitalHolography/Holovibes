@@ -597,6 +597,8 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void MainWindow::camera_ametek_s980_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS980EuresysCoaxlinkQSFP); }
+
 void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
 
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); } // a doube check avec maxime
@@ -646,6 +648,11 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus_settings()
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
 {
     open_file("ametek_s711_euresys_coaxlink_qsfp+.ini");
+}
+
+void MainWindow::camera_ametek_s980_coaxlink_qspf_plus_settings()
+{
+    open_file("ametek_s980_euresys_coaxlink_qsfp+.ini");
 }
 
 void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
