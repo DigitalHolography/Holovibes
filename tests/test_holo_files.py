@@ -15,8 +15,8 @@ from . import holo
 
 DEEP_COMPARE = True
 
-HOLOVIBES_BIN = os.path.join(
-    os.getcwd(), "build/bin/Holovibes.exe")
+HOLOVIBES_BIN = os.environ.get(
+    "HOLOVIBES_BIN", os.path.join(os.getcwd(), "out/build/windows-dev/Holovibes.exe"))
 
 assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"

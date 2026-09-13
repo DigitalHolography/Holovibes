@@ -1,9 +1,7 @@
 # ---------------------------------------------------------------------
 # Libraries only used by the UI
 # ---------------------------------------------------------------------
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets Network)
-find_package(opengl_system REQUIRED)
-find_package(glm REQUIRED)
+# Dependencies are declared in cmake/Dependencies.cmake.
 
 # https://doc.qt.io/qt-6/qt-standard-project-setup.html
 qt_standard_project_setup()
@@ -57,16 +55,14 @@ set(INTERNAL_INCLUDES
     "${CAMERA_DIR}/include/"
 )
 
-set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
-set(ASI_SDK "C:/Program Files/ASI SDK")
 
 # ---------------------------------------------------------------------
 # The executable
 # ---------------------------------------------------------------------
-file(GLOB_RECURSE SOURCES sources/*.cc)
-file(GLOB_RECURSE HEADERS includes/*.hh)
-file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
-file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS sources/*.cc)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS includes/*.hh)
+file(GLOB_RECURSE CUDA_SOURCES CONFIGURE_DEPENDS cuda_sources/*.cu)
+file(GLOB_RECURSE CUDA_HEADERS CONFIGURE_DEPENDS cuda_includes/*.cuh)
 
 qt_add_executable(Holovibes
     ${SOURCES}
@@ -101,7 +97,9 @@ target_link_libraries(Holovibes PRIVATE
     Qt6::Gui
     Qt6::Network
     Qt6::Widgets
-    opengl::opengl
+    OpenGL::GL
+    holovibes_headers
+    CUDA::cudart
     Backend
 )
 
@@ -131,7 +129,7 @@ target_compile_options(Holovibes PRIVATE
 )
 
 target_compile_definitions(Holovibes PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:.
+    $<$<COMPILE_LANGUAGE:CXX>:
     _CRT_SECURE_NO_WARNINGS
     >
 )
@@ -167,11 +165,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_settings/" ${CMAKE_BINARY_DIR}/assets/json_patches_settings/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${PRESET_DIR}/" ${CMAKE_BINARY_DIR}/AppData/preset/
 
-    # Copy camera libs
-    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ximea/xiapi64.dll" ${CMAKE_BINARY_DIR}/xiapi64.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/ids/uEye_api_64.dll" ${CMAKE_BINARY_DIR}/uEye_api_64.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_LIB_DIR}/hamamatsu/dcamapi.dll" ${CMAKE_BINARY_DIR}/dcamapi.dll
-
     # Copy camera config files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" ${CMAKE_BINARY_DIR}/AppData/cameras_config/
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/AppData/cameras_config/bfml/
@@ -182,11 +175,11 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/icons/holovibes_logo.png" ${CMAKE_BINARY_DIR}/assets/icons/holovibes_logo.png
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${UI_DIR}/assets/style/" ${CMAKE_BINARY_DIR}/assets/style/
 
-    # Deploy Qt
-    COMMAND Qt6::windeployqt ${CMAKE_BINARY_DIR}/Holovibes.exe
-
-    # Deploy Qt in windeployqt directory so that it can be used by the installer
-    COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt ${CMAKE_BINARY_DIR}/Holovibes.exe
+    # One Qt deployment is reused for the build directory and installer.
+    COMMAND Qt6::windeployqt $<IF:$<CONFIG:Debug>,--debug,--release>
+        --dir "${CMAKE_BINARY_DIR}/qt-runtime" "$<TARGET_FILE:Holovibes>"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/qt-runtime" "$<TARGET_FILE_DIR:Holovibes>"
+    VERBATIM
 )
 
 # ---------------------------------------------------------------------
@@ -231,126 +224,21 @@ if(TARGET ProcessHoloFilesLauncher)
     )
 endif()
 
-set(CUDA_RUNTIME_BIN_DIRS
-    "${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/bin"
-    "${CMAKE_CUDA_COMPILER_TOOLKIT_ROOT}/bin/x64"
-    "${CUDAToolkit_BIN_DIR}"
-    "${CUDAToolkit_BIN_DIR}/x64"
-    "${CUDA_TOOLKIT_ROOT_DIR}/bin"
-    "${CUDA_TOOLKIT_ROOT_DIR}/bin/x64"
-)
-list(REMOVE_DUPLICATES CUDA_RUNTIME_BIN_DIRS)
+get_property(camera_targets GLOBAL PROPERTY HOLOVIBES_CAMERA_TARGETS)
+if(camera_targets)
+    add_dependencies(Holovibes ${camera_targets})
+    install(TARGETS ${camera_targets} RUNTIME DESTINATION . COMPONENT application)
+endif()
+holovibes_deploy_runtime(Holovibes ${camera_targets})
 
-function(append_cuda_runtime_dll pattern)
-    set(cuda_runtime_matches)
-    foreach(cuda_runtime_bin_dir IN LISTS CUDA_RUNTIME_BIN_DIRS)
-        if(IS_DIRECTORY "${cuda_runtime_bin_dir}")
-            file(GLOB cuda_runtime_bin_matches CONFIGURE_DEPENDS "${cuda_runtime_bin_dir}/${pattern}")
-            list(APPEND cuda_runtime_matches ${cuda_runtime_bin_matches})
-        endif()
-    endforeach()
-
-    list(REMOVE_DUPLICATES cuda_runtime_matches)
-    if(NOT cuda_runtime_matches)
-        message(FATAL_ERROR "Could not find CUDA runtime DLL matching ${pattern}")
-    endif()
-
-    list(SORT cuda_runtime_matches)
-    list(GET cuda_runtime_matches -1 cuda_runtime_dll)
-    set(CUDA_RUNTIME_DLLS ${CUDA_RUNTIME_DLLS} "${cuda_runtime_dll}" PARENT_SCOPE)
-endfunction()
-
-set(CUDA_RUNTIME_DLLS)
-foreach(cuda_runtime_dll_pattern IN ITEMS
-    cublas64_*.dll
-    cublasLt64_*.dll
-    cudart64_*.dll
-    cufft64_*.dll
-    cusolver64_*.dll
-    cusparse64_*.dll
-    nvJitLink_*.dll
-)
-    append_cuda_runtime_dll("${cuda_runtime_dll_pattern}")
-endforeach()
-
-install(FILES
-    ${CMAKE_BINARY_DIR}/CameraHamamatsu.dll
-    ${CMAKE_BINARY_DIR}/CameraIds.dll
-    ${CMAKE_BINARY_DIR}/CameraOpenCV.dll
-    ${CMAKE_BINARY_DIR}/CameraXib.dll
-    ${CMAKE_BINARY_DIR}/CameraXiq.dll
-    ${CMAKE_BINARY_DIR}/dcamapi.dll
-    ${CMAKE_BINARY_DIR}/uEye_api_64.dll
-    ${CMAKE_BINARY_DIR}/xiapi64.dll
-    ${CUDA_RUNTIME_DLLS}
-    DESTINATION .
-    COMPONENT application
-)
-
-if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
-    install(FILES ${CMAKE_BINARY_DIR}/BitflowCyton.dll
-        DESTINATION .
-        COMPONENT application
-    )
+if(BUILD_TESTING)
+    add_test(NAME cli.recorded_file
+        COMMAND powershell.exe -NoProfile -ExecutionPolicy Bypass
+            -File "${CMAKE_SOURCE_DIR}/scripts/test-cli.ps1" -Executable "$<TARGET_FILE:Holovibes>")
+    set_tests_properties(cli.recorded_file PROPERTIES TIMEOUT 180)
 endif()
 
-if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
-    install(FILES ${CMAKE_BINARY_DIR}/CameraAdimec.dll
-        DESTINATION .
-        COMPONENT application
-    )
-endif()
-
-if (HAVE_EGrabber AND HAVE_EGrabbers)
-    install(FILES
-        ${CMAKE_BINARY_DIR}/AmetekS710EuresysCoaxlinkOcto.dll
-        ${CMAKE_BINARY_DIR}/AmetekS711EuresysCoaxlinkQsfp+.dll
-        ${CMAKE_BINARY_DIR}/AmetekS991EuresysCoaxlinkQsfp+.dll
-        ${CMAKE_BINARY_DIR}/AmetekS980EuresysCoaxlinkQsfp+.dll
-        ${CMAKE_BINARY_DIR}/CameraPhantomAutoDetection.dll
-        DESTINATION .
-        COMPONENT application
-    )
-endif()
-
-if (HAVE_ASI)
-    add_custom_command(TARGET Holovibes POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${ASI_SDK}/lib/x64/ASICamera2.dll" ${CMAKE_BINARY_DIR}/ASICamera2.dll
-    )
-    install(FILES
-        ${CMAKE_BINARY_DIR}/ASICamera2.dll
-        DESTINATION .
-        COMPONENT application
-    )
-endif()
-
-if(HAVE_VIMBAX)
-    add_custom_command(TARGET Holovibes POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbCPP.dll" ${CMAKE_BINARY_DIR}/VmbCPP.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbC.dll" ${CMAKE_BINARY_DIR}/VmbC.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/GenApi_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/GenApi_MD_VC141_v3_2_AVT.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/GCBase_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/GCBase_MD_VC141_v3_2_AVT.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/XmlParser_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/XmlParser_MD_VC141_v3_2_AVT.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/Log_MD_VC141_v3_2_AVT.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/NodeMapData_MD_VC141_v3_2_AVT.dll
-        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" ${CMAKE_BINARY_DIR}/MathParser_MD_VC141_v3_2_AVT.dll
-        )
-    install(FILES
-        ${CMAKE_BINARY_DIR}/CameraAlvium.dll
-        ${CMAKE_BINARY_DIR}/VmbCPP.dll
-        ${CMAKE_BINARY_DIR}/VmbC.dll
-        ${CMAKE_BINARY_DIR}/GenApi_MD_VC141_v3_2_AVT.dll
-        ${CMAKE_BINARY_DIR}/GCBase_MD_VC141_v3_2_AVT.dll
-        ${CMAKE_BINARY_DIR}/XmlParser_MD_VC141_v3_2_AVT.dll
-        ${CMAKE_BINARY_DIR}/Log_MD_VC141_v3_2_AVT.dll
-        ${CMAKE_BINARY_DIR}/NodeMapData_MD_VC141_v3_2_AVT.dll
-        ${CMAKE_BINARY_DIR}/MathParser_MD_VC141_v3_2_AVT.dll
-        DESTINATION .
-        COMPONENT application
-    )
-endif()
-
-install(DIRECTORY ${CMAKE_BINARY_DIR}/windeployqt/
+install(DIRECTORY "${CMAKE_BINARY_DIR}/qt-runtime/"
     DESTINATION .
     COMPONENT application
 )

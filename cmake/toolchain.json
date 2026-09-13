@@ -1,0 +1,6 @@
+{
+  "msvcToolset": "14.44",
+  "windowsSdk": "10.0.26100.0",
+  "cudaMinimum": "13.0",
+  "cmakeMinimum": "3.31"
+}

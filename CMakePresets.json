@@ -1,0 +1,74 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 31, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "toolchainFile": "${sourceDir}/out/tools/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "architecture": { "value": "x64", "strategy": "external" },
+      "toolset": { "value": "v143,version=14.44", "strategy": "external" },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL",
+        "VCPKG_TARGET_TRIPLET": "x64-holovibes",
+        "VCPKG_HOST_TRIPLET": "x64-holovibes",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/out/vcpkg_installed",
+        "BUILD_TESTING": false,
+        "HOLOVIBES_BUILD_CAMERAS": false
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    },
+    {
+      "name": "windows-dev",
+      "displayName": "Windows development (RelWithDebInfo)",
+      "inherits": "windows-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "windows-debug",
+      "displayName": "Windows Debug",
+      "inherits": "windows-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Windows Release with available cameras",
+      "inherits": "windows-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "HOLOVIBES_BUILD_CAMERAS": true }
+    },
+    {
+      "name": "windows-tests",
+      "displayName": "Windows C++ tests",
+      "inherits": "windows-dev",
+      "cacheVariables": { "BUILD_TESTING": true }
+    },
+    {
+      "name": "windows-dependencies",
+      "displayName": "Dependency smoke test (no CUDA required)",
+      "inherits": "windows-dev",
+      "cacheVariables": { "HOLOVIBES_DEPENDENCIES_ONLY": true, "BUILD_TESTING": true }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows-dev", "configurePreset": "windows-dev", "jobs": 8 },
+    { "name": "windows-debug", "configurePreset": "windows-debug", "jobs": 8 },
+    { "name": "windows-release", "configurePreset": "windows-release", "jobs": 8 },
+    { "name": "windows-tests", "configurePreset": "windows-tests", "jobs": 8 },
+    { "name": "windows-dependencies", "configurePreset": "windows-dependencies", "jobs": 8 }
+  ],
+  "testPresets": [
+    { "name": "windows-tests", "configurePreset": "windows-tests", "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" } },
+    { "name": "windows-dependencies", "configurePreset": "windows-dependencies", "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" } }
+  ],
+  "packagePresets": [
+    {
+      "name": "windows-release", "configurePreset": "windows-release", "generators": ["NSIS"],
+      "variables": { "CPACK_NSIS_COMPRESSOR": "zlib" }
+    }
+  ]
+}

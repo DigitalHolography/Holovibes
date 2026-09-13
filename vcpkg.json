@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "holovibes",
+  "version": "14.13.1",
+  "builtin-baseline": "ef7dbf94b9198bc58f45951adcf1f041fcbc5ea0",
+  "dependencies": [
+    "boost-algorithm",
+    "boost-lexical-cast",
+    "boost-program-options",
+    "boost-property-tree",
+    "boost-tokenizer",
+    "glm",
+    { "name": "hdf5", "default-features": false, "features": ["cpp", "zlib"] },
+    "nlohmann-json",
+    {
+      "name": "opencv4",
+      "default-features": false,
+      "features": ["dshow", "ffmpeg", "jpeg", "msmf", "png", "thread"]
+    },
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": ["gui", "network", "opengl", "widgets", "jpeg", "png"]
+    },
+    { "name": "qtcharts", "default-features": false },
+    "spdlog"
+  ],
+  "features": {
+    "tests": { "description": "Build the C++ unit tests", "dependencies": ["gtest"] }
+  },
+  "overrides": [
+    { "name": "glm", "version": "0.9.9.8", "port-version": 2 },
+    { "name": "spdlog", "version": "1.12.0" },
+    { "name": "fmt", "version": "10.1.1" }
+  ]
+}

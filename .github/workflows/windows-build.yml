@@ -1,0 +1,82 @@
+name: Windows build
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      application:
+        description: Build and test on a configured Windows CUDA runner
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\out\binary-cache
+      # Optional vcpkg source, e.g. "http,https://cache.example/{sha}.zip,read".
+      # The local cache and artifact below work without configuring a service.
+      HOLOVIBES_BINARY_CACHE: ${{ vars.HOLOVIBES_BINARY_CACHE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create cache directory
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+      - uses: actions/cache@v4
+        with:
+          path: out/binary-cache
+          key: vcpkg-windows-${{ hashFiles('vcpkg.json', 'cmake/toolchain.json', 'cmake/triplets/**') }}
+          restore-keys: vcpkg-windows-
+      - name: Build and exercise dependencies
+        shell: pwsh
+        run: ./dev.ps1 dependencies
+      - name: Upload dependency binaries for developers
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-windows-binary-cache
+          path: out/binary-cache
+          compression-level: 0
+          retention-days: 14
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-build-logs
+          path: |
+            out/build/windows-dependencies/**/*.log
+            out/build/windows-dependencies/**/*.yaml
+            out/tools/vcpkg/buildtrees/**/*.log
+
+  application:
+    # GPU tests and proprietary SDKs need a machine configured by the project.
+    # Never execute pull-request code automatically on this persistent runner.
+    if: github.event_name == 'workflow_dispatch' && inputs.application
+    runs-on: [self-hosted, Windows, X64, holovibes-cuda]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Build Release and C++ tests
+        shell: pwsh
+        run: |
+          ./dev.ps1 build -Preset windows-release
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          ./dev.ps1 test
+      - name: Stage application
+        shell: pwsh
+        run: |
+          . ./scripts/bootstrap.ps1
+          cmake --install out/build/windows-release --prefix out/stage
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Holovibes-windows-draft
+          path: out/stage

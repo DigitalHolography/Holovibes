@@ -31,10 +31,10 @@ set(INTERNAL_INCLUDES
 # ---------------------------------------------------------------------
 # The executable
 # ---------------------------------------------------------------------
-file(GLOB_RECURSE SOURCES sources/*.cc)
-file(GLOB_RECURSE HEADERS includes/*.hh)
-file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
-file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS sources/*.cc)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS includes/*.hh)
+file(GLOB_RECURSE CUDA_SOURCES CONFIGURE_DEPENDS cuda_sources/*.cu)
+file(GLOB_RECURSE CUDA_HEADERS CONFIGURE_DEPENDS cuda_includes/*.cuh)
 
 add_library(Backend STATIC
     ${SOURCES}
@@ -44,12 +44,15 @@ add_library(Backend STATIC
 )
 
 target_link_libraries(Backend PRIVATE
-    spdlog::spdlog_header_only
+    holovibes_headers
+    opencv_core
+    opencv_imgproc
     opencv_videoio
-    cufft
-    cublas
-    cusolver
-    nvml
+    CUDA::cudart
+    CUDA::cufft
+    CUDA::cublas
+    CUDA::cusolver
+    CUDA::nvml
     HDF5::HDF5
 )
 
@@ -77,7 +80,7 @@ target_compile_options(Backend PRIVATE
 )
 
 target_compile_definitions(Backend PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:.
+    $<$<COMPILE_LANGUAGE:CXX>:
     _CRT_SECURE_NO_WARNINGS
     >
 )
@@ -89,4 +92,6 @@ endif()
 # ---------------------------------------------------------------------
 # Unit testing
 # ---------------------------------------------------------------------
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

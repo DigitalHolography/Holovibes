@@ -48,6 +48,8 @@ Download the Windows installer from the [latest release](https://github.com/Digi
 
 ## Documentation
 
+- [Build from source and developer setup](docs/DEVELOPMENT.md)
+
 - [GitHub Wiki](https://github.com/DigitalHolography/Holovibes/wiki)
 - [Website](https://holovibes.com/)
 - [How it works](https://docs.google.com/document/d/1H8BcAD9Gsdpc1Rs8rBjZxRaCEdW1teBxsvuC9opWElw/edit?usp=sharing)
