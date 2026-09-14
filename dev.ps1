@@ -59,7 +59,8 @@ try {
             default {
                 # Preserve explicit -D overrides from `configure`. Ninja asks
                 # CMake to regenerate when a CMake input changes afterward.
-                if (-not (Test-Path -LiteralPath (Join-Path $buildPath 'CMakeCache.txt'))) {
+                # A failed configure can leave a cache without generating Ninja files.
+                if (-not (Test-Path -LiteralPath (Join-Path $buildPath 'build.ninja'))) {
                     Invoke-Checked cmake @('--preset', $Preset)
                 }
                 if ($Action -eq 'build') {

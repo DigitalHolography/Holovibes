@@ -47,6 +47,13 @@ if(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 13.0)
 endif()
 include(cmake/Deployment.cmake)
 
+# CUDA's CCCL headers require the conforming MSVC preprocessor, including
+# when included by ordinary C++ sources. Forward the option through nvcc.
+add_compile_options(
+    "$<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>"
+    "$<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/Zc:preprocessor>"
+)
+
 # Export compile_commands.json so IDE can use it for code completion.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
