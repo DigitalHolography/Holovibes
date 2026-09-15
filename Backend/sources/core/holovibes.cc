@@ -7,6 +7,7 @@
 #include "holo_file.hh"
 #include "icompute.hh"
 #include "API.hh"
+#include <limits>
 
 namespace holovibes
 {
@@ -139,21 +140,61 @@ void Holovibes::stop_frame_read()
     input_queue_.store(nullptr);
 }
 
-void Holovibes::start_frame_record(const std::function<void()>& callback)
+bool Holovibes::start_frame_record(const std::function<void()>& callback)
 {
     if (!record_queue_.load())
         init_record_queue();
 
-    record_queue_.load()->reset();
-    if (input_queue_.load())
-        input_queue_.load()->reset_override();
+    std::shared_ptr<worker::AsyncRecordWriter::Job> async_job;
+    if (API.record.get_async_record_ram_gib() != 0)
+    {
+        auto progress = API.record.get_record_progress();
+        const size_t frame_size = record_queue_.load()->get_fd().get_frame_size();
+        if (frame_size == 0 || progress.total_frames > std::numeric_limits<size_t>::max() / frame_size)
+            return false;
+        if (API.record.get_record_frame_count())
+            async_job = async_record_writer_.reserve(progress.total_frames * frame_size);
+        else
+        {
+            const auto mode = API.record.get_record_mode();
+            const size_t multiplier = mode == RecordMode::MOMENTS
+                                          ? 3
+                                          : (mode == RecordMode::OCT_CUBE || mode == RecordMode::OCT_CUBE_FLOAT)
+                                                ? API.transform.get_time_transformation_size()
+                                                : 1;
+            if (multiplier == 0 || multiplier > std::numeric_limits<size_t>::max() / frame_size)
+                return false;
+            async_job = async_record_writer_.reserve_unbounded(frame_size * multiplier);
+        }
+        if (!async_job)
+            return false;
+    }
 
-    frame_record_worker_controller_.set_callback(callback);
-    frame_record_worker_controller_.set_error_callback(error_callback_);
-    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+    try
+    {
+        record_queue_.load()->reset();
+        if (input_queue_.load())
+            input_queue_.load()->reset_override();
 
-    auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-    frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream, record_queue_);
+        frame_record_worker_controller_.set_callback(callback);
+        frame_record_worker_controller_.set_error_callback(error_callback_);
+        frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+
+        auto all_settings = std::tuple_cat(realtime_settings_.settings_);
+        frame_record_worker_controller_.start(all_settings,
+                                              get_cuda_streams().recorder_stream,
+                                              record_queue_,
+                                              async_record_writer_,
+                                              async_job);
+    }
+    catch (const std::exception& e)
+    {
+        if (async_job)
+            async_record_writer_.abort(async_job, e.what());
+        LOG_ERROR("Could not start frame recording: {}", e.what());
+        return false;
+    }
+    return true;
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(false); }

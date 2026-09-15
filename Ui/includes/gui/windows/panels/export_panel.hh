@@ -56,7 +56,8 @@ class ExportPanel : public Panel
     void stop_record();
 
     /*! \brief Resets ui on record finished. */
-    void record_finished();
+    void record_finished(bool recording_started = true);
+    void update_queued_save_status();
 
     /*! \brief Starts recording */
     void start_record();
@@ -104,6 +105,7 @@ class ExportPanel : public Panel
 
   private:
     int record_frame_step_ = 512;
+    QString queued_save_start_error_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;
 };

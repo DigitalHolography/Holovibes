@@ -14,6 +14,7 @@
 #include "benchmark_worker.hh"
 #include "chart_record_worker.hh"
 #include "frame_record_worker.hh"
+#include "async_record_writer.hh"
 #include "compute_worker.hh"
 
 #include "common.cuh"
@@ -91,6 +92,7 @@
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::InputBufferSize,                        \
     holovibes::settings::RecordBufferSize,                       \
+    holovibes::settings::AsyncRecordRamGiB,                      \
     holovibes::settings::ContrastLowerThreshold,                 \
     holovibes::settings::RawBitshift,                            \
     holovibes::settings::ContrastUpperThreshold,                 \
@@ -295,7 +297,10 @@ class Holovibes
      * \param nb_frames_skip
      * \param callback
      */
-    void start_frame_record(const std::function<void()>& callback = []() {});
+    bool start_frame_record(const std::function<void()>& callback = []() {});
+
+    worker::AsyncRecordWriter& get_async_record_writer() { return async_record_writer_; }
+    const worker::AsyncRecordWriter& get_async_record_writer() const { return async_record_writer_; }
 
     void stop_frame_record();
 
@@ -330,6 +335,9 @@ class Holovibes
 
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
+
+        if constexpr (std::is_same_v<T, settings::AsyncRecordRamGiB>)
+            async_record_writer_.set_limit_gib(setting.value);
 
         if constexpr (has_setting_v<T, worker::FileFrameReadWorker>)
             file_read_worker_controller_.update_setting(setting);
@@ -413,6 +421,7 @@ class Holovibes
                                              settings::ChartRecordEnabled{false},
                                              settings::InputBufferSize{4096},
                                              settings::RecordBufferSize{1024},
+                                             settings::AsyncRecordRamGiB{0},
                                              settings::ContrastLowerThreshold{0.02f},
                                              settings::RawBitshift{0},
                                              settings::ContrastUpperThreshold{99.98f},
@@ -453,6 +462,9 @@ class Holovibes
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
 
+    // Declared before the controllers so its thread drains pending files after
+    // recording workers have stopped during shutdown.
+    worker::AsyncRecordWriter async_record_writer_;
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 

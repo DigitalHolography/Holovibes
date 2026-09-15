@@ -79,7 +79,7 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
     static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
                                                        {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
                                                        {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
-    RecordedDataType data_type = m[API.record.get_record_mode()];
+    RecordedDataType data_type = m[setting<settings::RecordMode>()];
 
     io_files::OutputFrameFile* output_frame_file =
         io_files::OutputFrameFileFactory::create(record_file_path,
@@ -108,7 +108,7 @@ void FrameRecordWorker::run()
     uint64_t first_camera_ts_us = 0, last_camera_ts_us = 0;
     uint64_t first_offset_us = 0, last_offset_us = 0;
     const bool capture_frame_timestamps = setting<settings::RecordFrameTimestampsEnabled>() &&
-                                          API.record.get_record_mode() == RecordMode::RAW &&
+                                          setting<settings::RecordMode>() == RecordMode::RAW &&
                                           API.input.get_import_type() == ImportType::Camera;
     std::vector<io_files::FrameTimestampUs> frame_timestamps_us;
 
@@ -125,19 +125,20 @@ void FrameRecordWorker::run()
 
     // for MOMENTS, 3 plans = 1 frame
     uint img_count = total_to_record;
-    if (API.record.get_record_mode() == RecordMode::MOMENTS)
+    if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
     {
         img_count = total_to_record / 3;
     }
 
-    if (capture_frame_timestamps && img_count > 0)
-        frame_timestamps_us.reserve(img_count);
-
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
+    const bool direct_ram_staging = async_job_ && setting<settings::RecordMode>() != RecordMode::MOMENTS &&
+                                    setting<settings::RecordMode>() != RecordMode::OCT_CUBE &&
+                                    setting<settings::RecordMode>() != RecordMode::OCT_CUBE_FLOAT;
 
     // buffers initialisation
+    std::unique_ptr<io_files::OutputFrameFile> owned_output_file;
     io_files::OutputFrameFile* output_frame_file = nullptr;
-    char* frame_buffer = new char[output_frame_size];
+    char* frame_buffer = nullptr;
     char* moments_buffer = nullptr;
     int moment_idx = 0;
 
@@ -145,25 +146,61 @@ void FrameRecordWorker::run()
     char* cube_buffer = nullptr;
     size_t cube_size = 0;
     size_t current_cube_slice = 0;
-    if (API.record.get_record_mode() == RecordMode::MOMENTS)
+    try
     {
-        moments_buffer = new char[output_frame_size * 3];
+        if (capture_frame_timestamps && img_count > 0)
+            frame_timestamps_us.reserve(img_count);
+        if (!direct_ram_staging)
+            frame_buffer = new char[output_frame_size];
+        if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
+        {
+            moments_buffer = new char[output_frame_size * 3];
+        }
+        else if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
+                 setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
+        {
+            size_t depth = API.transform.get_time_transformation_size();
+            cube_size = depth * output_frame_size;
+            cube_buffer = new char[cube_size];
+        }
     }
-    else if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
-             API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+    catch (const std::exception& e)
     {
-        size_t depth = API.transform.get_time_transformation_size();
-        cube_size = depth * output_frame_size;
-        cube_buffer = new char[cube_size];
+        LOG_ERROR("Could not allocate recording frame buffers: {}", e.what());
+        if (async_job_)
+            async_writer_.abort(async_job_, e.what());
+        delete[] frame_buffer;
+        delete[] moments_buffer;
+        delete[] cube_buffer;
+        API.record.set_frame_acquisition_enabled(false);
+        reset_record_queue();
+        FastUpdatesMap::map<IntType>.remove_entry(IntType::SAVING_FPS);
+        return;
     }
 
     while (!API.record.get_frame_acquisition_enabled())
         continue;
 
+    auto write_or_stage_frame = [&](const char* data, size_t size) {
+        if (!async_job_)
+        {
+            output_frame_file->write_frame(data, size);
+            return;
+        }
+        auto copy = std::unique_ptr<char[]>(new char[size]);
+        std::memcpy(copy.get(), data, size);
+        async_writer_.enqueue(async_job_, std::move(copy), size);
+    };
+
+    bool capture_failed = false;
+    std::string capture_error;
     try
     {
-        output_frame_file = open_output_file(img_count);
+        owned_output_file.reset(open_output_file(img_count));
+        output_frame_file = owned_output_file.get();
         output_frame_file->write_header();
+        if (async_job_)
+            async_writer_.attach_file(async_job_, std::move(owned_output_file));
 
         std::optional<int> contiguous_frames = std::nullopt;
 
@@ -213,7 +250,7 @@ void FrameRecordWorker::run()
             if (nb_frames_to_skip > 0)
             {
                 record_queue_.load()->dequeue();
-                if (API.record.get_record_mode() == RecordMode::RAW)
+                if (setting<settings::RecordMode>() == RecordMode::RAW)
                 {
                     (void)g_record_stamp_queue.pop_one_blocking(); // consume the corresponding stamp
                 }
@@ -222,14 +259,18 @@ void FrameRecordWorker::run()
             }
             nb_frames_to_skip = setting<settings::FrameSkip>();
 
-            record_queue_.load()->dequeue(frame_buffer,
+            std::unique_ptr<char[]> acquired_frame;
+            if (direct_ram_staging)
+                acquired_frame = std::unique_ptr<char[]>(new char[output_frame_size]);
+            char* dequeue_destination = direct_ram_staging ? acquired_frame.get() : frame_buffer;
+            record_queue_.load()->dequeue(dequeue_destination,
                                           stream_,
                                           API.record.get_record_queue_location() == holovibes::Device::GPU
                                               ? cudaMemcpyDeviceToHost
                                               : cudaMemcpyHostToHost);
 
             uint64_t this_id = 0;
-            if (API.record.get_record_mode() == RecordMode::RAW)
+            if (setting<settings::RecordMode>() == RecordMode::RAW)
             {
                 const FrameStamp st = g_record_stamp_queue.pop_one_blocking();
                 this_id = st.id;
@@ -253,7 +294,7 @@ void FrameRecordWorker::run()
             }
 
             // MOMENTS
-            if (API.record.get_record_mode() == RecordMode::MOMENTS)
+            if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
             {
                 auto in_f = reinterpret_cast<float*>(frame_buffer);
                 auto out_f = reinterpret_cast<float*>(moments_buffer);
@@ -267,15 +308,15 @@ void FrameRecordWorker::run()
                 if (moment_idx == 3)
                 {
                     // [H×W×3]
-                    output_frame_file->write_frame(moments_buffer, output_frame_size * 3);
+                    write_or_stage_frame(moments_buffer, output_frame_size * 3);
                     (*processed_fps)++;
                     nb_frames_recorded += 3;
                     moment_idx = 0;
                 }
             }
             // OCT_CUBE / OCT_CUBE_FLOAT
-            else if (API.record.get_record_mode() == RecordMode::OCT_CUBE ||
-                     API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
+            else if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
+                     setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
             {
                 std::memcpy(cube_buffer + current_cube_slice * output_frame_size, frame_buffer, output_frame_size);
                 current_cube_slice++;
@@ -285,14 +326,17 @@ void FrameRecordWorker::run()
                 size_t depth = API.transform.get_time_transformation_size();
                 if (current_cube_slice == depth)
                 {
-                    output_frame_file->write_frame(cube_buffer, cube_size);
+                    write_or_stage_frame(cube_buffer, cube_size);
                     current_cube_slice = 0;
                 }
             }
             // RAW, PROCESSED
             else
             {
-                output_frame_file->write_frame(frame_buffer, output_frame_size);
+                if (direct_ram_staging)
+                    async_writer_.enqueue(async_job_, std::move(acquired_frame), output_frame_size);
+                else
+                    write_or_stage_frame(frame_buffer, output_frame_size);
                 if (capture_frame_timestamps)
                     frame_timestamps_us.push_back({last_ts_us, last_camera_ts_us, last_offset_us});
                 (*processed_fps)++;
@@ -301,10 +345,11 @@ void FrameRecordWorker::run()
             integrate_fps_average();
         }
 
-        LOG_INFO("Recording stopped, written frames: {}", nb_frames_recorded.load());
-        output_frame_file->correct_number_of_frames(nb_frames_recorded.load());
+        LOG_INFO("Recording stopped, {} frames {}", nb_frames_recorded.load(), async_job_ ? "buffered" : "written");
+        if (!async_job_)
+            output_frame_file->correct_number_of_frames(nb_frames_recorded.load());
 
-        if (API.record.get_record_mode() == RecordMode::RAW && first_id.has_value())
+        if (setting<settings::RecordMode>() == RecordMode::RAW && first_id.has_value())
         {
             LOG_INFO("Record timestamps (us): first={} last={}", first_ts_us, last_ts_us);
 
@@ -340,14 +385,26 @@ void FrameRecordWorker::run()
             static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)),
             contiguous);
 
-        output_frame_file->write_footer();
+        if (!async_job_)
+            output_frame_file->write_footer();
     }
-    catch (const io_files::FileException& e)
+    catch (const std::exception& e)
     {
         LOG_ERROR("{}", e.what());
+        capture_failed = true;
+        capture_error = e.what();
+        API.record.set_frame_acquisition_enabled(false);
+        if (auto pipe = API.compute.get_compute_pipe())
+            pipe->request(ICS::DisableFrameRecord);
     }
 
-    delete output_frame_file;
+    if (async_job_)
+    {
+        if (capture_failed)
+            async_writer_.abort(async_job_, capture_error);
+        else
+            async_writer_.finish(async_job_, nb_frames_recorded.load());
+    }
     delete[] frame_buffer;
     if (moments_buffer)
         delete[] moments_buffer;
@@ -363,7 +420,8 @@ void FrameRecordWorker::run()
 void FrameRecordWorker::reset_record_queue()
 {
     auto pipe = API.compute.get_compute_pipe();
-    pipe->request(ICS::DisableFrameRecord);
+    if (pipe)
+        pipe->request(ICS::DisableFrameRecord);
     g_record_id_queue.clear();
     g_record_stamp_queue.clear();
     record_queue_.load()->reset();

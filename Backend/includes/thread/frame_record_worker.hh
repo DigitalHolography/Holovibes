@@ -16,6 +16,7 @@
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
 #include "worker.hh"
+#include "async_record_writer.hh"
 
 #pragma region Settings configuration
 // clang-format off
@@ -63,11 +64,17 @@ class FrameRecordWorker final : public Worker
      * \param nb_frames_skip Number of frames to skip before starting
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FrameRecordWorker(InitSettings settings, cudaStream_t stream, std::atomic<std::shared_ptr<Queue>>& record_queue)
+    FrameRecordWorker(InitSettings settings,
+                      cudaStream_t stream,
+                      std::atomic<std::shared_ptr<Queue>>& record_queue,
+                      AsyncRecordWriter& async_writer,
+                      std::shared_ptr<AsyncRecordWriter::Job> async_job)
         : Worker()
         , stream_(stream)
         , onrestart_settings_(settings)
         , record_queue_(record_queue)
+        , async_writer_(async_writer)
+        , async_job_(std::move(async_job))
     {
     }
 
@@ -137,6 +144,8 @@ class FrameRecordWorker final : public Worker
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
     /*! \brief The queue in which the frames are stored for record*/
     std::atomic<std::shared_ptr<Queue>>& record_queue_;
+    AsyncRecordWriter& async_writer_;
+    std::shared_ptr<AsyncRecordWriter::Job> async_job_;
 };
 } // namespace holovibes::worker
 

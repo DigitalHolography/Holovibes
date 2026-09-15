@@ -7,6 +7,7 @@
 #include "output_frame_file.hh"
 #include "avi_file.hh"
 #include "opencv2/opencv.hpp"
+#include "enum_space_transformation.hh"
 
 namespace holovibes::io_files
 {
@@ -78,5 +79,6 @@ class OutputAviFile : public OutputFrameFile, public AviFile
     cv::VideoWriter video_writer_;
     /*! \brief The size of the image side to get a square video */
     ushort size_length_;
+    SpaceTransformation space_transformation_;
 };
 } // namespace holovibes::io_files

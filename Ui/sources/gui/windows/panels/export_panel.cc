@@ -13,6 +13,7 @@
 #include "GUI.hh"
 #include "record_trigger_tcp_server.hh"
 #include "user_interface_descriptor.hh"
+#include <QTimer>
 
 namespace holovibes::gui
 {
@@ -24,6 +25,9 @@ ExportPanel::ExportPanel(QWidget* parent)
                                             [this](bool _unused) { return browse_record_output_file().toStdString(); })
 {
     RecordTriggerTcpServer::instance().set_record_start_callback([this]() { start_record(); });
+    auto* save_status_timer = new QTimer(this);
+    connect(save_status_timer, &QTimer::timeout, this, &ExportPanel::update_queued_save_status);
+    save_status_timer->start(500);
 }
 
 ExportPanel::~ExportPanel() { RecordTriggerTcpServer::instance().set_record_start_callback({}); }
@@ -249,18 +253,21 @@ void ExportPanel::set_record_mode(int index)
 
 void ExportPanel::stop_record() { api_.record.stop_record(); }
 
-void ExportPanel::record_finished()
+void ExportPanel::record_finished(bool recording_started)
 {
     std::string info;
     RecordMode record_mode = api_.record.get_record_mode();
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
+    else if (api_.record.get_async_record_ram_gib() != 0)
+        info = "Frames buffered; recording file is saving in the background";
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
              record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
-    LOG_INFO("[RECORDER] {}", info);
+    if (recording_started)
+        LOG_INFO("[RECORDER] {}", info);
 
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
@@ -270,8 +277,41 @@ void ExportPanel::record_finished()
     ui_->RecordFrameTimestampsCheckBox->setEnabled(record_mode == RecordMode::RAW &&
                                                    API.input.get_import_type() == ImportType::Camera);
     ui_->InfoPanel->set_visible_record_progress(false);
+    update_queued_save_status();
 
     parent_->light_ui_->notify();
+}
+
+void ExportPanel::update_queued_save_status()
+{
+    const size_t pending = api_.record.get_pending_record_saves();
+    const size_t failed = api_.record.get_failed_record_saves();
+    QString status;
+    if (pending != 0)
+        status = QStringLiteral("Saving %1 recording%2 to disk")
+                     .arg(static_cast<qulonglong>(pending))
+                     .arg(pending == 1 ? QString() : QStringLiteral("s"));
+    if (failed != 0)
+    {
+        if (!status.isEmpty())
+            status += "  |  ";
+        status += QStringLiteral("%1 save%2 failed; check the log")
+                      .arg(static_cast<qulonglong>(failed))
+                      .arg(failed == 1 ? QString() : QStringLiteral("s"));
+    }
+    if (!queued_save_start_error_.isEmpty())
+    {
+        if (!status.isEmpty())
+            status += "  |  ";
+        status += queued_save_start_error_;
+    }
+    ui_->QueuedSaveStatusLabel->setText(status);
+    if (failed != 0)
+    {
+        status += "\n";
+        status += QString::fromStdString(api_.record.get_last_record_save_error());
+    }
+    ui_->QueuedSaveStatusLabel->setToolTip(status);
 }
 
 void ExportPanel::start_record()
@@ -289,7 +329,15 @@ void ExportPanel::start_record()
     }
 
     if (!api_.record.start_record_preconditions()) // Check if the record can be started
+    {
+        if (api_.record.get_async_record_ram_gib() != 0)
+        {
+            queued_save_start_error_ = "Recording cannot fit available queued save RAM; wait or raise the limit";
+            update_queued_save_status();
+        }
         return;
+    }
+    queued_save_start_error_.clear();
     // Start record
     gui::get_raw_window().reset(nullptr);
     ui_->ViewPanel->update_raw_view(false);
@@ -298,7 +346,11 @@ void ExportPanel::start_record()
     ui_->BatchSizeSpinBox->setEnabled(false);
 
     // set the record progress bar color to orange, the patient should not move
-    ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
+    ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25),
+                                               api_.record.get_async_record_ram_gib() == 0 ||
+                                                       api_.record.get_record_mode() == RecordMode::CHART
+                                                   ? "Recording: %v/%m"
+                                                   : "Buffered: %v/%m");
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
@@ -313,6 +365,15 @@ void ExportPanel::start_record()
     {
         RecordTriggerTcpServer::instance().notify_record_started();
         parent_->light_ui_->notify();
+    }
+    else
+    {
+        record_finished(false);
+        if (api_.record.get_async_record_ram_gib() != 0)
+        {
+            queued_save_start_error_ = "Recording could not reserve queued save RAM; wait for pending saves";
+            update_queued_save_status();
+        }
     }
 }
 

@@ -432,6 +432,26 @@ threshold</string>
                </property>
               </widget>
              </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="AsyncRecordRamLabel">
+               <property name="toolTip">
+                <string>RAM budget for recordings waiting for disk. 0 saves frames synchronously. Set this above the size of one recording to start another while the first file is saving.</string>
+               </property>
+               <property name="text">
+                <string>Queued save RAM (GiB)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QSpinBox" name="AsyncRecordRamSpinBox">
+               <property name="toolTip">
+                <string>0 disables queued RAM saving. For two 26 GB recordings, allow at least 52 GiB plus RAM for the existing input and record buffers. Manually stopped recordings reserve half this budget each and wait for disk if it fills.</string>
+               </property>
+               <property name="maximum">
+                <number>512</number>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>

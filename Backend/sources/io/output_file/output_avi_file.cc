@@ -13,6 +13,7 @@ OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDe
     fd_ = fd;
     img_nb_ = img_nb;
     size_length_ = std::max(fd_.width, fd_.height);
+    space_transformation_ = API.transform.get_space_transformation();
 }
 
 void OutputAviFile::export_compute_settings(int input_fps, size_t contiguous) {}
@@ -23,7 +24,7 @@ void OutputAviFile::write_header()
     {
         int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
         cv::Size size;
-        if (API.transform.get_space_transformation() == SpaceTransformation::FRESNELTR)
+        if (space_transformation_ == SpaceTransformation::FRESNELTR)
             size = cv::Size(size_length_, size_length_);
         else
             size = cv::Size(fd_.width, fd_.height);
@@ -99,7 +100,7 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
             // OpenCV does not handle 16 bits video in our case
             // So we make a 8 bits video
             // move frame to the mat_frame.data buffer, and make it square if needed
-            if (API.transform.get_space_transformation() == SpaceTransformation::FRESNELTR)
+            if (space_transformation_ == SpaceTransformation::FRESNELTR)
             {
                 mat_frame = cv::Mat(size_length_, size_length_, CV_8UC1);
                 move_frame(mat_frame.data, frame, fd_.width, fd_.height, fd_.byteEndian);

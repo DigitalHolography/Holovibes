@@ -323,6 +323,22 @@ class RecordApi : public IApi
      */
     ApiCode set_record_buffer_size(uint value) const;
 
+    /*! \brief RAM budget for frames waiting for disk; zero uses the original synchronous writer. */
+    inline size_t get_async_record_ram_gib() const { return GET_SETTING(AsyncRecordRamGiB); }
+    inline void set_async_record_ram_gib(size_t gib) const { UPDATE_SETTING(AsyncRecordRamGiB, gib); }
+    inline size_t get_pending_record_saves() const
+    {
+        return Holovibes::instance().get_async_record_writer().pending_count();
+    }
+    inline size_t get_failed_record_saves() const
+    {
+        return Holovibes::instance().get_async_record_writer().failed_count();
+    }
+    inline std::string get_last_record_save_error() const
+    {
+        return Holovibes::instance().get_async_record_writer().last_error();
+    }
+
 #pragma endregion
 };
 

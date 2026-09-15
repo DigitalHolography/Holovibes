@@ -159,6 +159,8 @@ DECLARE_SETTING(ChartRecordEnabled, bool);
 /*! \name Advanced Cache */
 DECLARE_SETTING(InputBufferSize, size_t);
 DECLARE_SETTING(RecordBufferSize, size_t);
+/*! \brief RAM reserved for recordings that are still being saved; zero keeps synchronous saving. */
+DECLARE_SETTING(AsyncRecordRamGiB, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
 DECLARE_SETTING(RawBitshift, size_t);
 DECLARE_SETTING(ContrastUpperThreshold, float);
