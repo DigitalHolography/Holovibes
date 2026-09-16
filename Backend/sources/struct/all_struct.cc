@@ -106,7 +106,6 @@ void AdvancedSettings::BufferSizes::Update()
     this->input = static_cast<unsigned int>(GET_SETTING(InputBufferSize));
     this->output = static_cast<unsigned int>(GET_SETTING(OutputBufferSize));
     this->record = static_cast<unsigned int>(GET_SETTING(RecordBufferSize));
-    this->async_record_ram_gib = static_cast<unsigned int>(GET_SETTING(AsyncRecordRamGiB));
     this->time_transformation_cuts = GET_SETTING(TimeTransformationCutsOutputBufferSize);
 }
 
@@ -157,7 +156,6 @@ void AdvancedSettings::BufferSizes::Load()
     UPDATE_SETTING(InputBufferSize, this->input);
     UPDATE_SETTING(OutputBufferSize, this->output);
     UPDATE_SETTING(RecordBufferSize, this->record);
-    UPDATE_SETTING(AsyncRecordRamGiB, this->async_record_ram_gib);
     UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, this->time_transformation_cuts);
 }
 
@@ -327,8 +325,6 @@ void Rendering::Assert() const // TODO: check for a more appropriate upper bound
 
 void AdvancedSettings::BufferSizes::Assert() const
 {
-    if (this->async_record_ram_gib > 512)
-        throw std::exception("Queued save RAM budget is invalid");
     if (this->file == 0 || this->file > UPPER_BOUND(0.01)) // TODO: check for a more appropriate upper bound
         throw std::exception("File buffer size is invalid");
     if (this->input == 0 || this->input > UPPER_BOUND(0.01))

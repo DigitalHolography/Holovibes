@@ -38,7 +38,6 @@ void AdvancedSettingsWindow::set_ui_values()
     api.input.set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api.input.set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
     api.record.set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
-    api.record.set_async_record_ram_gib(static_cast<size_t>(ui.AsyncRecordRamSpinBox->value()));
     api.compute.set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
     api.transform.set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
 
@@ -96,7 +95,6 @@ void AdvancedSettingsWindow::set_current_values()
     ui.FileBSSpinBox->setValue(api.input.get_file_buffer_size());
     ui.InputBSSpinBox->setValue(api.input.get_input_buffer_size());
     ui.RecordBSSpinBox->setValue(api.record.get_record_buffer_size());
-    ui.AsyncRecordRamSpinBox->setValue(static_cast<int>(api.record.get_async_record_ram_gib()));
     ui.OutputBSSpinBox->setValue(static_cast<int>(api.compute.get_output_buffer_size()));
     ui.Cuts3DBSSpinBox->setValue(api.transform.get_time_transformation_cuts_output_buffer_size());
 

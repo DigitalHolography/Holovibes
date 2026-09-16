@@ -160,8 +160,7 @@ void InfoTextEdit::display_information()
     }
 
     if (information_.saving)
-        to_display << "<tr><td>" << (API.record.get_async_record_ram_gib() == 0 ? "Saving FPS" : "Buffering FPS")
-                   << "</td><td>" << information_.saving->fps << "</td></tr>";
+        to_display << "<tr><td>Saving FPS</td><td>" << information_.saving->fps << "</td></tr>";
 
     if (information_.input)
         to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(information_.input->throughput, "B/s")
@@ -171,9 +170,7 @@ void InfoTextEdit::display_information()
                    << format_throughput(information_.output->throughput, "Voxels/s") << "</td></tr>";
 
     if (information_.saving)
-        to_display << "<tr><td>"
-                   << (API.record.get_async_record_ram_gib() == 0 ? "Saving Throughput" : "Buffering Throughput")
-                   << "</td><td>  "
+        to_display << "<tr><td>Saving Throughput</td><td>  "
                    << format_throughput(information_.saving->throughput, "B/s") << "</td></tr>";
 
     size_t free, total;

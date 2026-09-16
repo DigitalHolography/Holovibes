@@ -10,8 +10,6 @@ OutputHdf5File::OutputHdf5File(const std::string& file_path, const camera::Frame
     : OutputFrameFile(file_path)
     , img_nb_(img_nb)
     , current_frame_(0)
-    , record_mode_(API.record.get_record_mode())
-    , transformation_depth_(API.transform.get_time_transformation_size())
 {
     // Create HDF5 file
     try
@@ -30,11 +28,11 @@ void OutputHdf5File::write_header()
     try
     {
         hsize_t depth =
-            (record_mode_ == RecordMode::MOMENTS) ? 3 : transformation_depth_;
+            (API.record.get_record_mode() == RecordMode::MOMENTS) ? 3 : API.transform.get_time_transformation_size();
 
-        hsize_t img_count = (record_mode_ == RecordMode::MOMENTS)
+        hsize_t img_count = (API.record.get_record_mode() == RecordMode::MOMENTS)
                                 ? img_nb_
-                                : img_nb_ / transformation_depth_;
+                                : img_nb_ / API.transform.get_time_transformation_size();
 
         // [#images, height, width, depth]
         hsize_t dims[4] = {img_count, fd_.height, fd_.width, depth};
@@ -45,18 +43,18 @@ void OutputHdf5File::write_header()
         H5::DSetCreatPropList plist;
         plist.setChunk(4, chunk_dims);
 
-        if (record_mode_ == RecordMode::OCT_CUBE)
+        if (API.record.get_record_mode() == RecordMode::OCT_CUBE)
         {
             H5::CompType complex_type(sizeof(std::complex<float>));
             complex_type.insertMember("r", 0, H5::PredType::NATIVE_FLOAT);
             complex_type.insertMember("i", sizeof(float), H5::PredType::NATIVE_FLOAT);
             dataset_ = h5_file_.createDataSet("frames", complex_type, dataspace, plist);
         }
-        else if (record_mode_ == RecordMode::OCT_CUBE_FLOAT)
+        else if (API.record.get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
         {
             dataset_ = h5_file_.createDataSet("frames", H5::PredType::NATIVE_FLOAT, dataspace, plist);
         }
-        else if (record_mode_ == RecordMode::MOMENTS)
+        else if (API.record.get_record_mode() == RecordMode::MOMENTS)
         {
             // [#images, height, width, 3]
             dataset_ = h5_file_.createDataSet("moments", H5::PredType::NATIVE_FLOAT, dataspace, plist);
@@ -89,7 +87,7 @@ size_t OutputHdf5File::write_frame(const char* frame, size_t frame_size)
 
         H5::DataSpace memspace(4, count);
 
-        if (record_mode_ == RecordMode::OCT_CUBE)
+        if (API.record.get_record_mode() == RecordMode::OCT_CUBE)
         {
             dataset_.write(frame, dataset_.getDataType(), memspace, filespace);
         }

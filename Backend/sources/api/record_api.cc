@@ -1,23 +1,11 @@
 #include "record_api.hh"
 
 #include <tuple>
-#include <limits>
 
 #include "API.hh"
 
 namespace holovibes::api
 {
-namespace
-{
-size_t target_frame_count(std::optional<size_t> count, size_t frame_skip, RecordMode mode)
-{
-    if (!count)
-        return 0;
-    const size_t after_offset = *count > frame_skip ? *count - frame_skip : *count;
-    const size_t frames = after_offset / (frame_skip + 1);
-    return mode == RecordMode::MOMENTS ? frames * 3 : frames;
-}
-} // namespace
 
 #pragma region Record Mode
 
@@ -99,41 +87,6 @@ bool RecordApi::start_record_preconditions() const
         return false;
     }
 
-    if (get_async_record_ram_gib() != 0 && get_record_mode() != RecordMode::CHART)
-    {
-        auto queue = Holovibes::instance().get_record_queue().load();
-        if (!queue && api_->input.get_import_type() != ImportType::None)
-        {
-            Holovibes::instance().init_record_queue();
-            queue = Holovibes::instance().get_record_queue().load();
-        }
-        if (!queue)
-        {
-            LOG_ERROR("Record queue is unavailable");
-            return false;
-        }
-        const size_t frame_size = queue->get_fd().get_frame_size();
-        const size_t multiplier = get_record_mode() == RecordMode::MOMENTS
-                                      ? 3
-                                      : (get_record_mode() == RecordMode::OCT_CUBE ||
-                                         get_record_mode() == RecordMode::OCT_CUBE_FLOAT)
-                                            ? api_->transform.get_time_transformation_size()
-                                            : 1;
-        if (frame_size == 0 || multiplier == 0 || multiplier > std::numeric_limits<size_t>::max() / frame_size)
-            return false;
-
-        const size_t frames = target_frame_count(get_record_frame_count(), get_nb_frame_skip(), get_record_mode());
-        const bool fits = get_record_frame_count()
-                              ? (frames <= std::numeric_limits<size_t>::max() / frame_size &&
-                                 Holovibes::instance().get_async_record_writer().can_reserve(frames * frame_size))
-                              : Holovibes::instance().get_async_record_writer().can_reserve_unbounded(frame_size * multiplier);
-        if (!fits)
-        {
-            LOG_ERROR("Not enough queued-save RAM is available for this recording; wait for saves or increase the RAM budget");
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -150,18 +103,23 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
 
     std::get<0>(*fast_update_progress_entry) = 0; // Frames acquired
     std::get<1>(*fast_update_progress_entry) = 0; // Frames recorded
-    nb_frames_to_record = static_cast<uint>(target_frame_count(get_record_frame_count(), get_nb_frame_skip(), record_mode));
+    nb_frames_to_record = static_cast<uint>(get_record_frame_count().value_or(0));
+
+    if (nb_frames_to_record.load() > get_nb_frame_skip())
+        nb_frames_to_record -= get_nb_frame_skip();
+
+    // Calculate the right number of frames to record
+    float pas = get_nb_frame_skip() + 1.0f;
+    nb_frames_to_record = static_cast<uint>(std::floorf(static_cast<float>(nb_frames_to_record) / pas));
+    if (record_mode == RecordMode::MOMENTS)
+        nb_frames_to_record = nb_frames_to_record * 3;
 
     // Start record worker
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().start_chart_record(callback);
     else
     {
-        if (!Holovibes::instance().start_frame_record(callback))
-        {
-            LOG_ERROR("Queued-save RAM reservation failed; wait for pending saves");
-            return ApiCode::FAILURE;
-        }
+        Holovibes::instance().start_frame_record(callback);
 
         set_frame_acquisition_enabled(true);
     }

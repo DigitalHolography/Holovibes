@@ -183,13 +183,6 @@ static void main_loop(holovibes::api::Api& api)
 
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
-
-    if (api.record.get_pending_record_saves() != 0)
-    {
-        LOG_INFO("Frames buffered; waiting for background disk saves to finish");
-        while (api.record.get_pending_record_saves() != 0)
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    }
 }
 
 static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts)
@@ -246,8 +239,7 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
         api.record.set_nb_frame_skip(static_cast<uint>(output_fps * (frame_skip + 1)) / api.record.get_mp4_fps());
     }
 
-    if (api.record.start_record([]() {}) != holovibes::ApiCode::OK)
-        return 38;
+    api.record.start_record([]() {});
     api.compute.start();
 
     return 0;
@@ -279,9 +271,6 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     api.compute.stop();
-
-    if (api.record.get_failed_record_saves() != 0)
-        return 39;
 
     return 0;
 }

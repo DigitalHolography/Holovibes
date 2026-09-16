@@ -7,7 +7,6 @@
 #include "output_frame_file.hh"
 #include "H5Cpp.h"
 #include <complex>
-#include "enum_record_mode.hh"
 
 namespace holovibes::io_files
 {
@@ -40,7 +39,5 @@ class OutputHdf5File : public OutputFrameFile
     hsize_t current_frame_;
     hsize_t current_cube_;
     hsize_t current_depth_;
-    RecordMode record_mode_;
-    hsize_t transformation_depth_;
 };
 } // namespace holovibes::io_files

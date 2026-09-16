@@ -29,10 +29,9 @@ struct AdvancedSettings
         unsigned record = 1024;
         unsigned output = 256;
         unsigned time_transformation_cuts = 512;
-        unsigned async_record_ram_gib = 0;
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-        SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts, async_record_ram_gib);
+        SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts);
 
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
