@@ -149,14 +149,17 @@ if (-not $holoFiles) {
 
 # Determine executable path relative to the script location first, then fall back to CWD
 $exeCandidates = @(
+    $env:HOLOVIBES_BIN
     (Join-Path $scriptDir 'Holovibes.exe')
+    (Join-Path $scriptDir 'out/build/windows-dev/Holovibes.exe')
+    (Join-Path $scriptDir 'out/build/windows-release/Holovibes.exe')
     (Join-Path $scriptPath 'Holovibes.exe')
     (Join-Path $scriptPath 'build/bin/Holovibes.exe')
     'Holovibes.exe'
     'build/bin/Holovibes.exe'
 )
 
-$exePath = $exeCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+$exePath = $exeCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1
 if (-not $exePath) {
     Write-Host "Unable to locate Holovibes.exe." -ForegroundColor Red
     exit

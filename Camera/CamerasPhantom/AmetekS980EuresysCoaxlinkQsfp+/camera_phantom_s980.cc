@@ -31,6 +31,10 @@ void EHoloGrabber980::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 {
     available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", nb_grabbers_ > 1 ? "Banks_AB" : "Banks_A");
     EHoloGrabberInt::setup(params, gentl);
+
+    if (params.at<std::string>("TriggerSource") == "SWTRIGGER")
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("AcquisitionFrameRate",
+                                                                 params.at<std::string>("AcquisitionFrameRate"));
 }
 
 CameraPhantom980::CameraPhantom980()
@@ -45,6 +49,7 @@ void CameraPhantom980::load_default_params()
     params_.set<unsigned int>("StripeHeight", 4, false);
     params_.set<unsigned int>("BlockHeight", 0, false);
     params_.set<std::string>("StripeArrangement", "Geometry_1X_1Y", false);
+    params_.set<std::string>("AcquisitionFrameRate", "");
     params_.set<std::string>("TriggerSelector", "");
 }
 

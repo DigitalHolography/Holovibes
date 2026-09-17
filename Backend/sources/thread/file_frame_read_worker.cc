@@ -310,6 +310,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (setting<settings::IsCli>())
         {
             const auto input_queue = API.compute.get_input_queue();
+            // Computation is marked stopped before the file reader is joined.
+            if (!input_queue)
+                break;
             // Wait for the queue to have enough space before enqueuing
             while (input_queue->get_size() >= input_queue->get_max_size() && !stop_requested_)
             {
