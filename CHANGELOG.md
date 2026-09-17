@@ -1,5 +1,12 @@
 ## Changelog
 
+### 14.13.2
+
+- Fix the Ametek Phantom S980 frame rate in software-trigger mode.
+- Migrate the Windows build and packaging workflow to pinned vcpkg dependencies.
+- Deploy camera plugins and their runtime dependencies consistently in the installer.
+- Explicitly run Holovibes with standard-user privileges; installation and camera-driver setup may still require administrator privileges.
+
 ### 14.12.1
 
 - Add all frames timestamps option.

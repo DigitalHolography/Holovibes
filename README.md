@@ -20,7 +20,7 @@ It is developed using `C++/CUDA`.
 - Time demodulation by short-time Fourier transform (STFT) and principal component analysis (PCA) algorithms.
 - Graphical user interface (change parameters on the fly, keyboard shortcuts).
 - Support the following cameras:
-    - Ametek streaming cameras S710, S711, S991 interfaced with Euresys Coaxlink Octo & Coaxlink QSFP+ frame grabbers.
+    - Ametek streaming cameras S710, S711, S980, S991 interfaced with Euresys Coaxlink Octo & Coaxlink QSFP+ frame grabbers.
     - Adimec Quartz-2A750 interfaced with Bitflow CYT-PC2-CXP4 frame grabbers.
     - IDS imaging CMOSIS CMV 4000
     - Ximea CMOSIS XiQ and XiB

@@ -78,6 +78,13 @@ qt_add_executable(Holovibes
     assets/style/style.css
 )
 
+# Holovibes keeps mutable state in the user's AppData directory and must never
+# require elevation for normal operation. Installation and hardware-driver
+# setup remain separate privileged operations.
+if(MSVC)
+    target_link_options(Holovibes PRIVATE "/MANIFESTUAC:level='asInvoker' uiAccess='false'")
+endif()
+
 qt_add_resources(Holovibes "HolovibesRessources"
     PREFIX "/"
     FILES
