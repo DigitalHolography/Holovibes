@@ -11,6 +11,7 @@ file(GET_RUNTIME_DEPENDENCIES
     RESOLVED_DEPENDENCIES_VAR resolved
     UNRESOLVED_DEPENDENCIES_VAR unresolved
     PRE_EXCLUDE_REGEXES
+        "^[Vv][Cc][Rr][Uu][Nn][Tt][Ii][Mm][Ee]140_1\\.[Dd][Ll][Ll]$"
         "^api-ms-" "^ext-ms-"
         "^[Nn][Vv][Cc][Uu][Dd][Aa]\\.[Dd][Ll][Ll]$" "^[Nn][Vv][Mm][Ll]\\.[Dd][Ll][Ll]$"
         # Optional delay-loaded IDS acceleration libraries come from the IDS

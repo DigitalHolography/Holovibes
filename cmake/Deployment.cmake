@@ -10,11 +10,12 @@ function(holovibes_deploy_runtime target)
     get_property(camera_files GLOBAL PROPERTY HOLOVIBES_CAMERA_RUNTIME_FILES)
     list(REMOVE_DUPLICATES camera_files)
     set(search_dirs
-        "$<TARGET_FILE_DIR:${target}>"
-        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<$<CONFIG:Debug>:debug/>bin"
-        "${CUDAToolkit_BIN_DIR}"
-        "${CUDAToolkit_BIN_DIR}/x64"
-    )
+    "$<TARGET_FILE_DIR:${target}>"
+    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/$<$<CONFIG:Debug>:debug/>bin"
+    "$ENV{SystemRoot}/System32"
+    "${CUDAToolkit_BIN_DIR}"
+    "${CUDAToolkit_BIN_DIR}/x64"
+)
     foreach(camera_file IN LISTS camera_files)
         get_filename_component(camera_dir "${camera_file}" DIRECTORY)
         list(APPEND search_dirs "${camera_dir}")
