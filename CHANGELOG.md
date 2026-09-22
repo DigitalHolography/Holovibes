@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.13.3
+- Add a new advanced option ON by default to have 3 distinct record buffers to chain recording faster. (for longer recordings disable this option)
+- Egrabber and NVIDIA drivers have been updated.
+
 ### 14.13.2
 
 - Fix the Ametek Phantom S980 frame rate in software-trigger mode.
