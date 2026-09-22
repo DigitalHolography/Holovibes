@@ -12,7 +12,6 @@ struct FrameStamp
     uint64_t camera_us; // camera clock microseconds (0 if not available)
     uint64_t offset_us; // host-camera offset microseconds
 };
-
 class StampQueue
 {
   public:
@@ -67,4 +66,3 @@ class StampQueue
     std::atomic<size_t> tail_;
 };
 
-extern StampQueue g_record_stamp_queue;

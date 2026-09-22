@@ -7,12 +7,14 @@
 #include <atomic>
 #include <array>
 #include <cuda_runtime.h>
+#include <functional>
 #include <optional>
 
 #include "enum_record_mode.hh"
 #include "logger.hh"
 #include "output_frame_file.hh"
 #include "queue.hh"
+#include "recording_context.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
 #include "worker.hh"
@@ -26,11 +28,14 @@
   holovibes::settings::RecordFrameCount,                \
   holovibes::settings::RecordFrameTimestampsEnabled,    \
   holovibes::settings::RecordMode,                      \
+  holovibes::settings::ImportType,                      \
   holovibes::settings::RecordFrameOffset,               \
   holovibes::settings::OutputBufferSize,                \
   holovibes::settings::FrameSkip,                       \
   holovibes::settings::RecordedEye,                     \
-  holovibes::settings::Mp4Fps
+  holovibes::settings::Mp4Fps,                          \
+  holovibes::settings::RecordQueueLocation,             \
+  holovibes::settings::TimeTransformationSize
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
 
@@ -63,11 +68,15 @@ class FrameRecordWorker final : public Worker
      * \param nb_frames_skip Number of frames to skip before starting
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FrameRecordWorker(InitSettings settings, cudaStream_t stream, std::atomic<std::shared_ptr<Queue>>& record_queue)
+    FrameRecordWorker(InitSettings settings,
+                      cudaStream_t stream,
+                      std::shared_ptr<RecordingContext> recording,
+                      std::function<void()> acquisition_finished_callback = {})
         : Worker()
         , stream_(stream)
         , onrestart_settings_(settings)
-        , record_queue_(record_queue)
+        , recording_(std::move(recording))
+        , acquisition_finished_callback_(std::move(acquisition_finished_callback))
     {
     }
 
@@ -106,8 +115,8 @@ class FrameRecordWorker final : public Worker
      */
     io_files::OutputFrameFile* open_output_file(const uint frame_count);
 
-    /*! \brief Reset the record queue to free memory. */
-    void reset_record_queue();
+    /*! \brief Notify the UI once capture is complete, before background saving finishes. */
+    void notify_acquisition_finished();
 
     /*! \brief Integrate Input FPS in fps_buffers if relevant. */
     void integrate_fps_average();
@@ -116,7 +125,7 @@ class FrameRecordWorker final : public Worker
      *
      * \return True if all frames are saved (acquired + saved), false otherwise.
      */
-    bool all_frames_saved(uint frames_saved, uint total) const;
+    bool all_frames_saved(uint frames_saved) const;
 
     /*! \brief Compute fps_buffer_ average on the correct number of value. */
     size_t compute_fps_average() const;
@@ -135,8 +144,11 @@ class FrameRecordWorker final : public Worker
      * on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
-    /*! \brief The queue in which the frames are stored for record*/
-    std::atomic<std::shared_ptr<Queue>>& record_queue_;
+    /*! \brief Queue, timestamps and counters belonging to this recording. */
+    std::shared_ptr<RecordingContext> recording_;
+
+    std::function<void()> acquisition_finished_callback_;
+    bool acquisition_finished_notified_ = false;
 };
 } // namespace holovibes::worker
 

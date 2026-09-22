@@ -87,6 +87,12 @@ bool RecordApi::start_record_preconditions() const
         return false;
     }
 
+    if (get_record_mode() != RecordMode::CHART && !Holovibes::instance().can_start_frame_record())
+    {
+        LOG_ERROR("No record queue is available; wait for a pending file save to finish");
+        return false;
+    }
+
     return true;
 }
 
@@ -98,7 +104,7 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
     RecordMode record_mode = GET_SETTING(RecordMode);
 
     // Reset recording counter
-    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.create_entry(RecordType::FRAME, true);
     std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
 
     std::get<0>(*fast_update_progress_entry) = 0; // Frames acquired
@@ -119,7 +125,8 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
         Holovibes::instance().start_chart_record(callback);
     else
     {
-        Holovibes::instance().start_frame_record(callback);
+        if (!Holovibes::instance().start_frame_record(callback))
+            return ApiCode::FAILURE;
 
         set_frame_acquisition_enabled(true);
     }
@@ -178,6 +185,22 @@ ApiCode RecordApi::set_record_buffer_size(uint value) const
 
     if (is_recording())
         stop_record();
+
+    if (api_->input.get_import_type() != ImportType::None)
+        Holovibes::instance().init_record_queue();
+
+    return ApiCode::OK;
+}
+
+ApiCode RecordApi::set_record_queue_multibuffering_enabled(bool enabled) const
+{
+    if (get_record_queue_multibuffering_enabled() == enabled)
+        return ApiCode::NO_CHANGE;
+
+    if (is_recording())
+        stop_record();
+
+    UPDATE_SETTING(RecordQueueMultibufferingEnabled, enabled);
 
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();

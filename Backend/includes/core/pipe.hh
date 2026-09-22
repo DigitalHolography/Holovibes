@@ -68,12 +68,12 @@ class Pipe : public ICompute
      * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Pipe(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
-        : ICompute(input, record, stream, settings)
+    Pipe(BatchInputQueue& input,
+         std::atomic<RecordingContext*>& active_recording,
+         const cudaStream_t& stream,
+         InitSettings settings)
+        : ICompute(input, active_recording, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
-        , record_updates_entry_(FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME))
-        , nb_frames_acquired_(std::get<0>(*record_updates_entry_))
-        , total_nb_frames_to_acquire_(std::get<2>(*record_updates_entry_))
     {
         fn_compute_vect_ = std::make_shared<FunctionVector>();
 
@@ -120,7 +120,6 @@ class Pipe : public ICompute
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
-        nb_frames_acquired_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
     }
 
@@ -309,14 +308,6 @@ class Pipe : public ICompute
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
 
-    /*! \brief Fast update holder entry for the number of frames acquired. */
-    FastUpdatesHolder<RecordType>::Value record_updates_entry_;
-
-    /*! \brief Current number of frames acquired (while recording) */
-    std::atomic<unsigned int>& nb_frames_acquired_;
-
-    /*! \brief The number of frames to acquire. */
-    std::atomic<unsigned int>& total_nb_frames_to_acquire_;
 };
 } // namespace holovibes
 
