@@ -19,6 +19,8 @@ const std::unordered_map<QueueType, std::string> BenchmarkWorker::queue_type_to_
     {QueueType::INPUT_QUEUE, "Input Queue"},
     {QueueType::OUTPUT_QUEUE, "Output Queue"},
     {QueueType::RECORD_QUEUE, "Record Queue"},
+    {QueueType::RECORD_QUEUE_2, "Record Queue 2"},
+    {QueueType::RECORD_QUEUE_3, "Record Queue 3"},
 };
 
 void BenchmarkWorker::run()
@@ -61,7 +63,8 @@ void BenchmarkWorker::run()
 
                 for (auto [key, info] : information_.queues)
                 {
-                    if (key == QueueType::UNDEFINED)
+                    if (key == QueueType::UNDEFINED || key == QueueType::RECORD_QUEUE_2 ||
+                        key == QueueType::RECORD_QUEUE_3)
                         continue;
                     benchmark_file << "," << (info.device == Device::GPU ? "GPU " : "CPU ")
                                    << queue_type_to_string_.at(key) << " size: " << info.max_size;
@@ -90,7 +93,7 @@ void BenchmarkWorker::write_information(std::ofstream& csvFile)
     uint8_t i = 3;
     for (auto const& [key, info] : information_.queues)
     {
-        if (key == QueueType::UNDEFINED)
+        if (key == QueueType::UNDEFINED || key == QueueType::RECORD_QUEUE_2 || key == QueueType::RECORD_QUEUE_3)
             continue;
 
         csvFile << info.current_size << ",";

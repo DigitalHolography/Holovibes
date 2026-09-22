@@ -63,6 +63,8 @@ enum class QueueType
     INPUT_QUEUE,
     OUTPUT_QUEUE,
     RECORD_QUEUE,
+    RECORD_QUEUE_2,
+    RECORD_QUEUE_3,
 };
 } // namespace holovibes
 

@@ -323,6 +323,15 @@ class RecordApi : public IApi
      */
     ApiCode set_record_buffer_size(uint value) const;
 
+    /*! \brief Return whether three record queues can overlap capture and file saving. */
+    inline bool get_record_queue_multibuffering_enabled() const
+    {
+        return GET_SETTING(RecordQueueMultibufferingEnabled);
+    }
+
+    /*! \brief Enable or disable the three-slot record queue. Enabled by default. */
+    ApiCode set_record_queue_multibuffering_enabled(bool enabled) const;
+
 #pragma endregion
 };
 

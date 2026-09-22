@@ -14,6 +14,7 @@
 #include "benchmark_worker.hh"
 #include "chart_record_worker.hh"
 #include "frame_record_worker.hh"
+#include "recording_context.hh"
 #include "compute_worker.hh"
 
 #include "common.cuh"
@@ -31,6 +32,8 @@
 #include "enum_recorded_data_type.hh"
 
 #include <string>
+#include <array>
+#include <mutex>
 
 #pragma region Settings configuration
 // clang-format off
@@ -120,6 +123,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::RecordQueueMultibufferingEnabled,       \
     holovibes::settings::BenchmarkMode,                          \
     holovibes::settings::FrameSkip,                              \
     holovibes::settings::Mp4Fps,                                 \
@@ -295,9 +299,15 @@ class Holovibes
      * \param nb_frames_skip
      * \param callback
      */
-    void start_frame_record(const std::function<void()>& callback = []() {});
+    bool start_frame_record(const std::function<void()>& callback = []() {});
 
     void stop_frame_record();
+
+    /*! \brief Return whether a record queue is available for a new capture. */
+    bool can_start_frame_record() const;
+
+    /*! \brief Mark a recording's capture complete without affecting a newer active recording. */
+    void finish_frame_acquisition(RecordingContext* recording);
 
     void start_chart_record(const std::function<void()>& callback = []() {});
 
@@ -335,7 +345,8 @@ class Holovibes
             file_read_worker_controller_.update_setting(setting);
 
         if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
-            frame_record_worker_controller_.update_setting(setting);
+            for (auto& controller : frame_record_worker_controllers_)
+                controller.update_setting(setting);
 
         if constexpr (has_setting_v<T, Pipe>)
             if (compute_pipe_.load() != nullptr)
@@ -442,6 +453,7 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
+                                             settings::RecordQueueMultibufferingEnabled{true},
                                              settings::BenchmarkMode{false},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
@@ -453,7 +465,10 @@ class Holovibes
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+    static constexpr size_t RECORD_QUEUE_COUNT = 3;
+
+    std::array<worker::ThreadWorkerController<worker::FrameRecordWorker>, RECORD_QUEUE_COUNT>
+        frame_record_worker_controllers_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 
     worker::ThreadWorkerController<worker::BenchmarkWorker> benchmark_worker_controller_;
@@ -466,6 +481,11 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
+    std::array<std::shared_ptr<Queue>, RECORD_QUEUE_COUNT> record_queues_{};
+    std::array<std::shared_ptr<RecordingContext>, RECORD_QUEUE_COUNT> recording_contexts_{};
+    std::atomic<RecordingContext*> active_recording_{nullptr};
+    std::atomic<int> active_recording_index_{-1};
+    mutable std::recursive_mutex record_mutex_;
     /*! \} */
 
     CudaStreams cuda_streams_;

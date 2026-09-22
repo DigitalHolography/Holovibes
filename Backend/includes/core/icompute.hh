@@ -16,6 +16,7 @@
 #include "logger.hh"
 #include "queue.hh"
 #include "rect.hh"
+#include "recording_context.hh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 #include "unique_ptr.hh"
@@ -120,9 +121,12 @@ class ICompute
 {
   public:
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ICompute(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
+    ICompute(BatchInputQueue& input,
+             std::atomic<RecordingContext*>& active_recording,
+             const cudaStream_t& stream,
+             InitSettings settings)
         : input_queue_(input)
-        , record_queue_(record)
+        , active_recording_(active_recording)
         , stream_(stream)
         , realtime_settings_(settings)
         , pipe_cycle_settings_(settings)
@@ -371,8 +375,8 @@ class ICompute
     /*! \brief Reference on the input queue */
     BatchInputQueue& input_queue_;
 
-    /*! \brief Reference on the record queue */
-    Queue& record_queue_;
+    /*! \brief Recording currently receiving frames. The pointed context is owned by Holovibes. */
+    std::atomic<RecordingContext*>& active_recording_;
 
     /*! \brief Queue storing raw frames used by raw view */
     std::unique_ptr<Queue> gpu_raw_view_queue_{nullptr};

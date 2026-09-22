@@ -23,9 +23,10 @@
 
 using uint = unsigned int;
 
+class StampQueue;
+
 namespace holovibes
 {
-
 class Queue;
 
 /*! \class BatchInputQueue
@@ -77,8 +78,12 @@ class BatchInputQueue final : public DisplayQueue
      * \param[out] dest The destination queue
      * \param[in] nb_elts Number of elts to copy multiple (must be lower than batch_size)
      * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
+     * \param[out] record_stamps Optional queue receiving the copied frames' IDs and timestamps.
      */
-    void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void copy_multiple(Queue& dest,
+                       const uint nb_elts,
+                       cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                       StampQueue* record_stamps = nullptr);
 
     /*! \brief Copy multiple
      *
@@ -87,8 +92,11 @@ class BatchInputQueue final : public DisplayQueue
      *
      * \param[out] dest The destination queue
      * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
+     * \param[out] record_stamps Optional queue receiving the copied frames' IDs and timestamps.
      */
-    void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void copy_multiple(Queue& dest,
+                       cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                       StampQueue* record_stamps = nullptr);
 
     /*! \brief Function used when dequeuing a batch of frame
      *

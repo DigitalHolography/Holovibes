@@ -27,37 +27,48 @@ namespace holovibes
 
 bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 {
+    RecordingContext* recording = active_recording_.load(std::memory_order_acquire);
+
     // When stopping a record the record queue is emptied and the FrameAcquisitionEnabled setting is set to false.
     // But the pipe isn't refreshed directly so the insert_XXX_function still insert in the record queue.
-    if (!setting<settings::FrameAcquisitionEnabled>())
+    if (!setting<settings::FrameAcquisitionEnabled>() || !recording ||
+        !recording->acquiring.load(std::memory_order_acquire))
         return false;
 
+    Queue& record_queue = *recording->queue;
+    std::atomic<uint>& nb_frames_acquired = std::get<0>(*recording->progress);
+    std::atomic<uint>& total_nb_frames_to_acquire = std::get<2>(*recording->progress);
     bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
 
-    if (record_queue_.has_overwritten() || input_queue_.has_overwritten())
+    if (record_queue.has_overwritten() || input_queue_.has_overwritten())
     {
-        API.record.set_frame_acquisition_enabled(false);
-        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
+        recording->input_overwritten.store(input_queue_.has_overwritten(), std::memory_order_release);
+        total_nb_frames_to_acquire = nb_frames_acquired.load();
+        Holovibes::instance().finish_frame_acquisition(recording);
         return false;
     }
 
     size_t total =
-        total_nb_frames_to_acquire_ * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
+        total_nb_frames_to_acquire * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
 
-    if (!unlimited_record && nb_frames_acquired_ >= total)
+    if (!unlimited_record && nb_frames_acquired >= total)
     {
-        API.record.set_frame_acquisition_enabled(false);
+        Holovibes::instance().finish_frame_acquisition(recording);
         return false;
     }
 
     // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
     // will stop
-    while (API.record.is_recording() && record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size())
+    while (recording->acquiring.load(std::memory_order_acquire) &&
+           record_queue.get_size() + nb_elm_to_add > record_queue.get_max_size())
         continue;
 
-    nb_frames_acquired_ += nb_elm_to_add;
+    if (!recording->acquiring.load(std::memory_order_acquire))
+        return false;
+
+    nb_frames_acquired += nb_elm_to_add;
     if (unlimited_record)
-        total_nb_frames_to_acquire_ += nb_elm_to_add;
+        total_nb_frames_to_acquire += nb_elm_to_add;
 
     return true;
 }
@@ -133,7 +144,6 @@ bool Pipe::make_requests()
         chart_env_.chart_record_queue_.reset(nullptr);
         api.record.set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
-        nb_frames_acquired_ = 0;
         clear_request(ICS::DisableChartRecord);
     }
 
@@ -141,8 +151,13 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        api.record.set_frame_acquisition_enabled(false);
-        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
+        if (RecordingContext* recording = active_recording_.load(std::memory_order_acquire))
+        {
+            std::get<2>(*recording->progress) = std::get<0>(*recording->progress).load();
+            Holovibes::instance().finish_frame_acquisition(recording);
+        }
+        else
+            api.record.set_frame_acquisition_enabled(false);
         clear_request(ICS::DisableFrameRecord);
     }
 
@@ -563,9 +578,11 @@ void Pipe::insert_raw_record()
             if (!can_insert_to_record_queue(setting<settings::BatchSize>()))
                 return;
 
-            input_queue_.copy_multiple(record_queue_,
+            RecordingContext* recording = active_recording_.load(std::memory_order_acquire);
+            input_queue_.copy_multiple(*recording->queue,
                                        setting<settings::BatchSize>(),
-                                       get_memcpy_kind<settings::RecordQueueLocation>());
+                                       get_memcpy_kind<settings::RecordQueueLocation>(),
+                                       &recording->stamps);
         });
 }
 
@@ -581,10 +598,11 @@ void Pipe::insert_moments_record()
                 return;
 
             cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
+            Queue& record_queue = *active_recording_.load(std::memory_order_acquire)->queue;
 
-            record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment0_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment1_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment2_buffer, stream_, kind);
         });
 }
 
@@ -599,14 +617,15 @@ void Pipe::insert_hologram_record()
             if (!can_insert_to_record_queue(1))
                 return;
 
+            Queue& record_queue = *active_recording_.load(std::memory_order_acquire)->queue;
             if (buffers_.gpu_output_queue->get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
-                record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                 stream_,
-                                                 get_memcpy_kind<settings::RecordQueueLocation>());
+                record_queue.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                stream_,
+                                                get_memcpy_kind<settings::RecordQueueLocation>());
             else
-                record_queue_.enqueue(buffers_.gpu_output_frame.get(),
-                                      stream_,
-                                      get_memcpy_kind<settings::RecordQueueLocation>());
+                record_queue.enqueue(buffers_.gpu_output_frame.get(),
+                                     stream_,
+                                     get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -629,7 +648,8 @@ void Pipe::insert_cuts_record()
             if (!can_insert_to_record_queue(1))
                 return;
 
-            record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -646,10 +666,11 @@ void Pipe::insert_oct_record()
         {
             if (!can_insert_to_record_queue(N))
                 return;
-            record_queue_.enqueue_multiple(oct_buffer_ptr,
-                                           N,
-                                           stream_,
-                                           get_memcpy_kind<settings::RecordQueueLocation>());
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue_multiple(oct_buffer_ptr,
+                                          N,
+                                          stream_,
+                                          get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -676,7 +697,11 @@ void Pipe::insert_oct_record_float()
                                        N - 1,
                                        stream_);
 
-            record_queue_.enqueue_multiple(float_buffer, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue_multiple(float_buffer,
+                                          N,
+                                          stream_,
+                                          get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 

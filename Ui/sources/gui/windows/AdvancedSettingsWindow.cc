@@ -34,6 +34,7 @@ void AdvancedSettingsWindow::set_ui_values()
     auto& api = API;
 
     api.record.set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
+    api.record.set_record_queue_multibuffering_enabled(ui.RecordQueueMultibufferingCheckBox->isChecked());
 
     api.input.set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api.input.set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
@@ -107,6 +108,7 @@ void AdvancedSettingsWindow::set_current_values()
     ui.CutsContrastSpinBox->setValue(api.contrast.get_cuts_contrast_p_offset());
 
     ui.RecordQueueLocationCheckBox->setChecked(api.record.get_record_queue_location() == Device::GPU);
+    ui.RecordQueueMultibufferingCheckBox->setChecked(api.record.get_record_queue_multibuffering_enabled());
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());

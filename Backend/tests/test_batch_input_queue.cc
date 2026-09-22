@@ -2,8 +2,10 @@
 
 #include "cuda_memory.cuh"
 #include "batch_input_queue.hh"
+#include "stamp_queue.hh"
 #include "test_disable_log.hh"
 
+#include <array>
 #include <thread>
 
 using camera::PixelDepth;
@@ -106,6 +108,46 @@ TEST(BatchInputQueueTest, SimpleEnqueueAndDequeueOfThreeElements)
     char* elt3 = dequeue_helper(queue, batch_size);
     ASSERT_EQ(elt3, std::string("c"));
     ASSERT_EQ(queue.get_size(), 0);
+}
+
+TEST(BatchInputQueueTest, CopiesTimestampsToTheSelectedRecordQueue)
+{
+    constexpr uint total_nb_frames = 4;
+    constexpr uint batch_size = 2;
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(total_nb_frames, batch_size, fd);
+    holovibes::Queue first_record(fd, total_nb_frames, holovibes::QueueType::RECORD_QUEUE_2, holovibes::Device::CPU);
+    holovibes::Queue second_record(fd, total_nb_frames, holovibes::QueueType::RECORD_QUEUE_3, holovibes::Device::CPU);
+    StampQueue first_stamps(8);
+    StampQueue second_stamps(8);
+    const std::array<unsigned char, 2> frames = {1, 2};
+
+    input.enqueue_with_ids(frames.data(), cudaMemcpyHostToDevice, 2, 10, 1'000, 25, 2'000, 7);
+    input.copy_multiple(first_record, 2, cudaMemcpyDeviceToHost, &first_stamps);
+
+    const FrameStamp first = first_stamps.pop_one_blocking();
+    const FrameStamp second = first_stamps.pop_one_blocking();
+    EXPECT_EQ(first.id, 10);
+    EXPECT_EQ(first.synced_us, 1'000);
+    EXPECT_EQ(first.camera_us, 2'000);
+    EXPECT_EQ(first.offset_us, 7);
+    EXPECT_EQ(second.id, 11);
+    EXPECT_EQ(second.synced_us, 1'025);
+    EXPECT_EQ(second.camera_us, 2'025);
+
+    cudaFreeHost(dequeue_helper(input, batch_size));
+    input.enqueue_with_ids(frames.data(), cudaMemcpyHostToDevice, 2, 20, 3'000, 50, 4'000, 9);
+    input.copy_multiple(second_record, 2, cudaMemcpyDeviceToHost, &second_stamps);
+
+    const FrameStamp third = second_stamps.pop_one_blocking();
+    const FrameStamp fourth = second_stamps.pop_one_blocking();
+    EXPECT_EQ(third.id, 20);
+    EXPECT_EQ(third.synced_us, 3'000);
+    EXPECT_EQ(third.camera_us, 4'000);
+    EXPECT_EQ(third.offset_us, 9);
+    EXPECT_EQ(fourth.id, 21);
+    EXPECT_EQ(fourth.synced_us, 3'050);
+    EXPECT_EQ(fourth.camera_us, 4'050);
 }
 
 TEST(BatchInputQueueTest, SimpleOverwriteElements)

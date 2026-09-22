@@ -56,6 +56,8 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
             is_size_modified = true;
             break;
         case QueueType::RECORD_QUEUE:
+        case QueueType::RECORD_QUEUE_2:
+        case QueueType::RECORD_QUEUE_3:
             api.record.set_record_buffer_size(max_size_);
             is_size_modified = true;
             break;

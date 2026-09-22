@@ -75,7 +75,11 @@ class ThreadWorkerController
      */
     void stop(bool wait = true);
 
-    bool is_running() const { return worker_ != nullptr; }
+    bool is_running() const
+    {
+        std::lock_guard lock(mutex_);
+        return worker_ != nullptr;
+    }
 
     /*!
      * \brief Update a setting. The actual application of the update
@@ -110,7 +114,7 @@ class ThreadWorkerController
     std::function<void()> callback_ = []() {};
     std::function<void(const std::exception&)> error_callback_ = [](auto) {};
     /*! \brief Mutex used to prevent data races */
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
 };
 } // namespace holovibes::worker
 

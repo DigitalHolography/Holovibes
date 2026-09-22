@@ -18,6 +18,8 @@ static const std::unordered_map<QueueType, std::string> queue_type_to_string_ = 
     {QueueType::INPUT_QUEUE, "Input Queue"},
     {QueueType::OUTPUT_QUEUE, "Output Queue"},
     {QueueType::RECORD_QUEUE, "Record Queue"},
+    {QueueType::RECORD_QUEUE_2, "Record Queue 2"},
+    {QueueType::RECORD_QUEUE_3, "Record Queue 3"},
 };
 
 static std::string format_throughput(size_t throughput, const std::string& unit)

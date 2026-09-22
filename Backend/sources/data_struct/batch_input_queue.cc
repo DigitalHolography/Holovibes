@@ -1,15 +1,9 @@
 #include <cassert>
 #include "logger.hh"
-#include "holovibes.hh"
 
 #include "batch_input_queue.hh"
-#include "id_queue.hh"
+#include "holovibes.hh"
 #include "stamp_queue.hh"
-#include "API.hh"
-#include "enum_record_mode.hh"
-
-extern IdQueue g_record_id_queue;
-extern StampQueue g_record_stamp_queue;
 
 namespace holovibes
 {
@@ -386,12 +380,15 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
 // }
 
-void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind)
+void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind, StampQueue* record_stamps)
 {
-    copy_multiple(dest, batch_size_, cuda_kind);
+    copy_multiple(dest, batch_size_, cuda_kind, record_stamps);
 }
 
-void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
+void BatchInputQueue::copy_multiple(Queue& dest,
+                                    const uint nb_elts,
+                                    cudaMemcpyKind cuda_kind,
+                                    StampQueue* record_stamps)
 {
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
@@ -413,14 +410,14 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 
-    if (API.record.get_frame_acquisition_enabled() && API.record.get_record_mode() == RecordMode::RAW)
+    if (record_stamps)
     {
         const size_t base = static_cast<size_t>(start_index_locked) * batch_size_;
-        g_record_stamp_queue.push_range_from_arrays(ids_.get() + base,
-                                                    synced_ts_.get() + base,
-                                                    camera_ts_.get() + base,
-                                                    offset_ts_.get() + base,
-                                                    nb_elts);
+        record_stamps->push_range_from_arrays(ids_.get() + base,
+                                              synced_ts_.get() + base,
+                                              camera_ts_.get() + base,
+                                              offset_ts_.get() + base,
+                                              nb_elts);
     }
 
     // Determine destination region info
