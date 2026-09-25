@@ -1,6 +1,12 @@
 ## Changelog
 
+### 14.13.4
+
+- Fix CLI recordings producing output files with zero frames when computation starts.
+- Disable record queue multibuffering in CLI mode to avoid allocating unused record buffers.
+
 ### 14.13.3
+
 - Add a new advanced option ON by default to have 3 distinct record buffers to chain recording faster. (for longer recordings disable this option)
 - Egrabber and NVIDIA drivers have been updated.
 
