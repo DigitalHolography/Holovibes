@@ -250,6 +250,8 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_INFO("Starting CLI");
 
     api.information.set_is_cli(true);
+    // The CLI performs a single recording, so allocating queues for overlapping saves only wastes memory.
+    api.record.set_record_queue_multibuffering_enabled(false);
 
     if (int ret = set_parameters(api, opts))
         return ret;
