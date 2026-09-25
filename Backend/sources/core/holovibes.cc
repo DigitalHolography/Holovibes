@@ -299,7 +299,10 @@ void Holovibes::start_compute()
 
     if (!compute_pipe_.load())
     {
-        init_record_queue();
+        // CLI recording starts before computation so no input frame can be missed. In that case the record queue
+        // already belongs to the active RecordingContext and rebuilding it would stop the newly started worker.
+        if (!active_recording_.load(std::memory_order_acquire))
+            init_record_queue();
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    active_recording_,
                                                    get_cuda_streams().compute_stream,
