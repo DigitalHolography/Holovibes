@@ -55,7 +55,7 @@ class HoloFile
      *
      * Packed (aligned on 2 bytes) to be exactly 64 bytes
      */
-#pragma pack(2)
+#pragma pack(push, 2)
     struct HoloFileHeader
     {
         /*! \brief .holo file magic number, should be equal to "HOLO" */
@@ -79,6 +79,7 @@ class HoloFile
         /*! \brief Padding to make the header 64 bytes long */
         char padding[34];
     };
+#pragma pack(pop)
 
     /*! \brief Default constructor */
     HoloFile() = default;
