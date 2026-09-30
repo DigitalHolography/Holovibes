@@ -1,4 +1,8 @@
 ## Changelog
+### 14.13.5
+
+- Fix a problem that could prevent `.holo` files from being processed, including through the Windows processing script.
+- Fix incorrect input and camera frame-rate values shown in recording information.
 
 ### 14.13.4
 
