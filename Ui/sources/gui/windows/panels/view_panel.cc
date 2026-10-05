@@ -75,14 +75,16 @@ void ViewPanel::on_notify()
     ui_->RawDisplayingCheckBox->setEnabled(!is_raw && is_data_not_moments);
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && api_.contrast.get_contrast_enabled());
+    const bool contrast_enabled = !is_raw && api_.contrast.get_contrast_enabled();
+    const bool contrast_auto_refresh = api_.contrast.get_contrast_auto_refresh();
+    ui_->ContrastCheckBox->setChecked(contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api_.contrast.get_contrast_auto_refresh());
+    ui_->AutoRefreshContrastCheckBox->setChecked(contrast_auto_refresh);
+    ui_->AutoRefreshContrastPushButton->setEnabled(contrast_enabled && !contrast_auto_refresh);
     ui_->InvertContrastCheckBox->setChecked(api_.contrast.get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api_.contrast.get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setValue(api_.contrast.get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api_.contrast.get_contrast_auto_refresh());
-    ui_->ContrastMaxDoubleSpinBox->setValue(api_.contrast.get_contrast_max());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!contrast_auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!contrast_auto_refresh);
+    update_contrast_values(api_.view.get_current_window_type());
 
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
@@ -224,6 +226,15 @@ void ViewPanel::on_notify()
     ui_->DisplayContrastReticleCheckBox->setChecked(api_.contrast.get_contrast_reticle_display_enabled());
 }
 
+void ViewPanel::update_contrast_values(WindowKind kind)
+{
+    if (kind != api_.view.get_current_window_type())
+        return;
+
+    QDoubleSpinBoxQuietSetValue(ui_->ContrastMinDoubleSpinBox, api_.contrast.get_contrast_min(kind));
+    QDoubleSpinBoxQuietSetValue(ui_->ContrastMaxDoubleSpinBox, api_.contrast.get_contrast_max(kind));
+}
+
 void ViewPanel::load_gui(const json& j_us)
 {
     bool h = json_get_or_default(j_us, isHidden(), "panels", "view hidden", isHidden());
@@ -363,9 +374,7 @@ void ViewPanel::set_contrast_auto_refresh(bool value)
     parent_->notify();
 }
 
-void ViewPanel::enable_contrast_auto_refresh() { set_contrast_auto_refresh(true); }
-
-void ViewPanel::disable_contrast_auto_refresh() { set_contrast_auto_refresh(false); }
+void ViewPanel::refresh_contrast() { api_.contrast.refresh_contrast(); }
 
 void ViewPanel::set_contrast_invert(bool value) { api_.contrast.set_contrast_invert(value); }
 

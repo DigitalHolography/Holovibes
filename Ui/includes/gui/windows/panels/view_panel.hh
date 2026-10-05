@@ -8,6 +8,7 @@
 
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"
+#include "enum_window_kind.hh"
 
 namespace holovibes::gui
 {
@@ -28,6 +29,9 @@ class ViewPanel : public Panel
     ~ViewPanel();
 
     void on_notify() override;
+
+    /*! \brief Updates the displayed contrast range if it belongs to the currently selected view. */
+    void update_contrast_values(WindowKind kind);
 
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
@@ -128,9 +132,8 @@ class ViewPanel : public Panel
      */
     void set_contrast_auto_refresh(bool value);
 
-    void enable_contrast_auto_refresh();
-
-    void disable_contrast_auto_refresh();
+    /*! \brief Requests one contrast computation for the current view. */
+    void refresh_contrast();
 
     /*! \brief Enables or Disables contrast invertion
      *

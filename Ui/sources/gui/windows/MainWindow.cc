@@ -167,6 +167,17 @@ MainWindow::MainWindow(QWidget* parent)
 
     enable_notify();
 
+    api_.contrast.set_contrast_update_callback(
+        [this](WindowKind kind)
+        {
+            synchronize_thread(
+                [this, kind]()
+                {
+                    ui_->ViewPanel->update_contrast_values(kind);
+                    light_ui_->update_contrast_values(kind);
+                });
+        });
+
     notify();
 
     if (api_.input.get_import_type() != ImportType::None)
@@ -175,6 +186,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    api_.contrast.set_contrast_update_callback({});
     ui_->menuSelect_preset->clear();
 
     gui::close_windows();

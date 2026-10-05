@@ -52,10 +52,9 @@ namespace holovibes
  * a request system. When the compute descriptor is modified the GUI will
  * request the pipe to refresh with updated parameters.
  *
- * Also, some events such as autoconstrast will be executed only
- * for one iteration. For example, request_autocontrast will add the
- * autocontrast algorithm in the pipe and will automatically set a pipe refresh
- * so that the autocontrast algorithm will be done only once.
+ * One-shot events also use requests so they can be consumed safely by the
+ * compute thread. For example, a manual contrast refresh queues exactly one
+ * autocontrast computation without changing the automatic refresh setting.
  */
 class Pipe : public ICompute
 {
@@ -141,6 +140,9 @@ class Pipe : public ICompute
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
+
+    /*! \brief Request one contrast computation for the selected view. */
+    void request_contrast_refresh(WindowKind view) { rendering_->request_contrast_refresh(view); }
 
     template <typename T>
     inline void update_setting(T setting)
@@ -307,7 +309,6 @@ class Pipe : public ICompute
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
 };
 } // namespace holovibes
 

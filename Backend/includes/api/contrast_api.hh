@@ -6,6 +6,9 @@
  */
 #pragma once
 
+#include <functional>
+#include <mutex>
+
 #include "enum_window_kind.hh"
 #include "common_api.hh"
 
@@ -143,6 +146,14 @@ class ContrastApi : public IApi
      */
     void update_contrast(float min, float max, WindowKind kind = get_current_window_type()) const;
 
+    /*! \brief Sets the callback invoked after an automatic or manual contrast computation updates a range.
+     *
+     * \details The callback runs on the computation thread. UI consumers must forward its work to the UI thread.
+     *
+     * \param[in] callback function receiving the updated window kind, or an empty function to unregister it
+     */
+    void set_contrast_update_callback(std::function<void(WindowKind)> callback) const;
+
 #pragma endregion
 
 #pragma region Contrast Enabled
@@ -192,6 +203,19 @@ class ContrastApi : public IApi
      * if contrast is not enabled, OK otherwise
      */
     ApiCode set_contrast_auto_refresh(bool value, WindowKind kind = get_current_window_type()) const;
+
+    /*! \brief Requests one contrast computation on the specified window kind (or the current window if not
+     *
+     * specified).
+     *
+     * \param[in] kind the window kind or the current window if not specified
+     *
+     *
+     * \return ApiCode NOT_STARTED if computation has not started, WRONG_COMP_MODE in Raw mode, INVALID_VALUE if
+     *
+     * contrast is disabled, NO_CHANGE if automatic refresh is enabled, OK otherwise
+     */
+    ApiCode refresh_contrast(WindowKind kind = get_current_window_type()) const;
 
 #pragma endregion
 
@@ -353,6 +377,10 @@ class ContrastApi : public IApi
     ApiCode set_reticle_scale(float value) const;
 
 #pragma endregion
+
+  private:
+    mutable std::mutex contrast_update_callback_mutex_;
+    mutable std::function<void(WindowKind)> contrast_update_callback_;
 };
 
 } // namespace holovibes::api

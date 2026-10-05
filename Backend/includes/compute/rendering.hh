@@ -4,7 +4,9 @@
  */
 #pragma once
 
+#include <array>
 #include <atomic>
+#include <chrono>
 #include <cufft.h>
 
 #include "apply_mask.cuh"
@@ -142,6 +144,9 @@ class Rendering
     /*! \brief Check whether autocontrast should be applied or not for each view */
     void request_autocontrast();
 
+    /*! \brief Request one autocontrast computation for a specific view. */
+    void request_contrast_refresh(WindowKind view);
+
   private:
     /*! \brief insert the log10 on the XY window */
     void insert_main_log();
@@ -156,8 +161,9 @@ class Rendering
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
 
-    /*! \brief Calls autocontrast and set the correct contrast variables */
-    void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
+    /*! \brief Calls autocontrast, logs the range change, and sets the correct contrast variables. */
+    void autocontrast_caller(
+        float* input, const uint width, const uint height, const uint offset, WindowKind view, bool manual_refresh);
 
     /*! \brief Tell if the contrast should be applied
      *
@@ -165,7 +171,7 @@ class Rendering
      * \param queue[in] The accumulation queue
      * \return true if the contrast should be applied
      */
-    inline bool should_apply_contrast(bool request, const std::unique_ptr<Queue>& queue)
+    inline bool should_apply_contrast(bool request, const Queue* queue)
     {
         if (!request)
             return false;
@@ -179,6 +185,22 @@ class Rendering
         // blinking effect when the contrast is applied.
         return queue->is_full() || queue->get_size() == 1;
     }
+
+    /*! \brief Consume one pending manual contrast refresh for a view. */
+    bool consume_contrast_refresh(WindowKind view);
+
+    /*! \brief Return whether a periodic autocontrast computation is due. */
+    bool should_apply_periodic_autocontrast(bool& request,
+                                            bool auto_refresh_enabled,
+                                            const Queue* queue,
+                                            WindowKind view,
+                                            std::chrono::steady_clock::time_point now);
+
+    /*! \brief Complete the current automatic refresh cycle once its accumulated image is stable. */
+    void complete_periodic_autocontrast(bool& request,
+                                        const Queue* queue,
+                                        WindowKind view,
+                                        std::chrono::steady_clock::time_point now);
 
     /*! \brief Helper function to get a settings value. */
     template <typename T>
@@ -217,6 +239,12 @@ class Rendering
 
     DelayedSettingsContainer<PIPE_CYCLE_SETTINGS> pipe_cycle_settings_;
     DelayedSettingsContainer<PIPE_REFRESH_SETTINGS> pipe_refresh_settings_;
+
+    static constexpr size_t VIEW_COUNT = static_cast<size_t>(WindowKind::Filter2D) + 1;
+    static constexpr auto AUTO_CONTRAST_REFRESH_INTERVAL = std::chrono::seconds(1);
+
+    std::array<std::atomic_uint, VIEW_COUNT> manual_contrast_refresh_requests_{};
+    std::array<std::chrono::steady_clock::time_point, VIEW_COUNT> last_auto_contrast_refresh_{};
 
     bool autocontrast_xy_ = false;
     bool autocontrast_xz_ = false;

@@ -143,6 +143,16 @@ void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
     contrast_range.min = min;
     contrast_range.max = max;
     set_contrast_range(contrast_range, kind);
+
+    const std::lock_guard lock(contrast_update_callback_mutex_);
+    if (contrast_update_callback_)
+        contrast_update_callback_(kind);
+}
+
+void ContrastApi::set_contrast_update_callback(std::function<void(WindowKind)> callback) const
+{
+    const std::lock_guard lock(contrast_update_callback_mutex_);
+    contrast_update_callback_ = std::move(callback);
 }
 
 #pragma endregion
@@ -187,6 +197,31 @@ ApiCode ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) cons
     window.contrast.auto_refresh = value;
     api_->window_pp.set_window_xyz(kind, window);
 
+    return ApiCode::OK;
+}
+
+ApiCode ContrastApi::refresh_contrast(WindowKind kind) const
+{
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (!get_contrast_enabled(kind))
+        return ApiCode::INVALID_VALUE;
+
+    if (get_contrast_auto_refresh(kind))
+        return ApiCode::NO_CHANGE;
+
+    if ((kind == WindowKind::XZview || kind == WindowKind::YZview) && !api_->view.get_cuts_view_enabled())
+        return ApiCode::INVALID_VALUE;
+
+    if (kind == WindowKind::Filter2D && !api_->view.get_filter2d_view_enabled())
+        return ApiCode::INVALID_VALUE;
+
+    auto pipe = api_->compute.get_compute_pipe();
+    if (!pipe)
+        return ApiCode::NOT_STARTED;
+
+    pipe->request_contrast_refresh(kind);
     return ApiCode::OK;
 }
 
