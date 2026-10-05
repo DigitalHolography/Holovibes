@@ -75,13 +75,16 @@ void ViewPanel::on_notify()
     ui_->RawDisplayingCheckBox->setEnabled(!is_raw && is_data_not_moments);
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && api_.contrast.get_contrast_enabled());
+    const bool contrast_enabled = !is_raw && api_.contrast.get_contrast_enabled();
+    const bool contrast_auto_refresh = api_.contrast.get_contrast_auto_refresh();
+    ui_->ContrastCheckBox->setChecked(contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api_.contrast.get_contrast_auto_refresh());
+    ui_->AutoRefreshContrastCheckBox->setChecked(contrast_auto_refresh);
+    ui_->AutoRefreshContrastPushButton->setEnabled(contrast_enabled && !contrast_auto_refresh);
     ui_->InvertContrastCheckBox->setChecked(api_.contrast.get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api_.contrast.get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!contrast_auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api_.contrast.get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api_.contrast.get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!contrast_auto_refresh);
     ui_->ContrastMaxDoubleSpinBox->setValue(api_.contrast.get_contrast_max());
 
     // Window selection
@@ -363,9 +366,7 @@ void ViewPanel::set_contrast_auto_refresh(bool value)
     parent_->notify();
 }
 
-void ViewPanel::enable_contrast_auto_refresh() { set_contrast_auto_refresh(true); }
-
-void ViewPanel::disable_contrast_auto_refresh() { set_contrast_auto_refresh(false); }
+void ViewPanel::refresh_contrast() { api_.contrast.refresh_contrast(); }
 
 void ViewPanel::set_contrast_invert(bool value) { api_.contrast.set_contrast_invert(value); }
 

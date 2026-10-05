@@ -26,7 +26,8 @@ void Rendering::insert_fft_shift()
     {
         if (setting<settings::ImageType>() == ImgType::Composite)
             fn_compute_vect_->push_back(
-                [=]() {
+                [=]()
+                {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
                                   1,
                                   fd_.width,
@@ -95,6 +96,61 @@ void Rendering::request_autocontrast()
     autocontrast_filter2d_ = setting<settings::Filter2d>().contrast.enabled &&
                              setting<settings::Filter2d>().contrast.auto_refresh &&
                              setting<settings::Filter2dViewEnabled>();
+}
+
+void Rendering::request_contrast_refresh(WindowKind view)
+{
+    const size_t index = static_cast<size_t>(view);
+    if (index < VIEW_COUNT)
+        manual_contrast_refresh_requests_[index].fetch_add(1, std::memory_order_release);
+}
+
+bool Rendering::consume_contrast_refresh(WindowKind view)
+{
+    const size_t index = static_cast<size_t>(view);
+    if (index >= VIEW_COUNT)
+        return false;
+
+    auto& requests = manual_contrast_refresh_requests_[index];
+    unsigned int pending = requests.load(std::memory_order_acquire);
+    while (pending > 0)
+    {
+        if (requests.compare_exchange_weak(pending, pending - 1, std::memory_order_acq_rel, std::memory_order_acquire))
+            return true;
+    }
+
+    return false;
+}
+
+bool Rendering::should_apply_periodic_autocontrast(bool& request,
+                                                   bool auto_refresh_enabled,
+                                                   const Queue* queue,
+                                                   WindowKind view,
+                                                   std::chrono::steady_clock::time_point now)
+{
+    if (!auto_refresh_enabled)
+        return false;
+
+    const size_t index = static_cast<size_t>(view);
+    if (index >= VIEW_COUNT)
+        return false;
+
+    if (!request && now - last_auto_contrast_refresh_[index] >= AUTO_CONTRAST_REFRESH_INTERVAL)
+        request = true;
+
+    return should_apply_contrast(request, queue);
+}
+
+void Rendering::complete_periodic_autocontrast(bool& request,
+                                               const Queue* queue,
+                                               WindowKind view,
+                                               std::chrono::steady_clock::time_point now)
+{
+    if (queue && !queue->is_full())
+        return;
+
+    request = false;
+    last_auto_contrast_refresh_[static_cast<size_t>(view)] = now;
 }
 
 void Rendering::insert_contrast()
@@ -248,16 +304,35 @@ void Rendering::insert_compute_autocontrast()
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (should_apply_contrast(autocontrast_xy_, image_acc_env_.gpu_accumulation_xy_queue))
+        const auto now = std::chrono::steady_clock::now();
+
+        const bool manual_xy = consume_contrast_refresh(WindowKind::XYview);
+        const bool automatic_xy = should_apply_periodic_autocontrast(autocontrast_xy_,
+                                                                     setting<settings::XY>().contrast.enabled &&
+                                                                         setting<settings::XY>().contrast.auto_refresh,
+                                                                     image_acc_env_.gpu_accumulation_xy_queue.get(),
+                                                                     WindowKind::XYview,
+                                                                     now);
+        if (manual_xy || automatic_xy)
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
 
-            // Disable autocontrast if the queue is full or if there is no accumulation
-            if (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full())
-                autocontrast_xy_ = false;
+            if (automatic_xy)
+                complete_periodic_autocontrast(autocontrast_xy_,
+                                               image_acc_env_.gpu_accumulation_xy_queue.get(),
+                                               WindowKind::XYview,
+                                               now);
         }
 
-        if (should_apply_contrast(autocontrast_xz_, image_acc_env_.gpu_accumulation_xz_queue))
+        const bool manual_xz = consume_contrast_refresh(WindowKind::XZview);
+        const bool automatic_xz = should_apply_periodic_autocontrast(
+            autocontrast_xz_,
+            setting<settings::XZ>().contrast.enabled && setting<settings::XZ>().contrast.auto_refresh &&
+                setting<settings::CutsViewEnabled>(),
+            image_acc_env_.gpu_accumulation_xz_queue.get(),
+            WindowKind::XZview,
+            now);
+        if (manual_xz || automatic_xz)
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
@@ -265,12 +340,22 @@ void Rendering::insert_compute_autocontrast()
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::XZview);
 
-            // Disable autocontrast if the queue is full or if there is no accumulation
-            if (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full())
-                autocontrast_xz_ = false;
+            if (automatic_xz)
+                complete_periodic_autocontrast(autocontrast_xz_,
+                                               image_acc_env_.gpu_accumulation_xz_queue.get(),
+                                               WindowKind::XZview,
+                                               now);
         }
 
-        if (should_apply_contrast(autocontrast_yz_, image_acc_env_.gpu_accumulation_yz_queue))
+        const bool manual_yz = consume_contrast_refresh(WindowKind::YZview);
+        const bool automatic_yz = should_apply_periodic_autocontrast(
+            autocontrast_yz_,
+            setting<settings::YZ>().contrast.enabled && setting<settings::YZ>().contrast.auto_refresh &&
+                setting<settings::CutsViewEnabled>(),
+            image_acc_env_.gpu_accumulation_yz_queue.get(),
+            WindowKind::YZview,
+            now);
+        if (manual_yz || automatic_yz)
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),
@@ -278,12 +363,22 @@ void Rendering::insert_compute_autocontrast()
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::YZview);
 
-            // Disable autocontrast if the queue is full or if there is no accumulation
-            if (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full())
-                autocontrast_yz_ = false;
+            if (automatic_yz)
+                complete_periodic_autocontrast(autocontrast_yz_,
+                                               image_acc_env_.gpu_accumulation_yz_queue.get(),
+                                               WindowKind::YZview,
+                                               now);
         }
 
-        if (autocontrast_filter2d_)
+        const bool manual_filter2d = consume_contrast_refresh(WindowKind::Filter2D);
+        const bool automatic_filter2d = should_apply_periodic_autocontrast(
+            autocontrast_filter2d_,
+            setting<settings::Filter2d>().contrast.enabled && setting<settings::Filter2d>().contrast.auto_refresh &&
+                setting<settings::Filter2dViewEnabled>(),
+            nullptr,
+            WindowKind::Filter2D,
+            now);
+        if (manual_filter2d || automatic_filter2d)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
@@ -291,7 +386,8 @@ void Rendering::insert_compute_autocontrast()
                                 0,
                                 WindowKind::Filter2D);
 
-            autocontrast_filter2d_ = false;
+            if (automatic_filter2d)
+                complete_periodic_autocontrast(autocontrast_filter2d_, nullptr, WindowKind::Filter2D, now);
         }
     };
 

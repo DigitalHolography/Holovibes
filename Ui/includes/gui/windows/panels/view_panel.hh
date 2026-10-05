@@ -128,9 +128,8 @@ class ViewPanel : public Panel
      */
     void set_contrast_auto_refresh(bool value);
 
-    void enable_contrast_auto_refresh();
-
-    void disable_contrast_auto_refresh();
+    /*! \brief Requests one contrast computation for the current view. */
+    void refresh_contrast();
 
     /*! \brief Enables or Disables contrast invertion
      *

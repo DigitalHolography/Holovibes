@@ -190,6 +190,31 @@ ApiCode ContrastApi::set_contrast_auto_refresh(bool value, WindowKind kind) cons
     return ApiCode::OK;
 }
 
+ApiCode ContrastApi::refresh_contrast(WindowKind kind) const
+{
+    if (api_->compute.get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_COMP_MODE;
+
+    if (!get_contrast_enabled(kind))
+        return ApiCode::INVALID_VALUE;
+
+    if (get_contrast_auto_refresh(kind))
+        return ApiCode::NO_CHANGE;
+
+    if ((kind == WindowKind::XZview || kind == WindowKind::YZview) && !api_->view.get_cuts_view_enabled())
+        return ApiCode::INVALID_VALUE;
+
+    if (kind == WindowKind::Filter2D && !api_->view.get_filter2d_view_enabled())
+        return ApiCode::INVALID_VALUE;
+
+    auto pipe = api_->compute.get_compute_pipe();
+    if (!pipe)
+        return ApiCode::NOT_STARTED;
+
+    pipe->request_contrast_refresh(kind);
+    return ApiCode::OK;
+}
+
 #pragma endregion
 
 #pragma region Contrast Invert

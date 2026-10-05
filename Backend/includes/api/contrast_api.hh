@@ -193,6 +193,19 @@ class ContrastApi : public IApi
      */
     ApiCode set_contrast_auto_refresh(bool value, WindowKind kind = get_current_window_type()) const;
 
+    /*! \brief Requests one contrast computation on the specified window kind (or the current window if not
+     *
+     * specified).
+     *
+     * \param[in] kind the window kind or the current window if not specified
+     *
+     *
+     * \return ApiCode NOT_STARTED if computation has not started, WRONG_COMP_MODE in Raw mode, INVALID_VALUE if
+     *
+     * contrast is disabled, NO_CHANGE if automatic refresh is enabled, OK otherwise
+     */
+    ApiCode refresh_contrast(WindowKind kind = get_current_window_type()) const;
+
 #pragma endregion
 
 #pragma region Contrast Invert

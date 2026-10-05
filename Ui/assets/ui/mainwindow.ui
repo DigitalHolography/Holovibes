@@ -4142,9 +4142,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>AutoRefreshContrastPushButton</sender>
-   <signal>pressed()</signal>
+   <signal>clicked()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>enable_contrast_auto_refresh()</slot>
+   <slot>refresh_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>349</x>
@@ -6319,8 +6319,7 @@ p, li { white-space: pre-wrap; }
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
   <slot>set_file_read_preset()</slot>
-  <slot>enable_contrast_auto_refresh()</slot>
-  <slot>disable_contrast_auto_refresh()</slot>
+  <slot>refresh_contrast()</slot>
   <slot>reticle_scale(double)</slot>
   <slot>display_reticle(bool)</slot>
  </slots>
