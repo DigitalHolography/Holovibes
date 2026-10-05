@@ -1,4 +1,9 @@
 ## Changelog
+### 14.14.0
+
+- Fix automatic contrast refresh and add a manual contrast refresh control that updates the displayed range.
+- Add progress logs around input, recording, and compute buffer allocation.
+
 ### 14.13.5
 
 - Fix a problem that could prevent `.holo` files from being processed, including through the Windows processing script.
