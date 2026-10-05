@@ -83,9 +83,8 @@ void ViewPanel::on_notify()
     ui_->AutoRefreshContrastPushButton->setEnabled(contrast_enabled && !contrast_auto_refresh);
     ui_->InvertContrastCheckBox->setChecked(api_.contrast.get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!contrast_auto_refresh);
-    ui_->ContrastMinDoubleSpinBox->setValue(api_.contrast.get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!contrast_auto_refresh);
-    ui_->ContrastMaxDoubleSpinBox->setValue(api_.contrast.get_contrast_max());
+    update_contrast_values(api_.view.get_current_window_type());
 
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
@@ -225,6 +224,15 @@ void ViewPanel::on_notify()
     ui_->ContrastReticleScaleDoubleSpinBox->setEnabled(api_.contrast.get_contrast_reticle_display_enabled());
     ui_->ContrastReticleScaleDoubleSpinBox->setValue(api_.contrast.get_contrast_reticle_scale());
     ui_->DisplayContrastReticleCheckBox->setChecked(api_.contrast.get_contrast_reticle_display_enabled());
+}
+
+void ViewPanel::update_contrast_values(WindowKind kind)
+{
+    if (kind != api_.view.get_current_window_type())
+        return;
+
+    QDoubleSpinBoxQuietSetValue(ui_->ContrastMinDoubleSpinBox, api_.contrast.get_contrast_min(kind));
+    QDoubleSpinBoxQuietSetValue(ui_->ContrastMaxDoubleSpinBox, api_.contrast.get_contrast_max(kind));
 }
 
 void ViewPanel::load_gui(const json& j_us)

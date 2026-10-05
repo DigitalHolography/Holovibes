@@ -6,6 +6,9 @@
  */
 #pragma once
 
+#include <functional>
+#include <mutex>
+
 #include "enum_window_kind.hh"
 #include "common_api.hh"
 
@@ -142,6 +145,14 @@ class ContrastApi : public IApi
      * \warning This function is for internal use only, use set_contrast_min and set_contrast_max instead.
      */
     void update_contrast(float min, float max, WindowKind kind = get_current_window_type()) const;
+
+    /*! \brief Sets the callback invoked after an automatic or manual contrast computation updates a range.
+     *
+     * \details The callback runs on the computation thread. UI consumers must forward its work to the UI thread.
+     *
+     * \param[in] callback function receiving the updated window kind, or an empty function to unregister it
+     */
+    void set_contrast_update_callback(std::function<void(WindowKind)> callback) const;
 
 #pragma endregion
 
@@ -366,6 +377,10 @@ class ContrastApi : public IApi
     ApiCode set_reticle_scale(float value) const;
 
 #pragma endregion
+
+  private:
+    mutable std::mutex contrast_update_callback_mutex_;
+    mutable std::function<void(WindowKind)> contrast_update_callback_;
 };
 
 } // namespace holovibes::api

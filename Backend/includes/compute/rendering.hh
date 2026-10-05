@@ -161,8 +161,9 @@ class Rendering
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
 
-    /*! \brief Calls autocontrast and set the correct contrast variables */
-    void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
+    /*! \brief Calls autocontrast, logs the range change, and sets the correct contrast variables. */
+    void autocontrast_caller(
+        float* input, const uint width, const uint height, const uint offset, WindowKind view, bool manual_refresh);
 
     /*! \brief Tell if the contrast should be applied
      *

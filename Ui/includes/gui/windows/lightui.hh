@@ -9,6 +9,7 @@
 
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_window_kind.hh"
 #include "notifier.hh"
 
 namespace Ui
@@ -57,6 +58,9 @@ class LightUI : public QMainWindow
      * \brief Update UI elements with the right value stored in the app
      */
     void notify();
+
+    /*! \brief Updates the displayed contrast range if it belongs to the currently selected view. */
+    void update_contrast_values(WindowKind kind);
 
     /*!
      * \brief Updates the UI with the output file name for recording.

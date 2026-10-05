@@ -315,7 +315,12 @@ void Rendering::insert_compute_autocontrast()
                                                                      now);
         if (manual_xy || automatic_xy)
         {
-            autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
+            autocontrast_caller(buffers_.gpu_postprocess_frame.get(),
+                                fd_.width,
+                                fd_.height,
+                                0,
+                                WindowKind::XYview,
+                                manual_xy);
 
             if (automatic_xy)
                 complete_periodic_autocontrast(autocontrast_xy_,
@@ -338,7 +343,8 @@ void Rendering::insert_compute_autocontrast()
                                 fd_.width,
                                 setting<settings::TimeTransformationSize>(),
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
-                                WindowKind::XZview);
+                                WindowKind::XZview,
+                                manual_xz);
 
             if (automatic_xz)
                 complete_periodic_autocontrast(autocontrast_xz_,
@@ -361,7 +367,8 @@ void Rendering::insert_compute_autocontrast()
                                 setting<settings::TimeTransformationSize>(),
                                 fd_.height,
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
-                                WindowKind::YZview);
+                                WindowKind::YZview,
+                                manual_yz);
 
             if (automatic_yz)
                 complete_periodic_autocontrast(autocontrast_yz_,
@@ -384,7 +391,8 @@ void Rendering::insert_compute_autocontrast()
                                 fd_.width,
                                 fd_.height,
                                 0,
-                                WindowKind::Filter2D);
+                                WindowKind::Filter2D,
+                                manual_filter2d);
 
             if (automatic_filter2d)
                 complete_periodic_autocontrast(autocontrast_filter2d_, nullptr, WindowKind::Filter2D, now);
@@ -395,11 +403,33 @@ void Rendering::insert_compute_autocontrast()
 }
 
 void Rendering::autocontrast_caller(
-    float* input, const uint width, const uint height, const uint offset, WindowKind view)
+    float* input, const uint width, const uint height, const uint offset, WindowKind view, bool manual_refresh)
 {
     LOG_FUNC();
 
     constexpr uint percent_size = 2;
+
+    ContrastRange previous_range;
+    const char* view_name = "Unknown";
+    switch (view)
+    {
+    case WindowKind::XYview:
+        previous_range = setting<settings::XYContrastRange>();
+        view_name = "XY";
+        break;
+    case WindowKind::XZview:
+        previous_range = setting<settings::XZContrastRange>();
+        view_name = "XZ";
+        break;
+    case WindowKind::YZview:
+        previous_range = setting<settings::YZContrastRange>();
+        view_name = "YZ";
+        break;
+    case WindowKind::Filter2D:
+        previous_range = setting<settings::Filter2dContrastRange>();
+        view_name = "Filter2D";
+        break;
+    }
 
     const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
                                             setting<settings::ContrastUpperThreshold>()};
@@ -426,6 +456,17 @@ void Rendering::autocontrast_caller(
         compute_percentile_yz_view(input, width, height, offset, percent_in, percent_min_max_, percent_size, stream_);
         break;
     }
-    API.contrast.update_contrast(percent_min_max_[0], percent_min_max_[1], view);
+
+    const float new_min = percent_min_max_[0] > 1.0f ? percent_min_max_[0] : 1.0f;
+    const float new_max = percent_min_max_[1] > 1.0f ? percent_min_max_[1] : 1.0f;
+    //LOG_INFO("[CONTRAST] {} refresh on {}: min {} -> {}, max {} -> {}",
+    //         manual_refresh ? "Manual" : "Auto",
+    //         view_name,
+    //         previous_range.min,
+    //         new_min,
+    //         previous_range.max,
+    //         new_max);
+
+    API.contrast.update_contrast(new_min, new_max, view);
 }
 } // namespace holovibes::compute

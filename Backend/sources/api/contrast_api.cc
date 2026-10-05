@@ -143,6 +143,16 @@ void ContrastApi::update_contrast(float min, float max, WindowKind kind) const
     contrast_range.min = min;
     contrast_range.max = max;
     set_contrast_range(contrast_range, kind);
+
+    const std::lock_guard lock(contrast_update_callback_mutex_);
+    if (contrast_update_callback_)
+        contrast_update_callback_(kind);
+}
+
+void ContrastApi::set_contrast_update_callback(std::function<void(WindowKind)> callback) const
+{
+    const std::lock_guard lock(contrast_update_callback_mutex_);
+    contrast_update_callback_ = std::move(callback);
 }
 
 #pragma endregion

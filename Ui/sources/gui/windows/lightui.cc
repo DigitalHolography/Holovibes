@@ -120,9 +120,8 @@ void LightUI::notify()
     ui_->ContrastCheckBox->setEnabled(pipe_loaded);
     ui_->AutoRefreshContrastCheckBox->setChecked(api.contrast.get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api.contrast.get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setValue(api.contrast.get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api.contrast.get_contrast_auto_refresh());
-    ui_->ContrastMaxDoubleSpinBox->setValue(api.contrast.get_contrast_max());
+    update_contrast_values(api.view.get_current_window_type());
 
     ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
 
@@ -147,6 +146,17 @@ void LightUI::notify()
         set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
         actualise_record_progress(0, 1); // So as to reset the progress of the bar.
     }
+}
+
+void LightUI::update_contrast_values(WindowKind kind)
+{
+    if (kind != API.view.get_current_window_type())
+        return;
+
+    const QSignalBlocker min_blocker(ui_->ContrastMinDoubleSpinBox);
+    const QSignalBlocker max_blocker(ui_->ContrastMaxDoubleSpinBox);
+    ui_->ContrastMinDoubleSpinBox->setValue(API.contrast.get_contrast_min(kind));
+    ui_->ContrastMaxDoubleSpinBox->setValue(API.contrast.get_contrast_max(kind));
 }
 
 void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }
