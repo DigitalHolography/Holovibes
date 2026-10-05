@@ -54,11 +54,14 @@ bool Holovibes::can_start_frame_record() const
 
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
+    LOG_INFO("Allocating input buffers...");
+
     if (!input_queue_.load())
         input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, API.transform.get_batch_size(), fd);
     else
         input_queue_.load()->rebuild(fd, input_queue_size, API.transform.get_batch_size(), Device::GPU);
-    LOG_DEBUG("Input queue allocated");
+
+    LOG_INFO("Input buffers allocated");
 }
 
 void Holovibes::init_record_queue()
@@ -146,6 +149,8 @@ void Holovibes::init_record_queue()
         QueueType::RECORD_QUEUE, QueueType::RECORD_QUEUE_2, QueueType::RECORD_QUEUE_3};
     const size_t queue_count = api.record.get_record_queue_multibuffering_enabled() ? RECORD_QUEUE_COUNT : 1;
 
+    LOG_INFO("Allocating record buffers...");
+
     for (size_t index = 0; index < queue_count; ++index)
     {
         if (!record_queues_[index])
@@ -164,7 +169,7 @@ void Holovibes::init_record_queue()
 
     record_queue_.store(record_queues_[0]);
 
-    LOG_DEBUG("Record queue allocated");
+    LOG_INFO("Record buffers allocated");
 }
 
 void Holovibes::start_file_frame_read()
@@ -303,10 +308,13 @@ void Holovibes::start_compute()
         // already belongs to the active RecordingContext and rebuilding it would stop the newly started worker.
         if (!active_recording_.load(std::memory_order_acquire))
             init_record_queue();
+
+        LOG_INFO("Allocating compute buffers...");
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    active_recording_,
                                                    get_cuda_streams().compute_stream,
                                                    realtime_settings_.settings_));
+        LOG_INFO("Compute buffers allocated");
     }
 
     compute_worker_controller_.set_error_callback(error_callback_);
