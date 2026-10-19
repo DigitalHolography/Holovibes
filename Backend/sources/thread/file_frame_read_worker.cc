@@ -121,9 +121,17 @@ bool FileFrameReadWorker::init_frame_buffers()
             error_message += " (consider disabling \"Load file in CPU RAM\" option)";
         LOG_ERROR("{}", error_message);
         if (cleanupCpu)
+        {
             cudaXFreeHost(cpu_frame_buffer_);
+            cpu_frame_buffer_ = nullptr;
+            allocated_cpu_bytes_.store(0, std::memory_order_relaxed);
+        }
         if (cleanupGpu)
+        {
             cudaXFree(gpu_file_frame_buffer_);
+            gpu_file_frame_buffer_ = nullptr;
+            allocated_gpu_bytes_.store(0, std::memory_order_relaxed);
+        }
 
         return false; // Explicitly return false for clarity.
     };
@@ -135,29 +143,45 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         return handleError("Not enough CPU RAM to read file");
     }
+    allocated_cpu_bytes_.store(buffer_size, std::memory_order_relaxed);
 
     error_code = cudaXRMalloc(&gpu_file_frame_buffer_, buffer_size);
     if (error_code != cudaSuccess)
     {
         return handleError("Not enough GPU DRAM to read file", true);
     }
+    allocated_gpu_bytes_.store(buffer_size, std::memory_order_relaxed);
 
     error_code = cudaXRMalloc(&gpu_packed_buffer_, frame_size_);
     if (error_code != cudaSuccess)
     {
         return handleError("Not enough GPU DRAM to read file", true, true);
     }
+    allocated_gpu_bytes_.fetch_add(frame_size_, std::memory_order_relaxed);
 
     return true;
 }
 
 void FileFrameReadWorker::free_frame_buffers()
 {
-    cudaXFree(gpu_packed_buffer_);
-    if (setting<settings::FileLoadKind>() != FileLoadKind::CPU) // Already freed, must not free twice
+    if (gpu_packed_buffer_)
+    {
+        cudaXFree(gpu_packed_buffer_);
+        gpu_packed_buffer_ = nullptr;
+        allocated_gpu_bytes_.fetch_sub(frame_size_, std::memory_order_relaxed);
+    }
+    if (gpu_file_frame_buffer_)
+    {
         cudaXFree(gpu_file_frame_buffer_);
-    if (setting<settings::FileLoadKind>() != FileLoadKind::GPU) // Already freed, must not free twice
+        gpu_file_frame_buffer_ = nullptr;
+        allocated_gpu_bytes_.store(0, std::memory_order_relaxed);
+    }
+    if (cpu_frame_buffer_)
+    {
         cudaXFreeHost(cpu_frame_buffer_);
+        cpu_frame_buffer_ = nullptr;
+        allocated_cpu_bytes_.store(0, std::memory_order_relaxed);
+    }
 }
 
 void FileFrameReadWorker::insert_fast_update_map_entries()
@@ -187,9 +211,17 @@ void FileFrameReadWorker::read_file_in_memory()
     // Read and copy the entire file
     size_t frames_read = read_copy_file(total_nb_frames_to_read_);
     if (setting<settings::FileLoadKind>() == FileLoadKind::GPU)
+    {
         cudaXFreeHost(cpu_frame_buffer_);
+        cpu_frame_buffer_ = nullptr;
+        allocated_cpu_bytes_.store(0, std::memory_order_relaxed);
+    }
     if (setting<settings::FileLoadKind>() == FileLoadKind::CPU)
+    {
         cudaXFree(gpu_file_frame_buffer_);
+        gpu_file_frame_buffer_ = nullptr;
+        allocated_gpu_bytes_.store(frame_size_, std::memory_order_relaxed); // Packed-frame buffer remains allocated.
+    }
 
     while (!stop_requested_)
     {

@@ -31,6 +31,8 @@
 #include "fast_updates_holder.hh"
 #include "custom_type_traits.hh"
 #include "fps_limiter.hh"
+#include "buffer_memory.hh"
+#include <atomic>
 #include <optional>
 #include "logger.hh"
 
@@ -83,6 +85,13 @@ class FileFrameReadWorker final : public FrameReadWorker
     }
 
     void run() override;
+
+    /*! \brief Memory currently allocated by the file reader, independent of pending settings changes. */
+    static buffer_memory::Usage get_allocated_memory()
+    {
+        return {allocated_cpu_bytes_.load(std::memory_order_relaxed),
+                allocated_gpu_bytes_.load(std::memory_order_relaxed)};
+    }
 
     /*!
      * \brief Update a setting. The actual application of the update
@@ -186,19 +195,23 @@ class FileFrameReadWorker final : public FrameReadWorker
     std::optional<camera::FrameDescriptor> fd_;
 
     /*! \brief Size of an input frame */
-    size_t frame_size_;
+    size_t frame_size_ = 0;
 
     /*! \brief CPU buffer in which the frames are temporarly stored */
-    char* cpu_frame_buffer_;
+    char* cpu_frame_buffer_ = nullptr;
 
     /*! \brief GPU buffer in which the frames are temporarly stored */
-    char* gpu_file_frame_buffer_;
+    char* gpu_file_frame_buffer_ = nullptr;
 
     /*!
      * \brief Tmp GPU buffer in which the frames are temporarly stored to convert
      * data from packed bits to 16bit
      */
-    char* gpu_packed_buffer_;
+    char* gpu_packed_buffer_ = nullptr;
+
+    // There is one file reader. The UI may read its allocation totals from another thread.
+    inline static std::atomic<uint64_t> allocated_cpu_bytes_{0};
+    inline static std::atomic<uint64_t> allocated_gpu_bytes_{0};
 
     /*!
      * \brief The Fps limiter used in the enqueue loop to limit the number of frames enqueued

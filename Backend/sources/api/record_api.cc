@@ -162,45 +162,33 @@ bool RecordApi::is_recording() const { return Holovibes::instance().is_recording
 
 ApiCode RecordApi::set_record_queue_location(Device device) const
 {
-    if (get_record_queue_location() == device)
-        return ApiCode::NO_CHANGE;
-
-    if (is_recording())
-        stop_record();
-
-    UPDATE_SETTING(RecordQueueLocation, device);
-
-    if (api_->input.get_import_type() != ImportType::None)
-        Holovibes::instance().init_record_queue();
-
-    return ApiCode::OK;
+    return set_record_buffer_configuration(get_record_buffer_size(), device, get_record_queue_multibuffering_enabled());
 }
 
 ApiCode RecordApi::set_record_buffer_size(uint value) const
 {
-    if (get_record_buffer_size() == value)
-        return ApiCode::NO_CHANGE;
-
-    UPDATE_SETTING(RecordBufferSize, value);
-
-    if (is_recording())
-        stop_record();
-
-    if (api_->input.get_import_type() != ImportType::None)
-        Holovibes::instance().init_record_queue();
-
-    return ApiCode::OK;
+    return set_record_buffer_configuration(value,
+                                           get_record_queue_location(),
+                                           get_record_queue_multibuffering_enabled());
 }
 
 ApiCode RecordApi::set_record_queue_multibuffering_enabled(bool enabled) const
 {
-    if (get_record_queue_multibuffering_enabled() == enabled)
+    return set_record_buffer_configuration(get_record_buffer_size(), get_record_queue_location(), enabled);
+}
+
+ApiCode RecordApi::set_record_buffer_configuration(uint size, Device device, bool multibuffering_enabled) const
+{
+    if (get_record_buffer_size() == size && get_record_queue_location() == device &&
+        get_record_queue_multibuffering_enabled() == multibuffering_enabled)
         return ApiCode::NO_CHANGE;
 
     if (is_recording())
         stop_record();
 
-    UPDATE_SETTING(RecordQueueMultibufferingEnabled, enabled);
+    UPDATE_SETTING(RecordBufferSize, size);
+    UPDATE_SETTING(RecordQueueLocation, device);
+    UPDATE_SETTING(RecordQueueMultibufferingEnabled, multibuffering_enabled);
 
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();

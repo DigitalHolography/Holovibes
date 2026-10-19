@@ -10,6 +10,8 @@
 #include <QGridLayout>
 #include <QSpinBox>
 #include <QGroupBox>
+#include <QLabel>
+#include <array>
 
 #include "ui_advancedsettingswindow.h"
 
@@ -56,8 +58,16 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief set ui values according to cd */
     void set_current_values();
 
+    /*! \brief Refresh memory estimates and reject unsafe buffer changes before applying any settings. */
+    bool update_buffer_memory_estimate();
+
+    void resize_to_contents();
+
   private:
     Ui::AdvancedSettingsWindow ui;
+
+    std::array<QLabel*, 5> buffer_memory_labels_{};
+    QLabel* buffer_memory_summary_ = nullptr;
 
     /*! \brief Callback function called when user click on the Save button */
     std::function<void()> callback_ = []() {};

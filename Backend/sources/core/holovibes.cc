@@ -83,6 +83,8 @@ void Holovibes::init_record_queue()
     active_recording_.store(nullptr, std::memory_order_release);
     active_recording_index_.store(-1, std::memory_order_release);
     recording_contexts_.fill(nullptr);
+    // The active queue may be one of the disabled slots; release this alias before rebuilding any queue.
+    record_queue_.store(nullptr);
 
     auto& api = API;
     auto device = api.record.get_record_queue_location();
@@ -145,11 +147,16 @@ void Holovibes::init_record_queue()
     }
     }
 
-    static constexpr std::array queue_types = {
-        QueueType::RECORD_QUEUE, QueueType::RECORD_QUEUE_2, QueueType::RECORD_QUEUE_3};
+    static constexpr std::array queue_types = {QueueType::RECORD_QUEUE,
+                                               QueueType::RECORD_QUEUE_2,
+                                               QueueType::RECORD_QUEUE_3};
     const size_t queue_count = api.record.get_record_queue_multibuffering_enabled() ? RECORD_QUEUE_COUNT : 1;
 
     LOG_INFO("Allocating record buffers...");
+
+    // Release disabled queues before resizing the remaining ones so their memory is available to the rebuild.
+    for (size_t index = queue_count; index < RECORD_QUEUE_COUNT; ++index)
+        record_queues_[index].reset();
 
     for (size_t index = 0; index < queue_count; ++index)
     {
@@ -164,9 +171,6 @@ void Holovibes::init_record_queue()
         else
             record_queues_[index]->rebuild(fd, size, get_cuda_streams().recorder_stream, device);
     }
-    for (size_t index = queue_count; index < RECORD_QUEUE_COUNT; ++index)
-        record_queues_[index].reset();
-
     record_queue_.store(record_queues_[0]);
 
     LOG_INFO("Record buffers allocated");

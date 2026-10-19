@@ -332,6 +332,15 @@ class RecordApi : public IApi
     /*! \brief Enable or disable the three-slot record queue. Enabled by default. */
     ApiCode set_record_queue_multibuffering_enabled(bool enabled) const;
 
+    /*! \brief Apply the record queue size, location and queue count with a single rebuild.
+     *
+     * \param[in] size the capacity (number of frames) of each record queue
+     * \param[in] device the location of the record queues
+     * \param[in] multibuffering_enabled whether three record queues are enabled
+     * \return ApiCode NO_CHANGE if all values are unchanged, OK otherwise.
+     */
+    ApiCode set_record_buffer_configuration(uint size, Device device, bool multibuffering_enabled) const;
+
 #pragma endregion
 };
 

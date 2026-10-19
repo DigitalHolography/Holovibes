@@ -6,6 +6,7 @@
 #include "chrono.hh"
 #include <cuda_runtime.h>
 #include <chrono>
+#include <array>
 #include "fast_updates_holder.hh"
 #include <nvml.h>
 #include "logger.hh"
@@ -14,6 +15,13 @@
 namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
+
+// Keep the CSV schema stable when queues are created, rebuilt, or removed during a benchmark.
+static constexpr std::array benchmark_queues = {QueueType::INPUT_QUEUE,
+                                                QueueType::OUTPUT_QUEUE,
+                                                QueueType::RECORD_QUEUE,
+                                                QueueType::RECORD_QUEUE_2,
+                                                QueueType::RECORD_QUEUE_3};
 
 const std::unordered_map<QueueType, std::string> BenchmarkWorker::queue_type_to_string_ = {
     {QueueType::INPUT_QUEUE, "Input Queue"},
@@ -61,17 +69,19 @@ void BenchmarkWorker::run()
                 if (information_.output_format)
                     benchmark_file << ",Output Format: " << *information_.output_format.get();
 
-                for (auto [key, info] : information_.queues)
+                for (const auto key : benchmark_queues)
                 {
-                    if (key == QueueType::UNDEFINED || key == QueueType::RECORD_QUEUE_2 ||
-                        key == QueueType::RECORD_QUEUE_3)
+                    const auto queue = information_.queues.find(key);
+                    if (queue == information_.queues.end())
                         continue;
+                    const auto& info = queue->second;
                     benchmark_file << "," << (info.device == Device::GPU ? "GPU " : "CPU ")
                                    << queue_type_to_string_.at(key) << " size: " << info.max_size;
                 }
                 benchmark_file << "\n";
-                // 11 headers
-                benchmark_file << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output "
+                for (const auto key : benchmark_queues)
+                    benchmark_file << queue_type_to_string_.at(key) << ",";
+                benchmark_file << "Input FPS,Output FPS,Input Throughput,Output "
                                   "Throughput,GPU memory free,GPU memory total,GPU load,GPU memory load, z_boundary\n";
                 info_found = true;
             }
@@ -90,26 +100,19 @@ void BenchmarkWorker::run()
 
 void BenchmarkWorker::write_information(std::ofstream& csvFile)
 {
-    uint8_t i = 3;
-    for (auto const& [key, info] : information_.queues)
+    for (const auto key : benchmark_queues)
     {
-        if (key == QueueType::UNDEFINED || key == QueueType::RECORD_QUEUE_2 || key == QueueType::RECORD_QUEUE_3)
-            continue;
-
-        csvFile << info.current_size << ",";
-        i--;
+        const auto queue = information_.queues.find(key);
+        csvFile << (queue == information_.queues.end() ? 0 : queue->second.current_size) << ",";
     }
-
-    for (; i > 0; i--)
-        csvFile << "0,";
 
     csvFile << (information_.input ? information_.input->fps : 0) << ",";
     csvFile << (information_.output ? information_.output->fps : 0) << ",";
 
     csvFile << (information_.input ? information_.input->throughput : 0) << ",";
-    csvFile << (information_.input ? information_.output->throughput : 0) << ",";
+    csvFile << (information_.output ? information_.output->throughput : 0) << ",";
 
-    size_t free, total;
+    size_t free = 0, total = 0;
     cudaMemGetInfo(&free, &total);
 
     csvFile << free << ",";
@@ -120,6 +123,8 @@ void BenchmarkWorker::write_information(std::ofstream& csvFile)
         csvFile << information_.gpu_info->gpu << ",";
         csvFile << information_.gpu_info->memory << ",";
     }
+    else
+        csvFile << "0,0,";
 
     // Exemple d'écriture dans le fichier CSV pour la limite z
     csvFile << API.information.get_boundary();
