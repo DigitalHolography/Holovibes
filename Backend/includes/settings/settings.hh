@@ -204,8 +204,8 @@ DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 
-/*! \brief Allow a new recording to use another queue while previous recordings are still being saved. */
-DECLARE_SETTING(RecordQueueMultibufferingEnabled, bool);
+/*! \brief Number of record buffers available for overlapping capture and file saving. */
+DECLARE_SETTING(RecordBufferCount, uint);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);

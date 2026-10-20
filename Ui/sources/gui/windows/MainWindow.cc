@@ -490,11 +490,12 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().matlab_record_signal_port_,
                             "matlab",
                             "record signal port");
-    api_.record.set_record_queue_multibuffering_enabled(
-        json_get_or_default(j_us,
-                            api_.record.get_record_queue_multibuffering_enabled(),
-                            "record",
-                            "queue multibuffering enabled"));
+    uint record_buffer_count = api_.record.get_record_buffer_count();
+    if (j_us.contains("record") && j_us.at("record").contains("buffer count"))
+        record_buffer_count = json_get_or_default(j_us, record_buffer_count, "record", "buffer count");
+    else if (j_us.contains("record") && j_us.at("record").contains("queue multibuffering enabled"))
+        record_buffer_count = json_get_or_default(j_us, true, "record", "queue multibuffering enabled") ? 3u : 1u;
+    api_.record.set_record_buffer_count(record_buffer_count);
     RecordTriggerTcpServer::instance().configure(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
                                                  UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
@@ -547,7 +548,8 @@ void MainWindow::save_gui()
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["matlab"]["record signal enabled"] = UserInterfaceDescriptor::instance().matlab_record_signal_enabled_;
     j_us["matlab"]["record signal port"] = UserInterfaceDescriptor::instance().matlab_record_signal_port_;
-    j_us["record"]["queue multibuffering enabled"] = api_.record.get_record_queue_multibuffering_enabled();
+    j_us["record"]["buffer count"] = api_.record.get_record_buffer_count();
+    j_us["record"].erase("queue multibuffering enabled");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);

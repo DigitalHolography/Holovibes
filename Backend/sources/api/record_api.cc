@@ -1,5 +1,6 @@
 #include "record_api.hh"
 
+#include <limits>
 #include <tuple>
 
 #include "API.hh"
@@ -192,15 +193,22 @@ ApiCode RecordApi::set_record_buffer_size(uint value) const
     return ApiCode::OK;
 }
 
-ApiCode RecordApi::set_record_queue_multibuffering_enabled(bool enabled) const
+ApiCode RecordApi::set_record_buffer_count(uint value) const
 {
-    if (get_record_queue_multibuffering_enabled() == enabled)
+    constexpr uint max_buffer_count = static_cast<uint>(std::numeric_limits<int>::max());
+    if (value == 0 || value > max_buffer_count)
+    {
+        LOG_WARN("Record buffer count must be between 1 and {}", max_buffer_count);
+        return ApiCode::INVALID_VALUE;
+    }
+
+    if (get_record_buffer_count() == value)
         return ApiCode::NO_CHANGE;
 
     if (is_recording())
         stop_record();
 
-    UPDATE_SETTING(RecordQueueMultibufferingEnabled, enabled);
+    UPDATE_SETTING(RecordBufferCount, value);
 
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();
