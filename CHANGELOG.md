@@ -3,6 +3,7 @@
 
 - Fix automatic contrast refresh and add a manual contrast refresh control that updates the displayed range.
 - Add progress logs around input, recording, and compute buffer allocation.
+- Keep only the PowerShell processing script in the installer; remove its executable and batch launchers and the executable shortcut.
 
 ### 14.13.5
 

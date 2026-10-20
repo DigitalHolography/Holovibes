@@ -146,20 +146,6 @@ if(COMMAND target_precompile_headers)
 endif()
 
 # ---------------------------------------------------------------------
-# ProcessHoloFiles executable wrapper
-# ---------------------------------------------------------------------
-if(WIN32)
-    add_executable(ProcessHoloFilesLauncher
-        "${CMAKE_SOURCE_DIR}/scripts/ProcessHoloFilesLauncher.cpp"
-    )
-    set_target_properties(ProcessHoloFilesLauncher PROPERTIES
-        OUTPUT_NAME ProcessHoloFiles
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-    target_compile_features(ProcessHoloFilesLauncher PRIVATE cxx_std_17)
-endif()
-
-# ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
 add_custom_command(TARGET Holovibes POST_BUILD
@@ -219,17 +205,9 @@ install(DIRECTORY "${UI_DIR}/assets/style/"
 
 install(PROGRAMS
     "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
-    "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.bat"
     DESTINATION scripts
     COMPONENT process
 )
-
-if(TARGET ProcessHoloFilesLauncher)
-    install(TARGETS ProcessHoloFilesLauncher
-        RUNTIME DESTINATION scripts
-        COMPONENT process
-    )
-endif()
 
 get_property(camera_targets GLOBAL PROPERTY HOLOVIBES_CAMERA_TARGETS)
 if(camera_targets)
@@ -278,38 +256,30 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
     SetCompress off
 ")
 
-# Set the names of both shortcuts this installer creates: one for Holovibes, one for the .ps1/.bat, and one for the .exe wrapper
+# Set the desktop shortcut names for Holovibes and the PowerShell script.
 # These variable names are arbitrary and don't mean anything.
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
-set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
-set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
-set(PSONE_EXE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files (exe).lnk")
-set(PSONE_EXE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files (exe) ${PROJECT_VERSION}.lnk")
+set(PSONE_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}
 
-# Creating the shortcut to Holovibes on the desktop.
+# Create desktop shortcuts. Set the script's working directory for preset paths.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${If} \\\${SectionIsSelected} \\\${application}
         CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
     \\\${EndIf}
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
-        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.bat\\\" \\\"\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
-        CreateShortCut \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
-        CreateShortCut \\\"${PSONE_EXE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.exe\\\" \\\"\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
-        CreateShortCut \\\"${PSONE_EXE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_EXE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
+        SetOutPath \\\"$INSTDIR\\\"
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$SYSDIR\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\\\" \\\"-NoProfile -ExecutionPolicy Bypass -File $\\\\\\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1$\\\\\\\"\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
 ")
 
-# Removes the Desktop shortcut of Holovibes.
+# Remove the desktop shortcuts.
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     Delete \\\"${SHORTCUT_NAME}\\\"
     Delete \\\"${PSONE_SHORTCUT_NAME}\\\"
-    Delete \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\"
-    Delete \\\"${PSONE_EXE_SHORTCUT_NAME}\\\"
-    Delete \\\"${PSONE_EXE_SHORTCUT_SHORTCUT_NAME}\\\"
 ")
 
 include(CPack)
