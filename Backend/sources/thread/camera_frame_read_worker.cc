@@ -60,6 +60,7 @@ void CameraFrameReadWorker::run()
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
                                          const camera::FrameDescriptor& camera_fd)
 {
+    const auto input_queue = input_queue_.load();
     cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
 
     // total frames in this callback
@@ -77,43 +78,53 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
                            captured_fd.frame_offset_us      // offset applied (µs)
     );
 
-    // enqueue region1 with IDs and timing
-    if (captured_fd.count1 > 0)
+    try
     {
-        auto ptr1 = static_cast<uint8_t*>(captured_fd.region1);
-        input_queue_.load()->enqueue_with_ids(ptr1,
-                                              copy_kind,
-                                              captured_fd.count1,
-                                              base_id,
-                                              captured_fd.first_frame_timestamp_us,
-                                              captured_fd.frame_period_us,
-                                              captured_fd.camera_timestamp_us,
-                                              captured_fd.frame_offset_us);
+        // enqueue region1 with IDs and timing
+        if (captured_fd.count1 > 0)
+        {
+            auto ptr1 = static_cast<uint8_t*>(captured_fd.region1);
+            input_queue->enqueue_with_ids(ptr1,
+                                          copy_kind,
+                                          captured_fd.count1,
+                                          base_id,
+                                          captured_fd.first_frame_timestamp_us,
+                                          captured_fd.frame_period_us,
+                                          captured_fd.camera_timestamp_us,
+                                          captured_fd.frame_offset_us);
+        }
+        // enqueue region2 with IDs and timing
+        if (captured_fd.count2 > 0)
+        {
+            auto ptr2 = static_cast<uint8_t*>(captured_fd.region2);
+            const uint64_t base2 = base_id + captured_fd.count1;
+            const uint64_t ts0_2 = captured_fd.first_frame_timestamp_us +
+                                   static_cast<uint64_t>(captured_fd.count1) * captured_fd.frame_period_us;
+            const uint64_t cam0_2 = captured_fd.camera_timestamp_us
+                                        ? (captured_fd.camera_timestamp_us +
+                                           static_cast<uint64_t>(captured_fd.count1) * captured_fd.frame_period_us)
+                                        : 0;
+            input_queue->enqueue_with_ids(ptr2,
+                                          copy_kind,
+                                          captured_fd.count2,
+                                          base2,
+                                          ts0_2,
+                                          captured_fd.frame_period_us,
+                                          cam0_2,
+                                          captured_fd.frame_offset_us);
+        }
     }
-    // enqueue region2 with IDs and timing
-    if (captured_fd.count2 > 0)
+    catch (...)
     {
-        auto ptr2 = static_cast<uint8_t*>(captured_fd.region2);
-        const uint64_t base2 = base_id + captured_fd.count1;
-        const uint64_t ts0_2 = captured_fd.first_frame_timestamp_us +
-                               static_cast<uint64_t>(captured_fd.count1) * captured_fd.frame_period_us;
-        const uint64_t cam0_2 = captured_fd.camera_timestamp_us
-                                    ? (captured_fd.camera_timestamp_us +
-                                       static_cast<uint64_t>(captured_fd.count1) * captured_fd.frame_period_us)
-                                    : 0;
-        input_queue_.load()->enqueue_with_ids(ptr2,
-                                              copy_kind,
-                                              captured_fd.count2,
-                                              base2,
-                                              ts0_2,
-                                              captured_fd.frame_period_us,
-                                              cam0_2,
-                                              captured_fd.frame_offset_us);
+        input_queue->sync_pending_copies();
+        throw;
     }
+
+    // Camera buffers may be recycled on the next get_frames call; finish every stream reading them first.
+    input_queue->sync_pending_copies();
 
     *current_fps_ += captured_fd.count1 + captured_fd.count2;
     *temperature_ = camera_->get_temperature();
-    input_queue_.load()->sync_current_batch();
 }
 
 } // namespace holovibes::worker

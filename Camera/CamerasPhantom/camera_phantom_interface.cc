@@ -5,6 +5,9 @@
 
 #include <thread>
 #include <chrono>
+#include <list>
+#include <memory>
+#include <vector>
 
 #include "camera_logger.hh"
 #include "spdlog/spdlog.h"
@@ -289,25 +292,35 @@ void CameraPhantomInt::init_camera()
 
 void CameraPhantomInt::start_acquisition() { grabber_->start(); }
 
-void CameraPhantomInt::stop_acquisition() { grabber_->stop(); }
+void CameraPhantomInt::stop_acquisition()
+{
+    captured_buffers_.clear();
+    grabber_->stop();
+}
 
 void CameraPhantomInt::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
+    // The backend completed every copy before requesting the next camera buffer.
+    captured_buffers_.clear();
+
     // 1) Host timestamp right BEFORE waiting (lower bound)
     uint64_t host_before_us = unix_now_us();
 
+    // Retain every grabber's buffer until the backend has finished copying the stitched image.
+    std::list<Euresys::ScopedBuffer> buffers;
+
     // 2) Blocking wait for a buffer
-    auto buffer = Euresys::ScopedBuffer(*(grabber_->available_grabbers_[0]));
+    buffers.emplace_back(*grabber_->available_grabbers_[0]);
+    auto& buffer = buffers.front();
 
     // 3) Host timestamp right AFTER the buffer (upper bound, better for offset)
     uint64_t host_after_us = unix_now_us();
 
     // Multi-grabber support
-    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
-    for (int i = 1; i < nb_grabbers; ++i)
-        Euresys::ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
+    for (unsigned int i = 1; i < grabber_->nb_grabbers_; ++i)
+        buffers.emplace_back(*grabber_->available_grabbers_[i]);
 
     // Number of delivered parts
     size_t delivered = buffer.getInfo<size_t>(Euresys::ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
@@ -339,6 +352,7 @@ CapturedFramesDescriptor CameraPhantomInt::get_frames()
 
     ret.frame_offset_us = (ret.has_hw_timestamp) ? (synced_ts_us - cam_ts_us) : 0;
     ret.camera_timestamp_us = cam_ts_us;
+    captured_buffers_ = std::move(buffers);
 
     return ret;
 }

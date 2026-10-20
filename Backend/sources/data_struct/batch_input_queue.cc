@@ -47,6 +47,7 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
     max_size_ = total_nb_frames_ / batch_size_;
+    pending_copy_streams_.assign(max_size_, 0);
 
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
@@ -80,6 +81,26 @@ void BatchInputQueue::sync_current_batch() const
 
 bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
 
+void BatchInputQueue::sync_pending_copies()
+{
+    // A partial batch already owns the producer mutex until its last frame arrives.
+    // Otherwise protect the streams and dirty flags from a consumer-side resize.
+    std::unique_lock<std::mutex> producer_lock(m_producer_busy_, std::defer_lock);
+    if (curr_batch_counter_ == 0)
+        producer_lock.lock();
+
+    if (device_ == Device::GPU)
+    {
+        for (uint index = 0; index < max_size_; ++index)
+        {
+            if (!pending_copy_streams_[index])
+                continue;
+            cudaXStreamSynchronize(batch_streams_[index]);
+            pending_copy_streams_[index] = 0;
+        }
+    }
+}
+
 void BatchInputQueue::destroy_mutexes_streams()
 {
     if (device_ == Device::GPU)
@@ -95,18 +116,25 @@ void BatchInputQueue::destroy_mutexes_streams()
     batch_mutexes_.reset(nullptr);
 }
 
-void BatchInputQueue::reset_override()
+void BatchInputQueue::request_reset() { reset_requested_.store(true, std::memory_order_release); }
+
+void BatchInputQueue::apply_pending_reset()
 {
-    auto index = end_index_.load();
+    if (!has_pending_reset())
+        return;
 
-    // Use unique_lock to lock and automatically unlock the mutexes
-    std::unique_lock<std::mutex> producer_lock(m_producer_busy_);
-    std::unique_lock<std::mutex> batch_lock(batch_mutexes_[index]);
+    // Only the consumer may clear the ring, between complete processing cycles.
+    // A partial producer batch may be waiting for the camera. Keep the pipeline
+    // responsive and retry at the next boundary instead of waiting on that batch.
+    std::unique_lock<std::mutex> producer_lock(m_producer_busy_, std::try_to_lock);
+    if (!producer_lock.owns_lock() || !reset_requested_.exchange(false, std::memory_order_acq_rel))
+        return;
 
-    // Reset the queue to its empty state
+    // Read the producer's current batch index after excluding further enqueues.
+    const auto index = end_index_.load();
+    std::lock_guard<std::mutex> batch_lock(batch_mutexes_[index]);
+
     make_empty();
-
-    // Unlocks are handled by unique_lock going out of scope
 }
 
 void BatchInputQueue::make_empty()
@@ -162,6 +190,7 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
                          sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
                          memcpy_kind,
                          batch_streams_[end_index_]);
+        pending_copy_streams_[end_index_] = 1;
 
         // No sync needed here, the host doesn't need to wait for the copy to
         // end. Only the consumer needs to be sure the data is here before
@@ -458,7 +487,7 @@ void BatchInputQueue::copy_multiple(Queue& dest,
     // Copy done, release the batch.
     batch_mutexes_[start_index_locked].unlock();
 
-    if (dest.size_ >= dest.max_size_)
+    if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
@@ -519,6 +548,7 @@ void BatchInputQueue::enqueue_with_ids(const void* const frames,
                          bytes_per_frame * static_cast<size_t>(frames_to_enqueue),
                          memcpy_kind,
                          batch_streams_[end_index_]);
+        pending_copy_streams_[end_index_] = 1;
 
         // Write metadata (host)
         const size_t meta_base = static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_;

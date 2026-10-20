@@ -6,6 +6,8 @@
 #include "test_disable_log.hh"
 
 #include <array>
+#include <chrono>
+#include <future>
 #include <thread>
 
 using camera::PixelDepth;
@@ -148,6 +150,196 @@ TEST(BatchInputQueueTest, CopiesTimestampsToTheSelectedRecordQueue)
     EXPECT_EQ(fourth.id, 21);
     EXPECT_EQ(fourth.synced_us, 3'050);
     EXPECT_EQ(fourth.camera_us, 4'050);
+}
+
+TEST(BatchInputQueueTest, DefersRecordingResetUntilTheConsumerFinishesItsBatch)
+{
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(8, 2, fd);
+    const std::array<unsigned char, 2> old_frames = {1, 2};
+    input.enqueue_with_ids(old_frames.data(), cudaMemcpyHostToDevice, 2, 10, 1'000, 25, 2'000, 7);
+
+    std::promise<void> consumer_entered;
+    auto entered = consumer_entered.get_future();
+    std::promise<void> release_consumer;
+    auto release = release_consumer.get_future().share();
+    std::thread consumer(
+        [&]()
+        {
+            input.dequeue(nullptr,
+                          PixelDepth::Bits8,
+                          [&](const void*, void*, uint, size_t, PixelDepth, cudaStream_t)
+                          {
+                              consumer_entered.set_value();
+                              release.wait();
+                          });
+        });
+
+    EXPECT_EQ(entered.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+    // The consumer owns batch 0 while the producer's next batch is 1.
+    input.request_reset();
+    EXPECT_TRUE(input.has_pending_reset());
+    EXPECT_EQ(input.get_size(), 1u);
+    release_consumer.set_value();
+    consumer.join();
+    EXPECT_EQ(input.get_size(), 0u);
+
+    input.enqueue_with_ids(old_frames.data(), cudaMemcpyHostToDevice, 2, 20, 3'000, 25, 4'000, 8);
+    input.apply_pending_reset();
+    EXPECT_FALSE(input.has_pending_reset());
+    EXPECT_TRUE(input.is_empty());
+    EXPECT_LE(input.get_size(), input.get_max_size());
+    EXPECT_FALSE(input.has_overwritten());
+
+    const std::array<unsigned char, 2> new_frames = {3, 4};
+    input.enqueue_with_ids(new_frames.data(), cudaMemcpyHostToDevice, 2, 100, 5'000, 50, 6'000, 9);
+    holovibes::Queue recorded(fd, 4, holovibes::record_queue_type(7), holovibes::Device::CPU);
+    StampQueue stamps(8);
+    input.copy_multiple(recorded, 2, cudaMemcpyDeviceToHost, &stamps);
+    for (size_t index = 0; index < new_frames.size(); ++index)
+    {
+        unsigned char frame = 0;
+        recorded.dequeue(&frame, 0, cudaMemcpyHostToHost);
+        const auto stamp = stamps.pop_one_blocking();
+        EXPECT_EQ(frame, new_frames[index]);
+        EXPECT_EQ(stamp.id, 100 + index);
+        EXPECT_EQ(stamp.synced_us, 5'000 + 50 * index);
+        EXPECT_EQ(stamp.camera_us, 6'000 + 50 * index);
+        EXPECT_EQ(stamp.offset_us, 9u);
+    }
+}
+
+TEST(BatchInputQueueTest, ResetRequestDoesNotWaitForAPartialProducerBatch)
+{
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(4, 2, fd);
+    const unsigned char frame = 1;
+    input.enqueue_with_ids(&frame, cudaMemcpyHostToDevice, 1, 10, 1'000, 25, 2'000, 7);
+
+    // The producer keeps its mutex until the second frame completes this batch.
+    auto requester = std::async(std::launch::async, [&]() { input.request_reset(); });
+    EXPECT_EQ(requester.wait_for(std::chrono::seconds(1)), std::future_status::ready);
+    EXPECT_EQ(input.get_size(), 0u);
+
+    // A different consumer thread must also return without waiting for the camera.
+    auto resetter = std::async(std::launch::async, [&]() { input.apply_pending_reset(); });
+    EXPECT_EQ(resetter.wait_for(std::chrono::seconds(1)), std::future_status::ready);
+    EXPECT_TRUE(input.has_pending_reset());
+    EXPECT_EQ(input.get_size(), 0u);
+
+    input.enqueue_with_ids(&frame, cudaMemcpyHostToDevice, 1, 11, 1'025, 25, 2'025, 7);
+    requester.get();
+    resetter.get();
+    input.apply_pending_reset();
+    EXPECT_FALSE(input.has_pending_reset());
+    EXPECT_TRUE(input.is_empty());
+}
+
+TEST(BatchInputQueueTest, ExactRecordBufferFillPreservesFramesAndTimestampsWithoutOverflow)
+{
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(4, 2, fd);
+    holovibes::Queue recorded(fd, 2, holovibes::record_queue_type(7), holovibes::Device::CPU);
+    StampQueue stamps(8);
+    const std::array<unsigned char, 2> frames = {3, 4};
+    input.enqueue_with_ids(frames.data(), cudaMemcpyHostToDevice, 2, 10, 1'000, 25, 2'000, 7);
+    input.copy_multiple(recorded, 2, cudaMemcpyDeviceToHost, &stamps);
+    EXPECT_EQ(recorded.get_size(), 2u);
+    EXPECT_FALSE(recorded.has_overwritten());
+
+    for (size_t index = 0; index < frames.size(); ++index)
+    {
+        unsigned char frame = 0;
+        recorded.dequeue(&frame, 0, cudaMemcpyHostToHost);
+        const auto stamp = stamps.pop_one_blocking();
+        EXPECT_EQ(frame, frames[index]);
+        EXPECT_EQ(stamp.id, 10 + index);
+        EXPECT_EQ(stamp.synced_us, 1'000 + 25 * index);
+        EXPECT_EQ(stamp.camera_us, 2'000 + 25 * index);
+    }
+
+    input.copy_multiple(recorded, 2, cudaMemcpyDeviceToHost);
+    EXPECT_FALSE(recorded.has_overwritten());
+    input.copy_multiple(recorded, 2, cudaMemcpyDeviceToHost);
+    EXPECT_TRUE(recorded.has_overwritten());
+    EXPECT_EQ(recorded.get_size(), 2u);
+}
+
+TEST(BatchInputQueueTest, LastImageUsesFrameIndicesAfterDequeuingABatch)
+{
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(8, 2, fd);
+    const std::array<unsigned char, 4> frames = {1, 2, 3, 4};
+    input.enqueue_with_ids(frames.data(), cudaMemcpyHostToDevice, 4, 10, 1'000, 25, 2'000, 7);
+    input.dequeue();
+
+    unsigned char latest = 0;
+    cudaXMemcpy(&latest, input.get_last_image(), sizeof(latest), cudaMemcpyDeviceToHost);
+    EXPECT_EQ(latest, 4u);
+}
+
+TEST(BatchInputQueueTest, ProducerSynchronizationWaitsForEveryTouchedBatchStream)
+{
+    constexpr camera::FrameDescriptor fd = {1, 1, PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue input(4, 1, fd);
+    const unsigned char frame = 1;
+    holovibes::cuda_tools::CudaUniquePtr<unsigned char> source(1);
+    cudaXMemcpy(source.get(), &frame, sizeof(frame), cudaMemcpyHostToDevice);
+    input.enqueue_with_ids(source.get(), cudaMemcpyDeviceToDevice, 1, 10, 1'000, 25, 2'000, 7);
+
+    struct StreamBarrier
+    {
+        std::promise<void> entered;
+        std::shared_future<void> release;
+    } barrier;
+    std::promise<void> release_stream;
+    barrier.release = release_stream.get_future().share();
+    auto entered = barrier.entered.get_future();
+    std::thread consumer(
+        [&]()
+        {
+            input.dequeue(nullptr,
+                          PixelDepth::Bits8,
+                          [&](const void*, void*, uint, size_t, PixelDepth, cudaStream_t stream)
+                          {
+                              cudaSafeCall(cudaLaunchHostFunc(
+                                  stream,
+                                  [](void* context)
+                                  {
+                                      auto& state = *static_cast<StreamBarrier*>(context);
+                                      state.entered.set_value();
+                                      state.release.wait();
+                                  },
+                                  &barrier));
+                          });
+        });
+
+    EXPECT_EQ(entered.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+    // Batch 0 remains blocked, while the final producer batch uses stream 1.
+    input.enqueue_with_ids(source.get(), cudaMemcpyDeviceToDevice, 1, 11, 1'025, 25, 2'025, 7);
+    auto final_stream = std::async(std::launch::async, [&]() { input.sync_current_batch(); });
+    if (final_stream.wait_for(std::chrono::seconds(2)) != std::future_status::ready)
+    {
+        release_stream.set_value();
+        consumer.join();
+        final_stream.get();
+        GTEST_SKIP() << "CUDA serialized the blocked host callback with the other batch stream";
+    }
+    final_stream.get();
+
+    std::promise<void> synchronization_started;
+    auto started = synchronization_started.get_future();
+    auto synchronized = std::async(std::launch::async,
+                                   [&]()
+                                   {
+                                       synchronization_started.set_value();
+                                       input.sync_pending_copies();
+                                   });
+    EXPECT_EQ(started.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+    EXPECT_EQ(synchronized.wait_for(std::chrono::milliseconds(100)), std::future_status::timeout);
+    release_stream.set_value();
+    consumer.join();
+    synchronized.get();
 }
 
 TEST(BatchInputQueueTest, SimpleOverwriteElements)

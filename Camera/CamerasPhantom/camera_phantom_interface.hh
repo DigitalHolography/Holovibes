@@ -6,6 +6,9 @@
 #pragma once
 
 #include <optional>
+#include <memory>
+#include <list>
+#include <vector>
 #include <EGrabber.h>
 
 #include "camera.hh"
@@ -170,6 +173,9 @@ class CameraPhantomInt : public Camera
     /*! \brief Unique pointer to an implementation of \ref camera::EHoloGrabberInt "EHoloGrabberInt" that was
      * instantiated by the camera*/
     std::unique_ptr<EHoloGrabberInt> grabber_;
+
+    /*! \brief Buffers returned by get_frames, retained until the next call after backend copies have completed. */
+    std::list<Euresys::ScopedBuffer> captured_buffers_;
 
     /*! \brief Camera prefix used in the ini file */
     std::string ini_prefix_;
