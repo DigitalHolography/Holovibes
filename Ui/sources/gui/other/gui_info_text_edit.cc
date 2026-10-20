@@ -14,13 +14,21 @@
 
 namespace holovibes::gui
 {
-static const std::unordered_map<QueueType, std::string> queue_type_to_string_ = {
-    {QueueType::INPUT_QUEUE, "Input Queue"},
-    {QueueType::OUTPUT_QUEUE, "Output Queue"},
-    {QueueType::RECORD_QUEUE, "Record Queue"},
-    {QueueType::RECORD_QUEUE_2, "Record Queue 2"},
-    {QueueType::RECORD_QUEUE_3, "Record Queue 3"},
-};
+static std::string queue_type_to_string(QueueType type)
+{
+    if (is_record_queue(type))
+        return "Record Queue " + std::to_string(record_queue_index(type) + 1);
+
+    switch (type)
+    {
+    case QueueType::INPUT_QUEUE:
+        return "Input Queue";
+    case QueueType::OUTPUT_QUEUE:
+        return "Output Queue";
+    default:
+        return "Unknown Queue";
+    }
+}
 
 static std::string format_throughput(size_t throughput, const std::string& unit)
 {
@@ -144,7 +152,7 @@ void InfoTextEdit::display_information()
 
         to_display << ";\">";
 
-        to_display << "<td>" << (info.device == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
+        to_display << "<td>" << (info.device == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string(key)
                    << "</td>";
         to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
     }

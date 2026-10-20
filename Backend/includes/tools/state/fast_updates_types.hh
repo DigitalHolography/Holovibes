@@ -20,6 +20,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstddef>
 
 #include "aliases.hh"
 #include "enum_device.hh"
@@ -57,7 +58,8 @@ enum class RecordType
     FRAME,
 };
 
-enum class QueueType
+// Queue identifiers from RECORD_QUEUE onward are reserved for record buffers.
+enum class QueueType : std::size_t
 {
     UNDEFINED,
     INPUT_QUEUE,
@@ -66,6 +68,20 @@ enum class QueueType
     RECORD_QUEUE_2,
     RECORD_QUEUE_3,
 };
+
+/*! \brief Get the queue identifier for a zero-based record buffer index. */
+constexpr QueueType record_queue_type(std::size_t index)
+{
+    return static_cast<QueueType>(static_cast<std::size_t>(QueueType::RECORD_QUEUE) + index);
+}
+
+constexpr bool is_record_queue(QueueType type) { return type >= QueueType::RECORD_QUEUE; }
+
+/*! \brief Get the zero-based buffer index of a record queue identifier. */
+constexpr std::size_t record_queue_index(QueueType type)
+{
+    return static_cast<std::size_t>(type) - static_cast<std::size_t>(QueueType::RECORD_QUEUE);
+}
 } // namespace holovibes
 
 /*! \} */

@@ -8,9 +8,94 @@
 #include "icompute.hh"
 #include "API.hh"
 
+#include <chrono>
+#include <condition_variable>
+
 namespace holovibes
 {
 using camera::FrameDescriptor;
+
+namespace
+{
+// Allocation can block inside the CUDA driver. Keep reporting elapsed time from
+// a separate thread without calling CUDA or accessing the pool from that thread.
+class RecordBufferAllocationProgress
+{
+  public:
+    RecordBufferAllocationProgress(size_t index, size_t count, size_t frames, size_t bytes, Device device)
+        : index_(index + 1)
+        , count_(count)
+        , start_(std::chrono::steady_clock::now())
+    {
+        LOG_INFO("Allocating record buffer {}/{} ({} frames, {:.1f} MiB, {})...",
+                 index_,
+                 count_,
+                 frames,
+                 static_cast<double>(bytes) / (1024 * 1024),
+                 device == Device::GPU ? "GPU" : "CPU");
+        Logger::flush();
+        reporter_ = std::thread(
+            [this]()
+            {
+                std::unique_lock lock(mutex_);
+                while (!condition_.wait_for(lock, std::chrono::seconds(1), [this]() { return done_; }))
+                {
+                    LOG_INFO("Still allocating record buffer {}/{} ({:.1f} s elapsed)...", index_, count_, elapsed());
+                    Logger::flush();
+                }
+            });
+    }
+
+    ~RecordBufferAllocationProgress() { stop(); }
+
+    void complete()
+    {
+        stop();
+        LOG_INFO("Record buffer {}/{} allocated in {:.1f} s", index_, count_, elapsed());
+        Logger::flush();
+    }
+
+    void failed()
+    {
+        stop();
+        LOG_ERROR("Record buffer {}/{} allocation failed after {:.1f} s", index_, count_, elapsed());
+        Logger::flush();
+    }
+
+    void retry(size_t frames)
+    {
+        stop();
+        LOG_WARN("Record buffer {}/{} could not fit; retrying all {} buffers with {} frames each",
+                 index_,
+                 count_,
+                 count_,
+                 frames);
+        Logger::flush();
+    }
+
+  private:
+    double elapsed() const { return std::chrono::duration<double>(std::chrono::steady_clock::now() - start_).count(); }
+
+    void stop()
+    {
+        {
+            std::lock_guard lock(mutex_);
+            done_ = true;
+        }
+        condition_.notify_one();
+        if (reporter_.joinable())
+            reporter_.join();
+    }
+
+    size_t index_;
+    size_t count_;
+    std::chrono::steady_clock::time_point start_;
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    bool done_ = false;
+    std::thread reporter_;
+};
+} // namespace
 
 Holovibes& Holovibes::instance()
 {
@@ -25,28 +110,30 @@ bool Holovibes::is_recording() const
 
     std::lock_guard lock(record_mutex_);
     const int active_index = active_recording_index_.load(std::memory_order_acquire);
-    if (active_index < 0)
+    if (active_index < 0 || static_cast<size_t>(active_index) >= recording_contexts_.size())
         return false;
 
     const auto& context = recording_contexts_[active_index];
-    if (record_queues_[1])
+    if (record_queues_.size() > 1)
         return context && context->acquiring.load(std::memory_order_acquire);
 
-    return frame_record_worker_controllers_[active_index].is_running();
+    return frame_record_worker_controllers_[active_index]->is_running();
 }
 
 bool Holovibes::can_start_frame_record() const
 {
     std::lock_guard lock(record_mutex_);
+    if (record_queues_initializing_)
+        return false;
     if (is_recording())
         return false;
 
     if (!record_queue_.load())
         return true;
 
-    const size_t queue_count = record_queues_[1] ? RECORD_QUEUE_COUNT : 1;
+    const size_t queue_count = record_queues_.size();
     for (size_t index = 0; index < queue_count; ++index)
-        if (record_queues_[index] && !frame_record_worker_controllers_[index].is_running())
+        if (record_queues_[index] && !frame_record_worker_controllers_[index]->is_running())
             return true;
 
     return false;
@@ -66,6 +153,26 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 
 void Holovibes::init_record_queue()
 {
+    // A Queue may reduce RecordBufferSize through the API when memory is tight.
+    // Let this allocation pass retry that size instead of recursively rebuilding
+    // the same pool while a queue constructor is still using its telemetry entry.
+    std::unique_lock initialization_lock(record_mutex_);
+    if (record_queues_initializing_)
+        return;
+    record_queues_initializing_ = true;
+    struct InitializationReset
+    {
+        bool& initializing;
+        std::recursive_mutex& mutex;
+        ~InitializationReset()
+        {
+            std::lock_guard lock(mutex);
+            initializing = false;
+        }
+    } initialization_reset{record_queues_initializing_, record_mutex_};
+    initialization_lock.unlock();
+
+    std::vector<std::shared_ptr<FrameRecordController>> controllers;
     {
         std::lock_guard lock(record_mutex_);
         for (auto& context : recording_contexts_)
@@ -75,14 +182,16 @@ void Holovibes::init_record_queue()
             context->acquiring.store(false, std::memory_order_release);
             std::get<2>(*context->progress) = std::get<0>(*context->progress).load();
         }
+        controllers = frame_record_worker_controllers_;
     }
-    for (auto& controller : frame_record_worker_controllers_)
-        controller.stop();
+    for (auto& controller : controllers)
+        controller->stop();
 
     std::lock_guard lock(record_mutex_);
     active_recording_.store(nullptr, std::memory_order_release);
     active_recording_index_.store(-1, std::memory_order_release);
-    recording_contexts_.fill(nullptr);
+    recording_contexts_.clear();
+    record_queue_.store(nullptr);
 
     auto& api = API;
     auto device = api.record.get_record_queue_location();
@@ -141,35 +250,55 @@ void Holovibes::init_record_queue()
     default:
     {
         LOG_DEBUG("RecordMode = None");
+        record_queues_.clear();
+        frame_record_worker_controllers_.clear();
         return;
     }
     }
 
-    static constexpr std::array queue_types = {
-        QueueType::RECORD_QUEUE, QueueType::RECORD_QUEUE_2, QueueType::RECORD_QUEUE_3};
-    const size_t queue_count = api.record.get_record_queue_multibuffering_enabled() ? RECORD_QUEUE_COUNT : 1;
+    const size_t queue_count = api.record.get_record_buffer_count();
+    auto resized_controllers = frame_record_worker_controllers_;
+    resized_controllers.resize(queue_count);
+    for (auto& controller : resized_controllers)
+        if (!controller)
+            controller = std::make_shared<FrameRecordController>();
+    frame_record_worker_controllers_.swap(resized_controllers);
+    record_queues_.resize(queue_count);
+    recording_contexts_.resize(queue_count);
 
-    LOG_INFO("Allocating record buffers...");
-
-    for (size_t index = 0; index < queue_count; ++index)
+    for (size_t index = 0; index < queue_count;)
     {
-        if (!record_queues_[index])
+        RecordBufferAllocationProgress progress(index, queue_count, size, fd.get_frame_size() * size, device);
+        try
         {
-            auto queue = std::make_shared<Queue>(fd, size, queue_types[index], device);
-            // Queue may lower the configured size and recursively rebuild all queues when memory is tight.
-            if (api.record.get_record_buffer_size() != size)
-                return;
-            record_queues_[index] = std::move(queue);
+            if (!record_queues_[index])
+            {
+                auto queue = std::make_shared<Queue>(fd, size, record_queue_type(index), device);
+                // Queue may lower the configured size when memory is tight.
+                if (api.record.get_record_buffer_size() != size)
+                {
+                    size = api.record.get_record_buffer_size();
+                    progress.retry(size);
+                    index = 0;
+                    continue;
+                }
+                record_queues_[index] = std::move(queue);
+            }
+            else
+                record_queues_[index]->rebuild(fd, size, get_cuda_streams().recorder_stream, device);
+            progress.complete();
+            ++index;
         }
-        else
-            record_queues_[index]->rebuild(fd, size, get_cuda_streams().recorder_stream, device);
+        catch (...)
+        {
+            progress.failed();
+            throw;
+        }
     }
-    for (size_t index = queue_count; index < RECORD_QUEUE_COUNT; ++index)
-        record_queues_[index].reset();
 
     record_queue_.store(record_queues_[0]);
 
-    LOG_INFO("Record buffers allocated");
+    LOG_INFO("All {} record buffers allocated", queue_count);
 }
 
 void Holovibes::start_file_frame_read()
@@ -214,15 +343,17 @@ void Holovibes::stop_frame_read()
 bool Holovibes::start_frame_record(const std::function<void()>& callback)
 {
     std::lock_guard lock(record_mutex_);
+    if (record_queues_initializing_)
+        return false;
 
     if (!record_queue_.load())
         init_record_queue();
 
-    const size_t queue_count = record_queues_[1] ? RECORD_QUEUE_COUNT : 1;
+    const size_t queue_count = record_queues_.size();
     size_t index = queue_count;
     for (size_t candidate = 0; candidate < queue_count; ++candidate)
     {
-        if (!frame_record_worker_controllers_[candidate].is_running())
+        if (record_queues_[candidate] && !frame_record_worker_controllers_[candidate]->is_running())
         {
             index = candidate;
             break;
@@ -247,7 +378,7 @@ bool Holovibes::start_frame_record(const std::function<void()>& callback)
         input_queue_.load()->reset_override();
 
     const bool multibuffering_enabled = queue_count > 1;
-    auto& controller = frame_record_worker_controllers_[index];
+    auto& controller = *frame_record_worker_controllers_[index];
     controller.set_callback(multibuffering_enabled ? std::function<void()>{} : callback);
     controller.set_error_callback(error_callback_);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
@@ -264,7 +395,7 @@ void Holovibes::stop_frame_record()
     std::lock_guard lock(record_mutex_);
     const int active_index = active_recording_index_.load(std::memory_order_acquire);
     if (active_index >= 0)
-        frame_record_worker_controllers_[active_index].stop(false);
+        frame_record_worker_controllers_[active_index]->stop(false);
 }
 
 void Holovibes::finish_frame_acquisition(RecordingContext* recording)
@@ -324,6 +455,7 @@ void Holovibes::start_compute()
 
 void Holovibes::stop_compute()
 {
+    std::vector<std::shared_ptr<FrameRecordController>> controllers;
     {
         std::lock_guard lock(record_mutex_);
         for (auto& context : recording_contexts_)
@@ -333,9 +465,10 @@ void Holovibes::stop_compute()
             context->acquiring.store(false, std::memory_order_release);
             std::get<2>(*context->progress) = std::get<0>(*context->progress).load();
         }
+        controllers = frame_record_worker_controllers_;
     }
-    for (auto& controller : frame_record_worker_controllers_)
-        controller.stop();
+    for (auto& controller : controllers)
+        controller->stop();
     active_recording_.store(nullptr, std::memory_order_release);
     active_recording_index_.store(-1, std::memory_order_release);
     chart_record_worker_controller_.stop();

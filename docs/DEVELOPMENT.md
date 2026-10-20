@@ -74,6 +74,19 @@ configure/build/test the `windows-dependencies` preset. IDE users should run
 bootstrap once to obtain vcpkg, then open the repository folder and select the
 same preset. Machine-specific overrides belong in ignored `CMakeUserPresets.json`.
 
+## Recording buffers
+
+In Advanced Settings, set **Record buffer count** to choose how many recordings can
+overlap capture and file saving. The default is **3**; the minimum is **1**. Each
+buffer uses the configured record-buffer capacity, so increasing the count also
+increases CPU or GPU memory use. The count is saved in user settings; existing
+queued-recording settings migrate to three buffers when enabled or one when disabled.
+The CLI uses one buffer for its single recording.
+
+Allocation logs identify each buffer separately and report when it is ready.
+During a long allocation, an elapsed-time update appears every second so activity
+remains visible while memory allocation is pending.
+
 ## Dependency versions and updates
 
 The `builtin-baseline` in `vcpkg.json` pins both the vcpkg Git checkout and package
