@@ -22,6 +22,8 @@
 
 #include "API.hh"
 
+#include <thread>
+
 namespace holovibes
 {
 
@@ -31,7 +33,7 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 
     // When stopping a record the record queue is emptied and the FrameAcquisitionEnabled setting is set to false.
     // But the pipe isn't refreshed directly so the insert_XXX_function still insert in the record queue.
-    if (!setting<settings::FrameAcquisitionEnabled>() || !recording ||
+    if (input_queue_.has_pending_reset() || !setting<settings::FrameAcquisitionEnabled>() || !recording ||
         !recording->acquiring.load(std::memory_order_acquire))
         return false;
 
@@ -40,9 +42,33 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
     std::atomic<uint>& total_nb_frames_to_acquire = std::get<2>(*recording->progress);
     bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
 
-    if (record_queue.has_overwritten() || input_queue_.has_overwritten())
+    // Stop requests must be observable while a slow writer holds the queue full;
+    // processing them only during refresh would leave this compute cycle stuck.
+    const auto stop_if_interrupted = [&]()
     {
-        recording->input_overwritten.store(input_queue_.has_overwritten(), std::memory_order_release);
+        if (input_queue_.has_pending_reset() || !recording->acquiring.load(std::memory_order_acquire))
+            return true;
+
+        const bool input_overwritten = input_queue_.has_overwritten();
+        if (!input_overwritten && !record_queue.has_overwritten() && !is_requested(ICS::DisableFrameRecord) &&
+            !is_requested(ICS::Termination))
+            return false;
+
+        if (input_overwritten)
+            recording->input_overwritten.store(true, std::memory_order_release);
+        total_nb_frames_to_acquire = nb_frames_acquired.load();
+        Holovibes::instance().finish_frame_acquisition(recording);
+        return true;
+    };
+
+    if (stop_if_interrupted())
+        return false;
+
+    if (nb_elm_to_add <= 0 || static_cast<size_t>(nb_elm_to_add) > record_queue.get_max_size())
+    {
+        LOG_WARN("Cannot record {} frames at once: the record buffer holds {} frames; ending acquisition",
+                 nb_elm_to_add,
+                 record_queue.get_max_size());
         total_nb_frames_to_acquire = nb_frames_acquired.load();
         Holovibes::instance().finish_frame_acquisition(recording);
         return false;
@@ -57,13 +83,16 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
         return false;
     }
 
-    // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
-    // will stop
-    while (recording->acquiring.load(std::memory_order_acquire) &&
-           record_queue.get_size() + nb_elm_to_add > record_queue.get_max_size())
-        continue;
+    while (static_cast<size_t>(record_queue.get_size()) + static_cast<size_t>(nb_elm_to_add) >
+           record_queue.get_max_size())
+    {
+        if (stop_if_interrupted())
+            return false;
+        std::this_thread::yield();
+    }
 
-    if (!recording->acquiring.load(std::memory_order_acquire))
+    // The input queue may have overflowed or a stop may have arrived while waiting.
+    if (stop_if_interrupted())
         return false;
 
     nb_frames_acquired += nb_elm_to_add;
@@ -395,11 +424,23 @@ void Pipe::refresh()
 void Pipe::insert_wait_batch()
 {
     fn_compute_vect_->push_back(
-        [&input_queue_ = input_queue_]()
+        [this]()
         {
-            // Wait while the input queue is enough filled
-            while (input_queue_.is_empty())
-                continue;
+            // Discard the input backlog only between complete compute cycles;
+            // the recording/UI thread must never reset a batch being consumed.
+            input_queue_.apply_pending_reset();
+            // Retry a pending reset until the producer finishes its batch, then
+            // wait for fresh input. Keep checking termination while doing so.
+            while (input_queue_.has_pending_reset() || input_queue_.is_empty())
+            {
+                if (is_requested(ICS::Termination))
+                {
+                    fn_compute_vect_->exit_now();
+                    return;
+                }
+                input_queue_.apply_pending_reset();
+                std::this_thread::yield();
+            }
         });
 }
 
@@ -667,10 +708,7 @@ void Pipe::insert_oct_record()
             if (!can_insert_to_record_queue(N))
                 return;
             active_recording_.load(std::memory_order_acquire)
-                ->queue->enqueue_multiple(oct_buffer_ptr,
-                                          N,
-                                          stream_,
-                                          get_memcpy_kind<settings::RecordQueueLocation>());
+                ->queue->enqueue_multiple(oct_buffer_ptr, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -698,10 +736,7 @@ void Pipe::insert_oct_record_float()
                                        stream_);
 
             active_recording_.load(std::memory_order_acquire)
-                ->queue->enqueue_multiple(float_buffer,
-                                          N,
-                                          stream_,
-                                          get_memcpy_kind<settings::RecordQueueLocation>());
+                ->queue->enqueue_multiple(float_buffer, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 

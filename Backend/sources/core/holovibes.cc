@@ -367,15 +367,9 @@ bool Holovibes::start_frame_record(const std::function<void()>& callback)
 
     auto progress = FastUpdatesMap::map<RecordType>.get_entry(RecordType::FRAME);
     auto context = std::make_shared<RecordingContext>(record_queues_[index], progress);
-    // Publish the replacement before releasing the previous context stored in this slot.
-    active_recording_.store(context.get(), std::memory_order_release);
-    active_recording_index_.store(static_cast<int>(index), std::memory_order_release);
-    recording_contexts_[index] = context;
-    record_queue_.store(context->queue);
-
     context->queue->reset();
     if (input_queue_.load())
-        input_queue_.load()->reset_override();
+        input_queue_.load()->request_reset();
 
     const bool multibuffering_enabled = queue_count > 1;
     auto& controller = *frame_record_worker_controllers_[index];
@@ -387,6 +381,13 @@ bool Holovibes::start_frame_record(const std::function<void()>& callback)
                      context,
                      multibuffering_enabled ? callback : std::function<void()>{});
     controller.set_priority(THREAD_RECORDER_PRIORITY);
+
+    // Publish only after the queue and writer are ready. The compute thread
+    // applies the input reset at the next batch boundary before admitting frames.
+    active_recording_.store(context.get(), std::memory_order_release);
+    active_recording_index_.store(static_cast<int>(index), std::memory_order_release);
+    recording_contexts_[index] = context;
+    record_queue_.store(context->queue);
     return true;
 }
 

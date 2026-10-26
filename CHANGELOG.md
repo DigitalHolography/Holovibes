@@ -1,4 +1,9 @@
 ## Changelog
+### Unreleased
+
+- Fix a recording-start race that could corrupt the live input queue, freeze the preview, and misalign recorded frames and timestamps.
+- Keep Phantom capture buffers reserved until all GPU copies complete, and handle full recording buffers without blocking stop requests.
+
 ### 14.14.1
 
 - Make the record-buffer count configurable (default: 3) and log each buffer allocation with elapsed-time updates while waiting.

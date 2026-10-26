@@ -12,6 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <vector>
 
 #include "cuda_memory.cuh"
 #include "display_queue.hh"
@@ -161,6 +162,12 @@ class BatchInputQueue final : public DisplayQueue
 
     void sync_current_batch() const;
 
+    /*! \brief Wait for all image copies issued by the producer since its previous synchronization.
+     *
+     * Called only by the producer before releasing captured source buffers.
+     */
+    void sync_pending_copies();
+
     bool is_current_batch_full();
 
     inline void* get_last_image() const override
@@ -173,7 +180,9 @@ class BatchInputQueue final : public DisplayQueue
             sync_current_batch();
         }
         // Return the previous enqueued frame
-        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
+        return data_.get() +
+               ((static_cast<size_t>(start_index_) * batch_size_ + curr_nb_frames_ - 1) % total_nb_frames_) *
+                   fd_.get_frame_size();
     }
 
     bool is_empty() const { return size_ == 0; }
@@ -184,7 +193,17 @@ class BatchInputQueue final : public DisplayQueue
 
     bool has_overwritten() const { return has_overwritten_; }
 
-    void reset_override();
+    /*! \brief Request a queue reset without blocking or changing a batch currently being consumed. */
+    void request_reset();
+
+    bool has_pending_reset() const { return reset_requested_.load(std::memory_order_acquire); }
+
+    /*! \brief Apply a pending reset on the consumer thread before processing the next batch.
+     *
+     * Must be called at the pipeline's batch boundary, before checking whether a batch is available.
+     * The consumer must not be processing or holding a batch when calling this method.
+     */
+    void apply_pending_reset();
 
     // HOLO: Can it be removed?
     const void* get_data() const { return data_; }
@@ -300,12 +319,16 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief True when the queue is being resized. */
     std::atomic<bool> resize_in_progress_ = false;
 
+    std::atomic<bool> reset_requested_{false};
+
     /*! \name Synchronization attributes
      * \{
      */
     mutable std::mutex m_producer_busy_;
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
+    // Accessed by the producer, or by resize while it holds m_producer_busy_.
+    std::vector<unsigned char> pending_copy_streams_;
     /*! \} */
 
     /*!
