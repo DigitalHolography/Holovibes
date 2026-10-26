@@ -88,24 +88,46 @@ struct Rendering
     SpaceTransformation space_transformation = SpaceTransformation::NONE;
     TimeTransformation time_transformation = TimeTransformation::NONE;
     unsigned time_transformation_size = 1;
+    unsigned lsci_spatial_window = 5;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
     Filter input_filter;
 
-    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(Rendering,
-                          input_filter,
-                          image_mode,
-                          batch_size,
-                          time_transformation_stride,
-                          filter2d,
-                          space_transformation,
-                          time_transformation,
-                          time_transformation_size,
-                          lambda,
-                          propagation_distance,
-                          convolution);
+    /*! \brief Serialize rendering settings while keeping the optional LSCI window backward compatible. */
+    friend void to_json(json& j, const Rendering& value)
+    {
+        j = json{{"input_filter", value.input_filter},
+                 {"image_mode", value.image_mode},
+                 {"batch_size", value.batch_size},
+                 {"time_transformation_stride", value.time_transformation_stride},
+                 {"filter2d", value.filter2d},
+                 {"space_transformation", value.space_transformation},
+                 {"time_transformation", value.time_transformation},
+                 {"time_transformation_size", value.time_transformation_size},
+                 {"lambda", value.lambda},
+                 {"propagation_distance", value.propagation_distance},
+                 {"convolution", value.convolution}};
+        if (value.time_transformation == TimeTransformation::LSCI || value.lsci_spatial_window != 5)
+            j["lsci_spatial_window"] = value.lsci_spatial_window;
+    }
+
+    friend void from_json(const json& j, Rendering& value)
+    {
+        j.at("input_filter").get_to(value.input_filter);
+        j.at("image_mode").get_to(value.image_mode);
+        j.at("batch_size").get_to(value.batch_size);
+        j.at("time_transformation_stride").get_to(value.time_transformation_stride);
+        j.at("filter2d").get_to(value.filter2d);
+        j.at("space_transformation").get_to(value.space_transformation);
+        j.at("time_transformation").get_to(value.time_transformation);
+        j.at("time_transformation_size").get_to(value.time_transformation_size);
+        // Recordings and configuration files written before LSCI use the paper's 5x5 neighborhood.
+        value.lsci_spatial_window = j.value("lsci_spatial_window", 5u);
+        j.at("lambda").get_to(value.lambda);
+        j.at("propagation_distance").get_to(value.propagation_distance);
+        j.at("convolution").get_to(value.convolution);
+    }
 
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

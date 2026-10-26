@@ -14,6 +14,8 @@
 #include "tools_compute.cuh"
 #include "tools.hh"
 #include "contrast_correction.cuh"
+#include "lsci.cuh"
+#include "map.cuh"
 #include "enqueue_exception.hh"
 #include "aliases.hh"
 #include "holovibes.hh"
@@ -200,6 +202,8 @@ bool Pipe::make_requests()
     if (is_requested(ICS::OutputBuffer))
     {
         LOG_DEBUG("output_buffer_requested");
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
         init_output_queue();
         clear_request(ICS::OutputBuffer);
     }
@@ -207,6 +211,13 @@ bool Pipe::make_requests()
     HANDLE_REQUEST(ICS::LensView, "Allocate lens view", fourier_transforms_->init_lens_queue());
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
+
+    if (is_requested(ICS::UpdateLsciSpatialWindow))
+    {
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
+        clear_request(ICS::UpdateLsciSpatialWindow);
+    }
 
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
@@ -246,8 +257,11 @@ bool Pipe::make_requests()
         clear_request(ICS::TimeTransformationCuts);
     }
 
-    image_accumulation_->init(); // done only if requested
-    image_accumulation_->clear();
+    if (setting<settings::TimeTransformation>() != TimeTransformation::LSCI)
+    {
+        image_accumulation_->init(); // done only if requested
+        image_accumulation_->clear();
+    }
 
     if (is_requested(ICS::RawView))
     {
@@ -313,6 +327,14 @@ void Pipe::refresh()
     pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
 
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI &&
+        lsci_spatial_window_ != setting<settings::LsciSpatialWindow>())
+    {
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
+        lsci_spatial_window_ = setting<settings::LsciSpatialWindow>();
+    }
+
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
      * calls/operations on its own default stream. Cuda calls/operations ran on
@@ -347,60 +369,60 @@ void Pipe::refresh()
         return;
     }
 
-    insert_wait_time_stride();
+    const bool lsci = setting<settings::TimeTransformation>() == TimeTransformation::LSCI;
+    if (lsci)
+    {
+        insert_raw_view();
+        insert_lsci();
+    }
+    else
+    {
+        insert_wait_time_stride();
+        insert_raw_view();
+        converts_->insert_complex_conversion(input_queue_);
 
-    insert_raw_view();
+        // Spatial reconstruction followed by a complex temporal transform.
+        fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
+        insert_transfer_for_time_transformation();
+        insert_wait_time_transformation_size();
+        fourier_transforms_->insert_time_transform();
+        insert_oct_record();
+        insert_oct_record_float();
+        fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
+                                                                  buffers_.gpu_postprocess_frame_xz.get(),
+                                                                  buffers_.gpu_postprocess_frame_yz.get());
+        insert_cuts_record();
+        fourier_transforms_->insert_store_p_frame();
+        converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
+        insert_moments();
+        insert_moments_record();
+        insert_filter2d_view();
 
-    converts_->insert_complex_conversion(input_queue_);
-
-    // Spatial transform
-    fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
-
-    // Move frames from gpu_space_transformation_buffer to
-    // gpu_time_transformation_queue (with respect to
-    // time_stride)
-    insert_transfer_for_time_transformation();
-    insert_wait_time_transformation_size();
-
-    // time transform
-    fourier_transforms_->insert_time_transform();
-    insert_oct_record();
-    insert_oct_record_float();
-    // if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE)
-    // return;
-    fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
-                                                              buffers_.gpu_postprocess_frame_xz.get(),
-                                                              buffers_.gpu_postprocess_frame_yz.get());
-
-    insert_cuts_record();
-
-    // Used for phase increase
-    fourier_transforms_->insert_store_p_frame();
-
-    converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
-
-    insert_moments();
-    insert_moments_record();
-
-    insert_filter2d_view();
-
-    // Postprocessing'
-    postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
-    postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
-
-    // Rendering
-    rendering_->insert_fft_shift();
-
-    registration_->insert_registration();
-
-    image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
-                                                   buffers_.gpu_postprocess_frame_size,
-                                                   *buffers_.gpu_postprocess_frame_xz,
-                                                   *buffers_.gpu_postprocess_frame_yz);
-
-    registration_->set_gpu_reference_image();
+        postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
+        postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
+        rendering_->insert_fft_shift();
+        registration_->insert_registration();
+        image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
+                                                       buffers_.gpu_postprocess_frame_size,
+                                                       *buffers_.gpu_postprocess_frame_xz,
+                                                       *buffers_.gpu_postprocess_frame_yz);
+        registration_->set_gpu_reference_image();
+    }
 
     rendering_->insert_chart();
+    if (lsci)
+    {
+        // Charts retain dimensionless K. Display and processed recordings use the existing 16-bit intensity scale.
+        fn_compute_vect_->push_back(
+            [this]()
+            {
+                map_multiply(buffers_.gpu_postprocess_frame.get(),
+                             buffers_.gpu_postprocess_frame.get(),
+                             buffers_.gpu_postprocess_frame_size,
+                             65535.f,
+                             stream_);
+            });
+    }
     rendering_->insert_log();
     rendering_->insert_contrast();
 
@@ -428,6 +450,11 @@ void Pipe::insert_wait_batch()
         {
             // Discard the input backlog only between complete compute cycles;
             // the recording/UI thread must never reset a batch being consumed.
+            if (input_queue_.has_pending_reset())
+            {
+                time_transformation_env_.lsci_frame_count = 0;
+                time_transformation_env_.lsci_ready = false;
+            }
             input_queue_.apply_pending_reset();
             // Retry a pending reset until the producer finishes its batch, then
             // wait for fresh input. Keep checking termination while doing so.
@@ -437,6 +464,11 @@ void Pipe::insert_wait_batch()
                 {
                     fn_compute_vect_->exit_now();
                     return;
+                }
+                if (input_queue_.has_pending_reset())
+                {
+                    time_transformation_env_.lsci_frame_count = 0;
+                    time_transformation_env_.lsci_ready = false;
                 }
                 input_queue_.apply_pending_reset();
                 std::this_thread::yield();
@@ -470,6 +502,67 @@ void Pipe::insert_wait_time_transformation_size()
             if (time_transformation_env_.gpu_time_transformation_queue->get_size() <
                 setting<settings::TimeTransformationSize>())
                 fn_compute_vect_->exit_now();
+        });
+}
+
+void Pipe::insert_lsci()
+{
+    fn_compute_vect_->push_back(
+        [this]()
+        {
+            auto& env = time_transformation_env_;
+            const auto window = setting<settings::TimeTransformationSize>();
+            const auto batch = setting<settings::BatchSize>();
+            if (batch == 0 || window == 0 || window % batch != 0)
+                throw std::logic_error("LSCI batch size must divide the temporal window");
+
+            const bool reset = env.lsci_frame_count == 0;
+            env.lsci_ready = false;
+            input_queue_.dequeue(
+                env.gpu_lsci_moments.get(),
+                input_queue_.get_fd().depth,
+                [reset](const void* src,
+                        void* dest,
+                        uint batch_size,
+                        size_t frame_res,
+                        camera::PixelDepth depth,
+                        cudaStream_t stream)
+                { lsci_accumulate(static_cast<float2*>(dest), src, frame_res, batch_size, depth, reset, stream); });
+
+            if (input_queue_.has_overwritten())
+            {
+                // A gap invalidates the nominal consecutive-frame support. Restart with fresh input.
+                if (auto* recording = active_recording_.load(std::memory_order_acquire);
+                    recording && recording->acquiring.load(std::memory_order_acquire))
+                {
+                    recording->input_overwritten.store(true, std::memory_order_release);
+                    std::get<2>(*recording->progress) = std::get<0>(*recording->progress).load();
+                    Holovibes::instance().finish_frame_acquisition(recording);
+                }
+                env.lsci_frame_count = 0;
+                input_queue_.request_reset();
+                fn_compute_vect_->exit_now();
+                return;
+            }
+
+            // The callback completes on the input batch stream before releasing the batch.
+            env.lsci_frame_count += batch;
+            if (env.lsci_frame_count < window)
+            {
+                fn_compute_vect_->exit_now();
+                return;
+            }
+
+            const auto& fd = input_queue_.get_fd();
+            lsci_contrast(buffers_.gpu_postprocess_frame.get(),
+                          env.gpu_lsci_moments.get(),
+                          fd.width,
+                          fd.height,
+                          env.lsci_frame_count,
+                          stream_,
+                          setting<settings::LsciSpatialWindow>());
+            env.lsci_frame_count = 0;
+            env.lsci_ready = true;
         });
 }
 
@@ -761,7 +854,8 @@ void Pipe::exec()
         {
             pipe_cycle_apply_updates();
 
-            image_accumulation_->clear(); // Clear the accumulation queue
+            if (setting<settings::TimeTransformation>() != TimeTransformation::LSCI)
+                image_accumulation_->clear(); // Clear the accumulation queue
             rendering_->request_autocontrast();
         }
 

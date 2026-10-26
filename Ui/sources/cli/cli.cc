@@ -122,7 +122,11 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
     {
         try
         {
-            api.settings.load_compute_settings(opts.compute_settings_path.value());
+            if (api.settings.load_compute_settings(opts.compute_settings_path.value()) != holovibes::ApiCode::OK)
+            {
+                LOG_ERROR("Error while loading compute settings, abort");
+                return 34;
+            }
         }
         catch (std::exception& e)
         {
@@ -135,6 +139,13 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
     if (opts.record_raw && opts.moments_record)
     {
         LOG_ERROR("Cannot record raw and moments at the same time");
+        return 36;
+    }
+
+    if (api.transform.get_time_transformation() == holovibes::TimeTransformation::LSCI &&
+        (opts.moments_record || opts.oct_cube_record || opts.oct_cube_float_record))
+    {
+        LOG_ERROR("LSCI produces contrast maps; spectral moments and OCT cube recording are unavailable");
         return 36;
     }
 
@@ -239,8 +250,17 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
         api.record.set_nb_frame_skip(static_cast<uint>(output_fps * (frame_skip + 1)) / api.record.get_mp4_fps());
     }
 
-    api.record.start_record([]() {});
-    api.compute.start();
+    if (api.record.start_record([]() {}) != holovibes::ApiCode::OK)
+    {
+        LOG_ERROR("Failed to start recording");
+        return 38;
+    }
+    if (api.compute.start() != holovibes::ApiCode::OK)
+    {
+        LOG_ERROR("Failed to start computation");
+        holovibes::Holovibes::instance().stop_frame_record();
+        return 39;
+    }
 
     return 0;
 }

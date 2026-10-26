@@ -74,6 +74,20 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
     {
         auto frame_res = input_queue_.get_fd().get_frame_res();
 
+        if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
+        {
+            // LSCI reduces a block to one scalar image; no temporal complex cube or frequency moments are needed.
+            time_transformation_env_.gpu_time_transformation_queue.reset();
+            time_transformation_env_.gpu_p_acc_buffer.reset();
+            time_transformation_env_.gpu_oct_float_buffer.reset();
+            moments_env_.stft_res_buffer.reset();
+            moments_env_.f0_buffer.reset();
+            moments_env_.f1_buffer.reset();
+            moments_env_.f2_buffer.reset();
+            perform_time_transformation_setting_specific_tasks(size);
+            return true;
+        }
+
         // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
         time_transformation_env_.gpu_oct_float_buffer.resize(frame_res * size);
@@ -143,6 +157,13 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         update_pca(0);
         time_transformation_env_.stft_plan.reset();
         break;
+    case TimeTransformation::LSCI:
+        update_pca(0);
+        time_transformation_env_.stft_plan.reset();
+        time_transformation_env_.gpu_lsci_moments.resize(input_queue_.get_fd().get_frame_res());
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
+        break;
     default:
         LOG_ERROR("Unhandled Time transformation settings");
         break;
@@ -153,6 +174,14 @@ void ICompute::update_spatial_transformation_parameters()
 {
     const auto& input_queue_fd = input_queue_.get_fd();
     batch_env_.batch_index = 0;
+    time_transformation_env_.lsci_frame_count = 0;
+    time_transformation_env_.lsci_ready = false;
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
+    {
+        buffers_.gpu_spatial_transformation_buffer.reset();
+        spatial_transformation_plan_.reset();
+        return;
+    }
     // We avoid the depth in the multiplication because the resize already take
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() * input_queue_fd.get_frame_res());

@@ -48,28 +48,36 @@ void ViewPanel::update_img_type(int img_type)
 void ViewPanel::on_notify()
 {
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
+    const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
     const bool is_data_not_moments = true;
 
     update_img_type(static_cast<int>(api_.compute.get_img_type()));
+    ui_->ViewModeComboBox->setEnabled(!is_lsci);
+    ui_->ViewModeComboBox->setItemText(static_cast<int>(ImgType::Modulus), is_lsci ? "Speckle contrast" : "Magnitude");
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Modulus),
+                                       is_lsci ? "K = standard deviation / mean of pooled direct camera intensity"
+                                               : "Compute the modulus of the complex image",
+                                       Qt::ToolTipRole);
 
-    ui_->PhaseUnwrap2DCheckBox->setVisible(api_.compute.get_img_type() == ImgType::PhaseIncrease ||
-                                           api_.compute.get_img_type() == ImgType::Argument);
+    ui_->PhaseUnwrap2DCheckBox->setVisible(!is_lsci && (api_.compute.get_img_type() == ImgType::PhaseIncrease ||
+                                                        api_.compute.get_img_type() == ImgType::Argument));
     ui_->PhaseUnwrap2DCheckBox->setChecked(api_.transform.get_unwrapping_2d());
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api_.view.get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(
-        ui_->timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_TIME_TRANSFORMATION_CUTS && is_data_not_moments);
+        !is_lsci && ui_->timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_TIME_TRANSFORMATION_CUTS &&
+        is_data_not_moments);
 
     ui_->FFTShiftCheckBox->setChecked(api_.transform.get_fft_shift_enabled());
-    ui_->FFTShiftCheckBox->setEnabled(true);
+    ui_->FFTShiftCheckBox->setEnabled(!is_lsci);
 
     ui_->RegistrationCheckBox->setChecked(api_.global_pp.get_registration_enabled());
-    ui_->RegistrationCheckBox->setEnabled(true);
-    ui_->RegistrationZoneSpinBox->setEnabled(api_.global_pp.get_registration_enabled());
+    ui_->RegistrationCheckBox->setEnabled(!is_lsci);
+    ui_->RegistrationZoneSpinBox->setEnabled(!is_lsci && api_.global_pp.get_registration_enabled());
     ui_->RegistrationZoneSpinBox->setValue(api_.global_pp.get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api_.view.get_lens_view_enabled());
-    ui_->LensViewCheckBox->setEnabled(is_data_not_moments);
+    ui_->LensViewCheckBox->setEnabled(is_data_not_moments && !is_lsci);
 
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api_.view.get_raw_view_enabled());
     ui_->RawDisplayingCheckBox->setEnabled(!is_raw && is_data_not_moments);
@@ -130,6 +138,8 @@ void ViewPanel::on_notify()
         set_xyzf_visibility(true);
 
         ui_->ImgAccuSpinBox->setValue(api_.window_pp.get_accumulation_level());
+        ui_->ImgAccuLabel->setEnabled(!is_lsci);
+        ui_->ImgAccuSpinBox->setEnabled(!is_lsci);
 
         constexpr int max_digit_rotate = 3;
         constexpr int max_digit_flip = 1;
@@ -156,17 +166,17 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setValue(api_.transform.get_p_accu_level());
     ui_->PSpinBox->setValue(api_.transform.get_p_index());
-    ui_->PAccSpinBox->setEnabled(api_.compute.get_img_type() != ImgType::PhaseIncrease &&
+    ui_->PAccSpinBox->setEnabled(!is_lsci && api_.compute.get_img_type() != ImgType::PhaseIncrease &&
                                  api_.compute.get_img_type() != ImgType::Composite);
-    ui_->PAccSpinBox->setVisible(is_data_not_moments);
-    ui_->PAccLabel->setVisible(is_data_not_moments);
+    ui_->PAccSpinBox->setVisible(is_data_not_moments && !is_lsci);
+    ui_->PAccLabel->setVisible(is_data_not_moments && !is_lsci);
 
     // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api_.transform.get_time_transformation_size() - api_.transform.get_p_index() - 1);
-    ui_->PSpinBox->setEnabled(!is_raw && api_.compute.get_img_type() != ImgType::Composite);
-    ui_->PSpinBox->setVisible(is_data_not_moments);
-    ui_->PLabel->setVisible(is_data_not_moments);
+    ui_->PSpinBox->setEnabled(!is_raw && !is_lsci && api_.compute.get_img_type() != ImgType::Composite);
+    ui_->PSpinBox->setVisible(is_data_not_moments && !is_lsci);
+    ui_->PLabel->setVisible(is_data_not_moments && !is_lsci);
 
     // q accu
     bool is_q_visible =
@@ -221,6 +231,7 @@ void ViewPanel::on_notify()
     ui_->YAccLabel->setVisible(xy_visible);
 
     ui_->RenormalizeCheckBox->setChecked(api_.global_pp.get_renorm_enabled());
+    ui_->RenormalizeCheckBox->setEnabled(!is_lsci);
     ui_->ContrastReticleScaleDoubleSpinBox->setEnabled(api_.contrast.get_contrast_reticle_display_enabled());
     ui_->ContrastReticleScaleDoubleSpinBox->setValue(api_.contrast.get_contrast_reticle_scale());
     ui_->DisplayContrastReticleCheckBox->setChecked(api_.contrast.get_contrast_reticle_display_enabled());
@@ -320,6 +331,9 @@ void ViewPanel::set_y_accu() { api_.transform.set_y_accu_level(ui_->YAccSpinBox-
 
 void ViewPanel::set_p(int value)
 {
+    if (api_.transform.get_time_transformation() == TimeTransformation::LSCI)
+        return;
+
     api_.transform.set_p_index(value);
     parent_->notify();
 }

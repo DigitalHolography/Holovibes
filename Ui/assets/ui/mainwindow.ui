@@ -376,6 +376,11 @@
                <string>SSA_STFT</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>LSCI</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="3" column="0">
@@ -408,6 +413,41 @@
             </widget>
            </item>
            <item row="4" column="0">
+            <widget class="QLabel" name="LsciSpatialWindowLabel">
+             <property name="toolTip">
+              <string>Odd side length of the square spatial neighborhood; 5 means 5 x 5 pixels. The time window separately sets the number of frames.</string>
+             </property>
+             <property name="text">
+              <string>LSCI space window</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="LsciSpatialWindowSpinBox">
+             <property name="toolTip">
+              <string>Odd side length from 1 to 63 pixels; 5 means a 5 x 5 neighborhood (the paper's setting).</string>
+             </property>
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>63</number>
+             </property>
+             <property name="singleStep">
+              <number>2</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
             <widget class="QLabel" name="LambdaLabel">
              <property name="toolTip">
               <string>Wavelength (lambda) of light used to record interferograms</string>
@@ -420,7 +460,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QDoubleSpinBox" name="LambdaSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -445,7 +485,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="BoundaryLabel">
              <property name="toolTip">
               <string>The maximum value of the focus</string>
@@ -458,7 +498,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
              <property name="enabled">
               <bool>false</bool>
@@ -489,7 +529,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="toolTip">
               <string>Adjust the distance to the target</string>
@@ -502,7 +542,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -530,7 +570,7 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
+           <item row="8" column="0" colspan="2">
             <widget class="QSlider" name="ZSlider">
              <property name="styleSheet">
               <string notr="true"/>
@@ -4925,6 +4965,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>LsciSpatialWindowSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_lsci_spatial_window()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>TimeStrideSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
@@ -6271,6 +6327,7 @@ p, li { white-space: pre-wrap; }
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>set_time_transformation_size()</slot>
+  <slot>set_lsci_spatial_window()</slot>
   <slot>set_p_accu()</slot>
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>

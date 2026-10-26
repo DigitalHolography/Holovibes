@@ -159,6 +159,17 @@ class TransformApi : public IApi
      */
     ApiCode set_time_transformation(const TimeTransformation value) const;
 
+    /*! \brief Width and height of the square LSCI spatial neighborhood, in pixels. */
+    inline uint get_lsci_spatial_window() const { return GET_SETTING(LsciSpatialWindow); }
+
+    /*! \brief Set an odd LSCI spatial window between 1 and 63 pixels. */
+    ApiCode set_lsci_spatial_window(uint value) const;
+
+    /*! \brief Normalize LSCI settings before constructing the compute pipe.
+     * Call while computation is stopped; preserves the configured temporal window.
+     */
+    void normalize_lsci_settings() const;
+
 #pragma endregion
 
 #pragma region Time Tr.Freq

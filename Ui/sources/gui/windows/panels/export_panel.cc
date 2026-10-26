@@ -82,12 +82,20 @@ void ExportPanel::on_notify()
 
     // Hiding most of the options when in raw mode
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
+    const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::HOLOGRAM), is_raw);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CHART), is_raw);
-    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw || is_lsci);
+    ui_->RecordImageModeComboBox->setItemText(static_cast<int>(RecordMode::HOLOGRAM),
+                                              is_lsci ? "Contrast map" : "Processed Image");
+    ui_->RecordImageModeComboBox->setItemData(
+        static_cast<int>(RecordMode::HOLOGRAM),
+        is_lsci ? "Save the displayed contrast map as a 16-bit image, including display contrast and logarithm settings"
+                : "Save the processed image",
+        Qt::ToolTipRole);
 
     // When set to raw, the 3D cuts are automatically disabled, so this works as a valid toggle for raw mode too
-    const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
+    const bool hide_cuts = is_lsci || !ui_->TimeTransformationCutsCheckBox->isChecked();
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_XZ), hide_cuts);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_YZ), hide_cuts);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::OCT_CUBE), hide_cuts);
@@ -272,6 +280,7 @@ void ExportPanel::record_finished()
     ui_->InfoPanel->set_visible_record_progress(false);
 
     parent_->light_ui_->notify();
+    parent_->notify();
 }
 
 void ExportPanel::start_record()
@@ -313,6 +322,7 @@ void ExportPanel::start_record()
     {
         RecordTriggerTcpServer::instance().notify_record_started();
         parent_->light_ui_->notify();
+        parent_->notify();
     }
 }
 

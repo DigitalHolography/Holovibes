@@ -300,8 +300,11 @@ void Rendering::insert_compute_autocontrast()
     // refresh the pipe at each autocontrast
     auto lambda_autocontrast = [&]()
     {
-        // Compute autocontrast once the gpu time transformation queue is full
-        if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
+        // LSCI produces a scalar map directly and does not allocate a complex temporal queue.
+        const bool ready = setting<settings::TimeTransformation>() == TimeTransformation::LSCI
+                               ? time_transformation_env_.lsci_ready
+                               : time_transformation_env_.gpu_time_transformation_queue->is_full();
+        if (!ready)
             return;
 
         const auto now = std::chrono::steady_clock::now();

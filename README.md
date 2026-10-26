@@ -18,6 +18,7 @@ It is developed using `C++/CUDA`.
 
 - Hologram computation using angular spectrum propagation and Fresnel transform.
 - Time demodulation by short-time Fourier transform (STFT) and principal component analysis (PCA) algorithms.
+- [Laser speckle contrast imaging (LSCI)](docs/LSCI.md) from direct camera intensity, using configurable square spatial neighborhoods and temporal blocks (5 x 5 pixels and 16 frames by default).
 - Graphical user interface (change parameters on the fly, keyboard shortcuts).
 - Support the following cameras:
     - Ametek streaming cameras S710, S711, S980, S991 interfaced with Euresys Coaxlink Octo & Coaxlink QSFP+ frame grabbers.

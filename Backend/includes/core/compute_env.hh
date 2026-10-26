@@ -137,6 +137,11 @@ struct BatchEnv
  */
 struct TimeTransformationEnv
 {
+    /*! \brief Direct-intensity LSCI sums (I, I squared), requiring one image regardless of temporal window size. */
+    cuda_tools::CudaUniquePtr<float2> gpu_lsci_moments = nullptr;
+    unsigned int lsci_frame_count = 0;
+    bool lsci_ready = false;
+
     /*! \brief STFT Queue. It accumulates input frames after spatial FFT.
      *
      * Contains time_transformation_size frames.

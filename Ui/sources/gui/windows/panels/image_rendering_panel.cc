@@ -40,52 +40,81 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
+    const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
+    const bool is_recording = api_.record.is_recording();
     const bool is_data_not_moments = true;
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
+    const bool spatial_controls_enabled = not_raw_not_moments && !is_lsci;
+    const QSignalBlocker batch_signals(ui_->BatchSizeSpinBox);
+    const QSignalBlocker stride_signals(ui_->TimeStrideSpinBox);
+    const QSignalBlocker window_signals(ui_->timeTransformationSizeSpinBox);
+    const QSignalBlocker spatial_window_signals(ui_->LsciSpatialWindowSpinBox);
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
-    ui_->ImageModeComboBox->setEnabled(is_data_not_moments);
+    ui_->ImageModeComboBox->setEnabled(is_data_not_moments && !(is_lsci && is_recording));
 
-    ui_->TimeStrideSpinBox->setEnabled(!is_raw);
+    ui_->TimeStrideSpinBox->setEnabled(!is_raw && !is_lsci);
+    ui_->TimeStrideLabel->setEnabled(!is_raw && !is_lsci);
+    ui_->TimeStrideSpinBox->setToolTip(is_lsci ? "One contrast map per complete time window of consecutive frames"
+                                               : "Number of input frames between processed batches");
 
-    ui_->TimeStrideSpinBox->setValue(api_.transform.get_time_stride());
     ui_->TimeStrideSpinBox->setSingleStep(api_.transform.get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api_.transform.get_batch_size());
+    ui_->TimeStrideSpinBox->setValue(api_.transform.get_time_stride());
 
-    const bool is_batch_size_enabled = !api_.record.is_recording() && is_data_not_moments;
-    ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
+    const bool is_batch_size_enabled = !is_recording && is_data_not_moments;
     ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
-    ui_->BatchSizeSpinBox->setMaximum(api_.input.get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setMaximum(
+        is_lsci ? std::min(api_.input.get_input_buffer_size(), api_.transform.get_time_transformation_size())
+                : api_.input.get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
+    ui_->BatchSizeSpinBox->setToolTip(is_lsci ? "Frames transferred together; must divide the time window"
+                                              : "Number of frames processed in each batch");
 
-    ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
-    ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
+    ui_->SpaceTransformationLabel->setEnabled(spatial_controls_enabled);
+    ui_->SpaceTransformationComboBox->setEnabled(spatial_controls_enabled);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_space_transformation()));
-    ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
-    ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
+    ui_->SpaceTransformationComboBox->setToolTip(
+        is_lsci ? "LSCI uses direct camera intensity without spatial reconstruction"
+                : "Spatial transformation algorithm");
+    ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments && !is_recording);
+    ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments && !is_recording);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api_.view.get_cuts_view_enabled());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api_.view.get_cuts_view_enabled() &&
+                                                   !(is_lsci && is_recording));
     ui_->timeTransformationSizeSpinBox->setValue(api_.transform.get_time_transformation_size());
+    ui_->timeTransformationSizeSpinBox->setToolTip(
+        is_lsci
+            ? "Consecutive frames pooled within the LSCI spatial neighborhood; one map per block (default 16 frames)"
+            : "The size of the time transformation");
+    ui_->LsciSpatialWindowLabel->setVisible(is_lsci);
+    ui_->LsciSpatialWindowSpinBox->setVisible(is_lsci);
+    ui_->LsciSpatialWindowLabel->setEnabled(not_raw_not_moments && !is_recording);
+    ui_->LsciSpatialWindowSpinBox->setEnabled(not_raw_not_moments && !is_recording);
+    ui_->LsciSpatialWindowSpinBox->setValue(api_.transform.get_lsci_spatial_window());
 
     // Z (focus)
-    ui_->LambdaLabel->setEnabled(not_raw_not_moments);
-    ui_->LambdaSpinBox->setEnabled(not_raw_not_moments);
+    ui_->LambdaLabel->setEnabled(spatial_controls_enabled);
+    ui_->LambdaSpinBox->setEnabled(spatial_controls_enabled);
     ui_->LambdaSpinBox->setValue(api_.transform.get_lambda() * 1.0e9f);
-    ui_->ZLabel->setEnabled(not_raw_not_moments);
-    ui_->ZDoubleSpinBox->setEnabled(not_raw_not_moments);
+    ui_->ZLabel->setEnabled(spatial_controls_enabled);
+    ui_->ZDoubleSpinBox->setEnabled(spatial_controls_enabled);
     ui_->ZDoubleSpinBox->setValue(api_.transform.get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    ui_->ZSlider->setEnabled(not_raw_not_moments);
+    ui_->ZSlider->setEnabled(spatial_controls_enabled);
+    ui_->BoundaryLabel->setEnabled(spatial_controls_enabled);
+    ui_->BoundaryDoubleSpinBox->setEnabled(spatial_controls_enabled);
     ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 
     // Filter2D
-    bool filter2D_enabled = !is_raw && api_.filter2d.get_filter2d_enabled();
-    ui_->Filter2D->setEnabled(!is_raw);
+    bool filter2D_enabled = !is_raw && !is_lsci && api_.filter2d.get_filter2d_enabled();
+    ui_->Filter2D->setEnabled(!is_raw && !is_lsci);
     ui_->Filter2D->setChecked(filter2D_enabled);
 
     ui_->Filter2DView->setVisible(filter2D_enabled);
@@ -108,6 +137,9 @@ void ImageRenderingPanel::on_notify()
     ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
 
     // Convolution
+    ui_->ConvolutionLabel->setEnabled(!is_lsci);
+    ui_->KernelQuickSelectComboBox->setEnabled(!is_lsci);
+    ui_->DivideConvoCheckBox->setEnabled(!is_lsci);
     ui_->DivideConvoCheckBox->setChecked(api_.global_pp.get_divide_convolution_enabled());
 
     index = 0;
@@ -218,15 +250,27 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 {
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
+    const bool crosses_lsci =
+        (tt == TimeTransformation::LSCI) != (api_.transform.get_time_transformation() == TimeTransformation::LSCI);
 
     if (api_.transform.set_time_transformation(tt) == ApiCode::OK)
+    {
+        if (crosses_lsci && !api_.compute.get_is_computation_stopped())
+            gui::refresh_window(parent_->window_max_size);
         parent_->notify();
+    }
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
     if (api_.transform.set_time_transformation_size(ui_->timeTransformationSizeSpinBox->value()) == ApiCode::OK)
         parent_->notify();
+}
+
+void ImageRenderingPanel::set_lsci_spatial_window()
+{
+    api_.transform.set_lsci_spatial_window(ui_->LsciSpatialWindowSpinBox->value());
+    parent_->notify();
 }
 
 // λ

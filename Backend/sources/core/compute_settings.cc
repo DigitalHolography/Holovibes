@@ -79,6 +79,13 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
     json old_one = compute_settings;
+    // Expose the optional key to the strict merge, preserving it for unrelated partial updates.
+    old_one["image_rendering"]["lsci_spatial_window"] = compute_settings.image_rendering.lsci_spatial_window;
+    // Legacy algorithm configurations predate this field and use the paper's 5x5 default.
+    if (j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&
+        j_cs["image_rendering"].contains("time_transformation") &&
+        !j_cs["image_rendering"].contains("lsci_spatial_window"))
+        old_one["image_rendering"]["lsci_spatial_window"] = 5u;
 
     try
     {
@@ -93,7 +100,20 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     }
 
     compute_settings.Assert();
+    const bool lsci_transition = API.transform.get_time_transformation() == TimeTransformation::LSCI ||
+                                 compute_settings.image_rendering.time_transformation == TimeTransformation::LSCI;
+    if (lsci_transition && API.record.is_recording())
+    {
+        LOG_WARN("Stop recording before loading settings involving LSCI");
+        return ApiCode::FAILURE;
+    }
+
+    const bool restart = lsci_transition && !API.compute.get_is_computation_stopped();
+    if (restart)
+        API.compute.stop();
     compute_settings.Load();
+    if (restart)
+        return API.compute.start();
 
     return ApiCode::OK;
 }

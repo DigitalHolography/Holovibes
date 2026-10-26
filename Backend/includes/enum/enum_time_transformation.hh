@@ -18,7 +18,8 @@ enum class TimeTransformation
     NONE = 0, /*!< No transformation */
     STFT,     /*!< Short-time Fourier transformation */
     PCA,      /*!< Principal component analysis */
-    SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
+    SSA_STFT, /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
+    LSCI      /*!< Pooled spatial and temporal laser speckle contrast */
 };
 
 // clang-format off
@@ -27,6 +28,7 @@ SERIALIZE_JSON_ENUM(TimeTransformation, {
     {TimeTransformation::PCA, "PCA"},
     {TimeTransformation::NONE, "NONE"},
     {TimeTransformation::SSA_STFT, "SSA_STFT"},
+    {TimeTransformation::LSCI, "LSCI"},
     {TimeTransformation::NONE, "None"}, // Compat
 
 })
