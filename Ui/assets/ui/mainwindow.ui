@@ -418,7 +418,7 @@
               <string>Odd side length of the square spatial neighborhood; 5 means 5 x 5 pixels. The time window separately sets the number of frames.</string>
              </property>
              <property name="text">
-              <string>LSCI space window</string>
+              <string>LSCI window size</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -431,7 +431,7 @@
               <string>Odd side length from 1 to 63 pixels; 5 means a 5 x 5 neighborhood (the paper's setting).</string>
              </property>
              <property name="suffix">
-              <string> px</string>
+              <string> x 5 px</string>
              </property>
              <property name="minimum">
               <number>1</number>

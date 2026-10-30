@@ -105,10 +105,9 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
 
 ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) const
 {
-    if (get_time_transformation() == TimeTransformation::LSCI && value != SpaceTransformation::NONE)
-        return ApiCode::WRONG_COMP_MODE;
-
     NOT_SAME_AND_NOT_RAW(get_space_transformation(), value);
+    if (get_time_transformation() == TimeTransformation::LSCI && api_->record.is_recording())
+        return ApiCode::FAILURE;
 
     UPDATE_SETTING(SpaceTransformation, value);
 
@@ -118,6 +117,8 @@ ApiCode TransformApi::set_space_transformation(const SpaceTransformation value) 
 ApiCode TransformApi::set_lambda(float value) const
 {
     NOT_SAME_AND_NOT_RAW(get_lambda(), value);
+    if (get_time_transformation() == TimeTransformation::LSCI && api_->record.is_recording())
+        return ApiCode::FAILURE;
 
     if (value < 0)
     {
@@ -133,6 +134,8 @@ ApiCode TransformApi::set_lambda(float value) const
 ApiCode TransformApi::set_z_distance(float value) const
 {
     NOT_SAME_AND_NOT_RAW(get_z_distance(), value);
+    if (get_time_transformation() == TimeTransformation::LSCI && api_->record.is_recording())
+        return ApiCode::FAILURE;
 
     // Avoid 0 for cuda kernel
     if (value == 0)
@@ -213,6 +216,7 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
     if (value == TimeTransformation::LSCI)
     {
         UPDATE_SETTING(TimeTransformationSize, 16u);
+        UPDATE_SETTING(SpaceTransformation, SpaceTransformation::NONE);
         normalize_lsci_settings();
     }
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
@@ -258,7 +262,6 @@ void TransformApi::normalize_lsci_settings() const
     UPDATE_SETTING(TimeTransformationSize, window);
     UPDATE_SETTING(BatchSize, lsci_batch_size(get_batch_size(), window, api_->input.get_input_buffer_size()));
     UPDATE_SETTING(TimeStride, window);
-    UPDATE_SETTING(SpaceTransformation, SpaceTransformation::NONE);
     UPDATE_SETTING(ImageType, ImgType::Modulus);
     UPDATE_SETTING(Filter2dEnabled, false);
     UPDATE_SETTING(Filter2dViewEnabled, false);

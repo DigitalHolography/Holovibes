@@ -176,7 +176,8 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     time_transformation_env_.lsci_frame_count = 0;
     time_transformation_env_.lsci_ready = false;
-    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI &&
+        setting<settings::SpaceTransformation>() == SpaceTransformation::NONE)
     {
         buffers_.gpu_spatial_transformation_buffer.reset();
         spatial_transformation_plan_.reset();

@@ -97,7 +97,6 @@ TEST_F(LsciSettingsTest, RejectsComplexAndSpectralConsumers)
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
     for (const auto type : {ImgType::Argument, ImgType::PhaseIncrease, ImgType::Composite, ImgType::SquaredModulus})
         EXPECT_EQ(API.compute.set_img_type(type), ApiCode::WRONG_IMG_TYPE);
-    EXPECT_EQ(API.transform.set_space_transformation(SpaceTransformation::FRESNELTR), ApiCode::WRONG_COMP_MODE);
     EXPECT_EQ(API.filter2d.set_filter2d_enabled(true), ApiCode::WRONG_COMP_MODE);
     EXPECT_EQ(API.transform.set_fft_shift_enabled(true), ApiCode::WRONG_COMP_MODE);
     EXPECT_EQ(API.transform.set_unwrapping_2d(true), ApiCode::WRONG_COMP_MODE);
@@ -120,7 +119,6 @@ TEST_F(LsciSettingsTest, SelectionUsesDirectIntensityAndSpatialWindowValidatesIt
     ASSERT_EQ(API.transform.set_space_transformation(SpaceTransformation::FRESNELTR), ApiCode::OK);
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
     EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
-    EXPECT_EQ(API.transform.set_space_transformation(SpaceTransformation::ANGULARSP), ApiCode::WRONG_COMP_MODE);
 
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 5u);
     EXPECT_EQ(API.transform.set_lsci_spatial_window(9), ApiCode::OK);
@@ -130,6 +128,29 @@ TEST_F(LsciSettingsTest, SelectionUsesDirectIntensityAndSpatialWindowValidatesIt
     EXPECT_EQ(API.transform.set_lsci_spatial_window(1), ApiCode::OK);
     EXPECT_EQ(API.transform.set_lsci_spatial_window(63), ApiCode::OK);
     EXPECT_EQ(API.transform.set_lsci_spatial_window(63), ApiCode::NO_CHANGE);
+}
+
+TEST_F(LsciSettingsTest, OptionalReconstructionSurvivesNormalizationAndSettingsRoundTrip)
+{
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
+    EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
+
+    for (const auto transform : {SpaceTransformation::FRESNELTR, SpaceTransformation::ANGULARSP})
+    {
+        SCOPED_TRACE(static_cast<int>(transform));
+        ASSERT_EQ(API.transform.set_space_transformation(transform), ApiCode::OK);
+        API.transform.normalize_lsci_settings();
+        EXPECT_EQ(API.transform.get_space_transformation(), transform);
+
+        json saved = API.settings.compute_settings_to_json();
+        ASSERT_EQ(API.transform.set_space_transformation(SpaceTransformation::NONE), ApiCode::OK);
+        ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+        EXPECT_EQ(API.transform.get_space_transformation(), transform);
+        EXPECT_EQ(API.transform.get_time_transformation(), TimeTransformation::LSCI);
+        EXPECT_EQ(API.transform.get_lsci_spatial_window(), 5u);
+    }
+
+    EXPECT_EQ(API.transform.set_space_transformation(SpaceTransformation::NONE), ApiCode::OK);
 }
 
 TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
@@ -168,7 +189,7 @@ TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
     EXPECT_EQ(API.transform.get_batch_size(), 6u);
     EXPECT_EQ(API.transform.get_time_stride(), 24u);
     EXPECT_EQ(API.compute.get_img_type(), ImgType::Modulus);
-    EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
+    EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::FRESNELTR);
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 7u);
     EXPECT_FALSE(API.filter2d.get_filter2d_enabled());
     EXPECT_FALSE(API.view.get_cuts_view_enabled());

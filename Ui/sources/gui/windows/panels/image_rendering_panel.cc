@@ -35,7 +35,14 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
-void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
+void ImageRenderingPanel::init()
+{
+    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    connect(ui_->LsciSpatialWindowSpinBox,
+            &QSpinBox::valueChanged,
+            this,
+            [this](int side) { ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(side)); });
+}
 
 void ImageRenderingPanel::on_notify()
 {
@@ -44,11 +51,16 @@ void ImageRenderingPanel::on_notify()
     const bool is_recording = api_.record.is_recording();
     const bool is_data_not_moments = true;
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
-    const bool spatial_controls_enabled = not_raw_not_moments && !is_lsci;
+    const bool spatial_controls_enabled = not_raw_not_moments && !(is_lsci && is_recording);
+    const bool reconstruction_controls_enabled =
+        spatial_controls_enabled && (!is_lsci || api_.transform.get_space_transformation() != SpaceTransformation::NONE);
     const QSignalBlocker batch_signals(ui_->BatchSizeSpinBox);
     const QSignalBlocker stride_signals(ui_->TimeStrideSpinBox);
     const QSignalBlocker window_signals(ui_->timeTransformationSizeSpinBox);
     const QSignalBlocker spatial_window_signals(ui_->LsciSpatialWindowSpinBox);
+    const QSignalBlocker space_transform_signals(ui_->SpaceTransformationComboBox);
+    const QSignalBlocker lambda_signals(ui_->LambdaSpinBox);
+    const QSignalBlocker z_signals(ui_->ZDoubleSpinBox);
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled(is_data_not_moments && !(is_lsci && is_recording));
@@ -77,7 +89,7 @@ void ImageRenderingPanel::on_notify()
     ui_->SpaceTransformationComboBox->setEnabled(spatial_controls_enabled);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api_.transform.get_space_transformation()));
     ui_->SpaceTransformationComboBox->setToolTip(
-        is_lsci ? "LSCI uses direct camera intensity without spatial reconstruction"
+        is_lsci ? "None uses direct camera intensity; Fresnel or Angular SP. uses reconstructed intensity for LSCI"
                 : "Spatial transformation algorithm");
     ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments && !is_recording);
     ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments && !is_recording);
@@ -97,19 +109,23 @@ void ImageRenderingPanel::on_notify()
     ui_->LsciSpatialWindowSpinBox->setVisible(is_lsci);
     ui_->LsciSpatialWindowLabel->setEnabled(not_raw_not_moments && !is_recording);
     ui_->LsciSpatialWindowSpinBox->setEnabled(not_raw_not_moments && !is_recording);
-    ui_->LsciSpatialWindowSpinBox->setValue(api_.transform.get_lsci_spatial_window());
+    const auto spatial_window = api_.transform.get_lsci_spatial_window();
+    ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(spatial_window));
+    ui_->LsciSpatialWindowSpinBox->setValue(spatial_window);
 
     // Z (focus)
-    ui_->LambdaLabel->setEnabled(spatial_controls_enabled);
-    ui_->LambdaSpinBox->setEnabled(spatial_controls_enabled);
+    z_up_shortcut_->setEnabled(reconstruction_controls_enabled);
+    z_down_shortcut_->setEnabled(reconstruction_controls_enabled);
+    ui_->LambdaLabel->setEnabled(reconstruction_controls_enabled);
+    ui_->LambdaSpinBox->setEnabled(reconstruction_controls_enabled);
     ui_->LambdaSpinBox->setValue(api_.transform.get_lambda() * 1.0e9f);
-    ui_->ZLabel->setEnabled(spatial_controls_enabled);
-    ui_->ZDoubleSpinBox->setEnabled(spatial_controls_enabled);
+    ui_->ZLabel->setEnabled(reconstruction_controls_enabled);
+    ui_->ZDoubleSpinBox->setEnabled(reconstruction_controls_enabled);
     ui_->ZDoubleSpinBox->setValue(api_.transform.get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    ui_->ZSlider->setEnabled(spatial_controls_enabled);
-    ui_->BoundaryLabel->setEnabled(spatial_controls_enabled);
-    ui_->BoundaryDoubleSpinBox->setEnabled(spatial_controls_enabled);
+    ui_->ZSlider->setEnabled(reconstruction_controls_enabled);
+    ui_->BoundaryLabel->setEnabled(reconstruction_controls_enabled);
+    ui_->BoundaryDoubleSpinBox->setEnabled(reconstruction_controls_enabled);
     ui_->BoundaryDoubleSpinBox->setValue(api_.information.get_boundary() * 1000);
 
     // Filter2D

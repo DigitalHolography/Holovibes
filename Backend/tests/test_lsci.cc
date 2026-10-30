@@ -197,6 +197,91 @@ TEST_F(LsciTest, SplitBatchesAndResetPreserveTheSamePooledBlock)
     compare(run(input, width, height, frames, camera::PixelDepth::Bits8, 4, true), expected);
 }
 
+TEST_F(LsciTest, PoolsReconstructedSquaredModuliAcrossSplitBatchesAndResets)
+{
+    constexpr unsigned width = 7, height = 4, frames = 5;
+    constexpr size_t resolution = width * height;
+    std::vector<cuComplex> field(resolution * frames);
+    std::vector<float> intensities(field.size());
+    for (size_t index = 0; index < field.size(); ++index)
+    {
+        const float real = (static_cast<int>(index % 13) - 6) * 0.25f;
+        const float imaginary = (static_cast<int>((index * 7) % 11) - 5) * 0.5f;
+        field[index] = make_cuComplex(real, imaginary);
+        intensities[index] = real * real + imaginary * imaginary;
+    }
+
+    CudaUniquePtr<cuComplex> gpu_input(field.size());
+    CudaUniquePtr<float2> moments(resolution);
+    CudaUniquePtr<float> output(resolution);
+    cudaXMemcpy(gpu_input.get(), field.data(), field.size() * sizeof(cuComplex), cudaMemcpyHostToDevice);
+    for (const unsigned batch : {1u, 3u, frames})
+    {
+        SCOPED_TRACE(batch);
+        // Start from a populated buffer to catch a missing reset on the first batch.
+        lsci_accumulate_complex(moments.get(), gpu_input.get(), resolution, frames, true, 0);
+        for (unsigned first = 0; first < frames; first += batch)
+            lsci_accumulate_complex(moments.get(),
+                                    gpu_input.get() + first * resolution,
+                                    resolution,
+                                    std::min(batch, frames - first),
+                                    first == 0,
+                                    0);
+        for (const unsigned side : {1u, 5u, 9u})
+        {
+            SCOPED_TRACE(side);
+            lsci_contrast(output.get(), moments.get(), width, height, frames, 0, side);
+            cudaXStreamSynchronize(0);
+            std::vector<float> result(resolution);
+            cudaXMemcpy(result.data(), output.get(), resolution * sizeof(float), cudaMemcpyDeviceToHost);
+            compare(result, reference_contrast(intensities, width, height, frames, side));
+        }
+    }
+}
+
+TEST_F(LsciTest, ReconstructedContrastIgnoresPhaseAtConstantIntensity)
+{
+    const std::vector<cuComplex> field = {make_cuComplex(3.f, 4.f),
+                                          make_cuComplex(-3.f, -4.f),
+                                          make_cuComplex(0.f, 5.f),
+                                          make_cuComplex(5.f, 0.f)};
+    CudaUniquePtr<cuComplex> gpu_input(field.size());
+    CudaUniquePtr<float2> moments(size_t{1});
+    CudaUniquePtr<float> output(size_t{1});
+    cudaXMemcpy(gpu_input.get(), field.data(), field.size() * sizeof(cuComplex), cudaMemcpyHostToDevice);
+    lsci_accumulate_complex(moments.get(), gpu_input.get(), 1, static_cast<unsigned>(field.size()), true, 0);
+    lsci_contrast(output.get(), moments.get(), 1, 1, static_cast<unsigned>(field.size()), 0);
+    cudaXStreamSynchronize(0);
+    float result = -1.f;
+    cudaXMemcpy(&result, output.get(), sizeof(float), cudaMemcpyDeviceToHost);
+    EXPECT_FLOAT_EQ(result, 0.f);
+}
+
+TEST_F(LsciTest, FresnelAmplitudeNormalizationPreventsOverflowForLarge16BitFrames)
+{
+    constexpr unsigned frames = 4;
+    constexpr float reconstruction_pixels = 1024.f * 1024.f;
+    // A constant 16-bit megapixel image can produce this unnormalized FFT DC amplitude.
+    // Its squared intensity overflows float; normalized amplitudes preserve the same K.
+    constexpr float dc_amplitude = 65535.f * reconstruction_pixels;
+    const std::vector<cuComplex> field = {make_cuComplex(dc_amplitude, 0.f),
+                                          make_cuComplex(0.f, dc_amplitude * 0.5f),
+                                          make_cuComplex(dc_amplitude, 0.f),
+                                          make_cuComplex(0.f, dc_amplitude * 0.5f)};
+    CudaUniquePtr<cuComplex> gpu_input(field.size());
+    CudaUniquePtr<float2> moments(size_t{1});
+    CudaUniquePtr<float> output(size_t{1});
+    cudaXMemcpy(gpu_input.get(), field.data(), field.size() * sizeof(cuComplex), cudaMemcpyHostToDevice);
+    lsci_accumulate_complex(moments.get(), gpu_input.get(), 1, frames, true, 0, 1.f / reconstruction_pixels);
+    lsci_contrast(output.get(), moments.get(), 1, 1, frames, 0);
+    cudaXStreamSynchronize(0);
+    float result = -1.f;
+    cudaXMemcpy(&result, output.get(), sizeof(float), cudaMemcpyDeviceToHost);
+    ASSERT_TRUE(std::isfinite(result));
+    // Equal populations of I and I/4 have stddev/mean = (I-I/4)/(I+I/4).
+    EXPECT_NEAR(result, 0.6f, 2e-5f);
+}
+
 TEST_F(LsciTest, ClampsNegativeComputedVariance)
 {
     CudaUniquePtr<float2> moments(size_t{1});

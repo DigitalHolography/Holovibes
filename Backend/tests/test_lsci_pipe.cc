@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cmath>
 #include <exception>
+#include <iterator>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -247,6 +248,46 @@ TEST_P(LsciPipeTest, ProducesOnlyCompleteConsecutiveNonoverlappingBlocks)
     }
 }
 
+TEST_P(LsciPipeTest, AngularSpectrumPoolsReconstructedIntensityWithoutAllocatingTemporalCubes)
+{
+    const unsigned batch = GetParam();
+    constexpr camera::FrameDescriptor fd = {8, 8, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    BatchInputQueue input(64, batch, fd);
+    std::atomic<RecordingContext*> active_recording{nullptr};
+    const cudaStream_t stream = 0;
+    auto initial = lsci_settings(batch);
+    std::get<settings::SpaceTransformation>(initial).value = SpaceTransformation::ANGULARSP;
+    // Zero-distance angular propagation is the identity on the complex field.
+    // LSCI must therefore pool squared input amplitudes, unlike the direct-intensity path.
+    std::get<settings::ZDistance>(initial).value = 0.f;
+    InspectableLsciPipe pipe(input, active_recording, stream, initial);
+    auto output = pipe.get_output_queue();
+    PipeRunner runner(pipe, input);
+
+    std::vector<unsigned char> amplitudes(16);
+    for (unsigned index = 0; index < amplitudes.size(); ++index)
+        amplitudes[index] = static_cast<unsigned char>(index % 2 == 0 ? 80 : 120);
+    const unsigned prefix = 16 - batch;
+    enqueue_uniform_frames(input, {amplitudes.begin(), amplitudes.begin() + prefix});
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+    EXPECT_EQ(output->get_size(), 0u);
+    enqueue_uniform_frames(input, {amplitudes.begin() + prefix, amplitudes.end()});
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+    runner.stop();
+    ASSERT_NO_THROW(runner.rethrow_failure());
+    EXPECT_TRUE(pipe.uses_scalar_storage());
+    EXPECT_TRUE(pipe.has_spatial_buffer());
+
+    std::vector<unsigned short> pixels(fd.get_frame_res());
+    ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
+    const double low = 80. * 80.;
+    const double high = 120. * 120.;
+    const double expected = std::floor(65535. * (high - low) / (high + low));
+    for (unsigned short value : pixels)
+        EXPECT_NEAR(value, expected, 2.);
+}
+
 TEST(LsciPipeRegression, QueueResetDiscardsPartialBlockWhileWaitingForInput)
 {
     int devices = 0;
@@ -288,6 +329,86 @@ TEST(LsciPipeRegression, QueueResetDiscardsPartialBlockWhileWaitingForInput)
     const double expected = std::floor(65535. * population_contrast(fresh));
     for (unsigned short value : pixels)
         EXPECT_NEAR(value, expected, 1.) << "The map must contain only the 16 post-reset frames";
+}
+
+TEST(LsciPipeRegression, ReconstructionAndOpticsChangesDiscardPartialBlocksAndRefreshSpatialStorage)
+{
+    int devices = 0;
+    if (cudaGetDeviceCount(&devices) != cudaSuccess || devices == 0)
+        GTEST_SKIP() << "LSCI pipeline tests require a CUDA device";
+
+    constexpr unsigned batch = 4;
+    constexpr camera::FrameDescriptor fd = {8, 8, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    BatchInputQueue input(64, batch, fd);
+    std::atomic<RecordingContext*> active_recording{nullptr};
+    const cudaStream_t stream = 0;
+    auto initial = lsci_settings(batch);
+    std::get<settings::ZDistance>(initial).value = 0.01f;
+    std::get<settings::Lambda>(initial).value = 852e-9f;
+    std::get<settings::PixelSize>(initial).value = 12.f;
+    InspectableLsciPipe pipe(input, active_recording, stream, initial);
+    auto output = pipe.get_output_queue();
+    {
+        PipeRunner runner(pipe, input);
+        enqueue_uniform_frames(input, std::vector<unsigned char>(8, 5));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+        runner.stop();
+        ASSERT_NO_THROW(runner.rethrow_failure());
+    }
+    ASSERT_EQ(pipe.partial_frame_count(), 8u);
+    EXPECT_FALSE(pipe.has_spatial_buffer());
+
+    const char* changes[] = {"Fresnel",
+                             "Angular spectrum",
+                             "None",
+                             "Angular spectrum again",
+                             "Wavelength",
+                             "Propagation distance",
+                             "Pixel size"};
+    for (unsigned stage = 0; stage < std::size(changes); ++stage)
+    {
+        SCOPED_TRACE(changes[stage]);
+        switch (stage)
+        {
+        case 0:
+            pipe.update_setting(settings::SpaceTransformation{SpaceTransformation::FRESNELTR});
+            break;
+        case 1:
+        case 3:
+            pipe.update_setting(settings::SpaceTransformation{SpaceTransformation::ANGULARSP});
+            break;
+        case 2:
+            pipe.update_setting(settings::SpaceTransformation{SpaceTransformation::NONE});
+            break;
+        case 4:
+            pipe.update_setting(settings::Lambda{800e-9f});
+            break;
+        case 5:
+            pipe.update_setting(settings::ZDistance{0.02f});
+            break;
+        case 6:
+            pipe.update_setting(settings::PixelSize{13.f});
+            break;
+        }
+        pipe.request(ICS::Refresh);
+        pipe.clear_request(ICS::Termination);
+        PipeRunner runner(pipe, input);
+        enqueue_uniform_frames(input, std::vector<unsigned char>(12, 80));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+        EXPECT_EQ(output->get_size(), 0u) << "Samples from the old reconstruction must be discarded";
+        enqueue_uniform_frames(input, std::vector<unsigned char>(4, 120));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+        enqueue_uniform_frames(input, std::vector<unsigned char>(8, 5));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+        runner.stop();
+        ASSERT_NO_THROW(runner.rethrow_failure());
+        EXPECT_EQ(pipe.partial_frame_count(), 8u);
+        EXPECT_EQ(pipe.has_spatial_buffer(), stage != 2);
+        EXPECT_TRUE(pipe.uses_scalar_storage());
+        std::vector<unsigned short> pixels(fd.get_frame_res());
+        ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
+        EXPECT_EQ(output->get_size(), 0u);
+    }
 }
 
 TEST(LsciPipeRegression, ChangingSpatialWindowUsesNewNeighborhoodAndDiscardsPartialBlock)

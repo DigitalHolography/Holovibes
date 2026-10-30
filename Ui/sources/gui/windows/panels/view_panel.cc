@@ -54,10 +54,12 @@ void ViewPanel::on_notify()
     update_img_type(static_cast<int>(api_.compute.get_img_type()));
     ui_->ViewModeComboBox->setEnabled(!is_lsci);
     ui_->ViewModeComboBox->setItemText(static_cast<int>(ImgType::Modulus), is_lsci ? "Speckle contrast" : "Magnitude");
-    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Modulus),
-                                       is_lsci ? "K = standard deviation / mean of pooled direct camera intensity"
-                                               : "Compute the modulus of the complex image",
-                                       Qt::ToolTipRole);
+    const char* modulus_tooltip = "Compute the modulus of the complex image";
+    if (is_lsci)
+        modulus_tooltip = api_.transform.get_space_transformation() == SpaceTransformation::NONE
+                              ? "K = standard deviation / mean of pooled direct camera intensity"
+                              : "K = standard deviation / mean of pooled reconstructed intensity (squared modulus)";
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Modulus), modulus_tooltip, Qt::ToolTipRole);
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(!is_lsci && (api_.compute.get_img_type() == ImgType::PhaseIncrease ||
                                                         api_.compute.get_img_type() == ImgType::Argument));

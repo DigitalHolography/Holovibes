@@ -1,5 +1,5 @@
 /*! \file
- * \brief Pooled spatiotemporal laser speckle contrast on direct camera intensities.
+ * \brief Pooled spatiotemporal laser speckle contrast on direct or reconstructed intensities.
  */
 #pragma once
 
@@ -20,6 +20,20 @@ void lsci_accumulate(float2* moments,
                      camera::PixelDepth depth,
                      bool reset,
                      cudaStream_t stream);
+
+/*! \brief Accumulate reconstructed intensities I = real(E)^2 + imag(E)^2 from a complex spatial-transform batch.
+ *
+ * Uses the same sum(I), sum(I^2) statistics and temporal reset semantics as lsci_accumulate.
+ * Input frames are contiguous. amplitude_scale multiplies the complex field before squaring;
+ * a fixed scale leaves K unchanged and avoids overflow from an unnormalized spatial FFT.
+ */
+void lsci_accumulate_complex(float2* moments,
+                             const cuComplex* input,
+                             size_t frame_res,
+                             unsigned batch_size,
+                             bool reset,
+                             cudaStream_t stream,
+                             float amplitude_scale = 1.f);
 
 /*! \brief Produce K = population standard deviation / mean over a clipped spatial neighborhood.
  *

@@ -166,7 +166,7 @@ class TransformApi : public IApi
     ApiCode set_lsci_spatial_window(uint value) const;
 
     /*! \brief Normalize LSCI settings before constructing the compute pipe.
-     * Call while computation is stopped; preserves the configured temporal window.
+     * Call while computation is stopped; preserves the configured temporal window and spatial transform.
      */
     void normalize_lsci_settings() const;
 

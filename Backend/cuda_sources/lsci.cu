@@ -5,7 +5,25 @@
 namespace
 {
 template <typename T>
-__global__ void accumulate_intensity(float2* moments, const T* input, size_t frame_res, unsigned batch_size, bool reset)
+__device__ float sample_intensity(T value, float)
+{
+    return static_cast<float>(value);
+}
+
+__device__ float sample_intensity(cuComplex value, float amplitude_scale)
+{
+    value.x *= amplitude_scale;
+    value.y *= amplitude_scale;
+    return value.x * value.x + value.y * value.y;
+}
+
+template <typename T>
+__global__ void accumulate_intensity(float2* moments,
+                                     const T* input,
+                                     size_t frame_res,
+                                     unsigned batch_size,
+                                     bool reset,
+                                     float amplitude_scale)
 {
     const size_t pixel = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     if (pixel >= frame_res)
@@ -14,7 +32,7 @@ __global__ void accumulate_intensity(float2* moments, const T* input, size_t fra
     float2 value = reset ? make_float2(0.f, 0.f) : moments[pixel];
     for (unsigned frame = 0; frame < batch_size; ++frame)
     {
-        const float intensity = static_cast<float>(input[frame * frame_res + pixel]);
+        const float intensity = sample_intensity(input[frame * frame_res + pixel], amplitude_scale);
         value.x += intensity;
         value.y += intensity * intensity;
     }
@@ -79,25 +97,45 @@ void lsci_accumulate(float2* moments,
                                                              static_cast<const unsigned char*>(input),
                                                              frame_res,
                                                              batch_size,
-                                                             reset);
+                                                             reset,
+                                                             1.f);
         break;
     case camera::PixelDepth::Bits16:
         accumulate_intensity<<<blocks, threads, 0, stream>>>(moments,
                                                              static_cast<const unsigned short*>(input),
                                                              frame_res,
                                                              batch_size,
-                                                             reset);
+                                                             reset,
+                                                             1.f);
         break;
     case camera::PixelDepth::Bits32:
         accumulate_intensity<<<blocks, threads, 0, stream>>>(moments,
                                                              static_cast<const float*>(input),
                                                              frame_res,
                                                              batch_size,
-                                                             reset);
+                                                             reset,
+                                                             1.f);
         break;
     default:
         throw std::invalid_argument("LSCI requires 8-bit, 16-bit, or float intensity frames");
     }
+    cudaCheckError();
+}
+
+void lsci_accumulate_complex(float2* moments,
+                             const cuComplex* input,
+                             size_t frame_res,
+                             unsigned batch_size,
+                             bool reset,
+                             cudaStream_t stream,
+                             float amplitude_scale)
+{
+    if (frame_res == 0 || batch_size == 0)
+        return;
+
+    constexpr unsigned threads = 256;
+    const unsigned blocks = static_cast<unsigned>((frame_res + threads - 1) / threads);
+    accumulate_intensity<<<blocks, threads, 0, stream>>>(moments, input, frame_res, batch_size, reset, amplitude_scale);
     cudaCheckError();
 }
 

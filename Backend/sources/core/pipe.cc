@@ -327,12 +327,23 @@ void Pipe::refresh()
     pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
 
-    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI &&
-        lsci_spatial_window_ != setting<settings::LsciSpatialWindow>())
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
     {
-        time_transformation_env_.lsci_frame_count = 0;
-        time_transformation_env_.lsci_ready = false;
-        lsci_spatial_window_ = setting<settings::LsciSpatialWindow>();
+        const LsciConfiguration configuration{setting<settings::LsciSpatialWindow>(),
+                                              setting<settings::SpaceTransformation>(),
+                                              setting<settings::Lambda>(),
+                                              setting<settings::ZDistance>(),
+                                              setting<settings::PixelSize>()};
+        if (configuration != lsci_configuration_)
+        {
+            time_transformation_env_.lsci_frame_count = 0;
+            time_transformation_env_.lsci_ready = false;
+            lsci_configuration_ = configuration;
+        }
+
+        const bool reconstruct = configuration.space_transformation != SpaceTransformation::NONE;
+        if (reconstruct != (buffers_.gpu_spatial_transformation_buffer.get() != nullptr))
+            update_spatial_transformation_parameters();
     }
 
     /*
@@ -373,6 +384,11 @@ void Pipe::refresh()
     if (lsci)
     {
         insert_raw_view();
+        if (setting<settings::SpaceTransformation>() != SpaceTransformation::NONE)
+        {
+            converts_->insert_complex_conversion(input_queue_);
+            fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
+        }
         insert_lsci();
     }
     else
@@ -507,8 +523,14 @@ void Pipe::insert_wait_time_transformation_size()
 
 void Pipe::insert_lsci()
 {
+    const auto space_transformation = setting<settings::SpaceTransformation>();
+    const bool reconstruct = space_transformation != SpaceTransformation::NONE;
+    // Fresnel's FFT is unnormalized. A fixed field scale cancels in K and keeps fourth powers within float range.
+    const float amplitude_scale = space_transformation == SpaceTransformation::FRESNELTR
+                                      ? 1.f / static_cast<float>(input_queue_.get_fd().get_frame_res())
+                                      : 1.f;
     fn_compute_vect_->push_back(
-        [this]()
+        [this, reconstruct, amplitude_scale]()
         {
             auto& env = time_transformation_env_;
             const auto window = setting<settings::TimeTransformationSize>();
@@ -518,16 +540,29 @@ void Pipe::insert_lsci()
 
             const bool reset = env.lsci_frame_count == 0;
             env.lsci_ready = false;
-            input_queue_.dequeue(
-                env.gpu_lsci_moments.get(),
-                input_queue_.get_fd().depth,
-                [reset](const void* src,
-                        void* dest,
-                        uint batch_size,
-                        size_t frame_res,
-                        camera::PixelDepth depth,
-                        cudaStream_t stream)
-                { lsci_accumulate(static_cast<float2*>(dest), src, frame_res, batch_size, depth, reset, stream); });
+            if (reconstruct)
+            {
+                lsci_accumulate_complex(env.gpu_lsci_moments.get(),
+                                        buffers_.gpu_spatial_transformation_buffer.get(),
+                                        input_queue_.get_fd().get_frame_res(),
+                                        batch,
+                                        reset,
+                                        stream_,
+                                        amplitude_scale);
+            }
+            else
+            {
+                input_queue_.dequeue(
+                    env.gpu_lsci_moments.get(),
+                    input_queue_.get_fd().depth,
+                    [reset](const void* src,
+                            void* dest,
+                            uint batch_size,
+                            size_t frame_res,
+                            camera::PixelDepth depth,
+                            cudaStream_t stream)
+                    { lsci_accumulate(static_cast<float2*>(dest), src, frame_res, batch_size, depth, reset, stream); });
+            }
 
             if (input_queue_.has_overwritten())
             {
@@ -541,14 +576,19 @@ void Pipe::insert_lsci()
                 }
                 env.lsci_frame_count = 0;
                 input_queue_.request_reset();
+                if (reconstruct)
+                    cudaXStreamSynchronize(stream_);
                 fn_compute_vect_->exit_now();
                 return;
             }
 
-            // The callback completes on the input batch stream before releasing the batch.
             env.lsci_frame_count += batch;
             if (env.lsci_frame_count < window)
             {
+                // The next conversion runs on an input batch stream and must not overwrite a spatial buffer
+                // still consumed by reconstruction or accumulation on the compute stream.
+                if (reconstruct)
+                    cudaXStreamSynchronize(stream_);
                 fn_compute_vect_->exit_now();
                 return;
             }
