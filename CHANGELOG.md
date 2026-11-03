@@ -1,6 +1,11 @@
 ## Changelog
-### Unreleased
 
+### 14.15.0
+- Add laser speckle contrast imaging (LSCI) with configurable spatial and temporal windows, direct-intensity processing, and optional Fresnel or angular-spectrum reconstruction.
+- Add LSCI image registration, contrast-map recording, regional statistics, and a bundled preset with batch AVI export through `ProcessHoloFiles.ps1`.
+- Update Phantom S991 (ST-4K) defaults to 4096 x 2048 Mono8 at 1000 fps, and add a configurable global or rolling shutter mode.
+- Refresh camera configuration files on each build and package current camera defaults in installers without requiring the executable to be rebuilt.
+- Fix missing Thrust PTX errors on some GPUs by including CUDA architecture 120 in default builds.
 - Fix a recording-start race that could corrupt the live input queue, freeze the preview, and misalign recorded frames and timestamps.
 - Keep Phantom capture buffers reserved until all GPU copies complete, and handle full recording buffers without blocking stop requests.
 
