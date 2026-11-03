@@ -26,6 +26,8 @@ EHoloGrabber991::EHoloGrabber991(Euresys::EGenTL& gentl,
 void EHoloGrabber991::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 {
     available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
+    // Apply the shutter mode before configuring exposure and frame rate.
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("ShutterMode", params.at<std::string>("ShutterMode"));
     EHoloGrabberInt::setup(params, gentl);
 
     if (params.at<std::string>("TriggerSource") == "SWTRIGGER")
@@ -45,6 +47,7 @@ void CameraPhantom991::load_default_params()
     params_.set<unsigned int>("StripeHeight", 4, false);
     params_.set<unsigned int>("BlockHeight", 0, false);
     params_.set<std::string>("StripeArrangement", "Geometry_1X_1Y", false);
+    params_.set<std::string>("ShutterMode", "Global");
     params_.set<std::string>("AcquisitionFrameRate", "");
     params_.set<std::string>("TriggerSelector", "");
 }
