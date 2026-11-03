@@ -60,10 +60,15 @@ without changing the dimensionless contrast K.
 
 Input filtering, filter and lens views, phase/component selection, frequency
 cuts, moments, and OCT exports are unavailable in LSCI. Convolution,
-renormalization, registration, and extra image averaging are bypassed. Rotation,
-flip, display contrast, and logarithmic display remain available. Entering or
-leaving LSCI restarts processing. Stop recording before changing the algorithm,
-spatial window, temporal window, batch size, or reconstruction settings.
+renormalization and extra image averaging are bypassed. Registration aligns
+contrast maps before regional statistics and display processing; it does not
+correct motion within the temporal window. Gaussian smoothing is used only to
+estimate motion; the displayed contrast map retains its original detail.
+The registration circle shows the central matching region, leaving a margin for motion search.
+Rotation, flip, display contrast, and logarithmic display remain available.
+Entering or leaving LSCI restarts processing. Stop recording before changing
+the algorithm, spatial window, temporal window, batch size, or reconstruction
+settings.
 
 Recording options are:
 

@@ -170,6 +170,52 @@ void enqueue_uniform_frames(BatchInputQueue& input, const std::vector<unsigned c
     input.sync_pending_copies();
 }
 
+void enqueue_vein_map(BatchInputQueue& input, int shift_x, int shift_y, int contrast_divisor = 1)
+{
+    const auto fd = input.get_fd();
+    std::vector<unsigned char> frame(fd.get_frame_res());
+    for (unsigned time = 0; time < 16; ++time)
+    {
+        for (int y = 0; y < fd.height; ++y)
+            for (int x = 0; x < fd.width; ++x)
+            {
+                const int original_x = (x - shift_x + fd.width) % fd.width;
+                const int original_y = (y - shift_y + fd.height) % fd.height;
+                const bool vein =
+                    (original_x >= 35 && original_x < 43 && original_y >= 20 && original_y < 73) ||
+                    (original_x >= 40 && original_x < 68 && std::abs(original_y - original_x + 7) < 5) ||
+                    (original_x >= 40 && original_x < 61 && std::abs(original_y + original_x - 102) < 4);
+                // Alternating input intensities produce K=0.1 in the veins
+                // and K=0.4 outside, independently of the spatial pattern.
+                const int amplitude = (vein ? 10 : 40) / contrast_divisor;
+                frame[y * fd.width + x] = static_cast<unsigned char>(100 + (time % 2 ? amplitude : -amplitude));
+            }
+        input.enqueue(frame.data(), cudaMemcpyHostToDevice);
+    }
+    input.sync_pending_copies();
+}
+
+void expect_registered_map(const std::vector<unsigned short>& frame,
+                           const std::vector<unsigned short>& reference,
+                           const camera::FrameDescriptor& fd,
+                           int correction_x,
+                           int correction_y,
+                           double contrast_scale = 1.,
+                           int residual_x = 0,
+                           int residual_y = 0)
+{
+    for (int y = 0; y < fd.height; ++y)
+        for (int x = 0; x < fd.width; ++x)
+        {
+            const bool exposed = x - correction_x < 0 || x - correction_x >= fd.width ||
+                                 y - correction_y < 0 || y - correction_y >= fd.height;
+            const int source_x = (x - residual_x + fd.width) % fd.width;
+            const int source_y = (y - residual_y + fd.height) % fd.height;
+            const double expected = exposed ? 0. : reference[source_y * fd.width + source_x] * contrast_scale;
+            ASSERT_NEAR(frame[y * fd.width + x], expected, 1.) << "Pixel (" << x << ", " << y << ")";
+        }
+}
+
 double population_contrast(const std::vector<unsigned char>& intensities)
 {
     double mean = 0.;
@@ -409,6 +455,102 @@ TEST(LsciPipeRegression, ReconstructionAndOpticsChangesDiscardPartialBlocksAndRe
         ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
         EXPECT_EQ(output->get_size(), 0u);
     }
+}
+
+TEST(LsciPipeRegression, RegistrationAlignsTranslatedDarkVeinsWithoutBlurringTheOutput)
+{
+    int devices = 0;
+    if (cudaGetDeviceCount(&devices) != cudaSuccess || devices == 0)
+        GTEST_SKIP() << "LSCI pipeline tests require a CUDA device";
+
+    constexpr unsigned batch = 4;
+    constexpr camera::FrameDescriptor fd = {96, 96, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    BatchInputQueue input(64, batch, fd);
+    std::atomic<RecordingContext*> active_recording{nullptr};
+    const cudaStream_t stream = 0;
+    auto initial = lsci_settings(batch);
+    std::get<settings::LsciSpatialWindow>(initial).value = 1;
+    std::get<settings::RegistrationEnabled>(initial).value = true;
+    std::get<settings::RegistrationZone>(initial).value = 0.9f;
+    InspectableLsciPipe pipe(input, active_recording, stream, initial);
+    auto output = pipe.get_output_queue();
+    PipeRunner runner(pipe, input);
+
+    enqueue_vein_map(input, 0, 0);
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+    enqueue_vein_map(input, 5, -3);
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 2; }));
+    runner.stop();
+    ASSERT_NO_THROW(runner.rethrow_failure());
+
+    std::vector<unsigned short> reference(fd.get_frame_res()), registered(fd.get_frame_res());
+    ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
+    ASSERT_EQ(output->dequeue(registered.data(), stream, cudaMemcpyDeviceToHost), 1);
+    expect_registered_map(registered, reference, fd, -5, 3);
+    EXPECT_NEAR(reference[48 * fd.width + 38], 0.1 * 65535., 1.);
+    EXPECT_NEAR(reference[48 * fd.width + 80], 0.4 * 65535., 1.);
+}
+
+TEST(LsciPipeRegression, RegistrationWaitsForFeaturesHoldsOnDropoutAndRecapturesAfterZoneChange)
+{
+    int devices = 0;
+    if (cudaGetDeviceCount(&devices) != cudaSuccess || devices == 0)
+        GTEST_SKIP() << "LSCI pipeline tests require a CUDA device";
+
+    constexpr unsigned batch = 4;
+    constexpr camera::FrameDescriptor fd = {96, 96, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    BatchInputQueue input(64, batch, fd);
+    std::atomic<RecordingContext*> active_recording{nullptr};
+    const cudaStream_t stream = 0;
+    auto initial = lsci_settings(batch);
+    std::get<settings::LsciSpatialWindow>(initial).value = 1;
+    std::get<settings::RegistrationEnabled>(initial).value = true;
+    std::get<settings::RegistrationZone>(initial).value = 0.9f;
+    InspectableLsciPipe pipe(input, active_recording, stream, initial);
+    auto output = pipe.get_output_queue();
+    {
+        PipeRunner runner(pipe, input);
+        enqueue_uniform_frames(input, std::vector<unsigned char>(16, 100));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+        enqueue_vein_map(input, 0, 0);
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 2; }));
+        enqueue_vein_map(input, 5, -3);
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 3; }));
+        // A much weaker, differently displaced pattern must retain the last
+        // reliable correction rather than jumping to a new displacement.
+        enqueue_vein_map(input, 9, -1, 10);
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 4; }));
+        enqueue_vein_map(input, 8, -2);
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 5; }));
+        runner.stop();
+        ASSERT_NO_THROW(runner.rethrow_failure());
+    }
+
+    std::vector<unsigned short> frame(fd.get_frame_res()), reference(fd.get_frame_res());
+    ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
+    EXPECT_TRUE(std::all_of(frame.begin(), frame.end(), [](auto pixel) { return pixel == 0; }));
+    ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
+    ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
+    expect_registered_map(frame, reference, fd, -5, 3);
+    ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
+    expect_registered_map(frame, reference, fd, -5, 3, 0.1, 4, 2);
+    ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
+    expect_registered_map(frame, reference, fd, -8, 2);
+
+    pipe.update_setting(settings::RegistrationZone{0.8f});
+    pipe.request(ICS::UpdateRegistrationZone);
+    pipe.clear_request(ICS::Termination);
+    PipeRunner runner(pipe, input);
+    enqueue_vein_map(input, -6, 4);
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+    enqueue_vein_map(input, -3, 2);
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 2; }));
+    runner.stop();
+    ASSERT_NO_THROW(runner.rethrow_failure());
+    ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
+    ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
+    expect_registered_map(frame, reference, fd, -3, 2);
+    EXPECT_NEAR(reference[52 * fd.width + 32], 0.1 * 65535., 1.);
 }
 
 TEST(LsciPipeRegression, ChangingSpatialWindowUsesNewNeighborhoodAndDiscardsPartialBlock)

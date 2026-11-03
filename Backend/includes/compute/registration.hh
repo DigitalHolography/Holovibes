@@ -12,6 +12,8 @@
  *  - Shifts all the images to stabilize them to the reference.
  *
  *  The reference is taken when the user click on the registation button in the gui.
+ *  LSCI uses Gaussian-smoothed vessel features and normalized template matching on a reduced K map;
+ *  only the resulting translation is applied to the original contrast map.
  */
 #pragma once
 
@@ -34,7 +36,8 @@
     holovibes::settings::RegistrationEnabled,     \
     holovibes::settings::FftShiftEnabled,         \
     holovibes::settings::RegistrationZone,        \
-    holovibes::settings::SpaceTransformation
+    holovibes::settings::SpaceTransformation,     \
+    holovibes::settings::TimeTransformation
 
 #define ALL_SETTINGS PIPE_REFRESH_SETTINGS
 
@@ -137,6 +140,9 @@ class Registration
     inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
+    /*! \brief Match Gaussian-smoothed LSCI vessel features to a fixed reference, then shift the original K map. */
+    void register_lsci();
+
     /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
@@ -182,6 +188,12 @@ class Registration
 
     /*! \brief Mean of the pixels inside the cicrle of `gpu_reference_image_` after applying the mask. */
     float reference_image_mean_ = 0.0f;
+
+    bool reference_ready_ = false;
+
+    // Keep OpenCV matching buffers private to the implementation.
+    struct LsciState;
+    std::shared_ptr<LsciState> lsci_;
 
     /*! \brief Float buffer containing the current `gpu_postprocess_frame` being processed. Contains only one frame.
      *  Contain the frame after applying the circular mask and rescaling. This image is used for the cross-correlation

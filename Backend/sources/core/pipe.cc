@@ -390,6 +390,7 @@ void Pipe::refresh()
             fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
         }
         insert_lsci();
+        registration_->insert_registration();
     }
     else
     {

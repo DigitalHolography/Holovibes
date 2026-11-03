@@ -40,6 +40,8 @@ class LsciSettingsTest : public ::testing::Test
         baseline.image_rendering.lsci_spatial_window = 5;
         baseline.image_rendering.batch_size = 4;
         baseline.image_rendering.time_transformation_stride = 4;
+        baseline.view.registration.registration_enabled = false;
+        baseline.view.registration.registration_zone = 0.7f;
         baseline.advanced.buffer_size.input = 64;
         baseline.Load();
         API.record.set_record_mode(RecordMode::RAW);
@@ -153,6 +155,22 @@ TEST_F(LsciSettingsTest, OptionalReconstructionSurvivesNormalizationAndSettingsR
     EXPECT_EQ(API.transform.set_space_transformation(SpaceTransformation::NONE), ApiCode::OK);
 }
 
+TEST_F(LsciSettingsTest, RegistrationSurvivesSelectionAndSettingsRoundTrip)
+{
+    ASSERT_EQ(API.global_pp.set_registration_enabled(true), ApiCode::OK);
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
+    EXPECT_TRUE(API.global_pp.get_registration_enabled());
+    EXPECT_EQ(API.global_pp.set_registration_zone(0.8f), ApiCode::OK);
+
+    API.transform.normalize_lsci_settings();
+    EXPECT_TRUE(API.global_pp.get_registration_enabled());
+    json saved = API.settings.compute_settings_to_json();
+    ASSERT_EQ(API.global_pp.set_registration_enabled(false), ApiCode::OK);
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_TRUE(API.global_pp.get_registration_enabled());
+    EXPECT_FLOAT_EQ(API.global_pp.get_registration_zone(), 0.8f);
+}
+
 TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
 {
     ComputeSettings requested;
@@ -195,7 +213,7 @@ TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
     EXPECT_FALSE(API.view.get_cuts_view_enabled());
     EXPECT_FALSE(API.view.get_lens_view_enabled());
     EXPECT_FALSE(API.view.get_filter2d_view_enabled());
-    EXPECT_FALSE(API.global_pp.get_registration_enabled());
+    EXPECT_TRUE(API.global_pp.get_registration_enabled());
     EXPECT_FALSE(API.global_pp.get_renorm_enabled());
     EXPECT_TRUE(API.global_pp.get_convolution_file_name().empty());
     EXPECT_EQ(API.window_pp.get_accumulation_level(WindowKind::XYview), 1u);

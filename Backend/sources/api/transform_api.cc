@@ -270,7 +270,6 @@ void TransformApi::normalize_lsci_settings() const
     UPDATE_SETTING(FftShiftEnabled, false);
     UPDATE_SETTING(Unwrap2d, false);
     UPDATE_SETTING(ZFFTShift, false);
-    UPDATE_SETTING(RegistrationEnabled, false);
     UPDATE_SETTING(RenormEnabled, false);
     UPDATE_SETTING(ConvolutionMatrix, std::vector<float>{});
     UPDATE_SETTING(ConvolutionFileName, std::string{});

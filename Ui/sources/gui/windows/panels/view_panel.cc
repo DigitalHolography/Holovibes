@@ -74,8 +74,8 @@ void ViewPanel::on_notify()
     ui_->FFTShiftCheckBox->setEnabled(!is_lsci);
 
     ui_->RegistrationCheckBox->setChecked(api_.global_pp.get_registration_enabled());
-    ui_->RegistrationCheckBox->setEnabled(!is_lsci);
-    ui_->RegistrationZoneSpinBox->setEnabled(!is_lsci && api_.global_pp.get_registration_enabled());
+    ui_->RegistrationCheckBox->setEnabled(true);
+    ui_->RegistrationZoneSpinBox->setEnabled(api_.global_pp.get_registration_enabled());
     ui_->RegistrationZoneSpinBox->setValue(api_.global_pp.get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api_.view.get_lens_view_enabled());
