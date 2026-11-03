@@ -103,3 +103,28 @@ For an existing compute-settings JSON, the relevant fields are:
 Loaded LSCI settings normalize incompatible processing options automatically.
 The `lsci_spatial_window` field is the odd side length in pixels, not the number
 of pixels in the square. Settings files without this field use the default 5.
+
+## Batch AVI export
+
+Run `ProcessHoloFiles.ps1` and choose configuration mode **3: LSCI AVI**, or
+choose **Interactive setup** followed by recording mode **5: LSCI AVI**.
+For an unattended export:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ProcessHoloFiles.ps1 -Lsci -InputFolder 'D:\lsci'
+```
+
+Use `-OutputFolder` to write the videos elsewhere. The LSCI mode uses the
+bundled `settingsLSCI.json` preset: direct intensity, a 5 x 5 spatial window,
+16-frame temporal blocks, automatic display contrast, and registration, which
+is always enabled in this export mode. Contrast is estimated from the central
+55% circle using the 1st and 99th percentiles to avoid noisy edges; the entire
+image is exported. The mode retains the input resolution and records every
+complete contrast map without additional frame skipping or accumulation
+startup skips.
+
+AVI playback is limited to **24 frames/s**, retaining every contrast map. For
+4096 input frames acquired at 1000 frames/s, the result contains **256 maps**
+and plays for approximately **10.67 seconds** at 24 frames/s. This slows playback
+relative to the 4.096-second acquisition. AVI uses MJPEG compression, so its
+file size depends on image content; resolution alone does not determine the size.
