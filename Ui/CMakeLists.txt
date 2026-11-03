@@ -148,6 +148,15 @@ endif()
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
+# Camera settings can change without relinking Holovibes.exe.
+add_custom_target(holovibes_camera_configs ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${CMAKE_BINARY_DIR}/AppData/cameras_config/"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/AppData/cameras_config/bfml/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" "${CMAKE_BINARY_DIR}/AppData/bfml/"
+    VERBATIM
+)
+add_dependencies(Holovibes holovibes_camera_configs)
+
 add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy shaders and convolution kernels and json patch
@@ -157,11 +166,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" ${CMAKE_BINARY_DIR}/assets/json_patches_holofile/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_settings/" ${CMAKE_BINARY_DIR}/assets/json_patches_settings/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${PRESET_DIR}/" ${CMAKE_BINARY_DIR}/AppData/preset/
-
-    # Copy camera config files to AppData
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" ${CMAKE_BINARY_DIR}/AppData/cameras_config/
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/AppData/cameras_config/bfml/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" ${CMAKE_BINARY_DIR}/AppData/bfml/
 
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${UI_DIR}/assets/icons/Holovibes.ico" ${CMAKE_BINARY_DIR}/assets/icons/Holovibes.ico
@@ -228,8 +232,22 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/qt-runtime/"
     COMPONENT application
 )
 
-install(DIRECTORY ${CMAKE_BINARY_DIR}/AppData/
+install(DIRECTORY "${CMAKE_BINARY_DIR}/AppData/"
     DESTINATION AppData
+    COMPONENT application
+    PATTERN "cameras_config" EXCLUDE
+    PATTERN "bfml" EXCLUDE
+)
+
+# CPack must use current camera defaults even without a fresh executable build.
+install(DIRECTORY "${CAMERA_DIR}/configs/"
+    DESTINATION AppData/cameras_config
+    COMPONENT application
+    PATTERN "bfml" EXCLUDE
+)
+
+install(DIRECTORY "${CAMERA_DIR}/configs/bfml/"
+    DESTINATION AppData/bfml
     COMPONENT application
 )
 
