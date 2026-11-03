@@ -198,8 +198,6 @@ void enqueue_vein_map(BatchInputQueue& input, int shift_x, int shift_y, int cont
 void expect_registered_map(const std::vector<unsigned short>& frame,
                            const std::vector<unsigned short>& reference,
                            const camera::FrameDescriptor& fd,
-                           int correction_x,
-                           int correction_y,
                            double contrast_scale = 1.,
                            int residual_x = 0,
                            int residual_y = 0)
@@ -207,11 +205,9 @@ void expect_registered_map(const std::vector<unsigned short>& frame,
     for (int y = 0; y < fd.height; ++y)
         for (int x = 0; x < fd.width; ++x)
         {
-            const bool exposed = x - correction_x < 0 || x - correction_x >= fd.width ||
-                                 y - correction_y < 0 || y - correction_y >= fd.height;
             const int source_x = (x - residual_x + fd.width) % fd.width;
             const int source_y = (y - residual_y + fd.height) % fd.height;
-            const double expected = exposed ? 0. : reference[source_y * fd.width + source_x] * contrast_scale;
+            const double expected = reference[source_y * fd.width + source_x] * contrast_scale;
             ASSERT_NEAR(frame[y * fd.width + x], expected, 1.) << "Pixel (" << x << ", " << y << ")";
         }
 }
@@ -486,7 +482,7 @@ TEST(LsciPipeRegression, RegistrationAlignsTranslatedDarkVeinsWithoutBlurringThe
     std::vector<unsigned short> reference(fd.get_frame_res()), registered(fd.get_frame_res());
     ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
     ASSERT_EQ(output->dequeue(registered.data(), stream, cudaMemcpyDeviceToHost), 1);
-    expect_registered_map(registered, reference, fd, -5, 3);
+    expect_registered_map(registered, reference, fd);
     EXPECT_NEAR(reference[48 * fd.width + 38], 0.1 * 65535., 1.);
     EXPECT_NEAR(reference[48 * fd.width + 80], 0.4 * 65535., 1.);
 }
@@ -531,11 +527,11 @@ TEST(LsciPipeRegression, RegistrationWaitsForFeaturesHoldsOnDropoutAndRecaptures
     EXPECT_TRUE(std::all_of(frame.begin(), frame.end(), [](auto pixel) { return pixel == 0; }));
     ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
     ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
-    expect_registered_map(frame, reference, fd, -5, 3);
+    expect_registered_map(frame, reference, fd);
     ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
-    expect_registered_map(frame, reference, fd, -5, 3, 0.1, 4, 2);
+    expect_registered_map(frame, reference, fd, 0.1, 4, 2);
     ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
-    expect_registered_map(frame, reference, fd, -8, 2);
+    expect_registered_map(frame, reference, fd);
 
     pipe.update_setting(settings::RegistrationZone{0.8f});
     pipe.request(ICS::UpdateRegistrationZone);
@@ -549,7 +545,7 @@ TEST(LsciPipeRegression, RegistrationWaitsForFeaturesHoldsOnDropoutAndRecaptures
     ASSERT_NO_THROW(runner.rethrow_failure());
     ASSERT_EQ(output->dequeue(reference.data(), stream, cudaMemcpyDeviceToHost), 1);
     ASSERT_EQ(output->dequeue(frame.data(), stream, cudaMemcpyDeviceToHost), 1);
-    expect_registered_map(frame, reference, fd, -3, 2);
+    expect_registered_map(frame, reference, fd);
     EXPECT_NEAR(reference[52 * fd.width + 32], 0.1 * 65535., 1.);
 }
 

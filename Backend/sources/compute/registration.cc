@@ -240,26 +240,7 @@ void Registration::updade_cirular_mask()
 
 void Registration::shift_image(float* input_output)
 {
-    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
-    {
-        // Fill exposed edges with zero instead of wrapping vessels across the field of view.
-        const size_t pitch = fd_.width * sizeof(float);
-        cudaXMemsetAsync(gpu_current_image_.get(), 0, pitch * fd_.height, stream_);
-        const int width = fd_.width - std::abs(shift_x_);
-        const int height = fd_.height - std::abs(shift_y_);
-        if (width > 0 && height > 0)
-            cudaSafeCall(
-                cudaMemcpy2DAsync(gpu_current_image_.get() + std::max(0, shift_y_) * fd_.width + std::max(0, shift_x_),
-                                  pitch,
-                                  input_output + std::max(0, -shift_y_) * fd_.width + std::max(0, -shift_x_),
-                                  pitch,
-                                  width * sizeof(float),
-                                  height,
-                                  cudaMemcpyDeviceToDevice,
-                                  stream_));
-    }
-    else
-        circ_shift(gpu_current_image_, input_output, fd_.width, fd_.height, shift_x_, shift_y_, stream_);
+    circ_shift(gpu_current_image_, input_output, fd_.width, fd_.height, shift_x_, shift_y_, stream_);
 
     // Copy the result of the shift in `input_output` buffer.
     cudaXMemcpyAsync(input_output,
