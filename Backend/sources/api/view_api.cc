@@ -9,6 +9,9 @@ namespace holovibes::api
 
 bool ViewApi::set_3d_cuts_view(bool enabled) const
 {
+    if (enabled && api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+        return false;
+
     // No 3d cuts in moments mode
     if (api_->compute.get_is_computation_stopped())
         return false;
@@ -58,6 +61,9 @@ bool ViewApi::set_3d_cuts_view(bool enabled) const
 
 void ViewApi::set_filter2d_view(bool enabled) const
 {
+    if (enabled && api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+        return;
+
     if (api_->compute.get_compute_mode() == Computation::Raw || api_->compute.get_is_computation_stopped())
         return;
 
@@ -108,6 +114,9 @@ void ViewApi::set_chart_display(bool enabled) const
 
 void ViewApi::set_lens_view(bool enabled) const
 {
+    if (enabled && api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+        return;
+
     if (api_->compute.get_is_computation_stopped() || api_->compute.get_compute_mode() == Computation::Raw && enabled)
         return;
 

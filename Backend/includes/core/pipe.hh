@@ -228,6 +228,9 @@ class Pipe : public ICompute
     /*! \brief Pause computation until a complete batch of time transformation size has arrived */
     void insert_wait_time_transformation_size();
 
+    /*! \brief Accumulate consecutive direct or reconstructed intensities into one contrast map per temporal block. */
+    void insert_lsci();
+
     /*! \brief Dequeue the input queue frame by frame in raw mode */
     void insert_dequeue_input();
 
@@ -309,6 +312,19 @@ class Pipe : public ICompute
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
+
+    /*! \brief Settings defining a single LSCI block; changing them discards partial statistics. */
+    struct LsciConfiguration
+    {
+        unsigned spatial_window = 0;
+        SpaceTransformation space_transformation = SpaceTransformation::NONE;
+        float lambda = 0.f;
+        float z_distance = 0.f;
+        float pixel_size = 0.f;
+
+        bool operator==(const LsciConfiguration&) const = default;
+    };
+    LsciConfiguration lsci_configuration_;
 };
 } // namespace holovibes
 

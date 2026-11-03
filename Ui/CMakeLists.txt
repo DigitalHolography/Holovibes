@@ -148,6 +148,9 @@ endif()
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
+# Refresh the bundled LSCI preset even when only its JSON changes for test purposes.
+set_property(TARGET Holovibes APPEND PROPERTY LINK_DEPENDS "${PRESET_DIR}/settingsLSCI.json")
+
 add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy shaders and convolution kernels and json patch

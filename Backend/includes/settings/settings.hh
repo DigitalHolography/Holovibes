@@ -170,6 +170,7 @@ DECLARE_SETTING(BenchmarkMode, bool);
 DECLARE_SETTING(BatchSize, uint);
 DECLARE_SETTING(TimeStride, uint);
 DECLARE_SETTING(TimeTransformationSize, uint);
+DECLARE_SETTING(LsciSpatialWindow, uint);
 DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);

@@ -41,8 +41,23 @@ ApiCode ComputeApi::start() const
     if (api_->input.get_import_type() == ImportType::None)
         return ApiCode::NO_IN_DATA;
 
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI &&
+        get_compute_mode() == Computation::Hologram)
+    {
+        const auto depth = api_->input.get_input_fd().depth;
+        if (GET_SETTING(DataType) == RecordedDataType::MOMENTS ||
+            (depth != camera::PixelDepth::Bits8 && depth != camera::PixelDepth::Bits16 &&
+             depth != camera::PixelDepth::Bits32))
+        {
+            LOG_ERROR("LSCI requires single-channel camera frames (8-bit, 16-bit, or float32)");
+            return ApiCode::WRONG_IMG_TYPE;
+        }
+    }
+
     // Stop any computation currently running and file reading
     stop();
+
+    api_->transform.normalize_lsci_settings();
 
     // Create the pipe
     Holovibes::instance().start_compute();
@@ -86,6 +101,20 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
     if (mode == get_compute_mode())
         return ApiCode::NO_CHANGE;
 
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+    {
+        if (api_->record.is_recording())
+            return ApiCode::FAILURE;
+        if (mode == Computation::Hologram && api_->input.get_import_type() != ImportType::None)
+        {
+            const auto depth = api_->input.get_input_fd().depth;
+            if (GET_SETTING(DataType) == RecordedDataType::MOMENTS ||
+                (depth != camera::PixelDepth::Bits8 && depth != camera::PixelDepth::Bits16 &&
+                 depth != camera::PixelDepth::Bits32))
+                return ApiCode::WRONG_IMG_TYPE;
+        }
+    }
+
     UPDATE_SETTING(ComputeMode, mode);
 
     if (mode == Computation::Hologram)
@@ -114,6 +143,9 @@ ApiCode ComputeApi::set_compute_mode(Computation mode) const
 
 ApiCode ComputeApi::set_img_type(const ImgType type) const
 {
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI && type != ImgType::Modulus)
+        return ApiCode::WRONG_IMG_TYPE;
+
     if (type == get_img_type())
         return ApiCode::NO_CHANGE;
 

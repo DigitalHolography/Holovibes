@@ -1,12 +1,29 @@
-# Import the necessary assembly for file dialog
-Add-Type -AssemblyName System.Windows.Forms
+param(
+    [switch]$Lsci,
+    [string]$InputFolder,
+    [string]$OutputFolder
+)
+
+$ErrorActionPreference = 'Stop'
 
 # Determine directories relative to this script
 $scriptDir  = $PSScriptRoot
 $scriptPath = Split-Path -Parent -Path $scriptDir  # install root if script lives in "scripts/"
 
+function Get-PresetPath([string]$name) {
+    $candidates = @(
+        (Join-Path $scriptDir "Ui/assets/preset/$name")
+        (Join-Path $scriptDir "AppData/preset/$name")
+        (Join-Path $scriptPath "AppData/preset/$name")
+    )
+    $path = $candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $path) { throw "Preset not found: $name" }
+    return $path
+}
+
 # Function to select folder
 function Select-Folder([string]$description, [string]$initial = '') {
+    Add-Type -AssemblyName System.Windows.Forms
     Write-Host $description -ForegroundColor Green
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = $description
@@ -21,20 +38,45 @@ function Select-Folder([string]$description, [string]$initial = '') {
     return $null
 }
 
-# Prompt for folder containing .holo files (always first)
-$holoFolderPath = Select-Folder -description "Select folder containing .holo files" 
+# Prompt for folder containing .holo files unless supplied on the command line.
+$holoFolderPath = $InputFolder
+if (-not $holoFolderPath) {
+    $holoFolderPath = Select-Folder -description "Select folder containing .holo files"
+}
 if (-not $holoFolderPath) {
     Write-Host "No folder selected. Exiting script." -ForegroundColor Red
     exit
 }
+if (-not (Test-Path -LiteralPath $holoFolderPath -PathType Container)) {
+    throw "Input folder not found: $holoFolderPath"
+}
+$holoFolderPath = (Resolve-Path -LiteralPath $holoFolderPath).Path
+if ($OutputFolder) {
+    $OutputFolder = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputFolder)
+    New-Item -ItemType Directory -Force -Path $OutputFolder | Out-Null
+}
 
-# Prompt for standard vs interactive configuration
-Write-Host "Select configuration mode:" -ForegroundColor Cyan
-Write-Host " 1) Standard config (all defaults)" -ForegroundColor Yellow
-Write-Host " 2) Interactive setup" -ForegroundColor Yellow
-$useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
+# Prompt for standard, interactive, or LSCI configuration.
+if ($Lsci) {
+    $useStandardConfig = '3'
+} else {
+    Write-Host "Select configuration mode:" -ForegroundColor Cyan
+    Write-Host " 1) Standard config (all defaults)" -ForegroundColor Yellow
+    Write-Host " 2) Interactive setup" -ForegroundColor Yellow
+    Write-Host " 3) LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
+    $useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
+}
 
-if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
+if ($useStandardConfig -eq '3') {
+    $modeChoice      = 5
+    $frameSkip       = 0
+    $input_fps       = -1
+    $outputExtension = '.avi'
+    $configFileNormal = Get-PresetPath 'settingsLSCI.json'
+    $configFileMoments = $null
+    Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping." -ForegroundColor Cyan
+}
+elseif ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
     # --- Standard defaults
     Write-Host "Using standard configuration. Processing with defaults..." -ForegroundColor Cyan
     $modeChoice      = 1
@@ -56,6 +98,7 @@ if ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq 
 else {
     # --- Interactive setup ---
     function Select-File([string]$description, [string]$filter) {
+        Add-Type -AssemblyName System.Windows.Forms
         Write-Host $description -ForegroundColor Green
         $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
         $fileDialog.Filter = $filter
@@ -67,6 +110,8 @@ else {
 
     function Select-OutputExtension {
     param([int]$modeChoice)
+
+    if ($modeChoice -eq 5) { return '.avi' }
 
     if ($modeChoice -eq 2 -or $modeChoice -eq 3 -or $modeChoice -eq 4) {
         Write-Host "For Moments and OCT/OCT_FLOAT records, output extension is fixed to .h5" -ForegroundColor Cyan
@@ -117,11 +162,16 @@ else {
     Write-Host " 2. Statistical moments" -ForegroundColor Yellow
     Write-Host " 3. OCT" -ForegroundColor Yellow
     Write-Host " 4. OCT_FLOAT" -ForegroundColor Yellow
+    Write-Host " 5. LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
     $modeChoice = Read-Host "Enter choice (default 1)"
-    if ($modeChoice -notmatch '^[1-4]$') { $modeChoice = 1 }
+    if ($modeChoice -notmatch '^[1-5]$') { $modeChoice = 1 }
 
     # Config files
-    if ($modeChoice -eq 1) {
+    if ($modeChoice -eq 5) {
+        $configFileNormal = Get-PresetPath 'settingsLSCI.json'
+        $configFileMoments = $null
+    }
+    elseif ($modeChoice -eq 1) {
         $configFileNormal  = Get-ConfigFileOption
         $configFileMoments = $null
     }
@@ -135,13 +185,19 @@ else {
     }
 
     # Frame skip et input fps
-    $frameSkip       = Read-Host "Enter frame skip (default 8)"; if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
+    if ($modeChoice -eq 5) {
+        $frameSkip = 0
+        Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
+    } else {
+        $frameSkip = Read-Host "Enter frame skip (default 8)"
+        if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
+    }
     $input_fps       = Read-Host "Enter input fps (optional)";    if ($input_fps -notmatch '^[0-9]+$') { $input_fps = -1 }
     $outputExtension = Select-OutputExtension -modeChoice $modeChoice
 }
 
 # Find all .holo files
-$holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
+$holoFiles = Get-ChildItem -LiteralPath $holoFolderPath -Filter *.holo -Recurse -File
 if (-not $holoFiles) {
     Write-Host "No .holo files found. Exiting." -ForegroundColor Red
     exit
@@ -161,9 +217,9 @@ $exeCandidates = @(
 
 $exePath = $exeCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1
 if (-not $exePath) {
-    Write-Host "Unable to locate Holovibes.exe." -ForegroundColor Red
-    exit
+    throw "Unable to locate Holovibes.exe. Build the application or set HOLOVIBES_BIN."
 }
+$exePath = (Resolve-Path -LiteralPath $exePath).Path
 Write-Host "Using executable: $exePath" -ForegroundColor Cyan
 
 # Function to run Holovibes 
@@ -174,22 +230,27 @@ function Execute-Holovibes {
         $skip,
         $fps,
         $config,
-        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT
+        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT, 5=LSCI AVI
     )
-    $args = "-i `"$inputFile`" -o `"$outputFile`""
-    if ($fps -ne -1) { $args += " -f $fps" }
+    $commandArguments = "-i `"$inputFile`" -o `"$outputFile`""
+    if ($fps -ne -1) { $commandArguments += " -f $fps" }
 
     switch ($mode) {
-        1 { $args += " --frame_skip $skip" }
-        2 { $args += " --moments_record" }
-        3 { $args += " --oct_cube_record" }
-        4 { $args += " --oct_cube_float_record" }
+        1 { $commandArguments += " --frame_skip $skip" }
+        2 { $commandArguments += " --moments_record" }
+        3 { $commandArguments += " --oct_cube_record" }
+        4 { $commandArguments += " --oct_cube_float_record" }
+        5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
     }
 
-    if ($config) { $args += " -c `"$config`"" }
+    if ($config) { $commandArguments += " -c `"$config`"" }
 
-    Write-Host "Running: $exePath $args" -ForegroundColor Yellow
-    Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
+    Write-Host "Running: $exePath $commandArguments" -ForegroundColor Yellow
+    $process = Start-Process -FilePath $exePath -ArgumentList $commandArguments -NoNewWindow -Wait -PassThru `
+        -WorkingDirectory (Split-Path -Parent $exePath)
+    if ($process.ExitCode -ne 0) {
+        throw "Holovibes failed for '$inputFile' (exit $($process.ExitCode))."
+    }
 }
 
 # Process each file
@@ -197,6 +258,11 @@ foreach ($file in $holoFiles) {
     $in   = $file.FullName
     $base = $file.BaseName
     $outDir = $file.DirectoryName  # dossier d'origine du fichier
+    if ($OutputFolder) {
+        $relativeDir = $file.DirectoryName.Substring($holoFolderPath.TrimEnd('\', '/').Length).TrimStart('\', '/')
+        $outDir = Join-Path $OutputFolder $relativeDir
+        New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+    }
 
     switch ($modeChoice) {
         1 {
@@ -210,6 +276,9 @@ foreach ($file in $holoFiles) {
         }
         4 {
             $out = Join-Path $outDir "${base}_oct_float.h5"
+        }
+        5 {
+            $out = Join-Path $outDir "${base}_lsci.avi"
         }
     }
 

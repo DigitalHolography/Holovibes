@@ -49,7 +49,8 @@
     holovibes::settings::FftShiftEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::TimeTransformation
     
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS

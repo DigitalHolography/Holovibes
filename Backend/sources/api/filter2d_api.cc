@@ -17,6 +17,9 @@ namespace holovibes::api
 
 ApiCode Filter2dApi::set_filter2d_enabled(bool checked) const
 {
+    if (checked && api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+        return ApiCode::WRONG_COMP_MODE;
+
     NOT_SAME_AND_NOT_RAW(get_filter2d_enabled(), checked);
 
     UPDATE_SETTING(Filter2dEnabled, checked);
@@ -100,6 +103,9 @@ std::vector<float> Filter2dApi::load_input_filter(const std::string& file) const
 
 ApiCode Filter2dApi::enable_filter(const std::string& filename) const
 {
+    if (!filename.empty() && api_->transform.get_time_transformation() == TimeTransformation::LSCI)
+        return ApiCode::WRONG_COMP_MODE;
+
     if (api_->compute.get_is_computation_stopped())
         return ApiCode::NOT_STARTED;
 

@@ -88,6 +88,8 @@ class ImageRenderingPanel : public Panel
 
     /*! \brief Changes the time transformation size from ui value */
     void set_time_transformation_size();
+    /*! \brief Changes the odd side length of the square LSCI spatial neighborhood. */
+    void set_lsci_spatial_window();
     /*! \brief Modifies wave length (lambda)
      *
      * \param value The new value of lambda

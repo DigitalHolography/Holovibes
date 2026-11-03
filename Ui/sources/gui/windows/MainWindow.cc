@@ -830,6 +830,13 @@ void MainWindow::init_tooltips()
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::SSA_STFT),
                                                  "Self-adaptive Spectrum Analysis Short-Time Fourier Transformation",
                                                  Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(
+        static_cast<int>(TimeTransformation::LSCI),
+        "Laser speckle contrast K = standard deviation / mean of intensity, pooled over "
+        "the square LSCI window and consecutive frames in nonoverlapping blocks. "
+        "Space Transform selects direct camera intensity (None) or reconstructed intensity. "
+        "Defaults of 5 x 5 pixels and 16 frames match the paper",
+        Qt::ToolTipRole);
 }
 
 #pragma endregion

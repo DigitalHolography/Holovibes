@@ -102,6 +102,7 @@
     holovibes::settings::BatchSize,                              \
     holovibes::settings::TimeStride,                             \
     holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::LsciSpatialWindow,                      \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
@@ -435,6 +436,7 @@ class Holovibes
                                              settings::BatchSize{1},
                                              settings::TimeStride{1},
                                              settings::TimeTransformationSize{1},
+                                             settings::LsciSpatialWindow{5},
                                              settings::SpaceTransformation{SpaceTransformation::NONE},
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},

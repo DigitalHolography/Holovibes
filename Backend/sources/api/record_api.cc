@@ -12,6 +12,10 @@ namespace holovibes::api
 
 ApiCode RecordApi::set_record_mode(RecordMode value) const
 {
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI && value != RecordMode::RAW &&
+        value != RecordMode::HOLOGRAM && value != RecordMode::CHART)
+        return ApiCode::WRONG_COMP_MODE;
+
     if (value == get_record_mode())
         return ApiCode::NO_CHANGE;
 
@@ -76,6 +80,13 @@ RecordProgress RecordApi::get_record_progress() const
 
 bool RecordApi::start_record_preconditions() const
 {
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI && get_record_mode() != RecordMode::RAW &&
+        get_record_mode() != RecordMode::HOLOGRAM && get_record_mode() != RecordMode::CHART)
+    {
+        LOG_ERROR("LSCI supports raw intensity, displayed contrast-map, and regional-chart recording");
+        return false;
+    }
+
     if (get_record_mode() == RecordMode::CHART && get_record_frame_count() == std::nullopt)
     {
         LOG_ERROR("Number of frames must be activated");

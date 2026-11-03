@@ -30,7 +30,11 @@ void OutputAviFile::write_header()
 
         bool is_color = fd_.depth == camera::PixelDepth::Bits24;
 
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_output_fps(), size, is_color);
+        double fps = compute_output_fps();
+        if (API.transform.get_time_transformation() == TimeTransformation::LSCI)
+            fps = std::min(fps, static_cast<double>(API.record.get_mp4_fps()));
+
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, fps, size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();

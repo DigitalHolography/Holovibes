@@ -100,7 +100,10 @@ void InformationApi::compute_throughput()
         record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
 
     input_throughput_ = input_fps_ * input_frame_size;
-    output_throughput_ = output_fps_ * output_frame_res * API.transform.get_time_transformation_size();
+    const auto components = API.transform.get_time_transformation() == TimeTransformation::LSCI
+                                ? 1u
+                                : API.transform.get_time_transformation_size();
+    output_throughput_ = output_fps_ * output_frame_res * components;
     saving_throughput_ = saving_fps_ * record_frame_size;
 }
 
