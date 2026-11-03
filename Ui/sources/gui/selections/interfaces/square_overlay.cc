@@ -1,5 +1,6 @@
 #include "square_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "API.hh"
 
 namespace holovibes::gui
 {
@@ -11,9 +12,31 @@ SquareOverlay::SquareOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
 void SquareOverlay::make_square()
 {
     // Set the bottom right corner to have a square selection.
-    const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
-    zone_.set_dst(units::PointFd(zone_.src().x() + ((zone_.src().x() < zone_.dst().x()) ? min : -min),
-                                 zone_.src().y() + ((zone_.src().y() < zone_.dst().y()) ? min : -min)));
+    const auto& fd = API.input.get_input_fd();
+    const float frameW = static_cast<float>(fd.width);
+    const float frameH = static_cast<float>(fd.height);
+
+    const float w = std::abs(zone_.width());
+    const float h = std::abs(zone_.height());
+
+    float newW, newH;
+    if (w * frameH < h * frameW)
+    {
+        newW = w;
+        newH = w * frameH / frameW;
+    }
+    else
+    {
+        newW = h * frameW / frameH;
+        newH = h;
+    }
+
+    if (zone_.dst().x() < zone_.src().x())
+        newW = -newW;
+    if (zone_.dst().y() < zone_.src().y())
+        newH = -newH;
+
+    zone_.set_dst(units::PointFd(zone_.src().x() + newW, zone_.src().y() + newH));
 }
 
 void SquareOverlay::checkCorners()

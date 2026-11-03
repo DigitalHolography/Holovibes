@@ -61,7 +61,7 @@ void BenchmarkWorker::run()
 
                 for (auto [key, info] : information_.queues)
                 {
-                    if (key == QueueType::UNDEFINED)
+                    if (key == QueueType::UNDEFINED || (is_record_queue(key) && key != QueueType::RECORD_QUEUE))
                         continue;
                     benchmark_file << "," << (info.device == Device::GPU ? "GPU " : "CPU ")
                                    << queue_type_to_string_.at(key) << " size: " << info.max_size;
@@ -90,7 +90,7 @@ void BenchmarkWorker::write_information(std::ofstream& csvFile)
     uint8_t i = 3;
     for (auto const& [key, info] : information_.queues)
     {
-        if (key == QueueType::UNDEFINED)
+        if (key == QueueType::UNDEFINED || (is_record_queue(key) && key != QueueType::RECORD_QUEUE))
             continue;
 
         csvFile << info.current_size << ",";

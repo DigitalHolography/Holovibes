@@ -1,6 +1,7 @@
 #include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
 #include "API.hh"
+#include "record_trigger_tcp_server.hh"
 #include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
@@ -33,6 +34,7 @@ void AdvancedSettingsWindow::set_ui_values()
     auto& api = API;
 
     api.record.set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
+    api.record.set_record_buffer_count(static_cast<uint>(ui.RecordBufferCountSpinBox->value()));
 
     api.input.set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api.input.set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
@@ -52,6 +54,11 @@ void AdvancedSettingsWindow::set_ui_values()
     UserInterfaceDescriptor::instance().output_filename_ = ui.OutputNameLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().matlab_record_signal_enabled_ = ui.MatlabRecordSignalCheckBox->isChecked();
+    UserInterfaceDescriptor::instance().matlab_record_signal_port_ =
+        static_cast<unsigned short>(ui.MatlabRecordSignalPortSpinBox->value());
+    RecordTriggerTcpServer::instance().configure(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                                                 UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
@@ -101,10 +108,13 @@ void AdvancedSettingsWindow::set_current_values()
     ui.CutsContrastSpinBox->setValue(api.contrast.get_cuts_contrast_p_offset());
 
     ui.RecordQueueLocationCheckBox->setChecked(api.record.get_record_queue_location() == Device::GPU);
+    ui.RecordBufferCountSpinBox->setValue(static_cast<int>(api.record.get_record_buffer_count()));
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
     ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
+    ui.MatlabRecordSignalCheckBox->setChecked(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_);
+    ui.MatlabRecordSignalPortSpinBox->setValue(UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));

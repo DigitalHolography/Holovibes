@@ -5,15 +5,87 @@
 
 #include <thread>
 #include <chrono>
+#include <list>
+#include <memory>
+#include <vector>
 
 #include "camera_logger.hh"
 #include "spdlog/spdlog.h"
 #include "camera_exception.hh"
 
 #include <EGrabber.h>
-#include <EGrabbers.h>
 
 #include <iostream>
+
+#include <windows.h>
+
+static inline uint64_t unix_now_us()
+{
+    FILETIME ft;
+#if defined(NTDDI_WIN8) && (NTDDI_VERSION >= NTDDI_WIN8)
+    GetSystemTimePreciseAsFileTime(&ft);
+#else
+    GetSystemTimeAsFileTime(&ft);
+#endif
+
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    // FILETIME is 100-ns ticks since 1601-01-01; convert to Unix epoch µs
+    static constexpr uint64_t EPOCH_DIFF_US = 11644473600000000ULL; // 1601->1970
+    uint64_t us = (uli.QuadPart / 10ULL);                           // 100ns -> µs
+    return us - EPOCH_DIFF_US;
+}
+
+struct SoftClockAlign
+{
+    // Minimal observed offset (host - camera)
+    std::atomic<uint64_t> offset_min_us{UINT64_MAX};
+
+    void observe(uint64_t t_cam_us, uint64_t t_host_us)
+    {
+        // Upper bound candidate
+        uint64_t cand = (t_host_us > t_cam_us) ? (t_host_us - t_cam_us) : 0;
+
+        // Try to update the minimum offset
+        uint64_t cur = offset_min_us.load(std::memory_order_relaxed);
+        while (cand < cur && !offset_min_us.compare_exchange_weak(cur, cand))
+        { /* spin */
+        }
+
+        uint64_t min_off = offset_min_us.load(std::memory_order_relaxed);
+        uint64_t extra_latency = (cand >= min_off) ? (cand - min_off) : 0;
+    }
+
+    uint64_t to_host_time(uint64_t t_cam_us) const
+    {
+        uint64_t off = offset_min_us.load(std::memory_order_relaxed);
+        if (off == UINT64_MAX)
+            return t_cam_us; // Not calibrated yet
+        return t_cam_us + off;
+    }
+};
+
+static SoftClockAlign g_align;
+
+namespace
+{
+std::vector<Euresys::EGrabberInfo> find_grabbers(Euresys::EGenTL& gentl)
+{
+    using namespace Euresys;
+
+    EGrabberDiscovery discovery(gentl);
+    discovery.discover();
+    std::vector<Euresys::EGrabberInfo> grabbers;
+    for (int i = 0; i < discovery.egrabberCount(); ++i)
+    {
+        grabbers.push_back(discovery.egrabbers(i));
+    }
+
+    return grabbers;
+}
+} // namespace
 
 namespace camera
 {
@@ -22,10 +94,17 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
                                  unsigned int buffer_part_count,
                                  std::string& pixel_format,
                                  unsigned int nb_grabbers)
-    : grabbers_(gentl)
+    : grabbers_()
     , buffer_part_count_(buffer_part_count)
     , nb_grabbers_(nb_grabbers)
 {
+    // Get the available grabbers
+    auto grabbers = find_grabbers(gentl);
+    for (const auto& info : grabbers)
+    {
+        grabbers_.emplace_back(std::make_unique<Euresys::EGrabber<>>(info));
+    }
+
     // Fetch the first grabber info to determine the width, height and depth
     // of the full image.
     // According to the requirements described above, we assume that the
@@ -36,7 +115,7 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
     // The below loop will check which grabbers are available to use, i.e the ones which are connected to a camera
     // We don't use Euresys::EGrabberDiscovery because it doesn't allow us to detect when a frame grabber is
     // connected to something or not
-    for (size_t ix = 0; ix < grabbers_.length(); ++ix)
+    for (size_t ix = 0; ix < grabbers_.size(); ++ix)
     {
         try
         {
@@ -47,7 +126,7 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
         {
             continue;
         }
-        available_grabbers_.push_back(grabbers_[ix]);
+        available_grabbers_.push_back(grabbers_[ix].get());
     }
 
     for (unsigned i = 0; i < available_grabbers_.size(); ++i)
@@ -213,29 +292,67 @@ void CameraPhantomInt::init_camera()
 
 void CameraPhantomInt::start_acquisition() { grabber_->start(); }
 
-void CameraPhantomInt::stop_acquisition() { grabber_->stop(); }
+void CameraPhantomInt::stop_acquisition()
+{
+    captured_buffers_.clear();
+    grabber_->stop();
+}
 
 void CameraPhantomInt::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
-    Euresys::ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
-    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
+    // The backend completed every copy before requesting the next camera buffer.
+    captured_buffers_.clear();
 
-    for (int i = 1; i < nb_grabbers; ++i)
-        Euresys::ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
+    // 1) Host timestamp right BEFORE waiting (lower bound)
+    uint64_t host_before_us = unix_now_us();
 
-    // process available images
+    // Retain every grabber's buffer until the backend has finished copying the stitched image.
+    std::list<Euresys::ScopedBuffer> buffers;
+
+    // 2) Blocking wait for a buffer
+    buffers.emplace_back(*grabber_->available_grabbers_[0]);
+    auto& buffer = buffers.front();
+
+    // 3) Host timestamp right AFTER the buffer (upper bound, better for offset)
+    uint64_t host_after_us = unix_now_us();
+
+    // Multi-grabber support
+    for (unsigned int i = 1; i < grabber_->nb_grabbers_; ++i)
+        buffers.emplace_back(*grabber_->available_grabbers_[i]);
+
+    // Number of delivered parts
     size_t delivered = buffer.getInfo<size_t>(Euresys::ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
 
-    CapturedFramesDescriptor ret;
+    // 4) Camera (GenTL) timestamp for this frame
+    uint64_t cam_ts_us = buffer.getInfo<uint64_t>(Euresys::gc::BUFFER_INFO_TIMESTAMP);
 
+    // 5) Update offset estimator with the host-after marker
+    g_align.observe(cam_ts_us, host_after_us);
+
+    // 6) Host-synchronized timestamp for this frame
+    uint64_t synced_ts_us = g_align.to_host_time(cam_ts_us);
+
+    // 7) Nominal period (in µs)
+    uint64_t period_us = 0;
+    if (auto cycle_us_opt = params_.get<unsigned int>("CycleMinimumPeriod"))
+        period_us = static_cast<uint64_t>(*cycle_us_opt);
+
+    CapturedFramesDescriptor ret;
     ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
-
     ret.region2 = nullptr;
     ret.count2 = 0;
+
+    ret.first_frame_timestamp_us = synced_ts_us; // Export host-synchronized timestamp
+    ret.frame_period_us = period_us;
+    ret.has_hw_timestamp = (cam_ts_us != 0);
+
+    ret.frame_offset_us = (ret.has_hw_timestamp) ? (synced_ts_us - cam_ts_us) : 0;
+    ret.camera_timestamp_us = cam_ts_us;
+    captured_buffers_ = std::move(buffers);
 
     return ret;
 }

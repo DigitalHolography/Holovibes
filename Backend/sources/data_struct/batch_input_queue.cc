@@ -1,8 +1,9 @@
 #include <cassert>
 #include "logger.hh"
-#include "holovibes.hh"
 
 #include "batch_input_queue.hh"
+#include "holovibes.hh"
+#include "stamp_queue.hh"
 
 namespace holovibes
 {
@@ -46,6 +47,7 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
     max_size_ = total_nb_frames_ / batch_size_;
+    pending_copy_streams_.assign(max_size_, 0);
 
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
@@ -59,6 +61,12 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     }
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
+
+    const size_t meta_count = static_cast<size_t>(max_size_) * batch_size_;
+    ids_.reset(new uint64_t[meta_count]);
+    synced_ts_.reset(new uint64_t[meta_count]);
+    camera_ts_.reset(new uint64_t[meta_count]);
+    offset_ts_.reset(new uint64_t[meta_count]);
 }
 
 void BatchInputQueue::sync_current_batch() const
@@ -72,6 +80,26 @@ void BatchInputQueue::sync_current_batch() const
 }
 
 bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
+
+void BatchInputQueue::sync_pending_copies()
+{
+    // A partial batch already owns the producer mutex until its last frame arrives.
+    // Otherwise protect the streams and dirty flags from a consumer-side resize.
+    std::unique_lock<std::mutex> producer_lock(m_producer_busy_, std::defer_lock);
+    if (curr_batch_counter_ == 0)
+        producer_lock.lock();
+
+    if (device_ == Device::GPU)
+    {
+        for (uint index = 0; index < max_size_; ++index)
+        {
+            if (!pending_copy_streams_[index])
+                continue;
+            cudaXStreamSynchronize(batch_streams_[index]);
+            pending_copy_streams_[index] = 0;
+        }
+    }
+}
 
 void BatchInputQueue::destroy_mutexes_streams()
 {
@@ -88,18 +116,25 @@ void BatchInputQueue::destroy_mutexes_streams()
     batch_mutexes_.reset(nullptr);
 }
 
-void BatchInputQueue::reset_override()
+void BatchInputQueue::request_reset() { reset_requested_.store(true, std::memory_order_release); }
+
+void BatchInputQueue::apply_pending_reset()
 {
-    auto index = end_index_.load();
+    if (!has_pending_reset())
+        return;
 
-    // Use unique_lock to lock and automatically unlock the mutexes
-    std::unique_lock<std::mutex> producer_lock(m_producer_busy_);
-    std::unique_lock<std::mutex> batch_lock(batch_mutexes_[index]);
+    // Only the consumer may clear the ring, between complete processing cycles.
+    // A partial producer batch may be waiting for the camera. Keep the pipeline
+    // responsive and retry at the next boundary instead of waiting on that batch.
+    std::unique_lock<std::mutex> producer_lock(m_producer_busy_, std::try_to_lock);
+    if (!producer_lock.owns_lock() || !reset_requested_.exchange(false, std::memory_order_acq_rel))
+        return;
 
-    // Reset the queue to its empty state
+    // Read the producer's current batch index after excluding further enqueues.
+    const auto index = end_index_.load();
+    std::lock_guard<std::mutex> batch_lock(batch_mutexes_[index]);
+
     make_empty();
-
-    // Unlocks are handled by unique_lock going out of scope
 }
 
 void BatchInputQueue::make_empty()
@@ -155,6 +190,7 @@ void BatchInputQueue::enqueue(const void* const frames, const cudaMemcpyKind mem
                          sizeof(char) * fd_.get_frame_size() * frames_to_enqueue,
                          memcpy_kind,
                          batch_streams_[end_index_]);
+        pending_copy_streams_[end_index_] = 1;
 
         // No sync needed here, the host doesn't need to wait for the copy to
         // end. Only the consumer needs to be sure the data is here before
@@ -257,7 +293,10 @@ void BatchInputQueue::dequeue_update_attr()
 {
     start_index_ = (start_index_ + 1) % max_size_;
     size_--;
-    curr_nb_frames_ -= batch_size_;
+    if (curr_nb_frames_ < batch_size_)
+        curr_nb_frames_ = 0;
+    else
+        curr_nb_frames_ -= batch_size_;
 }
 
 void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
@@ -370,12 +409,15 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
 // }
 
-void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind)
+void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind, StampQueue* record_stamps)
 {
-    copy_multiple(dest, batch_size_, cuda_kind);
+    copy_multiple(dest, batch_size_, cuda_kind, record_stamps);
 }
 
-void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
+void BatchInputQueue::copy_multiple(Queue& dest,
+                                    const uint nb_elts,
+                                    cudaMemcpyKind cuda_kind,
+                                    StampQueue* record_stamps)
 {
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
@@ -396,6 +438,16 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     src.first = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
+
+    if (record_stamps)
+    {
+        const size_t base = static_cast<size_t>(start_index_locked) * batch_size_;
+        record_stamps->push_range_from_arrays(ids_.get() + base,
+                                              synced_ts_.get() + base,
+                                              camera_ts_.get() + base,
+                                              offset_ts_.get() + base,
+                                              nb_elts);
+    }
 
     // Determine destination region info
     struct Queue::QueueRegion dst;
@@ -435,11 +487,127 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Copy done, release the batch.
     batch_mutexes_[start_index_locked].unlock();
 
-    if (dest.size_ >= dest.max_size_)
+    if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
         dest.has_overwritten_ = true;
     }
 }
+
+void BatchInputQueue::enqueue_with_ids(const void* const frames,
+                                       const cudaMemcpyKind memcpy_kind,
+                                       const int nb_frame,
+                                       uint64_t base_id,
+                                       uint64_t ts0_synced_us,
+                                       uint64_t period_us,
+                                       uint64_t ts0_cam_us,
+                                       uint64_t offset_us)
+{
+    // Validate copy direction vs. queue device
+    if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
+        throw std::runtime_error("Input queue: cannot cudaMemcpy to device when the queue is on CPU");
+
+    if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
+        throw std::runtime_error("Input queue: cannot cudaMemcpy to host when the queue is on GPU");
+
+    // Source base pointer and sizes
+    const size_t bytes_per_frame = static_cast<size_t>(fd_.get_frame_size());
+    const char* const src_frames_base = static_cast<const char*>(frames);
+
+    int frames_left = nb_frame;
+    size_t frames_copied = 0; // how many source frames have already been copied
+
+    // IDs/timestamps to write for the next frame
+    uint64_t next_id = base_id;
+    uint64_t next_synced = ts0_synced_us;
+    uint64_t next_cam = ts0_cam_us;
+
+    while (frames_left > 0)
+    {
+        // Lock once when starting a new batch
+        if (curr_batch_counter_ == 0)
+        {
+            m_producer_busy_.lock();
+            batch_mutexes_[end_index_].lock();
+        }
+
+        // Number of frames to enqueue in this iteration
+        const uint frames_to_enqueue = std::min(static_cast<uint>(frames_left), batch_size_ - curr_batch_counter_);
+
+        // Destination pointer for this slice
+        char* const dst_frames =
+            data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * bytes_per_frame);
+
+        // advance the source pointer according to already-copied frames
+        const char* const src_frames = src_frames_base + frames_copied * bytes_per_frame;
+
+        // Async copy of image bytes
+        cudaXMemcpyAsync(dst_frames,
+                         src_frames,
+                         bytes_per_frame * static_cast<size_t>(frames_to_enqueue),
+                         memcpy_kind,
+                         batch_streams_[end_index_]);
+        pending_copy_streams_[end_index_] = 1;
+
+        // Write metadata (host)
+        const size_t meta_base = static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_;
+        uint64_t* const dst_ids = ids_.get() + meta_base;
+        uint64_t* const dst_synced = synced_ts_.get() + meta_base;
+        uint64_t* const dst_cam = camera_ts_.get() + meta_base;
+        uint64_t* const dst_off = offset_ts_.get() + meta_base;
+
+        for (uint i = 0; i < frames_to_enqueue; ++i)
+        {
+            dst_ids[i] = next_id + i;
+            dst_synced[i] = next_synced + static_cast<uint64_t>(i) * period_us;
+            dst_cam[i] = ts0_cam_us ? (next_cam + static_cast<uint64_t>(i) * period_us) : 0;
+            dst_off[i] = offset_us;
+        }
+
+        // Advance ID/time cursors for the next slice
+        next_id += frames_to_enqueue;
+        next_synced += static_cast<uint64_t>(frames_to_enqueue) * period_us;
+        if (ts0_cam_us)
+            next_cam += static_cast<uint64_t>(frames_to_enqueue) * period_us;
+
+        // Advance source-frame counters and remaining frames
+        frames_copied += static_cast<size_t>(frames_to_enqueue);
+        frames_left -= static_cast<int>(frames_to_enqueue);
+
+        // Batch bookkeeping
+        curr_batch_counter_ += frames_to_enqueue;
+
+        if (curr_batch_counter_ == batch_size_)
+        {
+            curr_batch_counter_ = 0;
+            const uint prev_end_index = end_index_;
+            end_index_ = (end_index_ + 1) % max_size_;
+
+            if (size_ == max_size_)
+            {
+                has_overwritten_ = true;
+                start_index_ = (start_index_ + 1) % max_size_;
+            }
+            else
+            {
+                size_++;
+                curr_nb_frames_ += batch_size_;
+            }
+
+            // copies are async; the consumer must synchronize the corresponding stream
+            batch_mutexes_[prev_end_index].unlock();
+            m_producer_busy_.unlock();
+
+            if (resize_in_progress_)
+            {
+                // Busy-wait until the resize finishes, then exit early
+                while (resize_in_progress_)
+                    continue;
+                return;
+            }
+        }
+    }
+}
+
 } // namespace holovibes

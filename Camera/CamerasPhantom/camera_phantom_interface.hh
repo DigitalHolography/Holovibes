@@ -6,8 +6,10 @@
 #pragma once
 
 #include <optional>
+#include <memory>
+#include <list>
+#include <vector>
 #include <EGrabber.h>
-#include <EGrabbers.h>
 
 #include "camera.hh"
 #include "camera_param_map.hh"
@@ -27,7 +29,7 @@ Cam* InitCam();
  * \brief Alias to the \ref Euresys::EGrabberCallbackOnDemand "EGrabberCallbackOnDemand" class for better code
  * lisibility
  */
-using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
+using EHoloSubGrabber = Euresys::CallbackOnDemand;
 
 /*! \class EHoloGrabberInt
  *
@@ -83,10 +85,10 @@ class EHoloGrabberInt
     PixelDepth depth_;
 
     /*! \brief An EGrabbers instance giving access to each detected frame grabber. */
-    Euresys::EGrabbers<EHoloSubGrabber> grabbers_;
+    std::vector<std::unique_ptr<Euresys::EGrabber<EHoloSubGrabber>>> grabbers_;
 
     /*! \brief The list of detected grabbers that are connected to a camera and are truly available for use. */
-    std::vector<Euresys::EGrabberRef<EHoloSubGrabber>> available_grabbers_;
+    std::vector<Euresys::EGrabber<EHoloSubGrabber>*> available_grabbers_;
 
     /*! \brief Number of requested grabbers to use */
     unsigned int nb_grabbers_;
@@ -171,6 +173,9 @@ class CameraPhantomInt : public Camera
     /*! \brief Unique pointer to an implementation of \ref camera::EHoloGrabberInt "EHoloGrabberInt" that was
      * instantiated by the camera*/
     std::unique_ptr<EHoloGrabberInt> grabber_;
+
+    /*! \brief Buffers returned by get_frames, retained until the next call after backend copies have completed. */
+    std::list<Euresys::ScopedBuffer> captured_buffers_;
 
     /*! \brief Camera prefix used in the ini file */
     std::string ini_prefix_;

@@ -77,7 +77,8 @@ void ThreadWorkerController<T>::run()
     try
     {
         worker_->run();
-        callback_();
+        if (callback_)
+            callback_();
     }
     catch (const std::exception& e)
     {

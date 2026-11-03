@@ -30,10 +30,6 @@ void InputApi::camera_none() const
 
 void InputApi::set_input_file_start_index(size_t value) const
 {
-    // Ensures that moments are read 3 by 3
-    if (get_data_type() == RecordedDataType::MOMENTS)
-        value -= value % 3;
-
     UPDATE_SETTING(InputFileStartIndex, value);
     if (value >= get_input_file_end_index())
         set_input_file_end_index(value + 1);
@@ -43,11 +39,6 @@ void InputApi::set_input_file_end_index(size_t value) const
 {
     if (value <= 0)
         value = 1; // Cannot read no frames, so end index can't be 0
-    // Ensures that moments are read 3 by 3, and at least 3 (hence the value < 3 check)
-    // In moments mode, the end index must at least be
-    uchar mod = value % 3;
-    if (get_data_type() == RecordedDataType::MOMENTS && (mod != 0 || value < 3))
-        value += 3 - mod; // 'ceiling' moments
 
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
@@ -109,13 +100,6 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
 
     input->import_info();
 
-    // When reading moments, the batch size must be forced to 3. Because they are 3 moments per frame.
-    if (get_data_type() == RecordedDataType::MOMENTS)
-    {
-        api_->transform.set_batch_size(3);
-        api_->transform.set_time_stride(3);
-    }
-
     // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
     // buffers used when the file was recorded
     set_input_buffer_size(input_buffer_size);
@@ -131,6 +115,47 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     return input;
 }
 
+std::optional<io_files::InputFrameFile*> InputApi::import_mraw_file(const std::string& filename,
+                                                                    const std::string& cih) const
+{
+    if (filename.empty())
+    {
+        LOG_ERROR("Empty filename");
+        return std::nullopt;
+    }
+
+    io_files::InputFrameFile* input = nullptr;
+
+    // Try to open the file
+    try
+    {
+        input = io_files::InputFrameFileFactory::open_mraw(filename, cih);
+    }
+    catch (const io_files::FileException& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+        return std::nullopt;
+    }
+
+    // Stop any computation currently running
+    camera_none();
+
+    // Set settings
+    set_input_fd(input->get_frame_descriptor());
+    set_input_file_path(filename);
+    set_input_file_start_index(0);
+    set_input_file_end_index(input->get_total_nb_frames());
+    set_import_type(ImportType::File);
+    api_->record.set_record_mode(RecordMode::HOLOGRAM);
+
+    // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+    // record
+    auto input_buffer_size = get_input_buffer_size();
+    auto record_buffer_size = api_->record.get_record_buffer_size();
+
+    return input;
+}
+
 #pragma endregion
 
 #pragma region Cameras
@@ -141,7 +166,9 @@ bool InputApi::can_get_camera_fps() const
                                                                CameraKind::AutoDetectionPhantom,
                                                                CameraKind::AmetekS711EuresysCoaxlinkQSFP,
                                                                CameraKind::AmetekS991EuresysCoaxlinkQSFP,
-                                                               CameraKind::Ametek};
+                                                               CameraKind::AmetekS980EuresysCoaxlinkQSFP,
+                                                               CameraKind::Ametek,
+                                                               CameraKind::PCO_Edge4_2lt};
     return (std::find(compatible_cameras.begin(), compatible_cameras.end(), api_->input.get_camera_kind()) !=
             compatible_cameras.end());
 }
@@ -178,10 +205,12 @@ bool InputApi::set_camera_kind(CameraKind c, bool save) const
             {CameraKind::Phantom, "AmetekS710EuresysCoaxlinkOcto.dll"},
             {CameraKind::AmetekS711EuresysCoaxlinkQSFP, "AmetekS711EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::AmetekS991EuresysCoaxlinkQSFP, "AmetekS991EuresysCoaxlinkQsfp+.dll"},
+            {CameraKind::AmetekS980EuresysCoaxlinkQSFP, "AmetekS980EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::Ametek, "EuresyseGrabber.dll"},
             {CameraKind::Alvium, "CameraAlvium.dll"},
             {CameraKind::AutoDetectionPhantom, "CameraPhantomAutoDetection.dll"},
-            {CameraKind::ASI, "CameraASI.dll"}};
+            {CameraKind::ASI, "CameraASI.dll"},
+            {CameraKind::PCO_Edge4_2lt, "CameraPCO.dll"}};
 
         // Load the camera
         auto active_camera = camera::CameraDLL::load_camera(camera_dictionary.at(c));

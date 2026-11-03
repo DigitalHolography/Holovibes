@@ -369,6 +369,7 @@
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS980EuresysCoaxlinkQSPF+"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -419,6 +420,11 @@
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS980EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S980 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -699,6 +705,16 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionAmetekS980EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>camera_ametek_s980_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel"><x>-1</x><y>-1</y></hint>
+    <hint type="destinationlabel"><x>604</x><y>397</y></hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionSettings</sender>
    <signal>triggered()</signal>
    <receiver>LightUI</receiver>
@@ -746,6 +762,7 @@
   <slot>camera_phantom()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s980_coaxlink_qspf_plus()</slot>
   <slot>configure_camera()</slot>
   <slot>update_recorded_eye()</slot>
  </slots>

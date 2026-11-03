@@ -121,18 +121,6 @@ class FourierTransform
      */
     void insert_moments();
 
-    /*!
-     * \brief Splits 3 contiguous moments from a temporary buffer to their respective individual buffers.
-     * Is used only when reading a moments file.
-     */
-    void insert_moments_split();
-
-    /*!
-     * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
-     * if the corresponding image type is selected.
-     */
-    void insert_moments_to_output();
-
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
                                               float* gpu_postprocess_frame_xz,

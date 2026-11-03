@@ -3,6 +3,7 @@
 #include "API.hh"
 #include "BasicOpenGLWindow.hh"
 #include "notifier.hh"
+#include <math.h>
 
 namespace holovibes::gui
 {
@@ -32,7 +33,54 @@ void SliceCrossOverlay::move(QMouseEvent* e)
 
         pIndex_ = getMousePos(e->pos());
 
-        API.transform.set_p_index(slice_xz ? pIndex_.y() : pIndex_.x());
+        if (API.window_pp.get_horizontal_flip())
+        {
+            if (slice_xz)
+            {
+                pIndex_.set_y(parent_->getFd().height - pIndex_.y());
+            }
+            else
+            {
+                pIndex_.set_x(parent_->getFd().width - pIndex_.x());
+            }
+        }
+
+        uint rot = API.window_pp.get_rotation();
+        if (rot != 0)
+        {
+            double width = parent_->getFd().width;
+            double height = parent_->getFd().height;
+            double xc = width / 2.0;
+            double yc = height / 2.0;
+
+            double dx = pIndex_.x() - xc;
+            double dy = pIndex_.y() - yc;
+            double x_rot = pIndex_.x(), y_rot = pIndex_.y();
+
+            switch (rot)
+            {
+            case 90:
+                x_rot = xc - dy;
+                y_rot = yc + dx;
+                break;
+            case 180:
+                x_rot = xc - dx;
+                y_rot = yc - dy;
+                break;
+            case 270:
+                x_rot = xc + dy;
+                y_rot = yc - dx;
+                break;
+            default:
+                break;
+            }
+            pIndex_.set_x(x_rot);
+            pIndex_.set_y(y_rot);
+        }
+
+        double p_index = slice_xz ? pIndex_.y() : pIndex_.x();
+        API.transform.set_p_index(p_index);
+
         NotifierManager::notify("notify", true);
     }
 }

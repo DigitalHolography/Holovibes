@@ -154,6 +154,47 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
+        if (API.window_pp.get_horizontal_flip())
+        {
+            mouse_position_.set_x(parent_->getFd().width - mouse_position_.x());
+        }
+
+        uint rot = API.window_pp.get_rotation();
+        if (rot != 0)
+        {
+            double x = mouse_position_.x();
+            double y = mouse_position_.y();
+            double width = parent_->getFd().width;
+            double height = parent_->getFd().height;
+
+            double xc = width / 2.0;
+            double yc = height / 2.0;
+
+            double dx = x - xc;
+            double dy = y - yc;
+            double x_rot = x, y_rot = y;
+
+            switch (rot)
+            {
+            case 90:
+                x_rot = xc - dy;
+                y_rot = yc + dx;
+                break;
+            case 180:
+                x_rot = xc - dx;
+                y_rot = yc - dy;
+                break;
+            case 270:
+                x_rot = xc + dy;
+                y_rot = yc - dx;
+                break;
+            default:
+                break; // 0°
+            }
+            mouse_position_.set_x(x_rot);
+            mouse_position_.set_y(y_rot);
+        }
+
         API.transform.set_x_cuts(mouse_position_.x());
         API.transform.set_y_cuts(mouse_position_.y());
 

@@ -16,6 +16,7 @@
 #include "logger.hh"
 #include "queue.hh"
 #include "rect.hh"
+#include "recording_context.hh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 #include "unique_ptr.hh"
@@ -94,6 +95,7 @@
     holovibes::settings::CameraFps,                              \
     holovibes::settings::BatchSize,                              \
     holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::LsciSpatialWindow,                      \
     holovibes::settings::InputFilter
 
 #define ONRESTART_SETTINGS                                       \
@@ -120,9 +122,12 @@ class ICompute
 {
   public:
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ICompute(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
+    ICompute(BatchInputQueue& input,
+             std::atomic<RecordingContext*>& active_recording,
+             const cudaStream_t& stream,
+             InitSettings settings)
         : input_queue_(input)
-        , record_queue_(record)
+        , active_recording_(active_recording)
         , stream_(stream)
         , realtime_settings_(settings)
         , pipe_cycle_settings_(settings)
@@ -137,19 +142,25 @@ class ICompute
         int inembed[1] = {static_cast<int>(setting<settings::TimeTransformationSize>())};
         int zone_size = static_cast<int>(fd.get_frame_res());
 
-        plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
+        const bool lsci = setting<settings::TimeTransformation>() == TimeTransformation::LSCI;
+        if (!lsci)
+            plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
-        allocate_moments_buffers();
+        if (!lsci)
+            allocate_moments_buffers();
 
         init_output_queue();
 
-        time_transformation_env_.stft_plan
-            .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
+        if (!lsci)
+        {
+            time_transformation_env_.stft_plan
+                .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-        fd.depth = camera::PixelDepth::Complex;
-        time_transformation_env_.gpu_time_transformation_queue.reset(
-            new Queue(fd, setting<settings::TimeTransformationSize>()));
+            fd.depth = camera::PixelDepth::Complex;
+            time_transformation_env_.gpu_time_transformation_queue.reset(
+                new Queue(fd, setting<settings::TimeTransformationSize>()));
+        }
 
         if (setting<settings::ImageType>() == ImgType::Composite) // Grey to RGB
             zone_size *= 3;
@@ -190,6 +201,7 @@ class ICompute
         OutputBuffer,
         Refresh,
         UpdateTimeTransformationSize,
+        UpdateLsciSpatialWindow,
         ChartDisplay,
         DisableChartDisplay,
         DisableChartRecord,
@@ -371,8 +383,8 @@ class ICompute
     /*! \brief Reference on the input queue */
     BatchInputQueue& input_queue_;
 
-    /*! \brief Reference on the record queue */
-    Queue& record_queue_;
+    /*! \brief Recording currently receiving frames. The pointed context is owned by Holovibes. */
+    std::atomic<RecordingContext*>& active_recording_;
 
     /*! \brief Queue storing raw frames used by raw view */
     std::unique_ptr<Queue> gpu_raw_view_queue_{nullptr};

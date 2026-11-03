@@ -2,6 +2,7 @@
 #include "output_holo_file.hh"
 #include "output_avi_file.hh"
 #include "output_mp4_file.hh"
+#include "output_hdf5_file.hh"
 
 namespace holovibes::io_files
 {
@@ -18,6 +19,8 @@ OutputFrameFile* OutputFrameFileFactory::create(const std::string& file_path,
 
     else if (file_path.ends_with(".mp4"))
         return new OutputMp4File(file_path, fd, img_nb);
+    else if (file_path.ends_with(".h5"))
+        return new OutputHdf5File(file_path, fd, img_nb);
 
     else
     {

@@ -8,9 +8,11 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+#include <cstdint>
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <vector>
 
 #include "cuda_memory.cuh"
 #include "display_queue.hh"
@@ -22,9 +24,10 @@
 
 using uint = unsigned int;
 
+class StampQueue;
+
 namespace holovibes
 {
-
 class Queue;
 
 /*! \class BatchInputQueue
@@ -76,8 +79,12 @@ class BatchInputQueue final : public DisplayQueue
      * \param[out] dest The destination queue
      * \param[in] nb_elts Number of elts to copy multiple (must be lower than batch_size)
      * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
+     * \param[out] record_stamps Optional queue receiving the copied frames' IDs and timestamps.
      */
-    void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void copy_multiple(Queue& dest,
+                       const uint nb_elts,
+                       cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                       StampQueue* record_stamps = nullptr);
 
     /*! \brief Copy multiple
      *
@@ -86,8 +93,11 @@ class BatchInputQueue final : public DisplayQueue
      *
      * \param[out] dest The destination queue
      * \param[in] cuda_kind Type of memory copy operation (default: cudaMemcpyHostToDevice).
+     * \param[out] record_stamps Optional queue receiving the copied frames' IDs and timestamps.
      */
-    void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void copy_multiple(Queue& dest,
+                       cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                       StampQueue* record_stamps = nullptr);
 
     /*! \brief Function used when dequeuing a batch of frame
      *
@@ -152,6 +162,12 @@ class BatchInputQueue final : public DisplayQueue
 
     void sync_current_batch() const;
 
+    /*! \brief Wait for all image copies issued by the producer since its previous synchronization.
+     *
+     * Called only by the producer before releasing captured source buffers.
+     */
+    void sync_pending_copies();
+
     bool is_current_batch_full();
 
     inline void* get_last_image() const override
@@ -161,11 +177,12 @@ class BatchInputQueue final : public DisplayQueue
 
         if (device_ == Device::GPU)
         {
-            const std::lock_guard<std::mutex> lock(m_producer_busy_);
             sync_current_batch();
         }
         // Return the previous enqueued frame
-        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
+        return data_.get() +
+               ((static_cast<size_t>(start_index_) * batch_size_ + curr_nb_frames_ - 1) % total_nb_frames_) *
+                   fd_.get_frame_size();
     }
 
     bool is_empty() const { return size_ == 0; }
@@ -176,7 +193,17 @@ class BatchInputQueue final : public DisplayQueue
 
     bool has_overwritten() const { return has_overwritten_; }
 
-    void reset_override();
+    /*! \brief Request a queue reset without blocking or changing a batch currently being consumed. */
+    void request_reset();
+
+    bool has_pending_reset() const { return reset_requested_.load(std::memory_order_acquire); }
+
+    /*! \brief Apply a pending reset on the consumer thread before processing the next batch.
+     *
+     * Must be called at the pipeline's batch boundary, before checking whether a batch is available.
+     * The consumer must not be processing or holding a batch when calling this method.
+     */
+    void apply_pending_reset();
 
     // HOLO: Can it be removed?
     const void* get_data() const { return data_; }
@@ -184,6 +211,19 @@ class BatchInputQueue final : public DisplayQueue
     uint get_total_nb_frames() const { return total_nb_frames_; }
 
     const camera::FrameDescriptor& get_fd() const { return fd_; }
+
+    // Enqueue frames with IDs and timing base info (for RAW record stamping)
+    // ts0_* correspond to the first frame (base_id) of this call.
+    void enqueue_with_ids(const void* const frames,
+                          const cudaMemcpyKind memcpy_kind,
+                          const int nb_frame,
+                          uint64_t base_id,
+                          uint64_t ts0_synced_us,
+                          uint64_t period_us,
+                          uint64_t ts0_cam_us,
+                          uint64_t offset_us);
+
+    const uint64_t* ids_data() const { return ids_.get(); }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -279,12 +319,16 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief True when the queue is being resized. */
     std::atomic<bool> resize_in_progress_ = false;
 
+    std::atomic<bool> reset_requested_{false};
+
     /*! \name Synchronization attributes
      * \{
      */
     mutable std::mutex m_producer_busy_;
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
+    // Accessed by the producer, or by resize while it holds m_producer_busy_.
+    std::vector<unsigned char> pending_copy_streams_;
     /*! \} */
 
     /*!
@@ -292,5 +336,11 @@ class BatchInputQueue final : public DisplayQueue
      *
      */
     std::atomic<Device>& device_;
+
+    // Per-frame metadata, parallel to stored frames
+    std::unique_ptr<uint64_t[]> ids_{nullptr};
+    std::unique_ptr<uint64_t[]> synced_ts_{nullptr};
+    std::unique_ptr<uint64_t[]> camera_ts_{nullptr};
+    std::unique_ptr<uint64_t[]> offset_ts_{nullptr};
 };
 } // namespace holovibes

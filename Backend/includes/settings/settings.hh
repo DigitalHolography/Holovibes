@@ -68,6 +68,9 @@ DECLARE_SETTING(RecordFilePath, std::string);
  */
 DECLARE_SETTING(RecordFrameCount, std::optional<size_t>);
 
+/*! \brief Whether every recorded RAW camera frame timestamp is stored in the holo footer. */
+DECLARE_SETTING(RecordFrameTimestampsEnabled, bool);
+
 /*!
  * \brief The setting that specifies the mode of the record.
  */
@@ -167,6 +170,7 @@ DECLARE_SETTING(BenchmarkMode, bool);
 DECLARE_SETTING(BatchSize, uint);
 DECLARE_SETTING(TimeStride, uint);
 DECLARE_SETTING(TimeTransformationSize, uint);
+DECLARE_SETTING(LsciSpatialWindow, uint);
 DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
@@ -200,6 +204,9 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV);
 DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
+
+/*! \brief Number of record buffers available for overlapping capture and file saving. */
+DECLARE_SETTING(RecordBufferCount, uint);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);

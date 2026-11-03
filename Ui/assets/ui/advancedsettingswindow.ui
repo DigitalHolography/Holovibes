@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>650</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>450</width>
-    <height>560</height>
+    <height>650</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -586,15 +586,44 @@ threshold</string>
               </widget>
              </item>
              <item row="7" column="0" colspan="2">
-                <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
-                    <property name="text">
-                        <string>Record queue on GPU</string>
-                    </property>
-                    <property name="checkable">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </item>
+              <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
+               <property name="text">
+                <string>Record queue on GPU</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="RecordBufferCountLabel">
+               <property name="toolTip">
+                <string>Number of record buffers available for capture while earlier files are being saved. Each buffer uses the configured record-buffer memory; total memory increases with this count. Default: 3.</string>
+               </property>
+               <property name="text">
+                <string>Record buffer count</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QSpinBox" name="RecordBufferCountSpinBox">
+               <property name="toolTip">
+                <string>Number of record buffers available for capture while earlier files are being saved. Each buffer uses the configured record-buffer memory; total memory increases with this count. Default: 3.</string>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>2147483647</number>
+               </property>
+               <property name="value">
+                <number>3</number>
+               </property>
+              </widget>
+             </item>
              <item row="3" column="1">
               <widget class="QDoubleSpinBox" name="ContrastLowerSpinBox">
                <property name="maximum">
@@ -606,6 +635,93 @@ threshold</string>
            </item>
           </layout>
          </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="holovibes::gui::GroupBox" name="MatlabGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="title">
+        <string>TCP record trigger</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_19">
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="MatlabRecordSignalCheckBox">
+          <property name="text">
+           <string>Activate TCP server</string>
+          </property>
+          <property name="toolTip">
+           <string>Send RECORD_START when recording begins, or receive RECORD_START followed by a newline to begin recording.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="MatlabRecordSignalPortLayout">
+          <item>
+           <widget class="QLabel" name="MatlabRecordSignalPortLabel">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>TCP port</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="MatlabRecordSignalPortSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+            <property name="value">
+             <number>50000</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

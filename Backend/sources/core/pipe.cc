@@ -14,6 +14,8 @@
 #include "tools_compute.cuh"
 #include "tools.hh"
 #include "contrast_correction.cuh"
+#include "lsci.cuh"
+#include "map.cuh"
 #include "enqueue_exception.hh"
 #include "aliases.hh"
 #include "holovibes.hh"
@@ -22,42 +24,82 @@
 
 #include "API.hh"
 
+#include <thread>
+
 namespace holovibes
 {
 
 bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
 {
+    RecordingContext* recording = active_recording_.load(std::memory_order_acquire);
+
     // When stopping a record the record queue is emptied and the FrameAcquisitionEnabled setting is set to false.
     // But the pipe isn't refreshed directly so the insert_XXX_function still insert in the record queue.
-    if (!setting<settings::FrameAcquisitionEnabled>())
+    if (input_queue_.has_pending_reset() || !setting<settings::FrameAcquisitionEnabled>() || !recording ||
+        !recording->acquiring.load(std::memory_order_acquire))
         return false;
 
+    Queue& record_queue = *recording->queue;
+    std::atomic<uint>& nb_frames_acquired = std::get<0>(*recording->progress);
+    std::atomic<uint>& total_nb_frames_to_acquire = std::get<2>(*recording->progress);
     bool unlimited_record = setting<settings::RecordFrameCount>() == std::nullopt;
 
-    if (record_queue_.has_overwritten() || input_queue_.has_overwritten())
+    // Stop requests must be observable while a slow writer holds the queue full;
+    // processing them only during refresh would leave this compute cycle stuck.
+    const auto stop_if_interrupted = [&]()
     {
-        API.record.set_frame_acquisition_enabled(false);
-        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
+        if (input_queue_.has_pending_reset() || !recording->acquiring.load(std::memory_order_acquire))
+            return true;
+
+        const bool input_overwritten = input_queue_.has_overwritten();
+        if (!input_overwritten && !record_queue.has_overwritten() && !is_requested(ICS::DisableFrameRecord) &&
+            !is_requested(ICS::Termination))
+            return false;
+
+        if (input_overwritten)
+            recording->input_overwritten.store(true, std::memory_order_release);
+        total_nb_frames_to_acquire = nb_frames_acquired.load();
+        Holovibes::instance().finish_frame_acquisition(recording);
+        return true;
+    };
+
+    if (stop_if_interrupted())
+        return false;
+
+    if (nb_elm_to_add <= 0 || static_cast<size_t>(nb_elm_to_add) > record_queue.get_max_size())
+    {
+        LOG_WARN("Cannot record {} frames at once: the record buffer holds {} frames; ending acquisition",
+                 nb_elm_to_add,
+                 record_queue.get_max_size());
+        total_nb_frames_to_acquire = nb_frames_acquired.load();
+        Holovibes::instance().finish_frame_acquisition(recording);
         return false;
     }
 
     size_t total =
-        total_nb_frames_to_acquire_ * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
+        total_nb_frames_to_acquire * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
 
-    if (!unlimited_record && nb_frames_acquired_ >= total)
+    if (!unlimited_record && nb_frames_acquired >= total)
     {
-        API.record.set_frame_acquisition_enabled(false);
+        Holovibes::instance().finish_frame_acquisition(recording);
         return false;
     }
 
-    // This loop might be useless since it's an > and not a >= so the record queue will be overwriten and the record
-    // will stop
-    while (API.record.is_recording() && record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size())
-        continue;
+    while (static_cast<size_t>(record_queue.get_size()) + static_cast<size_t>(nb_elm_to_add) >
+           record_queue.get_max_size())
+    {
+        if (stop_if_interrupted())
+            return false;
+        std::this_thread::yield();
+    }
 
-    nb_frames_acquired_ += nb_elm_to_add;
+    // The input queue may have overflowed or a stop may have arrived while waiting.
+    if (stop_if_interrupted())
+        return false;
+
+    nb_frames_acquired += nb_elm_to_add;
     if (unlimited_record)
-        total_nb_frames_to_acquire_ += nb_elm_to_add;
+        total_nb_frames_to_acquire += nb_elm_to_add;
 
     return true;
 }
@@ -133,7 +175,6 @@ bool Pipe::make_requests()
         chart_env_.chart_record_queue_.reset(nullptr);
         api.record.set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
-        nb_frames_acquired_ = 0;
         clear_request(ICS::DisableChartRecord);
     }
 
@@ -141,8 +182,13 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        api.record.set_frame_acquisition_enabled(false);
-        total_nb_frames_to_acquire_ = nb_frames_acquired_.load();
+        if (RecordingContext* recording = active_recording_.load(std::memory_order_acquire))
+        {
+            std::get<2>(*recording->progress) = std::get<0>(*recording->progress).load();
+            Holovibes::instance().finish_frame_acquisition(recording);
+        }
+        else
+            api.record.set_frame_acquisition_enabled(false);
         clear_request(ICS::DisableFrameRecord);
     }
 
@@ -156,6 +202,8 @@ bool Pipe::make_requests()
     if (is_requested(ICS::OutputBuffer))
     {
         LOG_DEBUG("output_buffer_requested");
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
         init_output_queue();
         clear_request(ICS::OutputBuffer);
     }
@@ -163,6 +211,13 @@ bool Pipe::make_requests()
     HANDLE_REQUEST(ICS::LensView, "Allocate lens view", fourier_transforms_->init_lens_queue());
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
+
+    if (is_requested(ICS::UpdateLsciSpatialWindow))
+    {
+        time_transformation_env_.lsci_frame_count = 0;
+        time_transformation_env_.lsci_ready = false;
+        clear_request(ICS::UpdateLsciSpatialWindow);
+    }
 
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
@@ -202,8 +257,11 @@ bool Pipe::make_requests()
         clear_request(ICS::TimeTransformationCuts);
     }
 
-    image_accumulation_->init(); // done only if requested
-    image_accumulation_->clear();
+    if (setting<settings::TimeTransformation>() != TimeTransformation::LSCI)
+    {
+        image_accumulation_->init(); // done only if requested
+        image_accumulation_->clear();
+    }
 
     if (is_requested(ICS::RawView))
     {
@@ -269,6 +327,25 @@ void Pipe::refresh()
     pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
 
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
+    {
+        const LsciConfiguration configuration{setting<settings::LsciSpatialWindow>(),
+                                              setting<settings::SpaceTransformation>(),
+                                              setting<settings::Lambda>(),
+                                              setting<settings::ZDistance>(),
+                                              setting<settings::PixelSize>()};
+        if (configuration != lsci_configuration_)
+        {
+            time_transformation_env_.lsci_frame_count = 0;
+            time_transformation_env_.lsci_ready = false;
+            lsci_configuration_ = configuration;
+        }
+
+        const bool reconstruct = configuration.space_transformation != SpaceTransformation::NONE;
+        if (reconstruct != (buffers_.gpu_spatial_transformation_buffer.get() != nullptr))
+            update_spatial_transformation_parameters();
+    }
+
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
      * calls/operations on its own default stream. Cuda calls/operations ran on
@@ -303,69 +380,66 @@ void Pipe::refresh()
         return;
     }
 
-    insert_wait_time_stride();
-
-    if (setting<holovibes::settings::DataType>() == RecordedDataType::MOMENTS)
+    const bool lsci = setting<settings::TimeTransformation>() == TimeTransformation::LSCI;
+    if (lsci)
     {
-        // Dequeuing the 3 moments in a temporary buffer
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
-
-        // Splitting them into their respective buffers
-        fourier_transforms_->insert_moments_split();
-
-        fourier_transforms_->insert_moments_to_output();
+        insert_raw_view();
+        if (setting<settings::SpaceTransformation>() != SpaceTransformation::NONE)
+        {
+            converts_->insert_complex_conversion(input_queue_);
+            fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
+        }
+        insert_lsci();
+        registration_->insert_registration();
     }
     else
     {
+        insert_wait_time_stride();
         insert_raw_view();
-
         converts_->insert_complex_conversion(input_queue_);
 
-        // Spatial transform
+        // Spatial reconstruction followed by a complex temporal transform.
         fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
-
-        // Move frames from gpu_space_transformation_buffer to
-        // gpu_time_transformation_queue (with respect to
-        // time_stride)
         insert_transfer_for_time_transformation();
         insert_wait_time_transformation_size();
-
-        // time transform
         fourier_transforms_->insert_time_transform();
+        insert_oct_record();
+        insert_oct_record_float();
         fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                                   buffers_.gpu_postprocess_frame_xz.get(),
                                                                   buffers_.gpu_postprocess_frame_yz.get());
-
         insert_cuts_record();
-
-        // Used for phase increase
         fourier_transforms_->insert_store_p_frame();
-
         converts_->insert_to_float(buffers_.gpu_postprocess_frame.get());
-
         insert_moments();
         insert_moments_record();
+        insert_filter2d_view();
+
+        postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
+        postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
+        rendering_->insert_fft_shift();
+        registration_->insert_registration();
+        image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
+                                                       buffers_.gpu_postprocess_frame_size,
+                                                       *buffers_.gpu_postprocess_frame_xz,
+                                                       *buffers_.gpu_postprocess_frame_yz);
+        registration_->set_gpu_reference_image();
     }
 
-    insert_filter2d_view();
-
-    // Postprocessing'
-    postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
-    postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
-
-    // Rendering
-    rendering_->insert_fft_shift();
-
-    registration_->insert_registration();
-
-    image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
-                                                   buffers_.gpu_postprocess_frame_size,
-                                                   *buffers_.gpu_postprocess_frame_xz,
-                                                   *buffers_.gpu_postprocess_frame_yz);
-
-    registration_->set_gpu_reference_image();
-
     rendering_->insert_chart();
+    if (lsci)
+    {
+        // Charts retain dimensionless K. Display and processed recordings use the existing 16-bit intensity scale.
+        fn_compute_vect_->push_back(
+            [this]()
+            {
+                map_multiply(buffers_.gpu_postprocess_frame.get(),
+                             buffers_.gpu_postprocess_frame.get(),
+                             buffers_.gpu_postprocess_frame_size,
+                             65535.f,
+                             stream_);
+            });
+    }
     rendering_->insert_log();
     rendering_->insert_contrast();
 
@@ -389,11 +463,33 @@ void Pipe::refresh()
 void Pipe::insert_wait_batch()
 {
     fn_compute_vect_->push_back(
-        [&input_queue_ = input_queue_]()
+        [this]()
         {
-            // Wait while the input queue is enough filled
-            while (input_queue_.is_empty())
-                continue;
+            // Discard the input backlog only between complete compute cycles;
+            // the recording/UI thread must never reset a batch being consumed.
+            if (input_queue_.has_pending_reset())
+            {
+                time_transformation_env_.lsci_frame_count = 0;
+                time_transformation_env_.lsci_ready = false;
+            }
+            input_queue_.apply_pending_reset();
+            // Retry a pending reset until the producer finishes its batch, then
+            // wait for fresh input. Keep checking termination while doing so.
+            while (input_queue_.has_pending_reset() || input_queue_.is_empty())
+            {
+                if (is_requested(ICS::Termination))
+                {
+                    fn_compute_vect_->exit_now();
+                    return;
+                }
+                if (input_queue_.has_pending_reset())
+                {
+                    time_transformation_env_.lsci_frame_count = 0;
+                    time_transformation_env_.lsci_ready = false;
+                }
+                input_queue_.apply_pending_reset();
+                std::this_thread::yield();
+            }
         });
 }
 
@@ -426,13 +522,97 @@ void Pipe::insert_wait_time_transformation_size()
         });
 }
 
+void Pipe::insert_lsci()
+{
+    const auto space_transformation = setting<settings::SpaceTransformation>();
+    const bool reconstruct = space_transformation != SpaceTransformation::NONE;
+    // Fresnel's FFT is unnormalized. A fixed field scale cancels in K and keeps fourth powers within float range.
+    const float amplitude_scale = space_transformation == SpaceTransformation::FRESNELTR
+                                      ? 1.f / static_cast<float>(input_queue_.get_fd().get_frame_res())
+                                      : 1.f;
+    fn_compute_vect_->push_back(
+        [this, reconstruct, amplitude_scale]()
+        {
+            auto& env = time_transformation_env_;
+            const auto window = setting<settings::TimeTransformationSize>();
+            const auto batch = setting<settings::BatchSize>();
+            if (batch == 0 || window == 0 || window % batch != 0)
+                throw std::logic_error("LSCI batch size must divide the temporal window");
+
+            const bool reset = env.lsci_frame_count == 0;
+            env.lsci_ready = false;
+            if (reconstruct)
+            {
+                lsci_accumulate_complex(env.gpu_lsci_moments.get(),
+                                        buffers_.gpu_spatial_transformation_buffer.get(),
+                                        input_queue_.get_fd().get_frame_res(),
+                                        batch,
+                                        reset,
+                                        stream_,
+                                        amplitude_scale);
+            }
+            else
+            {
+                input_queue_.dequeue(
+                    env.gpu_lsci_moments.get(),
+                    input_queue_.get_fd().depth,
+                    [reset](const void* src,
+                            void* dest,
+                            uint batch_size,
+                            size_t frame_res,
+                            camera::PixelDepth depth,
+                            cudaStream_t stream)
+                    { lsci_accumulate(static_cast<float2*>(dest), src, frame_res, batch_size, depth, reset, stream); });
+            }
+
+            if (input_queue_.has_overwritten())
+            {
+                // A gap invalidates the nominal consecutive-frame support. Restart with fresh input.
+                if (auto* recording = active_recording_.load(std::memory_order_acquire);
+                    recording && recording->acquiring.load(std::memory_order_acquire))
+                {
+                    recording->input_overwritten.store(true, std::memory_order_release);
+                    std::get<2>(*recording->progress) = std::get<0>(*recording->progress).load();
+                    Holovibes::instance().finish_frame_acquisition(recording);
+                }
+                env.lsci_frame_count = 0;
+                input_queue_.request_reset();
+                if (reconstruct)
+                    cudaXStreamSynchronize(stream_);
+                fn_compute_vect_->exit_now();
+                return;
+            }
+
+            env.lsci_frame_count += batch;
+            if (env.lsci_frame_count < window)
+            {
+                // The next conversion runs on an input batch stream and must not overwrite a spatial buffer
+                // still consumed by reconstruction or accumulation on the compute stream.
+                if (reconstruct)
+                    cudaXStreamSynchronize(stream_);
+                fn_compute_vect_->exit_now();
+                return;
+            }
+
+            const auto& fd = input_queue_.get_fd();
+            lsci_contrast(buffers_.gpu_postprocess_frame.get(),
+                          env.gpu_lsci_moments.get(),
+                          fd.width,
+                          fd.height,
+                          env.lsci_frame_count,
+                          stream_,
+                          setting<settings::LsciSpatialWindow>());
+            env.lsci_frame_count = 0;
+            env.lsci_ready = true;
+        });
+}
+
 void Pipe::insert_moments()
 {
     bool recording =
         setting<settings::RecordMode>() == RecordMode::MOMENTS && setting<settings::FrameAcquisitionEnabled>();
-    ImgType type = setting<settings::ImageType>();
 
-    if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
+    if (recording)
     {
         auto p = setting<settings::P>();
         moments_env_.f_start = p.start;
@@ -449,8 +629,6 @@ void Pipe::insert_moments()
             registration_->shift_image(moments_env_.moment1_buffer);
             registration_->shift_image(moments_env_.moment2_buffer);
         }
-
-        fourier_transforms_->insert_moments_to_output();
     }
 }
 
@@ -575,9 +753,11 @@ void Pipe::insert_raw_record()
             if (!can_insert_to_record_queue(setting<settings::BatchSize>()))
                 return;
 
-            input_queue_.copy_multiple(record_queue_,
+            RecordingContext* recording = active_recording_.load(std::memory_order_acquire);
+            input_queue_.copy_multiple(*recording->queue,
                                        setting<settings::BatchSize>(),
-                                       get_memcpy_kind<settings::RecordQueueLocation>());
+                                       get_memcpy_kind<settings::RecordQueueLocation>(),
+                                       &recording->stamps);
         });
 }
 
@@ -593,10 +773,11 @@ void Pipe::insert_moments_record()
                 return;
 
             cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
+            Queue& record_queue = *active_recording_.load(std::memory_order_acquire)->queue;
 
-            record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment0_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment1_buffer, stream_, kind);
+            record_queue.enqueue(moments_env_.moment2_buffer, stream_, kind);
         });
 }
 
@@ -611,14 +792,15 @@ void Pipe::insert_hologram_record()
             if (!can_insert_to_record_queue(1))
                 return;
 
+            Queue& record_queue = *active_recording_.load(std::memory_order_acquire)->queue;
             if (buffers_.gpu_output_queue->get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
-                record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                 stream_,
-                                                 get_memcpy_kind<settings::RecordQueueLocation>());
+                record_queue.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                stream_,
+                                                get_memcpy_kind<settings::RecordQueueLocation>());
             else
-                record_queue_.enqueue(buffers_.gpu_output_frame.get(),
-                                      stream_,
-                                      get_memcpy_kind<settings::RecordQueueLocation>());
+                record_queue.enqueue(buffers_.gpu_output_frame.get(),
+                                     stream_,
+                                     get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -641,7 +823,54 @@ void Pipe::insert_cuts_record()
             if (!can_insert_to_record_queue(1))
                 return;
 
-            record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+        });
+}
+
+void Pipe::insert_oct_record()
+{
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE)
+        return;
+
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto oct_buffer_ptr = time_transformation_env_.gpu_p_acc_buffer.get();
+    fn_compute_vect_->push_back(
+        [this, N, oct_buffer_ptr]()
+        {
+            if (!can_insert_to_record_queue(N))
+                return;
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue_multiple(oct_buffer_ptr, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+        });
+}
+
+void Pipe::insert_oct_record_float()
+{
+    if (!setting<settings::FrameAcquisitionEnabled>() || setting<settings::RecordMode>() != RecordMode::OCT_CUBE_FLOAT)
+        return;
+
+    size_t N = setting<settings::TimeTransformationSize>();
+
+    auto float_buffer = time_transformation_env_.gpu_oct_float_buffer.get();
+
+    auto fd = input_queue_.get_fd();
+    fn_compute_vect_->push_back(
+        [this, N, float_buffer, fd]()
+        {
+            if (!can_insert_to_record_queue(N))
+                return;
+
+            complex_to_modulus_moments(float_buffer,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd.get_frame_res(),
+                                       0,
+                                       N - 1,
+                                       stream_);
+
+            active_recording_.load(std::memory_order_acquire)
+                ->queue->enqueue_multiple(float_buffer, N, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
         });
 }
 
@@ -666,7 +895,8 @@ void Pipe::exec()
         {
             pipe_cycle_apply_updates();
 
-            image_accumulation_->clear(); // Clear the accumulation queue
+            if (setting<settings::TimeTransformation>() != TimeTransformation::LSCI)
+                image_accumulation_->clear(); // Clear the accumulation queue
             rendering_->request_autocontrast();
         }
 

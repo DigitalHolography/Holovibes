@@ -1,0 +1,115 @@
+{
+  "version": "v1",
+  "image_rendering": {
+    "image_mode": "HOLOGRAM",
+    "time_transformation": "LSCI",
+    "time_transformation_size": 16,
+    "time_transformation_stride": 16,
+    "lsci_spatial_window": 5,
+    "batch_size": 4,
+    "space_transformation": "NONE",
+    "lambda": 8.52e-7,
+    "propagation_distance": 0.48,
+    "input_filter": {
+      "type": "None"
+    },
+    "filter2d": {
+      "enabled": false,
+      "inner_radius": 0,
+      "outer_radius": 1
+    },
+    "convolution": {
+      "type": "",
+      "divide": false
+    }
+  },
+  "view": {
+    "image_type": "MODULUS",
+    "fft_shift": false,
+    "renorm": false,
+    "registration": {
+      "registration_enabled": true,
+      "registration_zone": 0.95
+    },
+    "reticle": {
+      "display_enabled": true,
+      "scale": 0.55
+    },
+    "window": {
+      "xy": {
+        "enabled": false,
+        "horizontal_flip": false,
+        "rotation": 0,
+        "output_image_accumulation": 1,
+        "log_enabled": false,
+        "contrast": {
+          "enabled": true,
+          "auto_refresh": true,
+          "invert": false,
+          "min": 0,
+          "max": 65535
+        }
+      },
+      "xz": {
+        "enabled": false,
+        "horizontal_flip": false,
+        "rotation": 0,
+        "output_image_accumulation": 1,
+        "log_enabled": false,
+        "contrast": {
+          "enabled": false,
+          "auto_refresh": false,
+          "invert": false,
+          "min": 0,
+          "max": 65535
+        }
+      },
+      "yz": {
+        "enabled": false,
+        "horizontal_flip": false,
+        "rotation": 0,
+        "output_image_accumulation": 1,
+        "log_enabled": false,
+        "contrast": {
+          "enabled": false,
+          "auto_refresh": false,
+          "invert": false,
+          "min": 0,
+          "max": 65535
+        }
+      },
+      "filter2d": {
+        "log_enabled": false,
+        "contrast": {
+          "enabled": false,
+          "auto_refresh": false,
+          "invert": false,
+          "min": 0,
+          "max": 65535
+        }
+      }
+    },
+    "x": { "start": 0, "width": 0 },
+    "y": { "start": 0, "width": 0 },
+    "z": { "start": 0, "width": 0 },
+    "z2": { "start": 0, "width": 0 }
+  },
+  "advanced": {
+    "buffer_size": {
+      "input": 64,
+      "file": 64,
+      "output": 8,
+      "record": 32,
+      "time_transformation_cuts": 8
+    },
+    "contrast": {
+      "lower": 1,
+      "upper": 99,
+      "frame_index_offset": 2
+    },
+    "filter2d_smooth": { "low": 0, "high": 1 },
+    "renorm_constant": 5,
+    "raw_bitshift": 0,
+    "nb_frames_to_record": 0
+  }
+}

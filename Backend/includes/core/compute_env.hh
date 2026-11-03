@@ -137,6 +137,11 @@ struct BatchEnv
  */
 struct TimeTransformationEnv
 {
+    /*! \brief LSCI intensity sums (I, I squared), requiring one image regardless of temporal window size. */
+    cuda_tools::CudaUniquePtr<float2> gpu_lsci_moments = nullptr;
+    unsigned int lsci_frame_count = 0;
+    bool lsci_ready = false;
+
     /*! \brief STFT Queue. It accumulates input frames after spatial FFT.
      *
      * Contains time_transformation_size frames.
@@ -150,6 +155,12 @@ struct TimeTransformationEnv
      * Contains time_transformation_size frames.
      */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
+
+    /*! \brief OCT float buffer. Contains the result of the modulus of the gpu_p_acc_buffer.
+     *
+     * Contains time_transformation_size frames.
+     */
+    cuda_tools::CudaUniquePtr<float> gpu_oct_float_buffer = nullptr;
 
     /*! \brief STFT XZ Queue. Contains the ouput of the STFT on slice XZ.
      *

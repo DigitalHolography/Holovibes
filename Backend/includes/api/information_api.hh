@@ -10,7 +10,7 @@
 #include "fast_updates_types.hh"
 #include "information_struct.hh"
 
-#define MIN_CUDA_VERSION 35
+#define MIN_CUDA_VERSION 75
 
 namespace holovibes::api
 {
@@ -184,10 +184,12 @@ class InformationApi : public IApi
 
 #pragma region Information
 
-    /*! \brief Check the cuda version of the graphic card. It must be greater equal to 3.5.
+    /*! \brief Check the CUDA compute capability of the graphic card. It must be greater equal to 7.5.
      *
-     * \return bool true if the cuda version is greater equal to 3.5, false otherwise (or if no cuda graphic card is
-     * detected)
+     *
+     * \return bool true if the CUDA compute capability is greater equal to 7.5, false otherwise (or if no CUDA graphic
+
+     * * card is detected)
      */
     bool has_right_cuda_version() const;
 

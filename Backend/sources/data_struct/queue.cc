@@ -55,13 +55,14 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
             api.compute.set_output_buffer_size(max_size_);
             is_size_modified = true;
             break;
-        case QueueType::RECORD_QUEUE:
-            api.record.set_record_buffer_size(max_size_);
-            is_size_modified = true;
-            break;
         case QueueType::UNDEFINED:
             break;
         default:
+            if (is_record_queue(type))
+            {
+                api.record.set_record_buffer_size(max_size_);
+                is_size_modified = true;
+            }
             break;
         }
         if (is_size_modified)
@@ -371,7 +372,6 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
         size_.store(max_size_.load());
         has_overwritten_ = true;
     }
-
     return true;
 }
 

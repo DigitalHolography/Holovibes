@@ -191,7 +191,7 @@ void convert_frame_for_display(void* output,
                                const cudaStream_t stream);
 
 /*!
- * \brief Convert a buffer filled with complex values into real values using the modulus. The function will
+ * \brief Convert a buffer filled with complex values into real values using the modulus squared. The function will
  * only convert from index f_start to index f_end.
  *
  * \param[out] output     Where to store the result. Same size as the input
@@ -207,3 +207,21 @@ void complex_to_modulus_moments(float* output,
                                 const ushort f_start,
                                 const ushort f_end,
                                 const cudaStream_t stream);
+
+/*!
+ * \brief Convert a buffer filled with complex values into real values using the modulus. The function will
+ * only convert from index f_start to index f_end .
+ *
+ * \param[out] output     Where to store the result. Same size as the input
+ * \param[in]  input      The input buffer of size frame_res and of depth of at least `f_end`.
+ * \param[in]  frame_res  The resolution of a single image
+ * \param[in]  f_start    The start index
+ * \param[in]  f_end      The end index
+ * \param[in]  stream     The cuda stream
+ */
+void complex_to_modulus_oct(float* output,
+                            const cuComplex* input,
+                            const size_t frame_res,
+                            const ushort f_start,
+                            const ushort f_end,
+                            const cudaStream_t stream);

@@ -176,6 +176,20 @@ class InputApi : public IApi
     import_file(const std::string& filename,
                 const std::string& json_path = holovibes::settings::compute_settings_filepath) const;
 
+    /*! \brief Load the .mraw file at the given filename. This function will set the file path, the start index to 0,
+     * the end index to the number of frames in the file and the frame descriptor.
+     *
+     * - no compute settings will be loaded.
+     *
+     * \param[in] filename the given filename to open
+     * \param[in] cih the path to the .cih or .cihx file that contains the resolution, the size, and the frequency of
+     * the file
+     *
+     * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
+     */
+    std::optional<io_files::InputFrameFile*> import_mraw_file(const std::string& filename,
+                                                              const std::string& cih) const;
+
 #pragma endregion
 
 #pragma region Cameras
@@ -240,6 +254,55 @@ class InputApi : public IApi
      * \param[in] value the new pixel size in µm
      */
     inline void set_pixel_size(float value) const { UPDATE_SETTING(PixelSize, value); }
+
+    /*! \brief Return the name of the of the CameraKind
+     *
+     * Ex: camera_kind_to_string(3) == "AmetekS711"
+     *
+     * \param[in] kind a CameraKind object
+     */
+    static std::string camera_kind_to_string(CameraKind kind)
+    {
+        switch (kind)
+        {
+        case CameraKind::NONE:
+            return "NONE";
+        case CameraKind::Adimec:
+            return "Adimec";
+        case CameraKind::IDS:
+            return "IDS";
+        case CameraKind::Phantom:
+            return "AmetekS710";
+        case CameraKind::BitflowCyton:
+            return "BitflowCyton";
+        case CameraKind::Hamamatsu:
+            return "Hamamatsu";
+        case CameraKind::xiQ:
+            return "xiQ";
+        case CameraKind::xiB:
+            return "xiB";
+        case CameraKind::OpenCV:
+            return "OpenCV";
+        case CameraKind::AmetekS991EuresysCoaxlinkQSFP:
+            return "AmetekS991EuresysCoaxlinkQSFP";
+        case CameraKind::AmetekS711EuresysCoaxlinkQSFP:
+            return "AmetekS711EuresysCoaxlinkQSFP";
+        case CameraKind::AmetekS980EuresysCoaxlinkQSFP:
+            return "AmetekS980EuresysCoaxlinkQSFP";
+        case CameraKind::Ametek:
+            return "Ametek";
+        case CameraKind::Alvium:
+            return "Alvium";
+        case CameraKind::AutoDetectionPhantom:
+            return "AutoDetectionPhantom";
+        case CameraKind::ASI:
+            return "ASI";
+        case CameraKind::PCO_Edge4_2lt:
+            return "PCO_Edge4_2lt";
+        default:
+            return "Unknown";
+        }
+    }
 
 #pragma endregion
 

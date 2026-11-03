@@ -123,7 +123,7 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 #include <device_launch_parameters.h>
-#include <surface_functions.h>
+#include <surface_types.h>
 
 // GLM
 #include <glm/glm.hpp>

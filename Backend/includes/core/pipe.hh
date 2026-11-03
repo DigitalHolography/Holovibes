@@ -52,10 +52,9 @@ namespace holovibes
  * a request system. When the compute descriptor is modified the GUI will
  * request the pipe to refresh with updated parameters.
  *
- * Also, some events such as autoconstrast will be executed only
- * for one iteration. For example, request_autocontrast will add the
- * autocontrast algorithm in the pipe and will automatically set a pipe refresh
- * so that the autocontrast algorithm will be done only once.
+ * One-shot events also use requests so they can be consumed safely by the
+ * compute thread. For example, a manual contrast refresh queues exactly one
+ * autocontrast computation without changing the automatic refresh setting.
  */
 class Pipe : public ICompute
 {
@@ -68,12 +67,12 @@ class Pipe : public ICompute
      * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Pipe(BatchInputQueue& input, Queue& record, const cudaStream_t& stream, InitSettings settings)
-        : ICompute(input, record, stream, settings)
+    Pipe(BatchInputQueue& input,
+         std::atomic<RecordingContext*>& active_recording,
+         const cudaStream_t& stream,
+         InitSettings settings)
+        : ICompute(input, active_recording, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
-        , record_updates_entry_(FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME))
-        , nb_frames_acquired_(std::get<0>(*record_updates_entry_))
-        , total_nb_frames_to_acquire_(std::get<2>(*record_updates_entry_))
     {
         fn_compute_vect_ = std::make_shared<FunctionVector>();
 
@@ -120,7 +119,6 @@ class Pipe : public ICompute
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
-        nb_frames_acquired_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
     }
 
@@ -142,6 +140,9 @@ class Pipe : public ICompute
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
+
+    /*! \brief Request one contrast computation for the selected view. */
+    void request_contrast_refresh(WindowKind view) { rendering_->request_contrast_refresh(view); }
 
     template <typename T>
     inline void update_setting(T setting)
@@ -227,6 +228,9 @@ class Pipe : public ICompute
     /*! \brief Pause computation until a complete batch of time transformation size has arrived */
     void insert_wait_time_transformation_size();
 
+    /*! \brief Accumulate consecutive direct or reconstructed intensities into one contrast map per temporal block. */
+    void insert_lsci();
+
     /*! \brief Dequeue the input queue frame by frame in raw mode */
     void insert_dequeue_input();
 
@@ -247,6 +251,10 @@ class Pipe : public ICompute
     void insert_moments_record();
 
     void insert_cuts_record();
+
+    void insert_oct_record();
+
+    void insert_oct_record_float();
 
     /*! \}*/
 
@@ -305,14 +313,18 @@ class Pipe : public ICompute
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
 
-    /*! \brief Fast update holder entry for the number of frames acquired. */
-    FastUpdatesHolder<RecordType>::Value record_updates_entry_;
+    /*! \brief Settings defining a single LSCI block; changing them discards partial statistics. */
+    struct LsciConfiguration
+    {
+        unsigned spatial_window = 0;
+        SpaceTransformation space_transformation = SpaceTransformation::NONE;
+        float lambda = 0.f;
+        float z_distance = 0.f;
+        float pixel_size = 0.f;
 
-    /*! \brief Current number of frames acquired (while recording) */
-    std::atomic<unsigned int>& nb_frames_acquired_;
-
-    /*! \brief The number of frames to acquire. */
-    std::atomic<unsigned int>& total_nb_frames_to_acquire_;
+        bool operator==(const LsciConfiguration&) const = default;
+    };
+    LsciConfiguration lsci_configuration_;
 };
 } // namespace holovibes
 

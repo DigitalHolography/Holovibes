@@ -11,6 +11,7 @@
 #include "tools.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "record_trigger_tcp_server.hh"
 #include "user_interface_descriptor.hh"
 
 namespace holovibes::gui
@@ -22,9 +23,10 @@ ExportPanel::ExportPanel(QWidget* parent)
     , browse_record_output_file_subscriber_("browse_record_output_file",
                                             [this](bool _unused) { return browse_record_output_file().toStdString(); })
 {
+    RecordTriggerTcpServer::instance().set_record_start_callback([this]() { start_record(); });
 }
 
-ExportPanel::~ExportPanel() {}
+ExportPanel::~ExportPanel() { RecordTriggerTcpServer::instance().set_record_start_callback({}); }
 
 void ExportPanel::init()
 {
@@ -80,14 +82,24 @@ void ExportPanel::on_notify()
 
     // Hiding most of the options when in raw mode
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
+    const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::HOLOGRAM), is_raw);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CHART), is_raw);
-    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw || is_lsci);
+    ui_->RecordImageModeComboBox->setItemText(static_cast<int>(RecordMode::HOLOGRAM),
+                                              is_lsci ? "Contrast map" : "Processed Image");
+    ui_->RecordImageModeComboBox->setItemData(
+        static_cast<int>(RecordMode::HOLOGRAM),
+        is_lsci ? "Save the displayed contrast map as a 16-bit image, including display contrast and logarithm settings"
+                : "Save the processed image",
+        Qt::ToolTipRole);
 
     // When set to raw, the 3D cuts are automatically disabled, so this works as a valid toggle for raw mode too
-    const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
+    const bool hide_cuts = is_lsci || !ui_->TimeTransformationCutsCheckBox->isChecked();
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_XZ), hide_cuts);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_YZ), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::OCT_CUBE), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::OCT_CUBE_FLOAT), hide_cuts);
 
     // Chart buttons
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
@@ -121,11 +133,32 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
+    ui_->RecordFrameTimestampsCheckBox->blockSignals(true);
+    ui_->RecordFrameTimestampsCheckBox->setChecked(api_.record.get_record_frame_timestamps_enabled());
+    ui_->RecordFrameTimestampsCheckBox->blockSignals(false);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(api_.record.get_record_mode() == RecordMode::RAW &&
+                                                   API.input.get_import_type() == ImportType::Camera &&
+                                                   !api_.record.is_recording());
+
     bool is_eye_modifiable = API.input.get_import_type() == ImportType::Camera;
     ui_->RecordedEyePushButton->setEnabled(is_eye_modifiable);
     ui_->RecordedEyeLabel->setEnabled(is_eye_modifiable);
     ui_->RecordedEyePushButton->setText(QString::fromStdString(gui::get_recorded_eye_display_string()));
     // Cannot disable the button because starting/stopping a recording doesn't trigger a notify
+}
+
+void ExportPanel::load_gui(const json& j_us)
+{
+    const bool enabled = json_get_or_default(j_us,
+                                             api_.record.get_record_frame_timestamps_enabled(),
+                                             "record",
+                                             "save per-frame timestamps");
+    api_.record.set_record_frame_timestamps_enabled(enabled);
+}
+
+void ExportPanel::save_gui(json& j_us)
+{
+    j_us["record"]["save per-frame timestamps"] = api_.record.get_record_frame_timestamps_enabled();
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -151,12 +184,19 @@ QString ExportPanel::browse_record_output_file()
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
+    else if (record_mode == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
+    }
+    else if (record_mode == RecordMode::MOMENTS)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("H5 files (*.h5);; "));
     }
     else if (record_mode == RecordMode::HOLOGRAM)
     {
@@ -171,6 +211,20 @@ QString ExportPanel::browse_record_output_file()
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Mp4 files (*.mp4);; Avi Files (*.avi);;"));
+    }
+    else if (record_mode == RecordMode::OCT_CUBE)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("H5 files (*.h5);;"));
+    }
+    else if (record_mode == RecordMode::OCT_CUBE_FLOAT)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("H5 files (*.h5);;"));
     }
 
     if (filepath.isEmpty())
@@ -221,16 +275,30 @@ void ExportPanel::record_finished()
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(true);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(record_mode == RecordMode::RAW &&
+                                                   API.input.get_import_type() == ImportType::Camera);
     ui_->InfoPanel->set_visible_record_progress(false);
 
     parent_->light_ui_->notify();
+    parent_->notify();
 }
 
 void ExportPanel::start_record()
 {
+    if (api_.record.is_recording())
+    {
+        LOG_WARN("[RECORDER] Ignoring recording start request: a recording is already in progress");
+        return;
+    }
+
+    if (!ui_->ExportRecPushButton->isEnabled())
+    {
+        LOG_WARN("[RECORDER] Ignoring recording start request: recording is currently unavailable");
+        return;
+    }
+
     if (!api_.record.start_record_preconditions()) // Check if the record can be started
         return;
-
     // Start record
     gui::get_raw_window().reset(nullptr);
     ui_->ViewPanel->update_raw_view(false);
@@ -244,12 +312,18 @@ void ExportPanel::start_record()
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
     ui_->RecordedEyePushButton->setEnabled(false);
+    ui_->RecordFrameTimestampsCheckBox->setEnabled(false);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
     auto callback = [this]() { parent_->synchronize_thread([=]() { record_finished(); }); };
 
-    api_.record.start_record(callback);
+    if (api_.record.start_record(callback) == ApiCode::OK)
+    {
+        RecordTriggerTcpServer::instance().notify_record_started();
+        parent_->light_ui_->notify();
+        parent_->notify();
+    }
 }
 
 void ExportPanel::activeSignalZone()
@@ -294,6 +368,11 @@ void ExportPanel::update_record_frame_count_enabled()
         api_.record.set_record_frame_count(std::nullopt);
     else
         api_.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+}
+
+void ExportPanel::update_record_frame_timestamps_enabled(bool enabled)
+{
+    api_.record.set_record_frame_timestamps_enabled(enabled);
 }
 
 void ExportPanel::update_record_file_path()

@@ -26,6 +26,8 @@ void frame_memcpy(float* output,
 
 __global__ void kernel_complex_to_modulus(float* output, const cuComplex* input, const uint size);
 
+__global__ void kernel_complex_to_modulus_oct(float* output, const cuComplex* input, const uint size);
+
 /*! \brief Circularly shifts the elements in the given input to point (shift_x, shift_y).
  *
  *  \param[out] output The buffer to store the output image.

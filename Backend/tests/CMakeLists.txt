@@ -1,7 +1,6 @@
-find_package(GTest REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
 include(GoogleTest)
-enable_testing()
 
 set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/cuda_includes/"
@@ -26,25 +25,26 @@ set(INTERNAL_INCLUDES_TEST
     "${HOLO_DIR}/tests/includes"
 )
 
-file(GLOB_RECURSE UNIT_TEST_SOURCES *.cc)
+file(GLOB_RECURSE UNIT_TEST_SOURCES CONFIGURE_DEPENDS *.cc)
 
-add_executable(test
+add_executable(HolovibesTests
     ${UNIT_TEST_SOURCES}
 )
 
-target_include_directories(test PRIVATE
+target_include_directories(HolovibesTests PRIVATE
     ${INTERNAL_INCLUDES_TEST}
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${nlohmann_json_INCLUDE_DIRS}
 )
 
-target_link_libraries(test
+target_link_libraries(HolovibesTests
     GTest::gtest_main
-    spdlog::spdlog_header_only
+    holovibes_headers
+    CUDA::cudart
     Backend
 )
 
-target_compile_options(test PRIVATE
+target_compile_options(HolovibesTests PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:
     /W3
     /wd4005
@@ -52,10 +52,11 @@ target_compile_options(test PRIVATE
     >
 )
 
-target_compile_definitions(test PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:.
+target_compile_definitions(HolovibesTests PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:
     _CRT_SECURE_NO_WARNINGS
     >
 )
 
-gtest_discover_tests(test)
+holovibes_deploy_runtime(HolovibesTests)
+gtest_discover_tests(HolovibesTests DISCOVERY_MODE PRE_TEST)

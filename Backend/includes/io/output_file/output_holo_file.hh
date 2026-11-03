@@ -5,12 +5,26 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <utility>
+#include <vector>
+
 #include "output_frame_file.hh"
 #include "holo_file.hh"
 #include "enum_recorded_data_type.hh"
 
 namespace holovibes::io_files
 {
+/*! \brief Per-frame timestamps stored while recording, kept compact in the recording hot path. */
+struct FrameTimestampUs
+{
+    uint64_t unix_us;
+    uint64_t camera_us;
+    uint64_t offset_us;
+};
+
+static_assert(sizeof(FrameTimestampUs) == 3 * sizeof(uint64_t));
+
 /*! \class OutputHoloFile
  *
  * \brief Class responsible for exporting data to a .holo file. The saved file can be reopend with Holovibes since both
@@ -59,6 +73,36 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      */
     void correct_number_of_frames(size_t nb_frames_written) override;
 
+    /*! \brief Set the timestamps of the first and last frames of the session
+     *
+     * \param first_us Timestamp in microseconds of the first frame
+     * \param last_us Timestamp in microseconds of the last frame
+     * \param first_camera_us Camera timestamp in microseconds of the first frame
+     * \param last_camera_us Camera timestamp in microseconds of the last frame
+     * \param offset_us Offset in microseconds applied to the camera timestamps to obtain the system timestamps
+     */
+    void set_session_timestamps_us(uint64_t first_us,
+                                   uint64_t last_us,
+                                   uint64_t first_camera_us,
+                                   uint64_t last_camera_us,
+                                   uint64_t first_offset_us,
+                                   uint64_t last_offset_us)
+    {
+        session_first_ts_us_ = first_us;
+        session_last_ts_us_ = last_us;
+        session_first_camera_ts_us_ = first_camera_us;
+        session_last_camera_ts_us_ = last_camera_us;
+        session_first_offset_us_ = first_offset_us;
+        session_last_offset_us_ = last_offset_us;
+        has_session_ts_ = true;
+    }
+
+    /*! \brief Move the recorded per-frame timestamps into the output file metadata builder. */
+    void set_frame_timestamps_us(std::vector<FrameTimestampUs>&& timestamps) noexcept
+    {
+        session_frame_timestamps_us_ = std::move(timestamps);
+    }
+
   private:
     // Give access to private members to the factory
     friend class OutputFrameFileFactory;
@@ -76,5 +120,14 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
                    const camera::FrameDescriptor& fd,
                    uint64_t img_nb,
                    RecordedDataType data_type);
+
+    bool has_session_ts_ = false;
+    uint64_t session_first_ts_us_ = 0;
+    uint64_t session_last_ts_us_ = 0;
+    uint64_t session_first_camera_ts_us_ = 0;
+    uint64_t session_last_camera_ts_us_ = 0;
+    uint64_t session_first_offset_us_ = 0;
+    uint64_t session_last_offset_us_ = 0;
+    std::vector<FrameTimestampUs> session_frame_timestamps_us_;
 };
 } // namespace holovibes::io_files

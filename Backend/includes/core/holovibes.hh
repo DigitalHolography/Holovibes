@@ -14,6 +14,7 @@
 #include "benchmark_worker.hh"
 #include "chart_record_worker.hh"
 #include "frame_record_worker.hh"
+#include "recording_context.hh"
 #include "compute_worker.hh"
 
 #include "common.cuh"
@@ -31,6 +32,8 @@
 #include "enum_recorded_data_type.hh"
 
 #include <string>
+#include <mutex>
+#include <vector>
 
 #pragma region Settings configuration
 // clang-format off
@@ -48,6 +51,7 @@
     holovibes::settings::InputFileEndIndex,                      \
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::RecordFrameTimestampsEnabled,           \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordedEye,                            \
     holovibes::settings::RecordFrameOffset,                      \
@@ -98,6 +102,7 @@
     holovibes::settings::BatchSize,                              \
     holovibes::settings::TimeStride,                             \
     holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::LsciSpatialWindow,                      \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
@@ -119,6 +124,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::RecordBufferCount,                     \
     holovibes::settings::BenchmarkMode,                          \
     holovibes::settings::FrameSkip,                              \
     holovibes::settings::Mp4Fps,                                 \
@@ -294,9 +300,15 @@ class Holovibes
      * \param nb_frames_skip
      * \param callback
      */
-    void start_frame_record(const std::function<void()>& callback = []() {});
+    bool start_frame_record(const std::function<void()>& callback = []() {});
 
     void stop_frame_record();
+
+    /*! \brief Return whether a record queue is available for a new capture. */
+    bool can_start_frame_record() const;
+
+    /*! \brief Mark a recording's capture complete without affecting a newer active recording. */
+    void finish_frame_acquisition(RecordingContext* recording);
 
     void start_chart_record(const std::function<void()>& callback = []() {});
 
@@ -334,7 +346,11 @@ class Holovibes
             file_read_worker_controller_.update_setting(setting);
 
         if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
-            frame_record_worker_controller_.update_setting(setting);
+        {
+            std::lock_guard lock(record_mutex_);
+            for (auto& controller : frame_record_worker_controllers_)
+                controller->update_setting(setting);
+        }
 
         if constexpr (has_setting_v<T, Pipe>)
             if (compute_pipe_.load() != nullptr)
@@ -369,6 +385,7 @@ class Holovibes
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
+                                             settings::RecordFrameTimestampsEnabled{false},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordedEye{RecordedEyeType::NONE},
                                              settings::RecordFrameOffset{0},
@@ -398,10 +415,10 @@ class Holovibes
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
                                              settings::ContrastReticleScale{0.5f},
-                                             settings::ReticleScale{0.2f},
+                                             settings::ReticleScale{0.25f},
                                              settings::RegistrationZone{0.7f},
                                              settings::ContrastReticleDisplayEnabled{false},
-                                             settings::ReticleDisplayEnabled{false},
+                                             settings::ReticleDisplayEnabled{true},
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},
                                              settings::Filter2dSmoothLow{0},
@@ -409,7 +426,7 @@ class Holovibes
                                              settings::FilterFileName{std::string("")},
                                              settings::FrameAcquisitionEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::InputBufferSize{512},
+                                             settings::InputBufferSize{4096},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.02f},
                                              settings::RawBitshift{0},
@@ -419,6 +436,7 @@ class Holovibes
                                              settings::BatchSize{1},
                                              settings::TimeStride{1},
                                              settings::TimeTransformationSize{1},
+                                             settings::LsciSpatialWindow{5},
                                              settings::SpaceTransformation{SpaceTransformation::NONE},
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
@@ -440,6 +458,7 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
+                                             settings::RecordBufferCount{3},
                                              settings::BenchmarkMode{false},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
@@ -451,7 +470,8 @@ class Holovibes
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+    using FrameRecordController = worker::ThreadWorkerController<worker::FrameRecordWorker>;
+    std::vector<std::shared_ptr<FrameRecordController>> frame_record_worker_controllers_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 
     worker::ThreadWorkerController<worker::BenchmarkWorker> benchmark_worker_controller_;
@@ -464,6 +484,12 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
+    std::vector<std::shared_ptr<Queue>> record_queues_;
+    std::vector<std::shared_ptr<RecordingContext>> recording_contexts_;
+    std::atomic<RecordingContext*> active_recording_{nullptr};
+    std::atomic<int> active_recording_index_{-1};
+    mutable std::recursive_mutex record_mutex_;
+    bool record_queues_initializing_ = false;
     /*! \} */
 
     CudaStreams cuda_streams_;

@@ -21,13 +21,15 @@ namespace holovibes
  */
 enum class RecordMode
 {
-    RAW,      /*!< The raw input */
-    HOLOGRAM, /*!< The image after all pipe computation */
-    CHART,    /*!< The various chart data */
-    MOMENTS,  /*!< The three moments of the image: m0, m1 and m2 */
-    CUTS_XZ,  /*!< The 3D cuts in the XZ plane */
-    CUTS_YZ,  /*!< The 3D cuts in the YZ plane */
-    NONE,     /*!< No record mode; should only be used for default value and error purposes */
+    RAW,            /*!< The raw input */
+    HOLOGRAM,       /*!< The image after all pipe computation */
+    CHART,          /*!< The various chart data */
+    MOMENTS,        /*!< The three moments of the image: m0, m1 and m2 */
+    CUTS_XZ,        /*!< The 3D cuts in the XZ plane */
+    CUTS_YZ,        /*!< The 3D cuts in the YZ plane */
+    OCT_CUBE,       /*!< Complex 3D output of the Time transform */
+    OCT_CUBE_FLOAT, /*!< 3D output of the Time transform Converted to float */
+    NONE,           /*!< No record mode; should only be used for default value and error purposes */
 };
 
 // clang-format off
@@ -38,6 +40,8 @@ SERIALIZE_JSON_ENUM(RecordMode, {
     {RecordMode::MOMENTS, "MOMENTS"},
     {RecordMode::CUTS_XZ, "CUTS_XZ"},
     {RecordMode::CUTS_YZ, "CUTS_YZ"},
+    {RecordMode::OCT_CUBE, "OCT_CUBE"},
+    {RecordMode::OCT_CUBE_FLOAT, "OCT_CUBE_FLOAT"},
     {RecordMode::NONE, "NONE"}
 })
 
@@ -54,6 +58,7 @@ enum OutputFormat
     MP4,    /*!< .mp4 file */
     CSV,    /*!< .csv file */
     TXT,    /*!< .txt file */
+    H5,   /*!< .h5 file */
 };
 
 // clang-format on

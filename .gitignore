@@ -77,3 +77,6 @@ venv/
 # spdlog
 libs/spdlog/build
 CMakeUserPresets.json
+
+# Dependency installations outside the default out/ directory
+vcpkg_installed/

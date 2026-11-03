@@ -17,6 +17,7 @@
 #include "logger.hh"
 #include "camera_dll.hh"
 #include "image_rendering_panel.hh"
+#include "record_trigger_tcp_server.hh"
 
 #include "API.hh"
 #include "GUI.hh"
@@ -83,6 +84,14 @@ MainWindow::MainWindow(QWidget* parent)
                ui_->ImportPanel,
                ui_->ExportPanel,
                ui_->InfoPanel};
+
+    if (ui_->actionPCO_Edge4_2lt)
+        connect(ui_->actionPCO_Edge4_2lt, &QAction::triggered, this, &MainWindow::camera_PCO_Edge4_2lt);
+    if (ui_->actionPCO_Edge4_2ltSettings)
+        connect(ui_->actionPCO_Edge4_2ltSettings,
+                &QAction::triggered,
+                this,
+                &MainWindow::camera_PCO_Edge4_2lt_settings);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -158,6 +167,17 @@ MainWindow::MainWindow(QWidget* parent)
 
     enable_notify();
 
+    api_.contrast.set_contrast_update_callback(
+        [this](WindowKind kind)
+        {
+            synchronize_thread(
+                [this, kind]()
+                {
+                    ui_->ViewPanel->update_contrast_values(kind);
+                    light_ui_->update_contrast_values(kind);
+                });
+        });
+
     notify();
 
     if (api_.input.get_import_type() != ImportType::None)
@@ -166,6 +186,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    api_.contrast.set_contrast_update_callback({});
     ui_->menuSelect_preset->clear();
 
     gui::close_windows();
@@ -459,6 +480,24 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().file_input_directory_,
                             "files",
                             "file input directory");
+    UserInterfaceDescriptor::instance().matlab_record_signal_enabled_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                            "matlab",
+                            "record signal enabled");
+    UserInterfaceDescriptor::instance().matlab_record_signal_port_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().matlab_record_signal_port_,
+                            "matlab",
+                            "record signal port");
+    uint record_buffer_count = api_.record.get_record_buffer_count();
+    if (j_us.contains("record") && j_us.at("record").contains("buffer count"))
+        record_buffer_count = json_get_or_default(j_us, record_buffer_count, "record", "buffer count");
+    else if (j_us.contains("record") && j_us.at("record").contains("queue multibuffering enabled"))
+        record_buffer_count = json_get_or_default(j_us, true, "record", "queue multibuffering enabled") ? 3u : 1u;
+    api_.record.set_record_buffer_count(record_buffer_count);
+    RecordTriggerTcpServer::instance().configure(UserInterfaceDescriptor::instance().matlab_record_signal_enabled_,
+                                                 UserInterfaceDescriptor::instance().matlab_record_signal_port_);
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
@@ -507,6 +546,10 @@ void MainWindow::save_gui()
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
+    j_us["matlab"]["record signal enabled"] = UserInterfaceDescriptor::instance().matlab_record_signal_enabled_;
+    j_us["matlab"]["record signal port"] = UserInterfaceDescriptor::instance().matlab_record_signal_port_;
+    j_us["record"]["buffer count"] = api_.record.get_record_buffer_count();
+    j_us["record"].erase("queue multibuffering enabled");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -574,13 +617,21 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void MainWindow::camera_ametek_s980_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS980EuresysCoaxlinkQSFP); }
+
 void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
 
-void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
+void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); } // a doube check avec maxime
 
-void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
+void MainWindow::camera_alvium()
+{
+    LOG_ERROR("main.cc Switching to Alvium camera");
+    change_camera(CameraKind::Alvium);
+}
 
 void MainWindow::camera_asi() { change_camera(CameraKind::ASI); }
+
+void MainWindow::camera_PCO_Edge4_2lt() { change_camera(CameraKind::PCO_Edge4_2lt); }
 
 void open_file(const std::string& filename)
 {
@@ -619,11 +670,18 @@ void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
     open_file("ametek_s711_euresys_coaxlink_qsfp+.ini");
 }
 
+void MainWindow::camera_ametek_s980_coaxlink_qspf_plus_settings()
+{
+    open_file("ametek_s980_euresys_coaxlink_qsfp+.ini");
+}
+
 void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
 
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 void MainWindow::camera_asi_settings() { open_file("asi.ini"); }
+
+void MainWindow::camera_PCO_Edge4_2lt_settings() { open_file("pco_edge_4.2lt.ini"); }
 
 #pragma endregion
 
@@ -712,7 +770,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_37.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
@@ -772,6 +830,13 @@ void MainWindow::init_tooltips()
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::SSA_STFT),
                                                  "Self-adaptive Spectrum Analysis Short-Time Fourier Transformation",
                                                  Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(
+        static_cast<int>(TimeTransformation::LSCI),
+        "Laser speckle contrast K = standard deviation / mean of intensity, pooled over "
+        "the square LSCI window and consecutive frames in nonoverlapping blocks. "
+        "Space Transform selects direct camera intensity (None) or reconstructed intensity. "
+        "Defaults of 5 x 5 pixels and 16 frames match the paper",
+        Qt::ToolTipRole);
 }
 
 #pragma endregion

@@ -102,6 +102,19 @@ class RecordApi : public IApi
      */
     inline void set_record_frame_count(std::optional<size_t> value) const { UPDATE_SETTING(RecordFrameCount, value); }
 
+    /*! \brief Return whether per-frame RAW camera timestamps are stored in the holo footer. */
+    inline bool get_record_frame_timestamps_enabled() const { return GET_SETTING(RecordFrameTimestampsEnabled); }
+
+    /*! \brief Enable or disable storing per-frame RAW camera timestamps in the holo footer.
+     *
+     * \note If a
+     * record is already in progress, the new value will be used for the next record.
+     */
+    inline void set_record_frame_timestamps_enabled(bool value) const
+    {
+        UPDATE_SETTING(RecordFrameTimestampsEnabled, value);
+    }
+
     /*! \brief Return the number of frames that will be skipped at the beginning of the recording.
      *
      * Ex: `get_record_frame_offset() == 10` means that the first 10 frames will be skipped.
@@ -309,6 +322,17 @@ class RecordApi : public IApi
      * \return ApiCode the status of the operation. NO_CHANGE if the size is already set to the new value, OK otherwise.
      */
     ApiCode set_record_buffer_size(uint value) const;
+
+    /*! \brief Gets the number of record buffers available for capture and file saving. */
+    inline uint get_record_buffer_count() const { return GET_SETTING(RecordBufferCount); }
+
+    /*! \brief Sets the number of record buffers and rebuilds them. Defaults to three.
+     *
+     * \param[in] value the number of buffers, at least one
+     * \return ApiCode INVALID_VALUE if the count is outside [1, INT_MAX], NO_CHANGE if unchanged,
+     * OK otherwise.
+     */
+    ApiCode set_record_buffer_count(uint value) const;
 
 #pragma endregion
 };

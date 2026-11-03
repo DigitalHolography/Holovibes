@@ -1,5 +1,6 @@
 #include "record_api.hh"
 
+#include <limits>
 #include <tuple>
 
 #include "API.hh"
@@ -11,6 +12,10 @@ namespace holovibes::api
 
 ApiCode RecordApi::set_record_mode(RecordMode value) const
 {
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI && value != RecordMode::RAW &&
+        value != RecordMode::HOLOGRAM && value != RecordMode::CHART)
+        return ApiCode::WRONG_COMP_MODE;
+
     if (value == get_record_mode())
         return ApiCode::NO_CHANGE;
 
@@ -35,9 +40,11 @@ std::vector<OutputFormat> RecordApi::get_supported_formats(RecordMode mode) cons
         {RecordMode::RAW, {OutputFormat::HOLO}},
         {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
         {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::MOMENTS, {OutputFormat::H5}},
         {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
         {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::OCT_CUBE, {OutputFormat::H5}},
+        {RecordMode::OCT_CUBE_FLOAT, {OutputFormat::H5}},
         {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
 
     return extension_index_map.at(mode);
@@ -73,6 +80,13 @@ RecordProgress RecordApi::get_record_progress() const
 
 bool RecordApi::start_record_preconditions() const
 {
+    if (api_->transform.get_time_transformation() == TimeTransformation::LSCI && get_record_mode() != RecordMode::RAW &&
+        get_record_mode() != RecordMode::HOLOGRAM && get_record_mode() != RecordMode::CHART)
+    {
+        LOG_ERROR("LSCI supports raw intensity, displayed contrast-map, and regional-chart recording");
+        return false;
+    }
+
     if (get_record_mode() == RecordMode::CHART && get_record_frame_count() == std::nullopt)
     {
         LOG_ERROR("Number of frames must be activated");
@@ -82,6 +96,12 @@ bool RecordApi::start_record_preconditions() const
     if (api_->transform.get_batch_size() > get_record_buffer_size())
     {
         LOG_ERROR("Batch size must be lower than record queue size");
+        return false;
+    }
+
+    if (get_record_mode() != RecordMode::CHART && !Holovibes::instance().can_start_frame_record())
+    {
+        LOG_ERROR("No record queue is available; wait for a pending file save to finish");
         return false;
     }
 
@@ -96,7 +116,7 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
     RecordMode record_mode = GET_SETTING(RecordMode);
 
     // Reset recording counter
-    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.get_or_create_entry(RecordType::FRAME);
+    auto fast_update_progress_entry = FastUpdatesMap::map<RecordType>.create_entry(RecordType::FRAME, true);
     std::atomic<uint>& nb_frames_to_record = std::get<2>(*fast_update_progress_entry);
 
     std::get<0>(*fast_update_progress_entry) = 0; // Frames acquired
@@ -117,7 +137,8 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
         Holovibes::instance().start_chart_record(callback);
     else
     {
-        Holovibes::instance().start_frame_record(callback);
+        if (!Holovibes::instance().start_frame_record(callback))
+            return ApiCode::FAILURE;
 
         set_frame_acquisition_enabled(true);
     }
@@ -176,6 +197,29 @@ ApiCode RecordApi::set_record_buffer_size(uint value) const
 
     if (is_recording())
         stop_record();
+
+    if (api_->input.get_import_type() != ImportType::None)
+        Holovibes::instance().init_record_queue();
+
+    return ApiCode::OK;
+}
+
+ApiCode RecordApi::set_record_buffer_count(uint value) const
+{
+    constexpr uint max_buffer_count = static_cast<uint>(std::numeric_limits<int>::max());
+    if (value == 0 || value > max_buffer_count)
+    {
+        LOG_WARN("Record buffer count must be between 1 and {}", max_buffer_count);
+        return ApiCode::INVALID_VALUE;
+    }
+
+    if (get_record_buffer_count() == value)
+        return ApiCode::NO_CHANGE;
+
+    if (is_recording())
+        stop_record();
+
+    UPDATE_SETTING(RecordBufferCount, value);
 
     if (api_->input.get_import_type() != ImportType::None)
         Holovibes::instance().init_record_queue();

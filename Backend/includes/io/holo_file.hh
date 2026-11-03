@@ -55,7 +55,7 @@ class HoloFile
      *
      * Packed (aligned on 2 bytes) to be exactly 64 bytes
      */
-#pragma pack(2)
+#pragma pack(push, 2)
     struct HoloFileHeader
     {
         /*! \brief .holo file magic number, should be equal to "HOLO" */
@@ -79,6 +79,7 @@ class HoloFile
         /*! \brief Padding to make the header 64 bytes long */
         char padding[34];
     };
+#pragma pack(pop)
 
     /*! \brief Default constructor */
     HoloFile() = default;
@@ -97,6 +98,9 @@ class HoloFile
 
     /*! \brief The json meta data present in the footer */
     json meta_data_;
+
+    /*! \brief Timestamp of the creation of the files before write_frame() */
+    std::string file_creation_timestamp_;
 
     /*! \brief Current version of the holo file, update it when changing version */
     static constexpr uint16_t current_version_ = 7;

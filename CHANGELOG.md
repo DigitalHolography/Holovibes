@@ -1,5 +1,168 @@
 ## Changelog
 
+### 14.15.0
+- Add laser speckle contrast imaging (LSCI) with configurable spatial and temporal windows, direct-intensity processing, and optional Fresnel or angular-spectrum reconstruction.
+- Add LSCI image registration, contrast-map recording, regional statistics, and a bundled preset with batch AVI export through `ProcessHoloFiles.ps1`.
+- Update Phantom S991 (ST-4K) defaults to 4096 x 2048 Mono8 at 1000 fps, and add a configurable global or rolling shutter mode.
+- Refresh camera configuration files on each build and package current camera defaults in installers without requiring the executable to be rebuilt.
+- Fix missing Thrust PTX errors on some GPUs by including CUDA architecture 120 in default builds.
+- Fix a recording-start race that could corrupt the live input queue, freeze the preview, and misalign recorded frames and timestamps.
+- Keep Phantom capture buffers reserved until all GPU copies complete, and handle full recording buffers without blocking stop requests.
+
+### 14.14.1
+
+- Make the record-buffer count configurable (default: 3) and log each buffer allocation with elapsed-time updates while waiting.
+- Keep only the PowerShell processing script in the installer; remove its executable and batch launchers and the executable shortcut.
+
+### 14.14.0
+
+- Fix automatic contrast refresh and add a manual contrast refresh control that updates the displayed range.
+- Add progress logs around input, recording, and compute buffer allocation.
+
+### 14.13.5
+
+- Fix a problem that could prevent `.holo` files from being processed, including through the Windows processing script.
+- Fix incorrect input and camera frame-rate values shown in recording information.
+
+### 14.13.4
+
+- Fix CLI recordings producing output files with zero frames when computation starts.
+- Disable record queue multibuffering in CLI mode to avoid allocating unused record buffers.
+
+### 14.13.3
+
+- Add a new advanced option ON by default to have 3 distinct record buffers to chain recording faster. (for longer recordings disable this option)
+- Egrabber and NVIDIA drivers have been updated.
+
+### 14.13.2
+
+- Fix the Ametek Phantom S980 frame rate in software-trigger mode.
+- Migrate the Windows build and packaging workflow to pinned vcpkg dependencies.
+- Deploy camera plugins and their runtime dependencies consistently in the installer.
+- Explicitly run Holovibes with standard-user privileges; installation and camera-driver setup may still require administrator privileges.
+
+### 14.12.1
+
+- Add all frames timestamps option.
+- Allow the TCP record trigger server to start a recording when it receives `RECORD_START`.
+
+### 14.12.0
+
+- Migrate to cuda 13
+- Add an advanced settings to open a tcp server and send signal on record.
+
+### 14.11.12
+
+- Fixed a bug where images can be duplicaded when BufferPartCount greater than BatchSize.
+
+### 14.11.11
+
+- Update the default setting to record 163840 frames or about 4.42 seconds at 37 frames per second (doppler_8b_384_384_37.json).
+
+### 14.11.10
+
+- Add a new ways to launch processholofile script using a .exe file instead of powershell directly.
+
+### 14.11.7
+
+- Fix Convolution crashes in view mode.
+
+### 14.11.6
+
+- Add PCO_edge 4.2 LT camera.
+
+### 14.11.5
+
+- Add a new config files for adimec cameras.
+
+### 14.11.4
+
+- Fix issue where when the recording contains a lot of frames, sometimes the timestamps where not accurate.
+
+### 14.11.3
+
+- Updated a dependency to avoid a security risk
+
+### 14.11.2
+
+- Added a second offset timestamp and renamed timestamps in footer
+
+### 14.11.1
+
+- Precise timestamps are now synced with the unix system time, added more pertinent timestamps in the footer.
+
+### 14.11.0
+
+- Add precise Timestamps in the footer of files recorded with Ametek cameras.
+
+### 14.10.3
+
+- Updated Euresys camera drivers.
+
+- Fix a bug in a record worker.
+
+### 14.10.1
+
+- Zoom overlay is always square even if the input is anamorphic.
+
+### 14.10.0
+
+- Record moments are now done in hdf5 format.
+
+- Moments are no longer viewable in holovibes.
+
+- .ps1 script updated.
+
+- OCT/OCT_FLOAT records can no longer be done in .holo format.
+
+### 14.9.1
+
+- .ps1 script now correctly handle recursive folders.
+
+- Multiple crash cases have been resolved
+
+- The Batch input queue can no longer underflow
+
+- The Batch input queue is no longer overflown when in raw mode.
+
+- If fps is lower than the time stride the program no longer pauses forever.
+
+- OCT output can only be .h5 when using the .ps1 script
+
+- A race and deadlock issue has been fixed in the batch input queue.
+
+### 14.9.0
+
+- Add a .h5 record format for 3D OCT frames (Complex or float).
+
+- Add timestamps in footer info.
+
+- .ps1 updated to allow OCT recordings
+
+### 14.8.7
+
+- Fix multiples issues and crashs involving 3d cuts.
+
+- Default input buffer size is now 4096 due to issues when batch size is close to input buffer size.
+
+### 14.8.6
+
+- .mraw support added (a .cih or .cihx file with the exact same name is needed in the directory).
+
+### 14.8.5
+
+- Standard preset now have auto_contrast enabled by default.
+
+### 14.8.4
+
+- .ps1 script now add a "\_p" for processed files.
+
+### 14.8.3
+
+- Display reticle default size and color changed.
+
+- Camera information are now written in the footer.
+
 ### 14.8.2
 
 - New display and contrast reticle layout.

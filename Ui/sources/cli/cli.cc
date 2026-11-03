@@ -122,7 +122,11 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
     {
         try
         {
-            api.settings.load_compute_settings(opts.compute_settings_path.value());
+            if (api.settings.load_compute_settings(opts.compute_settings_path.value()) != holovibes::ApiCode::OK)
+            {
+                LOG_ERROR("Error while loading compute settings, abort");
+                return 34;
+            }
         }
         catch (std::exception& e)
         {
@@ -138,6 +142,13 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
         return 36;
     }
 
+    if (api.transform.get_time_transformation() == holovibes::TimeTransformation::LSCI &&
+        (opts.moments_record || opts.oct_cube_record || opts.oct_cube_float_record))
+    {
+        LOG_ERROR("LSCI produces contrast maps; spectral moments and OCT cube recording are unavailable");
+        return 36;
+    }
+
     if (opts.record_raw)
     {
         api.compute.set_compute_mode(holovibes::Computation::Raw);
@@ -145,6 +156,10 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
     }
     else if (opts.moments_record)
         api.record.set_record_mode(holovibes::RecordMode::MOMENTS);
+    else if (opts.oct_cube_record)
+        api.record.set_record_mode(holovibes::RecordMode::OCT_CUBE);
+    else if (opts.oct_cube_float_record)
+        api.record.set_record_mode(holovibes::RecordMode::OCT_CUBE_FLOAT);
     else
     {
         api.compute.set_compute_mode(holovibes::Computation::Hologram);
@@ -188,7 +203,7 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
     // Value used in more than 1 thread
     size_t input_nb_frames = api.input.get_input_file_end_index() - api.input.get_input_file_start_index();
     uint record_nb_frames;
-    if (opts.record_raw)
+    if (opts.record_raw || opts.oct_cube_record || opts.oct_cube_float_record)
         record_nb_frames = opts.n_rec.value_or(input_nb_frames);
     else
         record_nb_frames = opts.n_rec.value_or(input_nb_frames / api.transform.get_time_stride());
@@ -235,8 +250,17 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
         api.record.set_nb_frame_skip(static_cast<uint>(output_fps * (frame_skip + 1)) / api.record.get_mp4_fps());
     }
 
-    api.record.start_record([]() {});
-    api.compute.start();
+    if (api.record.start_record([]() {}) != holovibes::ApiCode::OK)
+    {
+        LOG_ERROR("Failed to start recording");
+        return 38;
+    }
+    if (api.compute.start() != holovibes::ApiCode::OK)
+    {
+        LOG_ERROR("Failed to start computation");
+        holovibes::Holovibes::instance().stop_frame_record();
+        return 39;
+    }
 
     return 0;
 }
@@ -246,6 +270,8 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_INFO("Starting CLI");
 
     api.information.set_is_cli(true);
+    // The CLI performs a single recording, so allocating queues for overlapping saves only wastes memory.
+    api.record.set_record_buffer_count(1);
 
     if (int ret = set_parameters(api, opts))
         return ret;
