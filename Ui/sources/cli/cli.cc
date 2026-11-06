@@ -276,6 +276,22 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     if (int ret = set_parameters(api, opts))
         return ret;
 
+    const bool contrast_once = opts.contrast_once && api.record.get_record_mode() == holovibes::RecordMode::HOLOGRAM;
+    if (contrast_once)
+    {
+        // Install the callback before starting workers so even the first output frame uses the calibrated range.
+        api.contrast.set_contrast_enabled(true, holovibes::WindowKind::XYview);
+        api.contrast.set_contrast_auto_refresh(true, holovibes::WindowKind::XYview);
+        api.contrast.set_contrast_update_callback(
+            [&api](holovibes::WindowKind view)
+            {
+                if (view != holovibes::WindowKind::XYview)
+                    return;
+                api.contrast.set_contrast_auto_refresh(false, view);
+                LOG_INFO("Display contrast fixed from the first output frame");
+            });
+    }
+
     LOG_INFO("Parameters set");
 
     if (opts.verbose)
@@ -283,7 +299,11 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
 
     Chrono chrono;
     if (int ret = start_cli_workers(api, opts))
+    {
+        if (contrast_once)
+            api.contrast.set_contrast_update_callback({});
         return ret;
+    }
 
     LOG_INFO("CLI workers started, main looping");
 
@@ -293,6 +313,8 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     api.compute.stop();
+    if (contrast_once)
+        api.contrast.set_contrast_update_callback({});
 
     return 0;
 }

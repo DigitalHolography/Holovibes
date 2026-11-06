@@ -74,7 +74,7 @@ if ($useStandardConfig -eq '3') {
     $outputExtension = '.avi'
     $configFileNormal = Get-PresetPath 'settingsLSCI.json'
     $configFileMoments = $null
-    Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping." -ForegroundColor Cyan
+    Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping, contrast fixed from the first map." -ForegroundColor Cyan
 }
 elseif ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
     # --- Standard defaults
@@ -244,6 +244,11 @@ function Execute-Holovibes {
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }
+
+    if ([IO.Path]::GetExtension($outputFile) -ieq '.avi' -and ($mode -eq 1 -or $mode -eq 5)) {
+        $commandArguments += " --contrast_once"
+        Write-Host "Display contrast will be estimated from the first complete output frame and held fixed for this AVI." -ForegroundColor Cyan
+    }
 
     Write-Host "Running: $exePath $commandArguments" -ForegroundColor Yellow
     $process = Start-Process -FilePath $exePath -ArgumentList $commandArguments -NoNewWindow -Wait -PassThru `

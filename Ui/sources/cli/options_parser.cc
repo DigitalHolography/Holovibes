@@ -51,6 +51,11 @@ OptionsParser::OptionsParser()
         "Don't skip img acc frames at the beginning (default = false)"
     )
     (
+        "contrast_once",
+        po::bool_switch()->default_value(false),
+        "Set display contrast automatically on the first complete output frame, then keep it fixed"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = infinite)"
@@ -176,6 +181,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
+        options_.contrast_once = vm_["contrast_once"].as<bool>();
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());

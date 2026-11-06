@@ -30,6 +30,7 @@ struct OptionsDescriptor
     std::optional<unsigned int> start_frame;
     std::optional<unsigned int> end_frame;
     bool noskip_acc;
+    bool contrast_once;
     bool record_raw;
     bool verbose;
     std::optional<unsigned int> frame_skip;

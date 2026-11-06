@@ -117,11 +117,14 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ProcessHoloFiles.ps1 -
 Use `-OutputFolder` to write the videos elsewhere. The LSCI mode uses the
 bundled `settingsLSCI.json` preset: direct intensity, a 5 x 5 spatial window,
 16-frame temporal blocks, automatic display contrast, and registration, which
-is always enabled in this export mode. Contrast is estimated from the central
-55% circle using the 1st and 99th percentiles to avoid noisy edges; the entire
-image is exported. The mode retains the input resolution and records every
-complete contrast map without additional frame skipping or accumulation
-startup skips.
+is always enabled in this export mode. Display contrast is estimated once from
+the first complete contrast map, using the central 55% circle and the 1st and
+99th percentiles to avoid noisy edges. The same display limits are then used
+throughout that AVI to prevent brightness jumps; each input file is calibrated
+independently. The script passes `--contrast_once` to Holovibes for AVI image
+exports. The entire image is exported. The mode retains the input resolution
+and records every complete contrast map without additional frame skipping or
+accumulation startup skips.
 
 AVI playback is limited to **24 frames/s**, retaining every contrast map. For
 4096 input frames acquired at 1000 frames/s, the result contains **256 maps**
