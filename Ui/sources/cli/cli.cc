@@ -1,4 +1,5 @@
 #include "cli.hh"
+#include "lsci_pca_cli.hh"
 
 #include <iostream>
 #include "chrono.hh"
@@ -270,6 +271,8 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_INFO("Starting CLI");
 
     api.information.set_is_cli(true);
+    if (opts.lsci_pca)
+        return start_lsci_pca(opts);
     // The CLI performs a single recording, so allocating queues for overlapping saves only wastes memory.
     api.record.set_record_buffer_count(1);
 

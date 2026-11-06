@@ -56,6 +56,26 @@ OptionsParser::OptionsParser()
         "Set display contrast automatically on the first complete output frame, then keep it fixed"
     )
     (
+        "lsci_pca",
+        po::bool_switch()->default_value(false),
+        "Offline CLI-only PCA-filtered spatiotemporal LSCI to AVI"
+    )
+    (
+        "lsci_pca_frames",
+        po::value<unsigned int>()->default_value(100),
+        "Raw frames per nonoverlapping PCA-LSCI block (2..512, default 100)"
+    )
+    (
+        "lsci_pca_window",
+        po::value<unsigned int>()->default_value(7),
+        "Odd spatial side length for PCA-LSCI (1..63, default 7)"
+    )
+    (
+        "lsci_pca_no_registration",
+        po::bool_switch()->default_value(false),
+        "Disable inter-map registration for offline PCA-LSCI"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = infinite)"
@@ -182,6 +202,10 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.contrast_once = vm_["contrast_once"].as<bool>();
+        options_.lsci_pca = vm_["lsci_pca"].as<bool>();
+        options_.lsci_pca_frames = vm_["lsci_pca_frames"].as<unsigned>();
+        options_.lsci_pca_window = vm_["lsci_pca_window"].as<unsigned>();
+        options_.lsci_pca_no_registration = vm_["lsci_pca_no_registration"].as<bool>();
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());

@@ -31,6 +31,10 @@ struct OptionsDescriptor
     std::optional<unsigned int> end_frame;
     bool noskip_acc;
     bool contrast_once;
+    bool lsci_pca = false;
+    unsigned lsci_pca_frames = 100;
+    unsigned lsci_pca_window = 7;
+    bool lsci_pca_no_registration = false;
     bool record_raw;
     bool verbose;
     std::optional<unsigned int> frame_skip;

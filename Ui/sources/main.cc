@@ -162,6 +162,8 @@ int main(int argc, char* argv[])
         copy_files(RELATIVE_PATH(__SHADER_REFERENCE__), RELATIVE_PATH(__SHADER_FOLDER_PATH__));
 
 #endif
+        if (opts.lsci_pca && (!opts.input_path || !opts.output_path))
+            throw std::invalid_argument("--lsci_pca is CLI-only and requires both -i and -o");
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(api, false);

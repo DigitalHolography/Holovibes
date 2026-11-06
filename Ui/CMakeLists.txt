@@ -107,6 +107,9 @@ target_link_libraries(Holovibes PRIVATE
     OpenGL::GL
     holovibes_headers
     CUDA::cudart
+    opencv_core
+    opencv_imgproc
+    opencv_videoio
     Backend
 )
 

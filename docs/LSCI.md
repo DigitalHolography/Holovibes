@@ -131,3 +131,73 @@ AVI playback is limited to **24 frames/s**, retaining every contrast map. For
 and plays for approximately **10.67 seconds** at 24 frames/s. This slows playback
 relative to the 4.096-second acquisition. AVI uses MJPEG compression, so its
 file size depends on image content; resolution alone does not determine the size.
+
+## Offline PCA-filtered LSCI (CLI only)
+
+Choose configuration **4: Offline PCA-LSCI AVI** in `ProcessHoloFiles.ps1`, or
+recording mode **6** in its interactive setup. For an unattended export:
+
+```powershell
+.\ProcessHoloFiles.ps1 -LsciPca -InputFolder 'D:\lsci' -OutputFolder 'D:\lsci\pca'
+```
+
+This separate offline path implements Surkov et al., *Laser speckle contrast
+imaging with principal component and entropy analysis* (2025), sections 2.3,
+2.6–2.7 and Figure 2: https://doi.org/10.1007/s12200-024-00143-1.
+It is unavailable in the GUI and cannot be activated by a saved compute setting.
+It processes direct camera intensities; the existing holographic complex-field
+PCA time transformation is a different algorithm.
+
+Each nonoverlapping block has **100 raw frames** by default. Flattened frames
+form the columns of X; subtract each frame's spatial mean to obtain Phi. Compute
+the small temporal Gram matrix Phi^T Phi and retain the eigenvectors whose
+eigenvalues are at least the mean of the N eigenvalues. Reconstruct the static
+signal as `X_static = means + Phi V_static V_static^T`. Calculate spatiotemporal
+K separately on X and X_static using a **7 x 7** spatial neighborhood, then
+subtract **K_original - K_static**. This follows the supplied paper's contrast-map
+subtraction, rather than LSCI of a raw residual or the squared-contrast subtraction
+in the earlier Arias-Cruz method. There is no conversion to calibrated flow speed.
+
+The implementation calculates the reconstructed stack's temporal moments from
+orthonormal PCA scores, giving the same pooled contrast without storing a second
+full reconstructed movie. The raw intensity block is held as float32 on the GPU;
+the eigendecomposition is only N x N on the CPU. GPU storage is approximately
+`4 * width * height * (N + 8)` bytes, plus a small tiled projection workspace.
+A 3840 x 2160 x 100 block needs approximately 3.4 GiB, in addition to CUDA/BLAS
+overhead. Insufficient memory produces an error suggesting a smaller block.
+Reading, processing and writing are synchronous, so slow processing does not
+drop input frames or compete with live acquisition.
+
+Inter-map registration is enabled by default. Signed contrast differences are
+preserved until display; the 1st and 99th percentiles of the first registered
+map's central 55% circle set the display limits for the entire AVI. No logarithm,
+extra normalization, accumulation, reconstruction or per-frame contrast refresh
+is applied. A sidecar `<output>.avi.json` records those signed limits, parameters,
+the static PC count and eigenvalues for each block, and registration shifts.
+AVI remains an 8-bit, lossy MJPEG display product.
+
+Outputs are named `<input>_lsci_pca.avi`. Every complete block produces one map;
+trailing incomplete blocks are reported and discarded. Thus 4096 raw frames
+produce **40 maps** at the default block size, with 96 trailing frames unused.
+At 24 fps this is 1.67 seconds of playback, independently of acquisition time.
+
+Use `-PcaFrames` and `-PcaWindow` to override the paper defaults, for example:
+
+```powershell
+.\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 64 -PcaWindow 5 -InputFolder 'D:\lsci'
+```
+
+Direct CLI equivalent:
+
+```powershell
+Holovibes.exe -i input.holo -o output_lsci_pca.avi --lsci_pca --lsci_pca_frames 100 --lsci_pca_window 7
+```
+
+The new mode accepts raw 8-bit, 16-bit and float32 `.holo` input with even width
+and height for MJPEG encoding. `-s` and `-e`
+select a 1-based inclusive raw-frame range; `-n` limits the number of output
+blocks. `--mp4_fps` sets AVI playback from 1 to 24 fps, and
+`--lsci_pca_no_registration` disables inter-map alignment. Custom `-c` compute
+settings, frame skipping and raw/moments/OCT recording flags are rejected.
+`-f` records the acquisition frame rate in the sidecar; offline processing runs
+as fast as the hardware allows, without real-time pacing.

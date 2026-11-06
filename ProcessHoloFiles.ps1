@@ -1,10 +1,14 @@
 param(
     [switch]$Lsci,
+    [switch]$LsciPca,
+    [ValidateRange(2, 512)][int]$PcaFrames = 100,
+    [ValidateRange(1, 63)][ValidateScript({ $_ % 2 -eq 1 })][int]$PcaWindow = 7,
     [string]$InputFolder,
     [string]$OutputFolder
 )
 
 $ErrorActionPreference = 'Stop'
+if ($Lsci -and $LsciPca) { throw 'Choose either -Lsci or -LsciPca.' }
 
 # Determine directories relative to this script
 $scriptDir  = $PSScriptRoot
@@ -57,24 +61,31 @@ if ($OutputFolder) {
 }
 
 # Prompt for standard, interactive, or LSCI configuration.
-if ($Lsci) {
+if ($LsciPca) {
+    $useStandardConfig = '4'
+} elseif ($Lsci) {
     $useStandardConfig = '3'
 } else {
     Write-Host "Select configuration mode:" -ForegroundColor Cyan
     Write-Host " 1) Standard config (all defaults)" -ForegroundColor Yellow
     Write-Host " 2) Interactive setup" -ForegroundColor Yellow
     Write-Host " 3) LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
+    Write-Host " 4) Offline PCA-LSCI AVI (paper method, registration on)" -ForegroundColor Yellow
     $useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
 }
 
-if ($useStandardConfig -eq '3') {
-    $modeChoice      = 5
+if ($useStandardConfig -eq '3' -or $useStandardConfig -eq '4') {
+    $modeChoice      = if ($useStandardConfig -eq '4') { 6 } else { 5 }
     $frameSkip       = 0
     $input_fps       = -1
     $outputExtension = '.avi'
-    $configFileNormal = Get-PresetPath 'settingsLSCI.json'
+    $configFileNormal = if ($modeChoice -eq 6) { $null } else { Get-PresetPath 'settingsLSCI.json' }
     $configFileMoments = $null
-    Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping, contrast fixed from the first map." -ForegroundColor Cyan
+    if ($modeChoice -eq 6) {
+        Write-Host "Offline PCA-LSCI AVI: $PcaFrames frames per block, $PcaWindow x $PcaWindow pixels, registration on, 24 fps, fixed display contrast." -ForegroundColor Cyan
+    } else {
+        Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping, contrast fixed from the first map." -ForegroundColor Cyan
+    }
 }
 elseif ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig -eq '1') {
     # --- Standard defaults
@@ -111,7 +122,7 @@ else {
     function Select-OutputExtension {
     param([int]$modeChoice)
 
-    if ($modeChoice -eq 5) { return '.avi' }
+    if ($modeChoice -in 5, 6) { return '.avi' }
 
     if ($modeChoice -eq 2 -or $modeChoice -eq 3 -or $modeChoice -eq 4) {
         Write-Host "For Moments and OCT/OCT_FLOAT records, output extension is fixed to .h5" -ForegroundColor Cyan
@@ -163,11 +174,16 @@ else {
     Write-Host " 3. OCT" -ForegroundColor Yellow
     Write-Host " 4. OCT_FLOAT" -ForegroundColor Yellow
     Write-Host " 5. LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
+    Write-Host " 6. Offline PCA-LSCI AVI (paper method, registration on)" -ForegroundColor Yellow
     $modeChoice = Read-Host "Enter choice (default 1)"
-    if ($modeChoice -notmatch '^[1-5]$') { $modeChoice = 1 }
+    if ($modeChoice -notmatch '^[1-6]$') { $modeChoice = 1 }
 
     # Config files
-    if ($modeChoice -eq 5) {
+    if ($modeChoice -eq 6) {
+        $configFileNormal = $null
+        $configFileMoments = $null
+    }
+    elseif ($modeChoice -eq 5) {
         $configFileNormal = Get-PresetPath 'settingsLSCI.json'
         $configFileMoments = $null
     }
@@ -185,9 +201,13 @@ else {
     }
 
     # Frame skip et input fps
-    if ($modeChoice -eq 5) {
+    if ($modeChoice -in 5, 6) {
         $frameSkip = 0
-        Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
+        if ($modeChoice -eq 6) {
+            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, $PcaWindow x $PcaWindow pixels, registration and fixed display contrast, 24 fps AVI." -ForegroundColor Cyan
+        } else {
+            Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
+        }
     } else {
         $frameSkip = Read-Host "Enter frame skip (default 8)"
         if ($frameSkip -notmatch '^[0-9]+$') { $frameSkip = 8 }
@@ -230,7 +250,7 @@ function Execute-Holovibes {
         $skip,
         $fps,
         $config,
-        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT, 5=LSCI AVI
+        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT, 5=LSCI AVI, 6=offline PCA-LSCI AVI
     )
     $commandArguments = "-i `"$inputFile`" -o `"$outputFile`""
     if ($fps -ne -1) { $commandArguments += " -f $fps" }
@@ -241,11 +261,12 @@ function Execute-Holovibes {
         3 { $commandArguments += " --oct_cube_record" }
         4 { $commandArguments += " --oct_cube_float_record" }
         5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
+        6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_window $PcaWindow --mp4_fps 24" }
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }
 
-    if ([IO.Path]::GetExtension($outputFile) -ieq '.avi' -and ($mode -eq 1 -or $mode -eq 5)) {
+    if ([IO.Path]::GetExtension($outputFile) -ieq '.avi' -and $mode -in 1, 5, 6) {
         $commandArguments += " --contrast_once"
         Write-Host "Display contrast will be estimated from the first complete output frame and held fixed for this AVI." -ForegroundColor Cyan
     }
@@ -284,6 +305,9 @@ foreach ($file in $holoFiles) {
         }
         5 {
             $out = Join-Path $outDir "${base}_lsci.avi"
+        }
+        6 {
+            $out = Join-Path $outDir "${base}_lsci_pca.avi"
         }
     }
 

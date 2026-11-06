@@ -39,6 +39,7 @@ target_include_directories(HolovibesTests PRIVATE
 
 target_link_libraries(HolovibesTests
     GTest::gtest_main
+    opencv_core
     holovibes_headers
     CUDA::cudart
     Backend

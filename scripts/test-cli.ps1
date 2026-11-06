@@ -21,11 +21,14 @@ try {
         @{ Name = 'processed'; Extension = 'holo'; Options = @() },
         @{ Name = 'avi'; Extension = 'avi'; Options = @('--fps', '240') },
         @{ Name = 'mp4'; Extension = 'mp4'; Options = @('--fps', '240') },
+        @{ Name = 'lsci-pca'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3'); NoSettings = $true },
         @{ Name = 'moments'; Extension = 'h5'; Options = @('--moments_record') }
     )
     foreach ($case in $cases) {
         $outputFile = Join-Path $outputDir "$($case.Name).$($case.Extension)"
-        $arguments = @('-i', "`"$inputFile`"", '-o', "`"$outputFile`"", '-c', "`"$settings`"") + $case.Options
+        $arguments = @('-i', "`"$inputFile`"", '-o', "`"$outputFile`"")
+        if (-not $case.NoSettings) { $arguments += @('-c', "`"$settings`"") }
+        $arguments += $case.Options
         $child = Start-Process -FilePath $Executable -ArgumentList $arguments -WindowStyle Hidden -PassThru `
             -WorkingDirectory (Split-Path -Parent $Executable) `
             -RedirectStandardOutput "$outputDir/$($case.Name).stdout.log" `
@@ -48,6 +51,13 @@ try {
             if ($actual.Length -lt $inputBytes.Length -or
                 [Convert]::ToBase64String($actual, 64, $inputBytes.Length - 64) -ne $expectedPixels) {
                 throw "Raw pixel data changed in $($case.Name). Logs: $outputDir"
+            }
+        }
+        if ($case.Name -eq 'lsci-pca') {
+            $metadata = Get-Content -LiteralPath "$outputFile.json" -Raw | ConvertFrom-Json
+            if ($metadata.output_frames -ne 2 -or $metadata.blocks.Count -ne 2 -or
+                -not $metadata.display_range_fixed -or $metadata.frames_per_block -ne 4) {
+                throw "PCA-LSCI block count or fixed display metadata is incorrect. Logs: $outputDir"
             }
         }
     }
