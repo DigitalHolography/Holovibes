@@ -3,7 +3,7 @@ param(
     [switch]$LsciPca,
     [ValidateRange(2, 512)][int]$PcaFrames = 32,
     [ValidateRange(1, 63)][ValidateScript({ $_ % 2 -eq 1 })][int]$PcaWindow = 7,
-    [ValidateRange(1, 512)][int]$PcaImageAcc = 1,
+    [ValidateRange(1, 512)][int]$PcaImageAcc = 2,
     [string]$InputFolder,
     [string]$OutputFolder
 )
