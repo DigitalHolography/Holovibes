@@ -1,8 +1,9 @@
 param(
     [switch]$Lsci,
     [switch]$LsciPca,
-    [ValidateRange(2, 512)][int]$PcaFrames = 100,
+    [ValidateRange(2, 512)][int]$PcaFrames = 32,
     [ValidateRange(1, 63)][ValidateScript({ $_ % 2 -eq 1 })][int]$PcaWindow = 7,
+    [ValidateRange(1, 512)][int]$PcaImageAcc = 1,
     [string]$InputFolder,
     [string]$OutputFolder
 )
@@ -82,7 +83,7 @@ if ($useStandardConfig -eq '3' -or $useStandardConfig -eq '4') {
     $configFileNormal = if ($modeChoice -eq 6) { $null } else { Get-PresetPath 'settingsLSCI.json' }
     $configFileMoments = $null
     if ($modeChoice -eq 6) {
-        Write-Host "Offline PCA-LSCI AVI: $PcaFrames frames per block, $PcaWindow x $PcaWindow pixels, registration on, 24 fps, fixed display contrast." -ForegroundColor Cyan
+        Write-Host "Offline PCA-LSCI AVI: $PcaFrames frames per block, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration on, 24 fps, fixed display contrast." -ForegroundColor Cyan
     } else {
         Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping, contrast fixed from the first map." -ForegroundColor Cyan
     }
@@ -204,7 +205,7 @@ else {
     if ($modeChoice -in 5, 6) {
         $frameSkip = 0
         if ($modeChoice -eq 6) {
-            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, $PcaWindow x $PcaWindow pixels, registration and fixed display contrast, 24 fps AVI." -ForegroundColor Cyan
+            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration and fixed display contrast, 24 fps AVI." -ForegroundColor Cyan
         } else {
             Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
         }
@@ -261,7 +262,7 @@ function Execute-Holovibes {
         3 { $commandArguments += " --oct_cube_record" }
         4 { $commandArguments += " --oct_cube_float_record" }
         5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
-        6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_window $PcaWindow --mp4_fps 24" }
+        6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps 24" }
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }

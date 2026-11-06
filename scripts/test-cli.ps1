@@ -22,6 +22,7 @@ try {
         @{ Name = 'avi'; Extension = 'avi'; Options = @('--fps', '240') },
         @{ Name = 'mp4'; Extension = 'mp4'; Options = @('--fps', '240') },
         @{ Name = 'lsci-pca'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3'); NoSettings = $true },
+        @{ Name = 'lsci-pca-acc'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '--lsci_pca_image_acc', '3'); NoSettings = $true },
         @{ Name = 'moments'; Extension = 'h5'; Options = @('--moments_record') }
     )
     foreach ($case in $cases) {
@@ -53,11 +54,16 @@ try {
                 throw "Raw pixel data changed in $($case.Name). Logs: $outputDir"
             }
         }
-        if ($case.Name -eq 'lsci-pca') {
+        if ($case.Name -in 'lsci-pca', 'lsci-pca-acc') {
             $metadata = Get-Content -LiteralPath "$outputFile.json" -Raw | ConvertFrom-Json
             if ($metadata.output_frames -ne 2 -or $metadata.blocks.Count -ne 2 -or
                 -not $metadata.display_range_fixed -or $metadata.frames_per_block -ne 4) {
                 throw "PCA-LSCI block count or fixed display metadata is incorrect. Logs: $outputDir"
+            }
+            $expectedAcc = if ($case.Name -eq 'lsci-pca-acc') { 3 } else { 1 }
+            if ($metadata.image_accumulation -ne $expectedAcc -or
+                $metadata.blocks[1].accumulated_maps -ne [Math]::Min(2, $expectedAcc)) {
+                throw "PCA-LSCI image accumulation metadata is incorrect. Logs: $outputDir"
             }
         }
     }

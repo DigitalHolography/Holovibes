@@ -34,6 +34,7 @@ struct OptionsDescriptor
     bool lsci_pca = false;
     unsigned lsci_pca_frames = 100;
     unsigned lsci_pca_window = 7;
+    unsigned lsci_pca_image_acc = 1;
     bool lsci_pca_no_registration = false;
     bool record_raw;
     bool verbose;

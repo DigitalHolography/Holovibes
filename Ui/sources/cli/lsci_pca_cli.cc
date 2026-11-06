@@ -1,5 +1,6 @@
 #include "lsci_pca_cli.hh"
 #include "lsci_pca.hh"
+#include "rolling_image_average.hh"
 #include "input_frame_file_factory.hh"
 #include "API.hh"
 #include "logger.hh"
@@ -129,6 +130,8 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     const unsigned frames = opts.lsci_pca_frames, window = opts.lsci_pca_window;
     if (frames < 2 || frames > 512 || window < 1 || window > 63 || window % 2 == 0)
         throw std::invalid_argument("Use 2..512 PCA frames and an odd 1..63 spatial window");
+    if (opts.lsci_pca_image_acc < 1 || opts.lsci_pca_image_acc > 512)
+        throw std::invalid_argument("PCA-LSCI image accumulation must be between 1 and 512");
     std::unique_ptr<io_files::InputFrameFile> input(io_files::InputFrameFileFactory::open(input_path.string()));
     const auto fd = input->get_frame_descriptor();
     if (API.input.get_data_type() != RecordedDataType::RAW ||
@@ -155,6 +158,7 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
         throw std::runtime_error("Unable to create PCA-LSCI AVI: " + output_path.string());
     LOG_INFO("Offline PCA-LSCI: {} frames/block, {}x{} spatial window, {} blocks, {} fps AVI, registration {}",
              frames, window, window, count, fps, !opts.lsci_pca_no_registration);
+    LOG_INFO("PCA-LSCI image accumulation: {} maps (rolling mean, available maps during startup)", opts.lsci_pca_image_acc);
     const size_t tail = (end-start+1) % frames;
     if (tail)
         LOG_INFO("PCA-LSCI ignores {} trailing input frames (incomplete block)", tail);
@@ -164,6 +168,9 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
         {"frames_per_block", frames}, {"spatial_window", window}, {"width", fd.width}, {"height", fd.height},
         {"playback_fps", fps}, {"start_frame", start}, {"end_frame", end}, {"output_frames", count},
         {"trailing_incomplete_frames", tail}, {"registration_enabled", !opts.lsci_pca_no_registration},
+        {"image_accumulation", opts.lsci_pca_image_acc}, {"image_accumulation_mode", "rolling_mean"},
+        {"image_accumulation_stage", "after registration, before display scaling"},
+        {"image_accumulation_startup", "available_maps"},
         {"display_percentiles", {1, 99}}, {"display_circle_scale", .55}, {"display_range_fixed", true},
         {"blocks", nlohmann::json::array()}
     };
@@ -172,6 +179,7 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     std::vector<unsigned char> frame(fd.get_frame_size());
     input->set_pos_to_frame(start-1);
     OfflineRegistration registration;
+    compute::RollingImageAverage image_average(opts.lsci_pca_image_acc);
     float low = 0, high = 0;
     for (size_t block = 0; block < count; ++block)
     {
@@ -188,18 +196,20 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
         auto result = processor.process();
         cv::Mat dynamic(fd.height, fd.width, CV_32F, result.dynamic.data());
         cv::Mat registered = opts.lsci_pca_no_registration ? dynamic : registration.align(dynamic);
+        cv::Mat accumulated = image_average.apply(registered);
         if (block == 0)
         {
-            std::tie(low, high) = display_limits(registered);
+            std::tie(low, high) = display_limits(accumulated);
             metadata["display_K_difference_min"] = low;
             metadata["display_K_difference_max"] = high;
             LOG_INFO("PCA-LSCI display limits fixed from first map: [{}, {}]", low, high);
         }
         cv::Mat display;
-        registered.convertTo(display, CV_8U, 255. / (high-low), -255. * low / (high-low));
+        accumulated.convertTo(display, CV_8U, 255. / (high-low), -255. * low / (high-low));
         writer.write(display);
         metadata["blocks"].push_back({{"input_first_frame", start+block*frames},
             {"static_components", result.static_components}, {"eigenvalues", result.eigenvalues},
+            {"accumulated_maps", std::min<size_t>(opts.lsci_pca_image_acc, block+1)},
             {"registration_dx", registration.dx}, {"registration_dy", registration.dy}});
         LOG_INFO("PCA-LSCI block {}/{}: {} static components", block+1, count, result.static_components);
     }

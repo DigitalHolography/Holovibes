@@ -171,8 +171,9 @@ drop input frames or compete with live acquisition.
 Inter-map registration is enabled by default. Signed contrast differences are
 preserved until display; the 1st and 99th percentiles of the first registered
 map's central 55% circle set the display limits for the entire AVI. No logarithm,
-extra normalization, accumulation, reconstruction or per-frame contrast refresh
-is applied. A sidecar `<output>.avi.json` records those signed limits, parameters,
+extra normalization, reconstruction or per-frame contrast refresh is applied.
+Optional image accumulation averages registered, signed maps before display
+scaling. A sidecar `<output>.avi.json` records those signed limits, parameters,
 the static PC count and eigenvalues for each block, and registration shifts.
 AVI remains an 8-bit, lossy MJPEG display product.
 
@@ -186,6 +187,25 @@ Use `-PcaFrames` and `-PcaWindow` to override the paper defaults, for example:
 ```powershell
 .\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 64 -PcaWindow 5 -InputFolder 'D:\lsci'
 ```
+
+Set `-PcaImageAcc` to average the most recent output maps, for example:
+
+```powershell
+.\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 32 -PcaWindow 7 -PcaImageAcc 4 -InputFolder 'D:\lsci'
+```
+
+The default is 1 (no averaging); accepted values are 1 to 512. This is a rolling
+mean after inter-map registration and before display scaling. Startup averages
+only the maps available so far: with level 4, the first frame uses one map,
+the second uses two, the third uses three, and subsequent frames use the latest
+four. Every complete PCA block still produces one AVI frame. PCA block size,
+raw-frame stride and component selection are independent of this setting;
+the output averaging windows overlap. With 32 raw frames/block and ImgAcc 4,
+a full rolling average spans four maps covering 128 raw frames.
+Display limits remain fixed from the first output map. The sidecar records the
+accumulation level and number of contributing maps for each output frame.
+Additional host memory is approximately `4 * width * height * A` bytes for map
+history plus `8 * width * height` bytes for the running sum when A > 1.
 
 Direct CLI equivalent:
 
@@ -201,3 +221,4 @@ blocks. `--mp4_fps` sets AVI playback from 1 to 24 fps, and
 settings, frame skipping and raw/moments/OCT recording flags are rejected.
 `-f` records the acquisition frame rate in the sidecar; offline processing runs
 as fast as the hardware allows, without real-time pacing.
+Use `--lsci_pca_image_acc 4` for the direct CLI equivalent of `-PcaImageAcc 4`.

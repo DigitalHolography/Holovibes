@@ -76,6 +76,11 @@ OptionsParser::OptionsParser()
         "Disable inter-map registration for offline PCA-LSCI"
     )
     (
+        "lsci_pca_image_acc",
+        po::value<unsigned int>()->default_value(1),
+        "Rolling average of registered PCA-LSCI maps before display (1..512, default 1)"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = infinite)"
@@ -205,6 +210,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.lsci_pca = vm_["lsci_pca"].as<bool>();
         options_.lsci_pca_frames = vm_["lsci_pca_frames"].as<unsigned>();
         options_.lsci_pca_window = vm_["lsci_pca_window"].as<unsigned>();
+        options_.lsci_pca_image_acc = vm_["lsci_pca_image_acc"].as<unsigned>();
         options_.lsci_pca_no_registration = vm_["lsci_pca_no_registration"].as<bool>();
         if (vm_.count("frame_skip"))
         {
