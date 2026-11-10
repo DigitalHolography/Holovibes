@@ -161,8 +161,7 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         update_pca(0);
         time_transformation_env_.stft_plan.reset();
         time_transformation_env_.gpu_lsci_moments.resize(input_queue_.get_fd().get_frame_res());
-        time_transformation_env_.lsci_frame_count = 0;
-        time_transformation_env_.lsci_ready = false;
+        time_transformation_env_.reset_lsci();
         break;
     default:
         LOG_ERROR("Unhandled Time transformation settings");
@@ -174,8 +173,7 @@ void ICompute::update_spatial_transformation_parameters()
 {
     const auto& input_queue_fd = input_queue_.get_fd();
     batch_env_.batch_index = 0;
-    time_transformation_env_.lsci_frame_count = 0;
-    time_transformation_env_.lsci_ready = false;
+    time_transformation_env_.reset_lsci();
     if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI &&
         setting<settings::SpaceTransformation>() == SpaceTransformation::NONE)
     {

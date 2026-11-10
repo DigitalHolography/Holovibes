@@ -65,9 +65,9 @@ void ImageRenderingPanel::on_notify()
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled(is_data_not_moments && !(is_lsci && is_recording));
 
-    ui_->TimeStrideSpinBox->setEnabled(!is_raw && !is_lsci);
-    ui_->TimeStrideLabel->setEnabled(!is_raw && !is_lsci);
-    ui_->TimeStrideSpinBox->setToolTip(is_lsci ? "One contrast map per complete time window of consecutive frames"
+    ui_->TimeStrideSpinBox->setEnabled(!is_raw && !(is_lsci && is_recording));
+    ui_->TimeStrideLabel->setEnabled(!is_raw && !(is_lsci && is_recording));
+    ui_->TimeStrideSpinBox->setToolTip(is_lsci ? "Frames between contrast maps; below the time window overlaps, above leaves gaps"
                                                : "Number of input frames between processed batches");
 
     ui_->TimeStrideSpinBox->setSingleStep(api_.transform.get_batch_size());
@@ -103,7 +103,7 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api_.transform.get_time_transformation_size());
     ui_->timeTransformationSizeSpinBox->setToolTip(
         is_lsci
-            ? "Consecutive frames pooled within the LSCI spatial neighborhood; one map per block (default 16 frames)"
+            ? "Consecutive input frames used to calculate each contrast map"
             : "The size of the time transformation");
     ui_->LsciSpatialWindowLabel->setVisible(is_lsci);
     ui_->LsciSpatialWindowSpinBox->setVisible(is_lsci);
@@ -209,8 +209,8 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_stride()
 {
-    if (api_.transform.set_time_stride(ui_->TimeStrideSpinBox->value()) == ApiCode::OK)
-        parent_->notify();
+    api_.transform.set_time_stride(ui_->TimeStrideSpinBox->value());
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)

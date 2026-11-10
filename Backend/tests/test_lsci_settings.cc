@@ -77,6 +77,7 @@ class LsciSettingsTest : public ::testing::Test
 
 TEST_F(LsciSettingsTest, SelectionPreservesTemporalSettings)
 {
+    API.window_pp.set_accumulation_level(3, WindowKind::XYview);
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
     EXPECT_EQ(API.transform.get_time_transformation_size(), 32u);
     EXPECT_EQ(API.transform.get_batch_size(), 4u);
@@ -84,14 +85,19 @@ TEST_F(LsciSettingsTest, SelectionPreservesTemporalSettings)
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 5u);
     EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
     EXPECT_EQ(API.compute.get_img_type(), ImgType::Modulus);
+    EXPECT_EQ(API.window_pp.get_accumulation_level(WindowKind::XYview), 3u);
 
     EXPECT_EQ(API.transform.set_batch_size(7), ApiCode::NO_CHANGE);
     EXPECT_EQ(API.transform.get_batch_size(), 4u);
     EXPECT_EQ(API.transform.set_time_transformation_size(15), ApiCode::OK);
     EXPECT_EQ(API.transform.get_batch_size(), 3u);
-    EXPECT_EQ(API.transform.get_time_stride(), 15u);
+    EXPECT_EQ(API.transform.get_time_stride(), 3u);
     EXPECT_EQ(API.transform.set_time_stride(1), ApiCode::NO_CHANGE);
-    EXPECT_EQ(API.transform.get_time_stride(), 15u);
+    EXPECT_EQ(API.transform.get_time_stride(), 3u);
+    EXPECT_EQ(API.transform.set_time_stride(9), ApiCode::OK);
+    EXPECT_EQ(API.transform.get_time_stride(), 9u);
+    EXPECT_EQ(API.transform.set_time_stride(30), ApiCode::OK);
+    EXPECT_EQ(API.transform.get_time_stride(), 30u);
 }
 
 TEST_F(LsciSettingsTest, RejectsComplexAndSpectralConsumers)
@@ -213,7 +219,7 @@ TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
     EXPECT_EQ(API.transform.get_time_transformation(), TimeTransformation::LSCI);
     EXPECT_EQ(API.transform.get_time_transformation_size(), 24u);
     EXPECT_EQ(API.transform.get_batch_size(), 6u);
-    EXPECT_EQ(API.transform.get_time_stride(), 24u);
+    EXPECT_EQ(API.transform.get_time_stride(), 96u);
     EXPECT_EQ(API.compute.get_img_type(), ImgType::Modulus);
     EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::FRESNELTR);
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 7u);
@@ -224,7 +230,7 @@ TEST_F(LsciSettingsTest, JsonLoadNormalizesIncompatibleSettingsAfterAllFields)
     EXPECT_TRUE(API.global_pp.get_registration_enabled());
     EXPECT_FALSE(API.global_pp.get_renorm_enabled());
     EXPECT_TRUE(API.global_pp.get_convolution_file_name().empty());
-    EXPECT_EQ(API.window_pp.get_accumulation_level(WindowKind::XYview), 1u);
+    EXPECT_EQ(API.window_pp.get_accumulation_level(WindowKind::XYview), 8u);
     EXPECT_FALSE(GET_SETTING(XZ).enabled);
     EXPECT_FALSE(GET_SETTING(YZ).enabled);
     EXPECT_EQ(API.transform.get_p_index(), 0u);

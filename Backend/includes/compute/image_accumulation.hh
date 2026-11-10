@@ -72,8 +72,8 @@ class ImageAccumulation
      */
     void insert_image_accumulation(float& gpu_postprocess_frame,
                                    unsigned int& gpu_postprocess_frame_size,
-                                   float& gpu_postprocess_frame_xz,
-                                   float& gpu_postprocess_frame_yz);
+                                   float* gpu_postprocess_frame_xz = nullptr,
+                                   float* gpu_postprocess_frame_yz = nullptr);
     /*! \brief Allocate ressources for image accumulation if requested */
     void init();
 
@@ -111,9 +111,7 @@ class ImageAccumulation
 
     /*! \brief Insert the average computation of the float frame. */
     void insert_compute_average(float& gpu_postprocess_frame,
-                                unsigned int& gpu_postprocess_frame_size,
-                                float& gpu_postprocess_frame_xz,
-                                float& gpu_postprocess_frame_yz);
+                                unsigned int& gpu_postprocess_frame_size);
 
     /*! \brief Insert the copy of the corrected buffer into the float buffer. */
     void insert_copy_accumulation_result(float* gpu_postprocess_frame,

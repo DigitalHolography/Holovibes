@@ -290,6 +290,77 @@ TEST_P(LsciPipeTest, ProducesOnlyCompleteConsecutiveNonoverlappingBlocks)
     }
 }
 
+TEST_P(LsciPipeTest, StrideAndImageAccumulationMatchIndependentWindows)
+{
+    const unsigned batch = GetParam();
+    const unsigned window = 4 * batch;
+    constexpr camera::FrameDescriptor fd = {8, 8, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    for (const unsigned stride : {batch, window, window + 2 * batch})
+        for (const unsigned accumulation : {1u, 3u})
+            for (const bool reconstruct : {false, true})
+            {
+                SCOPED_TRACE(::testing::Message() << "stride=" << stride << " accumulation=" << accumulation
+                                                 << " reconstruct=" << reconstruct);
+                auto initial = lsci_settings(batch);
+                std::get<settings::TimeTransformationSize>(initial).value = window;
+                std::get<settings::TimeStride>(initial).value = stride;
+                std::get<settings::XY>(initial).value.output_image_accumulation = accumulation;
+                if (reconstruct)
+                {
+                    std::get<settings::SpaceTransformation>(initial).value = SpaceTransformation::ANGULARSP;
+                    std::get<settings::ZDistance>(initial).value = 0.f;
+                }
+                BatchInputQueue input(64, batch, fd);
+                std::atomic<RecordingContext*> recording{nullptr};
+                const cudaStream_t stream = 0;
+                InspectableLsciPipe pipe(input, recording, stream, initial);
+                auto output = pipe.get_output_queue();
+                PipeRunner runner(pipe, input);
+                const unsigned frames = window + 3 * stride + (stride > batch ? batch : 0);
+                std::vector<unsigned char> samples(frames);
+                for (unsigned i = 0; i < frames; ++i)
+                    samples[i] = static_cast<unsigned char>(30 + (7 * i + 17 * (i / 5)) % 140);
+
+                std::vector<double> contrasts;
+                unsigned produced = 0;
+                for (unsigned end = batch; end <= frames; end += batch)
+                {
+                    enqueue_uniform_frames(input, {samples.begin() + end - batch, samples.begin() + end});
+                    const unsigned expected_count = end < window ? 0 : 1 + (end - window) / stride;
+                    if (expected_count > produced)
+                    {
+                        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+                        std::vector<double> intensities(window);
+                        double mean = 0.;
+                        for (unsigned i = 0; i < window; ++i)
+                        {
+                            const double sample = samples[produced * stride + i];
+                            intensities[i] = reconstruct ? sample * sample : sample;
+                            mean += intensities[i] / window;
+                        }
+                        double variance = 0.;
+                        for (const double intensity : intensities)
+                            variance += (intensity - mean) * (intensity - mean) / window;
+                        contrasts.push_back(std::sqrt(variance) / mean);
+                        const unsigned contributing = std::min(accumulation, static_cast<unsigned>(contrasts.size()));
+                        double averaged = 0.;
+                        for (unsigned i = 0; i < contributing; ++i)
+                            averaged += contrasts[contrasts.size() - 1 - i] / contributing;
+                        std::vector<unsigned short> pixels(fd.get_frame_res());
+                        ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
+                        for (const auto pixel : pixels)
+                            ASSERT_NEAR(pixel, std::floor(65535. * averaged), 2.);
+                        ++produced;
+                    }
+                    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+                }
+                runner.stop();
+                ASSERT_NO_THROW(runner.rethrow_failure());
+                EXPECT_EQ(produced, 4u);
+                EXPECT_EQ(output->get_size(), 0u) << "Gaps and incomplete trailing windows must not produce maps";
+            }
+}
+
 TEST_P(LsciPipeTest, AngularSpectrumPoolsReconstructedIntensityWithoutAllocatingTemporalCubes)
 {
     const unsigned batch = GetParam();
@@ -371,6 +442,70 @@ TEST(LsciPipeRegression, QueueResetDiscardsPartialBlockWhileWaitingForInput)
     const double expected = std::floor(65535. * population_contrast(fresh));
     for (unsigned short value : pixels)
         EXPECT_NEAR(value, expected, 1.) << "The map must contain only the 16 post-reset frames";
+}
+
+TEST(LsciPipeRegression, QueueResetAndStrideChangesDiscardOverlapAndAccumulationHistory)
+{
+    int devices = 0;
+    if (cudaGetDeviceCount(&devices) != cudaSuccess || devices == 0)
+        GTEST_SKIP() << "LSCI pipeline tests require a CUDA device";
+
+    constexpr camera::FrameDescriptor fd = {8, 8, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    BatchInputQueue input(64, 4, fd);
+    std::atomic<RecordingContext*> recording{nullptr};
+    const cudaStream_t stream = 0;
+    auto initial = lsci_settings(4);
+    std::get<settings::TimeStride>(initial).value = 4;
+    std::get<settings::XY>(initial).value.output_image_accumulation = 3;
+    InspectableLsciPipe pipe(input, recording, stream, initial);
+    auto output = pipe.get_output_queue();
+    {
+        PipeRunner runner(pipe, input);
+        enqueue_uniform_frames(input, std::vector<unsigned char>(20, 5));
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 2 && input.is_empty(); }));
+        output->clear();
+        input.request_reset();
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return !input.has_pending_reset(); }));
+        std::vector<unsigned char> fresh(16, 40);
+        std::fill(fresh.begin() + 8, fresh.end(), 160);
+        enqueue_uniform_frames(input, fresh);
+        ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+        std::vector<unsigned short> pixels(fd.get_frame_res());
+        ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
+        for (const auto pixel : pixels)
+            EXPECT_NEAR(pixel, 65535. * population_contrast(fresh), 1.);
+        runner.stop();
+        ASSERT_NO_THROW(runner.rethrow_failure());
+    }
+
+    pipe.update_setting(settings::TimeStride{24});
+    auto view = std::get<settings::XY>(initial).value;
+    view.output_image_accumulation = 2;
+    pipe.update_setting(settings::XY{view});
+    pipe.request(ICS::UpdateTimeStride);
+    pipe.clear_request(ICS::Termination);
+    PipeRunner runner(pipe, input);
+    std::vector<unsigned char> first(16, 70), second(16, 10);
+    std::fill(first.begin() + 12, first.end(), 130);
+    std::fill(second.begin() + 8, second.end(), 90);
+    enqueue_uniform_frames(input, {first.begin(), first.begin() + 12});
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return input.is_empty(); }));
+    EXPECT_EQ(output->get_size(), 0u);
+    enqueue_uniform_frames(input, {first.begin() + 12, first.end()});
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 1; }));
+    enqueue_uniform_frames(input, std::vector<unsigned char>(8, 255)); // excluded gap
+    enqueue_uniform_frames(input, second);
+    ASSERT_TRUE(wait_for_pipe(runner, [&]() { return output->get_size() == 2; }));
+    runner.stop();
+    ASSERT_NO_THROW(runner.rethrow_failure());
+    const double first_k = population_contrast(first);
+    for (const double expected : {first_k, (first_k + population_contrast(second)) / 2.})
+    {
+        std::vector<unsigned short> pixels(fd.get_frame_res());
+        ASSERT_EQ(output->dequeue(pixels.data(), stream, cudaMemcpyDeviceToHost), 1);
+        for (const auto pixel : pixels)
+            EXPECT_NEAR(pixel, 65535. * expected, 1.);
+    }
 }
 
 TEST(LsciPipeRegression, ReconstructionAndOpticsChangesDiscardPartialBlocksAndRefreshSpatialStorage)

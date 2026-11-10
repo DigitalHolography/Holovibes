@@ -202,8 +202,7 @@ bool Pipe::make_requests()
     if (is_requested(ICS::OutputBuffer))
     {
         LOG_DEBUG("output_buffer_requested");
-        time_transformation_env_.lsci_frame_count = 0;
-        time_transformation_env_.lsci_ready = false;
+        time_transformation_env_.reset_lsci();
         init_output_queue();
         clear_request(ICS::OutputBuffer);
     }
@@ -214,8 +213,7 @@ bool Pipe::make_requests()
 
     if (is_requested(ICS::UpdateLsciSpatialWindow))
     {
-        time_transformation_env_.lsci_frame_count = 0;
-        time_transformation_env_.lsci_ready = false;
+        time_transformation_env_.reset_lsci();
         clear_request(ICS::UpdateLsciSpatialWindow);
     }
 
@@ -257,11 +255,8 @@ bool Pipe::make_requests()
         clear_request(ICS::TimeTransformationCuts);
     }
 
-    if (setting<settings::TimeTransformation>() != TimeTransformation::LSCI)
-    {
-        image_accumulation_->init(); // done only if requested
-        image_accumulation_->clear();
-    }
+    image_accumulation_->init(); // done only if requested
+    image_accumulation_->clear();
 
     if (is_requested(ICS::RawView))
     {
@@ -329,17 +324,33 @@ void Pipe::refresh()
 
     if (setting<settings::TimeTransformation>() == TimeTransformation::LSCI)
     {
-        const LsciConfiguration configuration{setting<settings::LsciSpatialWindow>(),
+        const LsciConfiguration configuration{setting<settings::TimeTransformationSize>(),
+                                              setting<settings::BatchSize>(),
+                                              setting<settings::TimeStride>(),
+                                              setting<settings::LsciSpatialWindow>(),
                                               setting<settings::SpaceTransformation>(),
                                               setting<settings::Lambda>(),
                                               setting<settings::ZDistance>(),
                                               setting<settings::PixelSize>()};
         if (configuration != lsci_configuration_)
         {
-            time_transformation_env_.lsci_frame_count = 0;
-            time_transformation_env_.lsci_ready = false;
+            time_transformation_env_.reset_lsci();
             lsci_configuration_ = configuration;
         }
+
+        auto& history = time_transformation_env_.gpu_lsci_history;
+        if (configuration.stride < configuration.temporal_window)
+        {
+            const size_t entries = input_queue_.get_fd().get_frame_res() *
+                                   (configuration.temporal_window / configuration.batch_size);
+            if (!history.get() || history.get_size() != entries * sizeof(float2))
+            {
+                if (!history.resize(entries))
+                    throw std::runtime_error("Insufficient GPU memory for overlapping LSCI windows");
+            }
+        }
+        else
+            history.reset();
 
         const bool reconstruct = configuration.space_transformation != SpaceTransformation::NONE;
         if (reconstruct != (buffers_.gpu_spatial_transformation_buffer.get() != nullptr))
@@ -419,12 +430,14 @@ void Pipe::refresh()
         postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
         rendering_->insert_fft_shift();
         registration_->insert_registration();
-        image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
-                                                       buffers_.gpu_postprocess_frame_size,
-                                                       *buffers_.gpu_postprocess_frame_xz,
-                                                       *buffers_.gpu_postprocess_frame_yz);
-        registration_->set_gpu_reference_image();
     }
+
+    image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
+                                                   buffers_.gpu_postprocess_frame_size,
+                                                   buffers_.gpu_postprocess_frame_xz.get(),
+                                                   buffers_.gpu_postprocess_frame_yz.get());
+    if (!lsci)
+        registration_->set_gpu_reference_image();
 
     rendering_->insert_chart();
     if (lsci)
@@ -469,8 +482,8 @@ void Pipe::insert_wait_batch()
             // the recording/UI thread must never reset a batch being consumed.
             if (input_queue_.has_pending_reset())
             {
-                time_transformation_env_.lsci_frame_count = 0;
-                time_transformation_env_.lsci_ready = false;
+                time_transformation_env_.reset_lsci();
+                image_accumulation_->clear();
             }
             input_queue_.apply_pending_reset();
             // Retry a pending reset until the producer finishes its batch, then
@@ -484,8 +497,8 @@ void Pipe::insert_wait_batch()
                 }
                 if (input_queue_.has_pending_reset())
                 {
-                    time_transformation_env_.lsci_frame_count = 0;
-                    time_transformation_env_.lsci_ready = false;
+                    time_transformation_env_.reset_lsci();
+                    image_accumulation_->clear();
                 }
                 input_queue_.apply_pending_reset();
                 std::this_thread::yield();
@@ -536,12 +549,24 @@ void Pipe::insert_lsci()
             auto& env = time_transformation_env_;
             const auto window = setting<settings::TimeTransformationSize>();
             const auto batch = setting<settings::BatchSize>();
-            if (batch == 0 || window == 0 || window % batch != 0)
-                throw std::logic_error("LSCI batch size must divide the temporal window");
+            const auto stride = setting<settings::TimeStride>();
+            if (batch == 0 || window == 0 || stride == 0 || window % batch != 0 || stride % batch != 0)
+                throw std::logic_error("LSCI temporal window and stride must be positive multiples of the batch size");
 
             const bool reset = env.lsci_frame_count == 0;
+            const bool skip = stride > window && env.lsci_processed_frames % stride >= window;
+            float2* history = env.gpu_lsci_history.get();
+            if (history)
+                history += (env.lsci_processed_frames / batch % (window / batch)) *
+                           input_queue_.get_fd().get_frame_res();
+            const bool replace_history = history && env.lsci_processed_frames >= window;
             env.lsci_ready = false;
-            if (reconstruct)
+            if (skip)
+            {
+                if (!reconstruct)
+                    input_queue_.dequeue();
+            }
+            else if (reconstruct)
             {
                 lsci_accumulate_complex(env.gpu_lsci_moments.get(),
                                         buffers_.gpu_spatial_transformation_buffer.get(),
@@ -549,20 +574,32 @@ void Pipe::insert_lsci()
                                         batch,
                                         reset,
                                         stream_,
-                                        amplitude_scale);
+                                        amplitude_scale,
+                                        history,
+                                        replace_history);
             }
             else
             {
                 input_queue_.dequeue(
                     env.gpu_lsci_moments.get(),
                     input_queue_.get_fd().depth,
-                    [reset](const void* src,
-                            void* dest,
-                            uint batch_size,
-                            size_t frame_res,
-                            camera::PixelDepth depth,
-                            cudaStream_t stream)
-                    { lsci_accumulate(static_cast<float2*>(dest), src, frame_res, batch_size, depth, reset, stream); });
+                    [reset, history, replace_history](const void* src,
+                                                      void* dest,
+                                                      uint batch_size,
+                                                      size_t frame_res,
+                                                      camera::PixelDepth depth,
+                                                      cudaStream_t stream)
+                    {
+                        lsci_accumulate(static_cast<float2*>(dest),
+                                        src,
+                                        frame_res,
+                                        batch_size,
+                                        depth,
+                                        reset,
+                                        stream,
+                                        history,
+                                        replace_history);
+                    });
             }
 
             if (input_queue_.has_overwritten())
@@ -575,7 +612,8 @@ void Pipe::insert_lsci()
                     std::get<2>(*recording->progress) = std::get<0>(*recording->progress).load();
                     Holovibes::instance().finish_frame_acquisition(recording);
                 }
-                env.lsci_frame_count = 0;
+                env.reset_lsci();
+                image_accumulation_->clear();
                 input_queue_.request_reset();
                 if (reconstruct)
                     cudaXStreamSynchronize(stream_);
@@ -583,8 +621,10 @@ void Pipe::insert_lsci()
                 return;
             }
 
-            env.lsci_frame_count += batch;
-            if (env.lsci_frame_count < window)
+            env.lsci_processed_frames += batch;
+            if (!skip)
+                env.lsci_frame_count += batch;
+            if (skip || env.lsci_frame_count < window)
             {
                 // The next conversion runs on an input batch stream and must not overwrite a spatial buffer
                 // still consumed by reconstruction or accumulation on the compute stream.
@@ -599,10 +639,10 @@ void Pipe::insert_lsci()
                           env.gpu_lsci_moments.get(),
                           fd.width,
                           fd.height,
-                          env.lsci_frame_count,
+                          window,
                           stream_,
                           setting<settings::LsciSpatialWindow>());
-            env.lsci_frame_count = 0;
+            env.lsci_frame_count = stride < window ? window - stride : 0;
             env.lsci_ready = true;
         });
 }

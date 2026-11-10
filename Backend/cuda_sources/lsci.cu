@@ -23,19 +23,31 @@ __global__ void accumulate_intensity(float2* moments,
                                      size_t frame_res,
                                      unsigned batch_size,
                                      bool reset,
-                                     float amplitude_scale)
+                                     float amplitude_scale,
+                                     float2* history,
+                                     bool replace_history)
 {
     const size_t pixel = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     if (pixel >= frame_res)
         return;
 
-    float2 value = reset ? make_float2(0.f, 0.f) : moments[pixel];
+    float2 batch = make_float2(0.f, 0.f);
     for (unsigned frame = 0; frame < batch_size; ++frame)
     {
         const float intensity = sample_intensity(input[frame * frame_res + pixel], amplitude_scale);
-        value.x += intensity;
-        value.y += intensity * intensity;
+        batch.x += intensity;
+        batch.y += intensity * intensity;
     }
+    float2 value = reset ? make_float2(0.f, 0.f) : moments[pixel];
+    if (replace_history)
+    {
+        value.x -= history[pixel].x;
+        value.y -= history[pixel].y;
+    }
+    value.x += batch.x;
+    value.y += batch.y;
+    if (history)
+        history[pixel] = batch;
     moments[pixel] = value;
 }
 
@@ -83,7 +95,9 @@ void lsci_accumulate(float2* moments,
                      unsigned batch_size,
                      camera::PixelDepth depth,
                      bool reset,
-                     cudaStream_t stream)
+                     cudaStream_t stream,
+                     float2* history,
+                     bool replace_history)
 {
     if (frame_res == 0 || batch_size == 0)
         return;
@@ -98,7 +112,9 @@ void lsci_accumulate(float2* moments,
                                                              frame_res,
                                                              batch_size,
                                                              reset,
-                                                             1.f);
+                                                             1.f,
+                                                             history,
+                                                             replace_history);
         break;
     case camera::PixelDepth::Bits16:
         accumulate_intensity<<<blocks, threads, 0, stream>>>(moments,
@@ -106,7 +122,9 @@ void lsci_accumulate(float2* moments,
                                                              frame_res,
                                                              batch_size,
                                                              reset,
-                                                             1.f);
+                                                             1.f,
+                                                             history,
+                                                             replace_history);
         break;
     case camera::PixelDepth::Bits32:
         accumulate_intensity<<<blocks, threads, 0, stream>>>(moments,
@@ -114,7 +132,9 @@ void lsci_accumulate(float2* moments,
                                                              frame_res,
                                                              batch_size,
                                                              reset,
-                                                             1.f);
+                                                             1.f,
+                                                             history,
+                                                             replace_history);
         break;
     default:
         throw std::invalid_argument("LSCI requires 8-bit, 16-bit, or float intensity frames");
@@ -128,14 +148,17 @@ void lsci_accumulate_complex(float2* moments,
                              unsigned batch_size,
                              bool reset,
                              cudaStream_t stream,
-                             float amplitude_scale)
+                             float amplitude_scale,
+                             float2* history,
+                             bool replace_history)
 {
     if (frame_res == 0 || batch_size == 0)
         return;
 
     constexpr unsigned threads = 256;
     const unsigned blocks = static_cast<unsigned>((frame_res + threads - 1) / threads);
-    accumulate_intensity<<<blocks, threads, 0, stream>>>(moments, input, frame_res, batch_size, reset, amplitude_scale);
+    accumulate_intensity<<<blocks, threads, 0, stream>>>(
+        moments, input, frame_res, batch_size, reset, amplitude_scale, history, replace_history);
     cudaCheckError();
 }
 

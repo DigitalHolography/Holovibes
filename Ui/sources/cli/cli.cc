@@ -206,6 +206,12 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
     uint record_nb_frames;
     if (opts.record_raw || opts.oct_cube_record || opts.oct_cube_float_record)
         record_nb_frames = opts.n_rec.value_or(input_nb_frames);
+    else if (api.transform.get_time_transformation() == holovibes::TimeTransformation::LSCI)
+    {
+        const size_t window = api.transform.get_time_transformation_size();
+        record_nb_frames = opts.n_rec.value_or(
+            input_nb_frames < window ? 0 : 1 + (input_nb_frames - window) / api.transform.get_time_stride());
+    }
     else
         record_nb_frames = opts.n_rec.value_or(input_nb_frames / api.transform.get_time_stride());
 
@@ -218,7 +224,8 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview) > 1 && !opts.record_raw)
+    if (!opts.noskip_acc && api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview) > 1 && !opts.record_raw &&
+        api.transform.get_time_transformation() != holovibes::TimeTransformation::LSCI)
         nb_frames_skip = api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview);
 
     if (opts.fps)

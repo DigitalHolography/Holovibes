@@ -140,8 +140,8 @@ void ViewPanel::on_notify()
         set_xyzf_visibility(true);
 
         ui_->ImgAccuSpinBox->setValue(api_.window_pp.get_accumulation_level());
-        ui_->ImgAccuLabel->setEnabled(!is_lsci);
-        ui_->ImgAccuSpinBox->setEnabled(!is_lsci);
+        ui_->ImgAccuLabel->setEnabled(!is_raw);
+        ui_->ImgAccuSpinBox->setEnabled(!is_raw);
 
         constexpr int max_digit_rotate = 3;
         constexpr int max_digit_flip = 1;

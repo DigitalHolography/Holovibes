@@ -69,9 +69,6 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return ApiCode::WRONG_COMP_MODE;
 
-    if (get_time_transformation() == TimeTransformation::LSCI)
-        time_stride = get_time_transformation_size();
-
     uint batch_size = GET_SETTING(BatchSize);
 
     if (batch_size > time_stride)
@@ -90,6 +87,8 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
     // Check after adjustments that the time stride is different
     if (time_stride == get_time_stride())
         return ApiCode::NO_CHANGE;
+    if (get_time_transformation() == TimeTransformation::LSCI && api_->record.is_recording())
+        return ApiCode::FAILURE;
 
     UPDATE_SETTING(TimeStride, time_stride);
 
@@ -174,7 +173,7 @@ ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size
     if (lsci)
     {
         set_batch_size(get_batch_size());
-        set_time_stride(time_transformation_size);
+        set_time_stride(get_time_stride());
     }
 
     // Updates p and q bounds
@@ -265,6 +264,7 @@ void TransformApi::normalize_lsci_settings() const
     const uint window =
         std::clamp(get_time_transformation_size(), 1u, static_cast<uint>(std::numeric_limits<unsigned short>::max()));
     UPDATE_SETTING(TimeTransformationSize, window);
+    set_time_stride(get_time_stride());
     UPDATE_SETTING(ImageType, ImgType::Modulus);
     UPDATE_SETTING(Filter2dEnabled, false);
     UPDATE_SETTING(Filter2dViewEnabled, false);
@@ -276,7 +276,6 @@ void TransformApi::normalize_lsci_settings() const
     UPDATE_SETTING(RenormEnabled, false);
     UPDATE_SETTING(ConvolutionMatrix, std::vector<float>{});
     UPDATE_SETTING(ConvolutionFileName, std::string{});
-    SET_SETTING(XY, output_image_accumulation, 1u);
     SET_SETTING(XZ, output_image_accumulation, 1u);
     SET_SETTING(YZ, output_image_accumulation, 1u);
     SET_SETTING(XZ, enabled, false);

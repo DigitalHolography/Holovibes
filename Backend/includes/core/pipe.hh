@@ -316,6 +316,9 @@ class Pipe : public ICompute
     /*! \brief Settings defining a single LSCI block; changing them discards partial statistics. */
     struct LsciConfiguration
     {
+        unsigned temporal_window = 0;
+        unsigned batch_size = 0;
+        unsigned stride = 0;
         unsigned spatial_window = 0;
         SpaceTransformation space_transformation = SpaceTransformation::NONE;
         float lambda = 0.f;

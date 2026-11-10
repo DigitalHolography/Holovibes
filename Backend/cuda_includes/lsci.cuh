@@ -12,6 +12,8 @@
  * floating-point 32-bit intensities. No display scaling or complex modulus is applied.
  * Set reset on the first batch of each nonoverlapping temporal block; otherwise the
  * existing moments are continued. All operations use the supplied CUDA stream.
+ * An optional history slot stores this batch's moments; replace_history subtracts
+ * its previous contents first to maintain a sliding temporal window.
  */
 void lsci_accumulate(float2* moments,
                      const void* input,
@@ -19,7 +21,9 @@ void lsci_accumulate(float2* moments,
                      unsigned batch_size,
                      camera::PixelDepth depth,
                      bool reset,
-                     cudaStream_t stream);
+                     cudaStream_t stream,
+                     float2* history = nullptr,
+                     bool replace_history = false);
 
 /*! \brief Accumulate reconstructed intensities I = real(E)^2 + imag(E)^2 from a complex spatial-transform batch.
  *
@@ -33,7 +37,9 @@ void lsci_accumulate_complex(float2* moments,
                              unsigned batch_size,
                              bool reset,
                              cudaStream_t stream,
-                             float amplitude_scale = 1.f);
+                             float amplitude_scale = 1.f,
+                             float2* history = nullptr,
+                             bool replace_history = false);
 
 /*! \brief Produce K = population standard deviation / mean over a clipped spatial neighborhood.
  *

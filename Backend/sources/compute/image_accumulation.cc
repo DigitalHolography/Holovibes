@@ -21,17 +21,14 @@ namespace holovibes::compute
 
 void ImageAccumulation::insert_image_accumulation(float& gpu_postprocess_frame,
                                                   unsigned int& gpu_postprocess_frame_size,
-                                                  float& gpu_postprocess_frame_xz,
-                                                  float& gpu_postprocess_frame_yz)
+                                                  float* gpu_postprocess_frame_xz,
+                                                  float* gpu_postprocess_frame_yz)
 {
     LOG_FUNC();
 
-    insert_compute_average(gpu_postprocess_frame,
-                           gpu_postprocess_frame_size,
-                           gpu_postprocess_frame_xz,
-                           gpu_postprocess_frame_yz);
+    insert_compute_average(gpu_postprocess_frame, gpu_postprocess_frame_size);
 
-    insert_copy_accumulation_result(&gpu_postprocess_frame, &gpu_postprocess_frame_xz, &gpu_postprocess_frame_yz);
+    insert_copy_accumulation_result(&gpu_postprocess_frame, gpu_postprocess_frame_xz, gpu_postprocess_frame_yz);
 }
 
 void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
@@ -158,9 +155,7 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
 }
 
 void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
-                                               unsigned int& gpu_postprocess_frame_size,
-                                               float& gpu_postprocess_frame_xz,
-                                               float& gpu_postprocess_frame_yz)
+                                               unsigned int& gpu_postprocess_frame_size)
 {
     LOG_FUNC();
 

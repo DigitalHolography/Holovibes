@@ -7,6 +7,7 @@
 #include "concurrent_deque.hh"
 
 #include <cufft.h>
+#include <cstdint>
 
 namespace holovibes
 {
@@ -139,8 +140,18 @@ struct TimeTransformationEnv
 {
     /*! \brief LSCI intensity sums (I, I squared), requiring one image regardless of temporal window size. */
     cuda_tools::CudaUniquePtr<float2> gpu_lsci_moments = nullptr;
+    /*! \brief Per-batch moments retained only for overlapping temporal windows. */
+    cuda_tools::CudaUniquePtr<float2> gpu_lsci_history = nullptr;
+    uint64_t lsci_processed_frames = 0;
     unsigned int lsci_frame_count = 0;
     bool lsci_ready = false;
+
+    void reset_lsci()
+    {
+        lsci_processed_frames = 0;
+        lsci_frame_count = 0;
+        lsci_ready = false;
+    }
 
     /*! \brief STFT Queue. It accumulates input frames after spatial FFT.
      *
