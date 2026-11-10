@@ -75,12 +75,12 @@ class LsciSettingsTest : public ::testing::Test
     std::vector<float> original_convolution_;
 };
 
-TEST_F(LsciSettingsTest, SelectionUsesPaperWindowAndKeepsEveryFrame)
+TEST_F(LsciSettingsTest, SelectionPreservesTemporalSettings)
 {
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
-    EXPECT_EQ(API.transform.get_time_transformation_size(), 16u);
+    EXPECT_EQ(API.transform.get_time_transformation_size(), 32u);
     EXPECT_EQ(API.transform.get_batch_size(), 4u);
-    EXPECT_EQ(API.transform.get_time_stride(), 16u);
+    EXPECT_EQ(API.transform.get_time_stride(), 4u);
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 5u);
     EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
     EXPECT_EQ(API.compute.get_img_type(), ImgType::Modulus);
@@ -116,11 +116,19 @@ TEST_F(LsciSettingsTest, RejectsComplexAndSpectralConsumers)
     EXPECT_EQ(API.record.get_record_mode(), RecordMode::RAW);
 }
 
-TEST_F(LsciSettingsTest, SelectionUsesDirectIntensityAndSpatialWindowValidatesItsBounds)
+TEST_F(LsciSettingsTest, IncompatibleBatchDoesNotChangeSettingsOnSelection)
+{
+    ASSERT_EQ(API.transform.set_time_transformation_size(31), ApiCode::OK);
+    const auto before = API.settings.compute_settings_to_json();
+    EXPECT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::INVALID_VALUE);
+    EXPECT_EQ(API.settings.compute_settings_to_json(), before);
+}
+
+TEST_F(LsciSettingsTest, SelectionPreservesReconstructionAndSpatialWindowValidatesItsBounds)
 {
     ASSERT_EQ(API.transform.set_space_transformation(SpaceTransformation::FRESNELTR), ApiCode::OK);
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LSCI), ApiCode::OK);
-    EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::NONE);
+    EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::FRESNELTR);
 
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 5u);
     EXPECT_EQ(API.transform.set_lsci_spatial_window(9), ApiCode::OK);
@@ -243,7 +251,7 @@ TEST_F(LsciSettingsTest, ViewOnlyJsonPatchPreservesCustomSpatialWindow)
     json patch = {{"version", "v1"}, {"view", {{"fft_shift", false}}}};
     ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
     EXPECT_EQ(API.transform.get_lsci_spatial_window(), 7u);
-    EXPECT_EQ(API.transform.get_time_transformation_size(), 16u);
+    EXPECT_EQ(API.transform.get_time_transformation_size(), 32u);
 }
 
 TEST_F(LsciSettingsTest, JsonNormalizesSpatialWindowBoundsAndRoundTripsCustomValues)

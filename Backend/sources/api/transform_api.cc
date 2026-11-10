@@ -197,6 +197,13 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
         value == TimeTransformation::LSCI || get_time_transformation() == TimeTransformation::LSCI;
     if (lsci_transition && api_->record.is_recording())
         return ApiCode::FAILURE;
+    if (value == TimeTransformation::LSCI &&
+        (get_time_transformation_size() == 0 || get_batch_size() == 0 ||
+         get_time_transformation_size() % get_batch_size() != 0))
+    {
+        LOG_WARN("LSCI requires a positive temporal window divisible by the batch size");
+        return ApiCode::INVALID_VALUE;
+    }
     if (value == TimeTransformation::LSCI && api_->input.get_import_type() != ImportType::None)
     {
         const auto depth = api_->input.get_input_fd().depth;
@@ -215,8 +222,6 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
     UPDATE_SETTING(TimeTransformation, value);
     if (value == TimeTransformation::LSCI)
     {
-        UPDATE_SETTING(TimeTransformationSize, 16u);
-        UPDATE_SETTING(SpaceTransformation, SpaceTransformation::NONE);
         normalize_lsci_settings();
     }
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
@@ -260,8 +265,6 @@ void TransformApi::normalize_lsci_settings() const
     const uint window =
         std::clamp(get_time_transformation_size(), 1u, static_cast<uint>(std::numeric_limits<unsigned short>::max()));
     UPDATE_SETTING(TimeTransformationSize, window);
-    UPDATE_SETTING(BatchSize, lsci_batch_size(get_batch_size(), window, api_->input.get_input_buffer_size()));
-    UPDATE_SETTING(TimeStride, window);
     UPDATE_SETTING(ImageType, ImgType::Modulus);
     UPDATE_SETTING(Filter2dEnabled, false);
     UPDATE_SETTING(Filter2dViewEnabled, false);

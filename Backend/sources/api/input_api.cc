@@ -82,35 +82,9 @@ std::optional<io_files::InputFrameFile*> InputApi::import_file(const std::string
     set_import_type(ImportType::File);
     api_->record.set_record_mode(RecordMode::HOLOGRAM);
 
-    // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
-    // record
-    auto input_buffer_size = get_input_buffer_size();
-    auto record_buffer_size = api_->record.get_record_buffer_size();
-
-    // Try importing the compute settings from the file. If it fails, we will use the one given as parameter
-    json compute = input->import_compute_settings();
-    if (api_->settings.load_compute_settings(compute) != ApiCode::OK)
-    {
-        if (!json_path.empty())
-        {
-            LOG_INFO("Initialization with: {}", json_path);
-            api_->settings.load_compute_settings(json_path);
-        }
-    }
-
+    // Read acquisition metadata while retaining the current processing and buffer settings.
+    input->import_compute_settings();
     input->import_info();
-
-    // update the buffer size with the old values to avoid surcharging the gpu memory in case of big
-    // buffers used when the file was recorded
-    set_input_buffer_size(input_buffer_size);
-    api_->record.set_record_buffer_size(record_buffer_size);
-
-    if (get_file_load_kind() != FileLoadKind::REGULAR)
-    {
-        std::filesystem::path dest = RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json");
-        api_->settings.import_buffer(dest.string());
-        LOG_INFO("GPU Preset loaded");
-    }
 
     return input;
 }

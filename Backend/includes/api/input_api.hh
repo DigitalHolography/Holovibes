@@ -161,14 +161,10 @@ class InputApi : public IApi
     /*! \brief Load the file at the given filename. This function will set the file path, the start index to 0, the end
      * index to the number of frames in the file and the frame descriptor.
      *
-     * - If the file has a footer, it will also import the compute settings and info (pixel size).
-     * - If the file has no footer and `json_path` is not an empty string. The compute settings located at `json_path`
-     * will be loaded.
-     * - If the file has no footer and `json_path` is an empty string, no compute settings will be loaded.
+     * Acquisition info is imported from the footer; current processing and buffer settings are retained.
      *
      * \param[in] filename the given filename to open
-     * \param[in] json_path the path to the json file containing the compute settings (default is the user compute
-     * settings file)
+     * \param[in] json_path Legacy parameter; settings are no longer loaded automatically.
      *
      * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
      */

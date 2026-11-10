@@ -273,8 +273,8 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     {
         if (crosses_lsci && !api_.compute.get_is_computation_stopped())
             gui::refresh_window(parent_->window_max_size);
-        parent_->notify();
     }
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
