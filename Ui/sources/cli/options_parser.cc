@@ -63,7 +63,12 @@ OptionsParser::OptionsParser()
     (
         "lsci_pca_frames",
         po::value<unsigned int>()->default_value(100),
-        "Raw frames per nonoverlapping PCA-LSCI block (2..512, default 100)"
+        "Raw frames per PCA-LSCI block (2..512, default 100)"
+    )
+    (
+        "lsci_pca_stride",
+        po::value<int>(),
+        "Input frames between PCA-LSCI block starts (positive integer, default = block size)"
     )
     (
         "lsci_pca_window",
@@ -209,6 +214,8 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.contrast_once = vm_["contrast_once"].as<bool>();
         options_.lsci_pca = vm_["lsci_pca"].as<bool>();
         options_.lsci_pca_frames = vm_["lsci_pca_frames"].as<unsigned>();
+        if (vm_.count("lsci_pca_stride"))
+            options_.lsci_pca_stride = vm_["lsci_pca_stride"].as<int>();
         options_.lsci_pca_window = vm_["lsci_pca_window"].as<unsigned>();
         options_.lsci_pca_image_acc = vm_["lsci_pca_image_acc"].as<unsigned>();
         options_.lsci_pca_no_registration = vm_["lsci_pca_no_registration"].as<bool>();

@@ -22,7 +22,16 @@ try {
         @{ Name = 'avi'; Extension = 'avi'; Options = @('--fps', '240') },
         @{ Name = 'mp4'; Extension = 'mp4'; Options = @('--fps', '240') },
         @{ Name = 'lsci-pca'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3'); NoSettings = $true },
-        @{ Name = 'lsci-pca-acc'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '--lsci_pca_image_acc', '3'); NoSettings = $true },
+        @{ Name = 'lsci-pca-acc'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '--lsci_pca_image_acc', '3'); NoSettings = $true; Acc = 3 },
+        @{ Name = 'lsci-pca-overlap'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '2', '--lsci_pca_window', '3', '--lsci_pca_image_acc', '3'); NoSettings = $true; Stride = 2; Starts = @(1, 3, 5); Acc = 3 },
+        @{ Name = 'lsci-pca-gap'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '2', '--lsci_pca_stride', '3', '--lsci_pca_window', '3'); NoSettings = $true; Frames = 2; Stride = 3; Starts = @(1, 4, 7) },
+        @{ Name = 'lsci-pca-range'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '3', '--lsci_pca_stride', '1', '--lsci_pca_window', '3', '-s', '2', '-e', '7', '-n', '2'); NoSettings = $true; Frames = 3; Stride = 1; Starts = @(2, 3) },
+        @{ Name = 'lsci-pca-large-gap'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '100', '--lsci_pca_window', '3'); NoSettings = $true; Stride = 100; Starts = @(1) },
+        @{ Name = 'lsci-pca-overlap-ref'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '-s', '3', '-e', '6'); NoSettings = $true; Starts = @(3) },
+        @{ Name = 'lsci-pca-gap-ref'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '2', '--lsci_pca_window', '3', '-s', '4', '-e', '5'); NoSettings = $true; Frames = 2; Starts = @(4) },
+        @{ Name = 'lsci-pca-stride-zero'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '0'); NoSettings = $true; Fails = $true },
+        @{ Name = 'lsci-pca-stride-negative'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '-1'); NoSettings = $true; Fails = $true },
+        @{ Name = 'lsci-pca-stride-count'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '2', '-n', '4'); NoSettings = $true; Fails = $true },
         @{ Name = 'moments'; Extension = 'h5'; Options = @('--moments_record') }
     )
     foreach ($case in $cases) {
@@ -42,6 +51,10 @@ try {
             throw "CLI case $($case.Name) timed out. Logs: $outputDir"
         }
         $child.WaitForExit()
+        if ($case.Fails) {
+            if ($child.ExitCode -eq 0) { throw "CLI case $($case.Name) accepted invalid options. Logs: $outputDir" }
+            continue
+        }
         if ($child.ExitCode -ne 0) { throw "CLI case $($case.Name) failed ($($child.ExitCode)). Logs: $outputDir" }
         $outputs = @(Get-ChildItem -LiteralPath $outputDir -File -Filter "*$($case.Name).$($case.Extension)")
         if ($outputs.Count -eq 0 -or ($outputs | Where-Object Length -EQ 0)) {
@@ -54,16 +67,38 @@ try {
                 throw "Raw pixel data changed in $($case.Name). Logs: $outputDir"
             }
         }
-        if ($case.Name -in 'lsci-pca', 'lsci-pca-acc') {
+        if ($case.Name -like 'lsci-pca*') {
             $metadata = Get-Content -LiteralPath "$outputFile.json" -Raw | ConvertFrom-Json
-            if ($metadata.output_frames -ne 2 -or $metadata.blocks.Count -ne 2 -or
-                -not $metadata.display_range_fixed -or $metadata.frames_per_block -ne 4) {
+            $expectedFrames = if ($case.Frames) { $case.Frames } else { 4 }
+            $expectedStride = if ($case.Stride) { $case.Stride } else { $expectedFrames }
+            $expectedStarts = if ($case.ContainsKey('Starts')) { @($case.Starts) } else { @(1, 5) }
+            if ($metadata.output_frames -ne $expectedStarts.Count -or $metadata.blocks.Count -ne $expectedStarts.Count -or
+                -not $metadata.display_range_fixed -or $metadata.frames_per_block -ne $expectedFrames -or
+                $metadata.time_stride -ne $expectedStride) {
                 throw "PCA-LSCI block count or fixed display metadata is incorrect. Logs: $outputDir"
             }
-            $expectedAcc = if ($case.Name -eq 'lsci-pca-acc') { 3 } else { 1 }
-            if ($metadata.image_accumulation -ne $expectedAcc -or
-                $metadata.blocks[1].accumulated_maps -ne [Math]::Min(2, $expectedAcc)) {
+            $expectedAcc = if ($case.Acc) { $case.Acc } else { 1 }
+            if ($metadata.image_accumulation -ne $expectedAcc) {
                 throw "PCA-LSCI image accumulation metadata is incorrect. Logs: $outputDir"
+            }
+            for ($block = 0; $block -lt $expectedStarts.Count; $block++) {
+                if ($metadata.blocks[$block].input_first_frame -ne $expectedStarts[$block] -or
+                    $metadata.blocks[$block].accumulated_maps -ne [Math]::Min($block + 1, $expectedAcc)) {
+                    throw "PCA-LSCI selected the wrong input window or accumulation count. Logs: $outputDir"
+                }
+            }
+        }
+    }
+    # Compare shifted windows with separately processed frame ranges, checking
+    # that the PCA actually received those samples rather than just their labels.
+    foreach ($name in @('overlap', 'gap')) {
+        $actual = (Get-Content -LiteralPath "$outputDir/lsci-pca-$name.avi.json" -Raw | ConvertFrom-Json).blocks[1]
+        $reference = (Get-Content -LiteralPath "$outputDir/lsci-pca-$name-ref.avi.json" -Raw | ConvertFrom-Json).blocks[0]
+        if ($actual.static_components -ne $reference.static_components) { throw "PCA-LSCI $name input window mismatch." }
+        for ($eigenvalue = 0; $eigenvalue -lt $reference.eigenvalues.Count; $eigenvalue++) {
+            $scale = [Math]::Max(1.0, [Math]::Abs($reference.eigenvalues[$eigenvalue]))
+            if ([Math]::Abs($actual.eigenvalues[$eigenvalue] - $reference.eigenvalues[$eigenvalue]) -gt 1e-5 * $scale) {
+                throw "PCA-LSCI $name PCA differs from the separately processed input window. Logs: $outputDir"
             }
         }
     }

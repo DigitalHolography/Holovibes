@@ -153,7 +153,7 @@ It is unavailable in the GUI and cannot be activated by a saved compute setting.
 It processes direct camera intensities; the existing holographic complex-field
 PCA time transformation is a different algorithm.
 
-Each nonoverlapping block has **100 raw frames** by default. Flattened frames
+Each block has **100 raw frames** by default in the direct CLI. Flattened frames
 form the columns of X; subtract each frame's spatial mean to obtain Phi. Compute
 the small temporal Gram matrix Phi^T Phi and retain the eigenvectors whose
 eigenvalues are at least the mean of the N eigenvalues. Reconstruct the static
@@ -182,8 +182,9 @@ scaling. A sidecar `<output>.avi.json` records those signed limits, parameters,
 the static PC count and eigenvalues for each block, and registration shifts.
 AVI remains an 8-bit, lossy MJPEG display product.
 
-Outputs are named `<input>_lsci_pca.avi`. Every complete block produces one map;
-trailing incomplete blocks are reported and discarded. Thus 4096 raw frames
+Outputs are named `<input>_lsci_pca.avi`. Every complete block produces one map.
+Time stride defaults to the block size, preserving consecutive nonoverlapping
+blocks. Thus 4096 raw frames
 produce **40 maps** at the default block size, with 96 trailing frames unused.
 At 24 fps this is 1.67 seconds of playback, independently of acquisition time.
 
@@ -192,6 +193,21 @@ Use `-PcaFrames` and `-PcaWindow` to override the paper defaults, for example:
 ```powershell
 .\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 64 -PcaWindow 5 -InputFolder 'D:\lsci'
 ```
+
+Set **`-PcaStride`** to any positive number of input frames between block starts.
+It defaults to `-PcaFrames`: a smaller stride overlaps blocks and a larger stride
+leaves gaps. For example, 32-frame windows starting every 8 frames:
+
+```powershell
+.\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 32 -PcaStride 8 -PcaWindow 7 -InputFolder 'D:\lsci'
+```
+
+The direct CLI option is **`--lsci_pca_stride 8`**. For F selected input frames,
+window size N and stride S, the available map count is `1 + floor((F - N) / S)`
+when F >= N. Only complete windows are processed, within the selected `-s`/`-e`
+range; `-n` can limit their number. The sidecar records `time_stride` and each
+block's first input frame. PCA is recomputed independently for every window, so
+overlap increases the amount of processing.
 
 Set `-PcaImageAcc` to average the most recent output maps, for example:
 
@@ -204,9 +220,9 @@ mean after inter-map registration and before display scaling. Startup averages
 only the maps available so far: with level 4, the first frame uses one map,
 the second uses two, the third uses three, and subsequent frames use the latest
 four. Every complete PCA block still produces one AVI frame. PCA block size,
-raw-frame stride and component selection are independent of this setting;
+raw-frame stride and component selection are independent of image accumulation;
 the output averaging windows overlap. With 32 raw frames/block and ImgAcc 4,
-a full rolling average spans four maps covering 128 raw frames.
+a full rolling average at the default stride of 32 spans four maps covering 128 raw frames.
 Display limits remain fixed from the first output map. The sidecar records the
 accumulation level and number of contributing maps for each output frame.
 Additional host memory is approximately `4 * width * height * A` bytes for map

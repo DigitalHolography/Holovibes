@@ -33,6 +33,7 @@ struct OptionsDescriptor
     bool contrast_once;
     bool lsci_pca = false;
     unsigned lsci_pca_frames = 100;
+    std::optional<int> lsci_pca_stride;
     unsigned lsci_pca_window = 7;
     unsigned lsci_pca_image_acc = 1;
     bool lsci_pca_no_registration = false;

@@ -130,6 +130,9 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     const unsigned frames = opts.lsci_pca_frames, window = opts.lsci_pca_window;
     if (frames < 2 || frames > 512 || window < 1 || window > 63 || window % 2 == 0)
         throw std::invalid_argument("Use 2..512 PCA frames and an odd 1..63 spatial window");
+    const int stride = opts.lsci_pca_stride.value_or(frames);
+    if (stride < 1)
+        throw std::invalid_argument("PCA-LSCI time stride must be a positive number of input frames");
     if (opts.lsci_pca_image_acc < 1 || opts.lsci_pca_image_acc > 512)
         throw std::invalid_argument("PCA-LSCI image accumulation must be between 1 and 512");
     std::unique_ptr<io_files::InputFrameFile> input(io_files::InputFrameFileFactory::open(input_path.string()));
@@ -143,7 +146,8 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     const size_t start = opts.start_frame.value_or(1), end = opts.end_frame.value_or(static_cast<unsigned>(available));
     if (start < 1 || end > available || start > end)
         throw std::invalid_argument("Invalid PCA-LSCI start/end frame range");
-    const size_t blocks = (end-start+1) / frames;
+    const size_t length = end-start+1;
+    const size_t blocks = length < frames ? 0 : 1 + (length-frames) / stride;
     const size_t count = opts.n_rec.value_or(static_cast<unsigned>(blocks));
     if (!count || count > blocks)
         throw std::invalid_argument("PCA-LSCI recording requires complete blocks; -n cannot exceed the available block count");
@@ -156,16 +160,17 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
                             fps, cv::Size(fd.width, fd.height), false);
     if (!writer.isOpened())
         throw std::runtime_error("Unable to create PCA-LSCI AVI: " + output_path.string());
-    LOG_INFO("Offline PCA-LSCI: {} frames/block, {}x{} spatial window, {} blocks, {} fps AVI, registration {}",
-             frames, window, window, count, fps, !opts.lsci_pca_no_registration);
+    LOG_INFO("Offline PCA-LSCI: {} frames/block, stride {}, {}x{} spatial window, {} blocks, {} fps AVI, registration {}",
+             frames, stride, window, window, count, fps, !opts.lsci_pca_no_registration);
     LOG_INFO("PCA-LSCI image accumulation: {} maps (rolling mean, available maps during startup)", opts.lsci_pca_image_acc);
-    const size_t tail = (end-start+1) % frames;
+    const size_t tail = length - ((blocks-1)*stride + frames);
     if (tail)
-        LOG_INFO("PCA-LSCI ignores {} trailing input frames (incomplete block)", tail);
+        LOG_INFO("PCA-LSCI leaves {} trailing input frames after the last complete block", tail);
     nlohmann::json metadata = {
         {"input", input_path.string()}, {"algorithm", "PCA static reconstruction then K(original)-K(static)"},
         {"centering", "spatial mean of each frame"}, {"static_selection", "eigenvalue >= mean of N eigenvalues"},
-        {"frames_per_block", frames}, {"spatial_window", window}, {"width", fd.width}, {"height", fd.height},
+        {"frames_per_block", frames}, {"time_stride", stride},
+        {"spatial_window", window}, {"width", fd.width}, {"height", fd.height},
         {"playback_fps", fps}, {"start_frame", start}, {"end_frame", end}, {"output_frames", count},
         {"trailing_incomplete_frames", tail}, {"registration_enabled", !opts.lsci_pca_no_registration},
         {"image_accumulation", opts.lsci_pca_image_acc}, {"image_accumulation_mode", "rolling_mean"},
@@ -177,12 +182,12 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     if (opts.fps)
         metadata["input_fps"] = opts.fps.value(); // Provenance only: offline reading is not paced in real time.
     std::vector<unsigned char> frame(fd.get_frame_size());
-    input->set_pos_to_frame(start-1);
     OfflineRegistration registration;
     compute::RollingImageAverage image_average(opts.lsci_pca_image_acc);
     float low = 0, high = 0;
     for (size_t block = 0; block < count; ++block)
     {
+        input->set_pos_to_frame(start-1+block*stride);
         for (unsigned t = 0; t < frames; ++t)
         {
             int packed;
@@ -207,7 +212,7 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
         cv::Mat display;
         accumulated.convertTo(display, CV_8U, 255. / (high-low), -255. * low / (high-low));
         writer.write(display);
-        metadata["blocks"].push_back({{"input_first_frame", start+block*frames},
+        metadata["blocks"].push_back({{"input_first_frame", start+block*stride},
             {"static_components", result.static_components}, {"eigenvalues", result.eigenvalues},
             {"accumulated_maps", std::min<size_t>(opts.lsci_pca_image_acc, block+1)},
             {"registration_dx", registration.dx}, {"registration_dy", registration.dy}});
