@@ -19,13 +19,16 @@ struct Registration::LsciState
     double reference_std = 0.;
 };
 
-void Registration::insert_registration()
+void Registration::insert_registration(bool reset_reference)
 {
     LOG_FUNC();
 
-    reference_ready_ = false;
-    lsci_.reset();
-    shift_x_ = shift_y_ = 0;
+    if (reset_reference)
+    {
+        reference_ready_ = false;
+        lsci_.reset();
+        shift_x_ = shift_y_ = 0;
+    }
 
     if (setting<settings::RegistrationEnabled>())
     {

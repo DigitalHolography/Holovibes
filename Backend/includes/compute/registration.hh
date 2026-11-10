@@ -105,7 +105,7 @@ class Registration
 
     /*! \brief Insert the functions to compute the registration. The process is descripted in the head of this file.
      */
-    void insert_registration();
+    void insert_registration(bool reset_reference = true);
 
     /*! \brief Setter for the reference image. The new reference image is taken from `buffers_.gpu_postprocess_frame`
      *  and rescaled by the mean and the `gpu_circle_mask_` is applied.

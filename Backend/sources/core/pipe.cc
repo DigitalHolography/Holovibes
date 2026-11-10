@@ -256,7 +256,8 @@ bool Pipe::make_requests()
     }
 
     image_accumulation_->init(); // done only if requested
-    image_accumulation_->clear();
+    if (!is_requested(ICS::PreserveImageHistory))
+        image_accumulation_->clear();
 
     if (is_requested(ICS::RawView))
     {
@@ -307,6 +308,7 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    const bool preserve_image_history = is_requested(ICS::PreserveImageHistory);
     pipe_refresh_apply_updates();
     clear_request(ICS::Refresh);
 
@@ -318,6 +320,7 @@ void Pipe::refresh()
         clear_request(ICS::Refresh);
         return;
     }
+    clear_request(ICS::PreserveImageHistory);
 
     pipe_cycle_apply_updates();
     pipe_refresh_apply_updates();
@@ -401,7 +404,7 @@ void Pipe::refresh()
             fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
         }
         insert_lsci();
-        registration_->insert_registration();
+        registration_->insert_registration(!preserve_image_history);
     }
     else
     {
@@ -429,14 +432,14 @@ void Pipe::refresh()
         postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
         postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
         rendering_->insert_fft_shift();
-        registration_->insert_registration();
+        registration_->insert_registration(!preserve_image_history);
     }
 
     image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
                                                    buffers_.gpu_postprocess_frame_size,
                                                    buffers_.gpu_postprocess_frame_xz.get(),
                                                    buffers_.gpu_postprocess_frame_yz.get());
-    if (!lsci)
+    if (!lsci && !preserve_image_history)
         registration_->set_gpu_reference_image();
 
     rendering_->insert_chart();

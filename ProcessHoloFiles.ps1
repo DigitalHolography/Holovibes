@@ -11,6 +11,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if ($Lsci -and $LsciPca) { throw 'Choose either -Lsci or -LsciPca.' }
+$pcaPlaybackFps = 24
 
 # Determine directories relative to this script
 $scriptDir  = $PSScriptRoot
@@ -98,14 +99,8 @@ elseif ([string]::IsNullOrWhiteSpace($useStandardConfig) -or $useStandardConfig 
     $outputExtension = '.avi'
 
     # Default preset configuration file
-    $presetPath = "AppData\preset\settingsDoppler37kHz.json"
-    if (Test-Path $presetPath) {
-        $configFileNormal = $presetPath
-        Write-Host "Using preset config: $presetPath" -ForegroundColor Green
-    } else {
-        $configFileNormal = $null
-        Write-Host "Preset config not found. Skipping config file." -ForegroundColor Yellow
-    }
+    $configFileNormal = Get-PresetPath 'settingsDoppler37kHz.json'
+    Write-Host "Using preset config: $configFileNormal" -ForegroundColor Green
     $configFileMoments = $null
 }
 else {
@@ -151,10 +146,9 @@ else {
         if ([string]::IsNullOrEmpty($choice) -or $choice -notmatch '^[1-3]$') { $choice = '1' }
         switch ($choice) {
             '1' {
-                $path = "AppData\preset\settingsDoppler37kHz.json"
-                if (Test-Path $path) { Write-Host "Using preset: $path" -ForegroundColor Green; return $path }
-                Write-Host "Preset not found. Skipping." -ForegroundColor Yellow
-                return $null
+                $path = Get-PresetPath 'settingsDoppler37kHz.json'
+                Write-Host "Using preset: $path" -ForegroundColor Green
+                return $path
             }
             '2' {
                 Write-Host "No config file selected." -ForegroundColor Yellow
@@ -184,6 +178,28 @@ else {
     if ($modeChoice -eq 6) {
         $configFileNormal = $null
         $configFileMoments = $null
+
+        function Read-ProcessInteger([string]$prompt, [int]$defaultValue, [int]$minimum, [int]$maximum, [switch]$Odd) {
+            while ($true) {
+                $enteredValue = Read-Host "$prompt (default $defaultValue)"
+                if ([string]::IsNullOrWhiteSpace($enteredValue)) { return $defaultValue }
+                $number = 0
+                if ([int]::TryParse($enteredValue, [ref]$number) -and
+                    $number -ge $minimum -and $number -le $maximum -and
+                    (-not $Odd -or $number % 2 -eq 1)) {
+                    return $number
+                }
+                $kind = if ($Odd) { 'an odd integer' } else { 'an integer' }
+                Write-Host "Enter $kind between $minimum and $maximum, or press Enter for the default." -ForegroundColor Yellow
+            }
+        }
+
+        $PcaFrames = Read-ProcessInteger 'PCA frames per window (2-512)' $PcaFrames 2 512
+        if (-not $PSBoundParameters.ContainsKey('PcaStride')) { $PcaStride = $PcaFrames }
+        $PcaStride = Read-ProcessInteger 'PCA stride in input frames' $PcaStride 1 2147483647
+        $PcaWindow = Read-ProcessInteger 'PCA spatial window (odd, 1-63)' $PcaWindow 1 63 -Odd
+        $PcaImageAcc = Read-ProcessInteger 'PCA image accumulation (1-512)' $PcaImageAcc 1 512
+        $pcaPlaybackFps = Read-ProcessInteger 'AVI playback fps (1-24)' $pcaPlaybackFps 1 24
     }
     elseif ($modeChoice -eq 5) {
         $configFileNormal = Get-PresetPath 'settingsLSCI.json'
@@ -206,7 +222,7 @@ else {
     if ($modeChoice -in 5, 6) {
         $frameSkip = 0
         if ($modeChoice -eq 6) {
-            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, stride $PcaStride frames, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration and fixed display contrast, 24 fps AVI." -ForegroundColor Cyan
+            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, stride $PcaStride frames, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration and fixed display contrast, $pcaPlaybackFps fps AVI." -ForegroundColor Cyan
         } else {
             Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
         }
@@ -263,7 +279,7 @@ function Execute-Holovibes {
         3 { $commandArguments += " --oct_cube_record" }
         4 { $commandArguments += " --oct_cube_float_record" }
         5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
-        6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_stride $PcaStride --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps 24" }
+        6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_stride $PcaStride --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps $pcaPlaybackFps" }
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }

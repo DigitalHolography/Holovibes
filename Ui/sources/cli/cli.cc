@@ -10,6 +10,7 @@
 #include "enum_window_kind.hh"
 #include "API.hh"
 #include "logger.hh"
+#include "pipe.hh"
 
 namespace cli
 {
@@ -111,12 +112,21 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
 
     holovibes::io_files::InputFrameFile* input_frame_file = input_frame_file_opt.value();
 
-    // To load parameters, we now load before the footer and then the config file so that the config file overwrite the
-    // footer
+    // CLI processing starts from the recording settings, then applies any config overrides.
     if (!opts.compute_settings_path && !input_frame_file->get_has_footer())
     {
         LOG_ERROR("No compute settings file provided and no footer found in input file");
         return 35;
+    }
+
+    if (input_frame_file->get_has_footer())
+    {
+        const auto input_buffer_size = api.input.get_input_buffer_size();
+        const auto record_buffer_size = api.record.get_record_buffer_size();
+        auto compute_settings = input_frame_file->import_compute_settings();
+        api.settings.load_compute_settings(compute_settings);
+        api.input.set_input_buffer_size(input_buffer_size);
+        api.record.set_record_buffer_size(record_buffer_size);
     }
 
     if (opts.compute_settings_path)
@@ -297,8 +307,12 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
             {
                 if (view != holovibes::WindowKind::XYview)
                     return;
+                // Autocontrast also runs during warm-up, before image accumulation is complete.
+                if (api.record.get_record_progress().acquired_frames + 1 < api.window_pp.get_accumulation_level(view))
+                    return;
+                api.compute.get_compute_pipe()->set_requested(ICS::PreserveImageHistory, true);
                 api.contrast.set_contrast_auto_refresh(false, view);
-                LOG_INFO("Display contrast fixed from the first output frame");
+                LOG_INFO("Display contrast fixed from the first fully accumulated output frame");
             });
     }
 

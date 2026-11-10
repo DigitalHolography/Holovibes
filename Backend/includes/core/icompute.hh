@@ -220,6 +220,7 @@ class ICompute
         DisableFrameRecord,
         Convolution,
         DisableConvolution,
+        PreserveImageHistory,
 
         // Add other setting here
 
