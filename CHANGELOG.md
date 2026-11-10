@@ -1,5 +1,15 @@
 ## Changelog
 
+### 14.16.0
+
+- Add offline PCA-filtered LSCI AVI export through the CLI and `ProcessHoloFiles.ps1`, with registration, image accumulation, and processing metadata.
+- Allow overlapping or gapped temporal windows in real-time LSCI and offline PCA-LSCI exports through independent time-stride controls.
+- Enable image accumulation in the real-time LSCI pipeline.
+- Preserve processing and buffer settings when opening files in the GUI, and keep time-window, batch-size, stride, and space-transform settings when selecting LSCI.
+- Add interactive controls for PCA frame count, stride, spatial window, image accumulation, and AVI playback rate in the PowerShell processing script.
+- Calibrate standard AVI display contrast once from the first fully accumulated image, preserving accumulation and registration when freezing the contrast range.
+- Fix standard preset lookup and restore recording-specific reconstruction settings before applying CLI preset overrides.
+
 ### 14.15.0
 - Add laser speckle contrast imaging (LSCI) with configurable spatial and temporal windows, direct-intensity processing, and optional Fresnel or angular-spectrum reconstruction.
 - Add LSCI image registration, contrast-map recording, regional statistics, and a bundled preset with batch AVI export through `ProcessHoloFiles.ps1`.
