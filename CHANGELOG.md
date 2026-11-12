@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.16.1
+
+- Add a configurable `pixel_size` in micrometers to all Phantom camera INI profiles, including S710, S711, S980, S991, and the legacy Phantom profile.
+- Initialize the reconstruction pixel size from the selected Phantom camera configuration, retaining the 20 micrometer default when the setting is missing or invalid.
+
 ### 14.16.0
 
 - Add offline PCA-filtered LSCI AVI export through the CLI and `ProcessHoloFiles.ps1`, with registration, image accumulation, and processing metadata.
