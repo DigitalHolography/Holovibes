@@ -56,7 +56,7 @@ void EHoloGrabber711::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 }
 
 CameraPhantom711::CameraPhantom711()
-    : CameraPhantomInt("ametek_s711_euresys_coaxlink_qsfp+.ini", "s711")
+    : CameraPhantomInt("ametek_s711_euresys_coaxlink_qsfp+.ini", "s711", 20.0f)
 {
     name_ = "Phantom S711";
 }

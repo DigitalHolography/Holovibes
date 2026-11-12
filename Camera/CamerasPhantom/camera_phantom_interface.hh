@@ -119,8 +119,9 @@ class CameraPhantomInt : public Camera
      *
      * \param ini_filename filename of the ini file associated to the camera
      * \param ini_prefix prefix of the camera for the ini file
+     * \param pixel_size fixed sensor pixel pitch in micrometers, from the model's datasheet
      */
-    CameraPhantomInt(const std::string& ini_filename, const std::string& ini_prefix);
+    CameraPhantomInt(const std::string& ini_filename, const std::string& ini_prefix, const float pixel_size);
 
   public:
     /*! \brief Destructor of CameraPhantomInt. Nothing to do */

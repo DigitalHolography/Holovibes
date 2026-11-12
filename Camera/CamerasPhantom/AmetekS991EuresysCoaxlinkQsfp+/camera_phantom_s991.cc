@@ -36,7 +36,7 @@ void EHoloGrabber991::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 }
 
 CameraPhantom991::CameraPhantom991()
-    : CameraPhantomInt("ametek_s991_euresys_coaxlink_qsfp+.ini", "s991")
+    : CameraPhantomInt("ametek_s991_euresys_coaxlink_qsfp+.ini", "s991", 6.75f)
 {
     name_ = "Phantom S991";
 }

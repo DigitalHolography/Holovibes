@@ -1,5 +1,10 @@
 ## Changelog
 
+### Unreleased
+
+- Use the manufacturer's fixed sensor pixel pitch when loading Phantom cameras: 20 micrometers for S710 and S711, 5 micrometers for S980, and 6.75 micrometers for S991.
+- Remove `pixel_size` from Phantom camera INI profiles and ignore the setting in existing profiles.
+
 ### 14.16.1
 
 - Add a configurable `pixel_size` in micrometers to all Phantom camera INI profiles, including S710, S711, S980, S991, and the legacy Phantom profile.

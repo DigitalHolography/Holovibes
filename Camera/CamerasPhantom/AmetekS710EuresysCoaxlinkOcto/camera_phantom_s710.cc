@@ -60,7 +60,7 @@ void EHoloGrabber710::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 }
 
 CameraPhantom710::CameraPhantom710()
-    : CameraPhantomInt("ametek_s710_euresys_coaxlink_octo.ini", "s710")
+    : CameraPhantomInt("ametek_s710_euresys_coaxlink_octo.ini", "s710", 20.0f)
 {
     name_ = "Phantom S710";
 }

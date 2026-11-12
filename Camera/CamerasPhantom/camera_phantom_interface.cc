@@ -3,7 +3,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <cmath>
 #include <thread>
 #include <chrono>
 #include <list>
@@ -269,13 +268,15 @@ void EHoloGrabberInt::stop()
         available_grabbers_[i]->stop();
 }
 
-CameraPhantomInt::CameraPhantomInt(const std::string& ini_filename, const std::string& ini_prefix)
+CameraPhantomInt::CameraPhantomInt(const std::string& ini_filename,
+                                 const std::string& ini_prefix,
+                                 const float pixel_size)
     : Camera(ini_filename)
     , ini_prefix_(ini_prefix)
     , params_{ini_prefix}
 {
 
-    pixel_size_ = 20.0f;
+    pixel_size_ = pixel_size;
     gentl_ = std::make_unique<Euresys::EGenTL>();
 }
 
@@ -360,7 +361,6 @@ CapturedFramesDescriptor CameraPhantomInt::get_frames()
 
 void CameraPhantomInt::load_default_params()
 {
-    pixel_size_ = 20.0f;
     params_.set<unsigned int>("NbBuffers", 0);
     params_.set<unsigned int>("BufferPartCount", 0);
     params_.set<unsigned int>("NbGrabbers", 0);
@@ -377,21 +377,7 @@ void CameraPhantomInt::load_default_params()
     params_.set<std::string>("BalanceWhiteMarker", "");
 }
 
-void CameraPhantomInt::load_ini_params()
-{
-    const auto& pt = get_ini_pt();
-    params_.set_from_ini(pt);
-
-    // Reconstruction metadata, not a GenICam camera feature. Older INIs keep the default pitch.
-    const float pixel_size = pt.get<float>(ini_prefix_ + ".pixel_size", pixel_size_);
-    if (std::isfinite(pixel_size) && pixel_size > 0.0f)
-        pixel_size_ = pixel_size;
-    else
-        Logger::camera()->warn("Invalid pixel_size for {}: {}; using {} micrometers",
-                               ini_prefix_,
-                               pixel_size,
-                               pixel_size_);
-}
+void CameraPhantomInt::load_ini_params() { params_.set_from_ini(get_ini_pt()); }
 
 void CameraPhantomInt::bind_params() { return; }
 

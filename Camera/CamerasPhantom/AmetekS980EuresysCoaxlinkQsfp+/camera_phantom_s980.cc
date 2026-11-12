@@ -38,7 +38,7 @@ void EHoloGrabber980::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 }
 
 CameraPhantom980::CameraPhantom980()
-    : CameraPhantomInt("ametek_s980_euresys_coaxlink_qsfp+.ini", "s980")
+    : CameraPhantomInt("ametek_s980_euresys_coaxlink_qsfp+.ini", "s980", 5.0f)
 {
     name_ = "Phantom S980";
 }
