@@ -28,7 +28,7 @@ if(NOT HOLOVIBES_DEPENDENCIES_ONLY)
 endif()
 
 project(Holovibes
-	VERSION 14.16.0
+	VERSION 14.16.1
 	DESCRIPTION "Holovibes"
 	LANGUAGES ${holovibes_languages}
 )
