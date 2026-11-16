@@ -130,6 +130,9 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     const unsigned frames = opts.lsci_pca_frames, window = opts.lsci_pca_window;
     if (frames < 2 || frames > 512 || window < 1 || window > 63 || window % 2 == 0)
         throw std::invalid_argument("Use 2..512 PCA frames and an odd 1..63 spatial window");
+    const unsigned patch = opts.lsci_pca_patch;
+    if (patch == 1 || patch > 512)
+        throw std::invalid_argument("PCA patch side must be 0 (global) or 2..512 pixels");
     const int stride = opts.lsci_pca_stride.value_or(frames);
     if (stride < 1)
         throw std::invalid_argument("PCA-LSCI time stride must be a positive number of input frames");
@@ -155,7 +158,7 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     if (!fps || fps > 24)
         throw std::invalid_argument("Offline PCA-LSCI AVI playback must be between 1 and 24 fps");
 
-    compute::LsciPca processor(fd.width, fd.height, frames, window);
+    compute::LsciPca processor(fd.width, fd.height, frames, window, patch);
     cv::VideoWriter writer(output_path.string(), cv::VideoWriter::fourcc('M','J','P','G'),
                             fps, cv::Size(fd.width, fd.height), false);
     if (!writer.isOpened())
@@ -163,12 +166,16 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
     LOG_INFO("Offline PCA-LSCI: {} frames/block, stride {}, {}x{} spatial window, {} blocks, {} fps AVI, registration {}",
              frames, stride, window, window, count, fps, !opts.lsci_pca_no_registration);
     LOG_INFO("PCA-LSCI image accumulation: {} maps (rolling mean, available maps during startup)", opts.lsci_pca_image_acc);
+    if (patch)
+        LOG_INFO("Local PCA: {}x{}-pixel nonoverlapping patches, clipped at image borders", patch, patch);
     const size_t tail = length - ((blocks-1)*stride + frames);
     if (tail)
         LOG_INFO("PCA-LSCI leaves {} trailing input frames after the last complete block", tail);
     nlohmann::json metadata = {
         {"input", input_path.string()}, {"algorithm", "PCA static reconstruction then K(original)-K(static)"},
-        {"centering", "spatial mean of each frame"}, {"static_selection", "eigenvalue >= mean of N eigenvalues"},
+        {"centering", patch ? "spatial mean of each frame within each PCA patch" : "spatial mean of each frame"},
+        {"static_selection", "eigenvalue >= mean of N eigenvalues"},
+        {"pca_scope", patch ? "local" : "global"}, {"pca_patch_size", patch},
         {"frames_per_block", frames}, {"time_stride", stride},
         {"spatial_window", window}, {"width", fd.width}, {"height", fd.height},
         {"playback_fps", fps}, {"start_frame", start}, {"end_frame", end}, {"output_frames", count},
@@ -176,11 +183,20 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
         {"image_accumulation", opts.lsci_pca_image_acc}, {"image_accumulation_mode", "rolling_mean"},
         {"image_accumulation_stage", "after registration, before display scaling"},
         {"image_accumulation_startup", "available_maps"},
-        {"display_percentiles", {1, 99}}, {"display_circle_scale", .55}, {"display_range_fixed", true},
-        {"blocks", nlohmann::json::array()}
+        {"display_percentiles", {1, 99}}, {"display_circle_scale", .55}, {"display_range_fixed", true}
     };
+    if (patch)
+    {
+        metadata["pca_patch_layout"] = "nonoverlapping, clipped at image borders";
+        metadata["pca_patch_grid_columns"] = (fd.width + patch - 1) / patch;
+        metadata["pca_patch_grid_rows"] = (fd.height + patch - 1) / patch;
+        metadata["lsci_pooling"] = "full image after assembling reconstructed patch moments";
+    }
     if (opts.fps)
         metadata["input_fps"] = opts.fps.value(); // Provenance only: offline reading is not paced in real time.
+    std::ofstream sidecar(output_path.string() + ".json");
+    if (!sidecar)
+        throw std::runtime_error("Unable to create PCA-LSCI processing metadata");
     std::vector<unsigned char> frame(fd.get_frame_size());
     OfflineRegistration registration;
     compute::RollingImageAverage image_average(opts.lsci_pca_image_acc);
@@ -208,19 +224,42 @@ int start_lsci_pca(const holovibes::OptionsDescriptor& opts)
             metadata["display_K_difference_min"] = low;
             metadata["display_K_difference_max"] = high;
             LOG_INFO("PCA-LSCI display limits fixed from first map: [{}, {}]", low, high);
+            // Keep only one block's spectra in RAM, even for a large local grid.
+            // The nonempty metadata object supplies the outer object prefix.
+            std::string header = metadata.dump();
+            header.pop_back();
+            sidecar << header << ",\"blocks\":[\n";
         }
         cv::Mat display;
         accumulated.convertTo(display, CV_8U, 255. / (high-low), -255. * low / (high-low));
         writer.write(display);
-        metadata["blocks"].push_back({{"input_first_frame", start+block*stride},
-            {"static_components", result.static_components}, {"eigenvalues", result.eigenvalues},
+        nlohmann::json block_metadata = {{"input_first_frame", start+block*stride},
             {"accumulated_maps", std::min<size_t>(opts.lsci_pca_image_acc, block+1)},
-            {"registration_dx", registration.dx}, {"registration_dy", registration.dy}});
-        LOG_INFO("PCA-LSCI block {}/{}: {} static components", block+1, count, result.static_components);
+            {"registration_dx", registration.dx}, {"registration_dy", registration.dy}};
+        if (patch)
+        {
+            block_metadata["patches"] = nlohmann::json::array();
+            for (const auto& region : result.patches)
+                block_metadata["patches"].push_back({{"x", region.x}, {"y", region.y},
+                    {"width", region.width}, {"height", region.height},
+                    {"static_components", region.static_components}, {"eigenvalues", region.eigenvalues}});
+            LOG_INFO("Local PCA-LSCI block {}/{}: {} patches", block+1, count, result.patches.size());
+        }
+        else
+        {
+            block_metadata["static_components"] = result.static_components;
+            block_metadata["eigenvalues"] = result.eigenvalues;
+            LOG_INFO("PCA-LSCI block {}/{}: {} static components", block+1, count, result.static_components);
+        }
+        if (block)
+            sidecar << ",\n";
+        sidecar << block_metadata.dump();
+        sidecar.flush();
+        if (!sidecar)
+            throw std::runtime_error("Unable to write PCA-LSCI processing metadata");
     }
     writer.release();
-    std::ofstream sidecar(output_path.string() + ".json");
-    sidecar << metadata.dump(2) << '\n';
+    sidecar << "\n]}\n";
     sidecar.close();
     if (!sidecar)
         throw std::runtime_error("Unable to save PCA-LSCI processing metadata");

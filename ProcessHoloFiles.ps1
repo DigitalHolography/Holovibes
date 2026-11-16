@@ -1,16 +1,20 @@
 param(
     [switch]$Lsci,
     [switch]$LsciPca,
+    [switch]$LsciLocalPca,
     [ValidateRange(2, 512)][int]$PcaFrames = 32,
     [ValidateRange(1, 63)][ValidateScript({ $_ % 2 -eq 1 })][int]$PcaWindow = 7,
     [ValidateRange(1, 512)][int]$PcaImageAcc = 2,
     [string]$InputFolder,
     [string]$OutputFolder,
-    [ValidateRange(1, 2147483647)][int]$PcaStride = $PcaFrames
+    [ValidateRange(1, 2147483647)][int]$PcaStride = $PcaFrames,
+    [ValidateRange(2, 512)][int]$PcaPatch = 32
 )
 
 $ErrorActionPreference = 'Stop'
-if ($Lsci -and $LsciPca) { throw 'Choose either -Lsci or -LsciPca.' }
+if ((@($Lsci, $LsciPca, $LsciLocalPca) | Where-Object { $_ }).Count -gt 1) {
+    throw 'Choose only one of -Lsci, -LsciPca or -LsciLocalPca.'
+}
 $pcaPlaybackFps = 24
 
 # Determine directories relative to this script
@@ -64,7 +68,9 @@ if ($OutputFolder) {
 }
 
 # Prompt for standard, interactive, or LSCI configuration.
-if ($LsciPca) {
+if ($LsciLocalPca) {
+    $useStandardConfig = '5'
+} elseif ($LsciPca) {
     $useStandardConfig = '4'
 } elseif ($Lsci) {
     $useStandardConfig = '3'
@@ -74,18 +80,20 @@ if ($LsciPca) {
     Write-Host " 2) Interactive setup" -ForegroundColor Yellow
     Write-Host " 3) LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
     Write-Host " 4) Offline PCA-LSCI AVI (paper method, registration on)" -ForegroundColor Yellow
+    Write-Host " 5) Offline local PCA-LSCI AVI (patch PCA, registration on)" -ForegroundColor Yellow
     $useStandardConfig = Read-Host "Enter choice (Press Enter for Standard)"
 }
 
-if ($useStandardConfig -eq '3' -or $useStandardConfig -eq '4') {
-    $modeChoice      = if ($useStandardConfig -eq '4') { 6 } else { 5 }
+if ($useStandardConfig -in '3', '4', '5') {
+    $modeChoice      = switch ($useStandardConfig) { '3' { 5 } '4' { 6 } '5' { 7 } }
     $frameSkip       = 0
     $input_fps       = -1
     $outputExtension = '.avi'
-    $configFileNormal = if ($modeChoice -eq 6) { $null } else { Get-PresetPath 'settingsLSCI.json' }
+    $configFileNormal = if ($modeChoice -in 6, 7) { $null } else { Get-PresetPath 'settingsLSCI.json' }
     $configFileMoments = $null
-    if ($modeChoice -eq 6) {
-        Write-Host "Offline PCA-LSCI AVI: $PcaFrames frames per block, stride $PcaStride frames, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration on, 24 fps, fixed display contrast." -ForegroundColor Cyan
+    if ($modeChoice -in 6, 7) {
+        $scope = if ($modeChoice -eq 7) { "local PCA, $PcaPatch x $PcaPatch pixel patches" } else { 'global PCA' }
+        Write-Host "Offline PCA-LSCI AVI ($scope): $PcaFrames frames per block, stride $PcaStride frames, LSCI $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration on, 24 fps, fixed display contrast." -ForegroundColor Cyan
     } else {
         Write-Host "LSCI AVI: 24 fps playback, 5 x 5 pixels, 16-frame windows, registration on, no frame skipping, contrast fixed from the first map." -ForegroundColor Cyan
     }
@@ -119,7 +127,7 @@ else {
     function Select-OutputExtension {
     param([int]$modeChoice)
 
-    if ($modeChoice -in 5, 6) { return '.avi' }
+    if ($modeChoice -in 5, 6, 7) { return '.avi' }
 
     if ($modeChoice -eq 2 -or $modeChoice -eq 3 -or $modeChoice -eq 4) {
         Write-Host "For Moments and OCT/OCT_FLOAT records, output extension is fixed to .h5" -ForegroundColor Cyan
@@ -171,11 +179,12 @@ else {
     Write-Host " 4. OCT_FLOAT" -ForegroundColor Yellow
     Write-Host " 5. LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
     Write-Host " 6. Offline PCA-LSCI AVI (paper method, registration on)" -ForegroundColor Yellow
+    Write-Host " 7. Offline local PCA-LSCI AVI (patch PCA, registration on)" -ForegroundColor Yellow
     $modeChoice = Read-Host "Enter choice (default 1)"
-    if ($modeChoice -notmatch '^[1-6]$') { $modeChoice = 1 }
+    if ($modeChoice -notmatch '^[1-7]$') { $modeChoice = 1 }
 
     # Config files
-    if ($modeChoice -eq 6) {
+    if ($modeChoice -in 6, 7) {
         $configFileNormal = $null
         $configFileMoments = $null
 
@@ -197,7 +206,10 @@ else {
         $PcaFrames = Read-ProcessInteger 'PCA frames per window (2-512)' $PcaFrames 2 512
         if (-not $PSBoundParameters.ContainsKey('PcaStride')) { $PcaStride = $PcaFrames }
         $PcaStride = Read-ProcessInteger 'PCA stride in input frames' $PcaStride 1 2147483647
-        $PcaWindow = Read-ProcessInteger 'PCA spatial window (odd, 1-63)' $PcaWindow 1 63 -Odd
+        $PcaWindow = Read-ProcessInteger 'LSCI spatial window (odd, 1-63)' $PcaWindow 1 63 -Odd
+        if ($modeChoice -eq 7) {
+            $PcaPatch = Read-ProcessInteger 'Local PCA patch side in pixels (2-512)' $PcaPatch 2 512
+        }
         $PcaImageAcc = Read-ProcessInteger 'PCA image accumulation (1-512)' $PcaImageAcc 1 512
         $pcaPlaybackFps = Read-ProcessInteger 'AVI playback fps (1-24)' $pcaPlaybackFps 1 24
     }
@@ -219,10 +231,11 @@ else {
     }
 
     # Frame skip et input fps
-    if ($modeChoice -in 5, 6) {
+    if ($modeChoice -in 5, 6, 7) {
         $frameSkip = 0
-        if ($modeChoice -eq 6) {
-            Write-Host "Offline PCA-LSCI: $PcaFrames frames/block, stride $PcaStride frames, $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration and fixed display contrast, $pcaPlaybackFps fps AVI." -ForegroundColor Cyan
+        if ($modeChoice -in 6, 7) {
+            $scope = if ($modeChoice -eq 7) { "local PCA, $PcaPatch x $PcaPatch pixel patches" } else { 'global PCA' }
+            Write-Host "Offline PCA-LSCI ($scope): $PcaFrames frames/block, stride $PcaStride frames, LSCI $PcaWindow x $PcaWindow pixels, image accumulation $PcaImageAcc, registration and fixed display contrast, $pcaPlaybackFps fps AVI." -ForegroundColor Cyan
         } else {
             Write-Host "LSCI uses registration and saves every complete 16-frame contrast map as AVI at 24 fps playback." -ForegroundColor Cyan
         }
@@ -268,7 +281,7 @@ function Execute-Holovibes {
         $skip,
         $fps,
         $config,
-        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT, 5=LSCI AVI, 6=offline PCA-LSCI AVI
+        $mode  # 1=image, 2=moments, 3=OCT, 4=OCT_FLOAT, 5=LSCI AVI, 6=global PCA-LSCI, 7=local PCA-LSCI
     )
     $commandArguments = "-i `"$inputFile`" -o `"$outputFile`""
     if ($fps -ne -1) { $commandArguments += " -f $fps" }
@@ -280,11 +293,12 @@ function Execute-Holovibes {
         4 { $commandArguments += " --oct_cube_float_record" }
         5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
         6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_stride $PcaStride --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps $pcaPlaybackFps" }
+        7 { $commandArguments += " --lsci_pca --lsci_pca_patch $PcaPatch --lsci_pca_frames $PcaFrames --lsci_pca_stride $PcaStride --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps $pcaPlaybackFps" }
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }
 
-    if ([IO.Path]::GetExtension($outputFile) -ieq '.avi' -and $mode -in 1, 5, 6) {
+    if ([IO.Path]::GetExtension($outputFile) -ieq '.avi' -and $mode -in 1, 5, 6, 7) {
         $commandArguments += " --contrast_once"
         Write-Host "Display contrast will be estimated from the first complete output frame and held fixed for this AVI." -ForegroundColor Cyan
     }
@@ -326,6 +340,9 @@ foreach ($file in $holoFiles) {
         }
         6 {
             $out = Join-Path $outDir "${base}_lsci_pca.avi"
+        }
+        7 {
+            $out = Join-Path $outDir "${base}_lsci_local_pca.avi"
         }
     }
 

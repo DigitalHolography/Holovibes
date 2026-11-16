@@ -2,6 +2,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <stdexcept>
 
 #include "aliases.hh"
 #include "logger.hh"
@@ -74,6 +75,11 @@ OptionsParser::OptionsParser()
         "lsci_pca_window",
         po::value<unsigned int>()->default_value(7),
         "Odd spatial side length for PCA-LSCI (1..63, default 7)"
+    )
+    (
+        "lsci_pca_patch",
+        po::value<unsigned int>()->default_value(0),
+        "PCA patch side in pixels: 0 = global, 2..512 = nonoverlapping local patches (requires --lsci_pca)"
     )
     (
         "lsci_pca_no_registration",
@@ -217,6 +223,9 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("lsci_pca_stride"))
             options_.lsci_pca_stride = vm_["lsci_pca_stride"].as<int>();
         options_.lsci_pca_window = vm_["lsci_pca_window"].as<unsigned>();
+        options_.lsci_pca_patch = vm_["lsci_pca_patch"].as<unsigned>();
+        if (!vm_["lsci_pca_patch"].defaulted() && !options_.lsci_pca)
+            throw std::invalid_argument("--lsci_pca_patch requires --lsci_pca");
         options_.lsci_pca_image_acc = vm_["lsci_pca_image_acc"].as<unsigned>();
         options_.lsci_pca_no_registration = vm_["lsci_pca_no_registration"].as<bool>();
         if (vm_.count("frame_skip"))

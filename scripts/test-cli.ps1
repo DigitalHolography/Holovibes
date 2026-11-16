@@ -47,6 +47,12 @@ try {
         @{ Name = 'lsci-pca-large-gap'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '100', '--lsci_pca_window', '3'); NoSettings = $true; Stride = 100; Starts = @(1) },
         @{ Name = 'lsci-pca-overlap-ref'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '-s', '3', '-e', '6'); NoSettings = $true; Starts = @(3) },
         @{ Name = 'lsci-pca-gap-ref'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '2', '--lsci_pca_window', '3', '-s', '4', '-e', '5'); NoSettings = $true; Frames = 2; Starts = @(4) },
+        @{ Name = 'lsci-pca-local'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '--lsci_pca_patch', '17'); NoSettings = $true; Patch = 17 },
+        @{ Name = 'lsci-pca-local-overlap'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '2', '--lsci_pca_window', '3', '--lsci_pca_patch', '17', '--lsci_pca_image_acc', '3'); NoSettings = $true; Patch = 17; Stride = 2; Starts = @(1, 3, 5); Acc = 3 },
+        @{ Name = 'lsci-pca-local-overlap-ref'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_window', '3', '--lsci_pca_patch', '17', '-s', '3', '-e', '6'); NoSettings = $true; Patch = 17; Starts = @(3) },
+        @{ Name = 'lsci-pca-patch-small'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_patch', '1'); NoSettings = $true; Fails = $true },
+        @{ Name = 'lsci-pca-patch-large'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_patch', '513'); NoSettings = $true; Fails = $true },
+        @{ Name = 'lsci-pca-patch-without-mode'; Extension = 'holo'; Options = @('--raw', '-n', '8', '--lsci_pca_patch', '17'); NoSettings = $true; Fails = $true },
         @{ Name = 'lsci-pca-stride-zero'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '0'); NoSettings = $true; Fails = $true },
         @{ Name = 'lsci-pca-stride-negative'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '-1'); NoSettings = $true; Fails = $true },
         @{ Name = 'lsci-pca-stride-count'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '2', '-n', '4'); NoSettings = $true; Fails = $true },
@@ -126,10 +132,43 @@ try {
             if ($metadata.image_accumulation -ne $expectedAcc) {
                 throw "PCA-LSCI image accumulation metadata is incorrect. Logs: $outputDir"
             }
+            $localPca = $case.ContainsKey('Patch')
+            if ($metadata.pca_scope -ne $(if ($localPca) { 'local' } else { 'global' }) -or
+                $metadata.pca_patch_size -ne $(if ($localPca) { $case.Patch } else { 0 })) {
+                throw "PCA-LSCI scope metadata is incorrect in $($case.Name). Logs: $outputDir"
+            }
+            if ($localPca -and ($metadata.pca_patch_grid_columns -ne 4 -or $metadata.pca_patch_grid_rows -ne 4 -or
+                $metadata.width -ne 64 -or $metadata.height -ne 64 -or
+                $metadata.pca_patch_layout -ne 'nonoverlapping, clipped at image borders')) {
+                throw "Local PCA-LSCI patch grid metadata is incorrect. Logs: $outputDir"
+            }
             for ($block = 0; $block -lt $expectedStarts.Count; $block++) {
-                if ($metadata.blocks[$block].input_first_frame -ne $expectedStarts[$block] -or
-                    $metadata.blocks[$block].accumulated_maps -ne [Math]::Min($block + 1, $expectedAcc)) {
+                $blockMetadata = $metadata.blocks[$block]
+                if ($blockMetadata.input_first_frame -ne $expectedStarts[$block] -or
+                    $blockMetadata.accumulated_maps -ne [Math]::Min($block + 1, $expectedAcc)) {
                     throw "PCA-LSCI selected the wrong input window or accumulation count. Logs: $outputDir"
+                }
+                $blockProperties = @($blockMetadata.PSObject.Properties.Name)
+                if ($localPca) {
+                    if ($blockMetadata.patches.Count -ne 16 -or $blockProperties -contains 'static_components' -or
+                        $blockProperties -contains 'eigenvalues') {
+                        throw "Local PCA-LSCI must record per-patch spectra, not global component counts. Logs: $outputDir"
+                    }
+                    for ($patchIndex = 0; $patchIndex -lt 16; $patchIndex++) {
+                        $patch = $blockMetadata.patches[$patchIndex]
+                        $expectedX = ($patchIndex % 4) * $case.Patch
+                        $expectedY = [Math]::Floor($patchIndex / 4) * $case.Patch
+                        if ($patch.x -ne $expectedX -or $patch.y -ne $expectedY -or
+                            $patch.width -ne [Math]::Min($case.Patch, 64 - $expectedX) -or
+                            $patch.height -ne [Math]::Min($case.Patch, 64 - $expectedY) -or
+                            $patch.static_components -lt 0 -or $patch.static_components -gt $expectedFrames -or
+                            $patch.eigenvalues.Count -ne $expectedFrames) {
+                            throw "Local PCA-LSCI patch coordinates, clipped bounds or spectrum are incorrect. Logs: $outputDir"
+                        }
+                    }
+                } elseif ($blockProperties -notcontains 'static_components' -or $blockProperties -notcontains 'eigenvalues' -or
+                    $blockMetadata.eigenvalues.Count -ne $expectedFrames -or $blockProperties -contains 'patches') {
+                    throw "Global PCA-LSCI lost its legacy component-count or spectrum fields. Logs: $outputDir"
                 }
             }
         }
@@ -157,6 +196,23 @@ try {
             $scale = [Math]::Max(1.0, [Math]::Abs($reference.eigenvalues[$eigenvalue]))
             if ([Math]::Abs($actual.eigenvalues[$eigenvalue] - $reference.eigenvalues[$eigenvalue]) -gt 1e-5 * $scale) {
                 throw "PCA-LSCI $name PCA differs from the separately processed input window. Logs: $outputDir"
+            }
+        }
+    }
+    # Repeat the independent range comparison for every local basis, including
+    # the 13-pixel-wide/high edge patches of the 64x64 fixture.
+    $localActual = (Get-Content -LiteralPath "$outputDir/lsci-pca-local-overlap.avi.json" -Raw | ConvertFrom-Json).blocks[1]
+    $localReference = (Get-Content -LiteralPath "$outputDir/lsci-pca-local-overlap-ref.avi.json" -Raw | ConvertFrom-Json).blocks[0]
+    for ($patchIndex = 0; $patchIndex -lt 16; $patchIndex++) {
+        $actual = $localActual.patches[$patchIndex]
+        $reference = $localReference.patches[$patchIndex]
+        if ($actual.static_components -ne $reference.static_components) {
+            throw "Local PCA-LSCI overlap input window mismatch in patch $patchIndex. Logs: $outputDir"
+        }
+        for ($eigenvalue = 0; $eigenvalue -lt $reference.eigenvalues.Count; $eigenvalue++) {
+            $scale = [Math]::Max(1.0, [Math]::Abs($reference.eigenvalues[$eigenvalue]))
+            if ([Math]::Abs($actual.eigenvalues[$eigenvalue] - $reference.eigenvalues[$eigenvalue]) -gt 1e-5 * $scale) {
+                throw "Local PCA-LSCI overlap differs from the separately processed window in patch $patchIndex. Logs: $outputDir"
             }
         }
     }

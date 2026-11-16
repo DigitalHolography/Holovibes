@@ -184,9 +184,12 @@ AVI remains an 8-bit, lossy MJPEG display product.
 
 Outputs are named `<input>_lsci_pca.avi`. Every complete block produces one map.
 Time stride defaults to the block size, preserving consecutive nonoverlapping
-blocks. Thus 4096 raw frames
-produce **40 maps** at the default block size, with 96 trailing frames unused.
-At 24 fps this is 1.67 seconds of playback, independently of acquisition time.
+blocks. The script defaults to **32 frames per block**, stride **32**, a
+**7 x 7** LSCI window and image accumulation **2**. Thus 4096 raw frames produce
+**128 maps**, or 5.33 seconds at 24 fps. The direct CLI defaults to **100 frames**,
+stride **100** and image accumulation **1**; that configuration produces
+**40 maps**, with 96 trailing frames unused, or 1.67 seconds at 24 fps.
+Playback duration is independent of acquisition time.
 
 Use `-PcaFrames` and `-PcaWindow` to override the paper defaults, for example:
 
@@ -215,7 +218,8 @@ Set `-PcaImageAcc` to average the most recent output maps, for example:
 .\ProcessHoloFiles.ps1 -LsciPca -PcaFrames 32 -PcaWindow 7 -PcaImageAcc 4 -InputFolder 'D:\lsci'
 ```
 
-The default is 1 (no averaging); accepted values are 1 to 512. This is a rolling
+The script default is 2; the direct CLI default is 1 (no averaging). Accepted
+values are 1 to 512. This is a rolling
 mean after inter-map registration and before display scaling. Startup averages
 only the maps available so far: with level 4, the first frame uses one map,
 the second uses two, the third uses three, and subsequent frames use the latest
@@ -243,3 +247,70 @@ settings, frame skipping and raw/moments/OCT recording flags are rejected.
 `-f` records the acquisition frame rate in the sidecar; offline processing runs
 as fast as the hardware allows, without real-time pacing.
 Use `--lsci_pca_image_acc 4` for the direct CLI equivalent of `-PcaImageAcc 4`.
+
+## Offline local PCA-LSCI
+
+Choose configuration **5: Offline local PCA-LSCI AVI** in
+`ProcessHoloFiles.ps1`, or recording mode **7** in its interactive setup.
+For a 100-frame analysis with 32 x 32-pixel PCA patches and a 7 x 7 LSCI window:
+
+```powershell
+.\ProcessHoloFiles.ps1 -LsciLocalPca -PcaFrames 100 -PcaPatch 32 -PcaWindow 7 -InputFolder 'D:\lsci' -OutputFolder 'D:\lsci\local_pca'
+```
+
+This mode extends the existing offline PCA-LSCI algorithm by fitting a separate
+PCA in each spatial patch. It preserves the same static reconstruction,
+eigenvalue threshold and signed `K_original - K_static` output. It is an
+extension inspired by the existing Surkov-based implementation, rather than an
+implementation or validation of the local singular-value metrics proposed in
+the separate *Advanced retinal LSCI* document. It does not calculate normalized
+residual variance or entropy.
+
+The PCA patch side and the LSCI window side are independent controls:
+
+- **`-PcaPatch`** sets the square PCA patch side in pixels (2 to 512, default 32).
+  Patches form a nonoverlapping grid anchored at the top-left image pixel. The
+  final row and column are clipped to the image dimensions, so every pixel is
+  included exactly once. This is a regional PCA, not a sliding PCA at every pixel.
+- **`-PcaWindow`** remains the odd LSCI neighborhood side (1 to 63, default 7).
+  LSCI pools those spatial pixels over all `-PcaFrames` frames.
+
+For each patch and temporal block, the processor subtracts each frame's spatial
+mean **within that patch**, computes its N x N temporal Gram matrix, and keeps
+components whose eigenvalues are at least the mean of all N eigenvalues. The
+patch's static reconstruction is `means_patch + Phi_patch V_static V_static^T`.
+The reconstructed temporal moments are placed back at their original image
+positions before computing the full-image LSCI map. Consequently, a 7 x 7 LSCI
+neighborhood may cross PCA patch boundaries; it is not truncated at those
+boundaries. Only image borders clip the LSCI neighborhood.
+
+There is no patch overlap or blending. Independent PCA fits may create visible
+patch boundaries, especially with very small patches or abrupt component-count
+changes. A patch that covers the full image is equivalent to the global PCA
+algorithm. The local mode recomputes a basis for every patch in every temporal
+block, so it can be slower than global PCA. It still holds the full raw temporal
+block on the GPU; reducing patch size does not remove that main memory cost.
+
+All other offline controls are shared: `-PcaFrames`, `-PcaStride`, `-PcaImageAcc`,
+registration and fixed display scaling. Script defaults remain 32 frames,
+stride 32, a 7 x 7 LSCI neighborhood, image accumulation 2 and 24 fps playback.
+The original `-LsciPca` switch continues to select global PCA. The switches
+`-Lsci`, `-LsciPca` and `-LsciLocalPca` are mutually exclusive.
+
+Outputs are named `<input>_lsci_local_pca.avi`, with a matching `.avi.json`
+sidecar. The sidecar records `pca_scope`, `pca_patch_size`, grid dimensions and,
+for each block, each patch's position, actual dimensions, eigenvalues and static
+component count. Global mode retains its per-block component metadata; local
+mode reports per-patch counts rather than an artificial single global count.
+Per-patch spectra can make this JSON file large. Blocks are written progressively
+and checked for write errors, so metadata memory does not grow with video length.
+
+Direct CLI equivalent:
+
+```powershell
+Holovibes.exe -i input.holo -o output_lsci_local_pca.avi --lsci_pca --lsci_pca_patch 32 --lsci_pca_frames 100 --lsci_pca_window 7
+```
+
+`--lsci_pca_patch 0` selects global PCA (the default). Explicit use of
+`--lsci_pca_patch` requires `--lsci_pca`; local PCA remains offline and is not
+exposed in the live LSCI GUI.
