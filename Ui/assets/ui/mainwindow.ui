@@ -649,6 +649,35 @@
                 <property name="value"><number>16</number></property>
                </widget>
               </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="PcaRankFactorLabel">
+                <property name="text"><string>Rank factor</string></property>
+                <property name="toolTip"><string>Multiplier for the number of strongest components removed. 0 removes none; 1 uses the original effective rank; larger values remove more.</string></property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QDoubleSpinBox" name="PcaRankFactorSpinBox">
+                <property name="toolTip"><string>Removed components = ceil(factor x effective rank), limited to the time window. The multiplier is applied before rounding.</string></property>
+                <property name="keyboardTracking"><bool>false</bool></property>
+                <property name="suffix"><string> x</string></property>
+                <property name="decimals"><number>2</number></property>
+                <property name="minimum"><double>0.000000000000000</double></property>
+                <property name="maximum"><double>10.000000000000000</double></property>
+                <property name="singleStep"><double>0.010000000000000</double></property>
+                <property name="value"><double>1.000000000000000</double></property>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="2">
+               <widget class="QSlider" name="PcaRankFactorSlider">
+                <property name="toolTip"><string>Adjust Local PCA component removal from 0 to 10 times the effective rank. Default: 1.</string></property>
+                <property name="maximum"><number>1000</number></property>
+                <property name="pageStep"><number>10</number></property>
+                <property name="value"><number>100</number></property>
+                <property name="orientation"><enum>Qt::Horizontal</enum></property>
+                <property name="tickPosition"><enum>QSlider::TicksBelow</enum></property>
+                <property name="tickInterval"><number>100</number></property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>

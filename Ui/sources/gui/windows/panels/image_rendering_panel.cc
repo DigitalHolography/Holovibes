@@ -45,6 +45,11 @@ void ImageRenderingPanel::init()
     for (auto* spin : {ui_->PcaWidthXSpinBox, ui_->PcaWidthYSpinBox,
                        ui_->PcaStrideXSpinBox, ui_->PcaStrideYSpinBox})
         connect(spin, &QSpinBox::editingFinished, this, &ImageRenderingPanel::set_local_pca_parameters);
+    connect(ui_->PcaRankFactorSlider,
+            &QSlider::valueChanged,
+            this,
+            [this](int value) { ui_->PcaRankFactorSpinBox->setValue(value / 100.); });
+    connect(ui_->PcaRankFactorSpinBox, &QDoubleSpinBox::valueChanged, this, &ImageRenderingPanel::set_pca_rank_factor);
 }
 
 void ImageRenderingPanel::on_notify()
@@ -118,7 +123,7 @@ void ImageRenderingPanel::on_notify()
     ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(spatial_window));
     ui_->LsciSpatialWindowSpinBox->setValue(spatial_window);
 
-    // These four controls belong only to Local PCA. Reducing a block side also
+    // These controls belong only to Local PCA. Reducing a block side also
     // reduces its stride, so changing the geometry cannot introduce coverage gaps.
     ui_->LocalPcaGroupBox->setVisible(is_local_pca);
     ui_->LocalPcaGroupBox->setEnabled(not_raw_not_moments && !is_recording);
@@ -132,6 +137,11 @@ void ImageRenderingPanel::on_notify()
     ui_->PcaStrideYSpinBox->setMaximum(api_.transform.get_pca_width_y());
     ui_->PcaStrideXSpinBox->setValue(api_.transform.get_pca_stride_x());
     ui_->PcaStrideYSpinBox->setValue(api_.transform.get_pca_stride_y());
+    const QSignalBlocker pca_rank_slider_signals(ui_->PcaRankFactorSlider);
+    const QSignalBlocker pca_rank_spin_signals(ui_->PcaRankFactorSpinBox);
+    const float rank_factor = api_.transform.get_pca_rank_factor();
+    ui_->PcaRankFactorSlider->setValue(qRound(rank_factor * 100.));
+    ui_->PcaRankFactorSpinBox->setValue(rank_factor);
 
     // Z (focus)
     z_up_shortcut_->setEnabled(reconstruction_controls_enabled);
@@ -316,6 +326,12 @@ void ImageRenderingPanel::set_local_pca_parameters()
     api_.transform.set_local_pca_parameters(width_x, width_y,
                                             std::min<uint>(width_x, ui_->PcaStrideXSpinBox->value()),
                                             std::min<uint>(width_y, ui_->PcaStrideYSpinBox->value()));
+    parent_->notify();
+}
+
+void ImageRenderingPanel::set_pca_rank_factor(double factor)
+{
+    api_.transform.set_pca_rank_factor(static_cast<float>(factor));
     parent_->notify();
 }
 

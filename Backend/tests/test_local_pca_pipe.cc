@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <exception>
@@ -32,6 +33,7 @@ PipeSettings local_pca_settings(unsigned batch)
     std::get<settings::PcaWidthY>(initial).value = 3;
     std::get<settings::PcaStrideX>(initial).value = 2;
     std::get<settings::PcaStrideY>(initial).value = 2;
+    std::get<settings::PcaRankFactor>(initial).value = 1.f;
     std::get<settings::P>(initial).value = ViewPQ{};
     std::get<settings::ImageType>(initial).value = ImgType::Modulus;
     std::get<settings::OutputBufferSize>(initial).value = 8;
@@ -204,6 +206,43 @@ TEST_P(LocalPcaPipeTest, GeometryChangeDiscardsPartialTemporalBlock)
     ASSERT_TRUE(runner.wait([&]() { return output->get_size() == 1; }));
     runner.stop();
     ASSERT_NO_THROW(runner.rethrow_failure());
+}
+
+TEST_P(LocalPcaPipeTest, RankFactorChangesReachLiveComputeWithoutRebuildingPipe)
+{
+    const unsigned batch = GetParam();
+    constexpr camera::FrameDescriptor fd = {7, 5, camera::PixelDepth::Bits8, camera::Endianness::LittleEndian};
+    auto initial = local_pca_settings(batch);
+    std::get<settings::PcaRankFactor>(initial).value = 0.f;
+    BatchInputQueue input(64, batch, fd);
+    std::atomic<RecordingContext*> recording{nullptr};
+    const cudaStream_t stream = 0;
+    InspectableLocalPcaPipe pipe(input, recording, stream, initial);
+    const auto output = pipe.get_output_queue();
+    LocalPcaRunner runner(pipe);
+
+    enqueue_frames(input, 8);
+    ASSERT_TRUE(runner.wait([&]() { return output->get_size() == 1; }));
+    ASSERT_TRUE(runner.wait([&]() { return pipe.partial_frames() == 0; }));
+    std::vector<unsigned short> original(fd.get_frame_res());
+    ASSERT_EQ(output->dequeue(original.data(), stream, cudaMemcpyDeviceToHost), 1);
+    ASSERT_TRUE(std::any_of(original.begin(), original.end(), [](unsigned short value) { return value > 0; }));
+
+    pipe.update_setting(settings::PcaRankFactor{10.f});
+    // A blocked input wait must finish a cycle before cycle settings are applied.
+    // Allow one transition block, including the batch == window case.
+    enqueue_frames(input, 8, 8);
+    ASSERT_TRUE(runner.wait([&]() { return output->get_size() == 1; }));
+    ASSERT_TRUE(runner.wait([&]() { return pipe.partial_frames() == 0; }));
+    output->clear();
+    enqueue_frames(input, 8, 16);
+    ASSERT_TRUE(runner.wait([&]() { return output->get_size() == 1; }));
+    runner.stop();
+    ASSERT_NO_THROW(runner.rethrow_failure());
+    std::vector<unsigned short> removed(fd.get_frame_res());
+    ASSERT_EQ(output->dequeue(removed.data(), stream, cudaMemcpyDeviceToHost), 1);
+    for (unsigned short value : removed)
+        EXPECT_EQ(value, 0u) << "Factor 10 must remove all eight temporal components";
 }
 
 INSTANTIATE_TEST_SUITE_P(ConsecutiveFrames, LocalPcaPipeTest, testing::Values(1u, 2u, 8u));

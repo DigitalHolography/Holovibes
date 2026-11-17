@@ -37,6 +37,7 @@
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
     holovibes::settings::Q,                                      \
+    holovibes::settings::PcaRankFactor,                          \
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::FrameSkip,                              \

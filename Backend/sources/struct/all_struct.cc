@@ -99,6 +99,7 @@ void Rendering::Update()
     this->pca_width_y = GET_SETTING(PcaWidthY);
     this->pca_stride_x = GET_SETTING(PcaStrideX);
     this->pca_stride_y = GET_SETTING(PcaStrideY);
+    this->pca_rank_factor = GET_SETTING(PcaRankFactor);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
@@ -277,6 +278,7 @@ void Rendering::Load()
     UPDATE_SETTING(PcaWidthY, this->pca_width_y);
     UPDATE_SETTING(PcaStrideX, this->pca_stride_x);
     UPDATE_SETTING(PcaStrideY, this->pca_stride_y);
+    UPDATE_SETTING(PcaRankFactor, this->pca_rank_factor);
     API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);

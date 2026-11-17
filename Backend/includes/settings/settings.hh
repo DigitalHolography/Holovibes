@@ -176,6 +176,7 @@ DECLARE_SETTING(PcaWidthX, uint);
 DECLARE_SETTING(PcaWidthY, uint);
 DECLARE_SETTING(PcaStrideX, uint);
 DECLARE_SETTING(PcaStrideY, uint);
+DECLARE_SETTING(PcaRankFactor, float);
 DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);

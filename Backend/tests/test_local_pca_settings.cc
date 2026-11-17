@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <cuda_runtime.h>
+#include <limits>
 
 #include "API.hh"
 #include "test_disable_log.hh"
@@ -14,18 +15,22 @@ TEST(LocalPcaSerialization, OptionalGeometryDefaultsAndRoundTrips)
     Rendering rendering;
     json legacy = rendering;
     EXPECT_FALSE(legacy.contains("pca_width_x"));
+    EXPECT_FALSE(legacy.contains("pca_rank_factor"));
     rendering.pca_width_x = 7;
+    rendering.pca_rank_factor = 2.f;
     from_json(legacy, rendering);
     EXPECT_EQ(rendering.pca_width_x, 32u);
     EXPECT_EQ(rendering.pca_width_y, 32u);
     EXPECT_EQ(rendering.pca_stride_x, 16u);
     EXPECT_EQ(rendering.pca_stride_y, 16u);
+    EXPECT_FLOAT_EQ(rendering.pca_rank_factor, 1.f);
 
     rendering.time_transformation = TimeTransformation::LOCAL_PCA;
     rendering.pca_width_x = 24;
     rendering.pca_width_y = 12;
     rendering.pca_stride_x = 8;
     rendering.pca_stride_y = 3;
+    rendering.pca_rank_factor = .75f;
     json encoded = rendering;
     EXPECT_EQ(encoded["time_transformation"], "LOCAL_PCA");
     const auto decoded = encoded.get<Rendering>();
@@ -33,6 +38,7 @@ TEST(LocalPcaSerialization, OptionalGeometryDefaultsAndRoundTrips)
     EXPECT_EQ(decoded.pca_width_y, 12u);
     EXPECT_EQ(decoded.pca_stride_x, 8u);
     EXPECT_EQ(decoded.pca_stride_y, 3u);
+    EXPECT_FLOAT_EQ(decoded.pca_rank_factor, .75f);
     EXPECT_EQ(json("Local PCA").get<TimeTransformation>(), TimeTransformation::LOCAL_PCA);
 }
 
@@ -60,6 +66,7 @@ class LocalPcaSettingsTest : public testing::Test
         baseline.image_rendering.pca_width_y = 32;
         baseline.image_rendering.pca_stride_x = 16;
         baseline.image_rendering.pca_stride_y = 16;
+        baseline.image_rendering.pca_rank_factor = 1.f;
         baseline.advanced.buffer_size.input = 64;
         baseline.view.image_type = ImgType::Modulus;
         baseline.view.z = ViewPQ{};
@@ -144,6 +151,48 @@ TEST_F(LocalPcaSettingsTest, NormalizationPreservesSharedSpatialAndDisplaySettin
     EXPECT_EQ(API.transform.get_space_transformation(), SpaceTransformation::FRESNELTR);
     EXPECT_EQ(API.compute.get_img_type(), ImgType::SquaredModulus);
     EXPECT_EQ(API.transform.get_p_index(), 2u);
+}
+
+TEST_F(LocalPcaSettingsTest, RankFactorValidatesAndSurvivesSettingsRoundTripAndPartialPatches)
+{
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
+    EXPECT_EQ(API.transform.set_pca_rank_factor(1.f), ApiCode::NO_CHANGE);
+    for (const float invalid :
+         {-1.f, 10.01f, std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()})
+        EXPECT_EQ(API.transform.set_pca_rank_factor(invalid), ApiCode::INVALID_VALUE);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
+
+    ASSERT_EQ(API.transform.set_pca_rank_factor(0.f), ApiCode::OK);
+    ASSERT_EQ(API.transform.set_pca_rank_factor(.75f), ApiCode::OK);
+    json saved = API.settings.compute_settings_to_json();
+    EXPECT_FLOAT_EQ(saved["image_rendering"]["pca_rank_factor"].get<float>(), .75f);
+    ASSERT_EQ(API.transform.set_pca_rank_factor(2.f), ApiCode::OK);
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), .75f);
+
+    json patch = {{"version", "v1"}, {"view", {{"fft_shift", false}}}};
+    ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), .75f);
+
+    saved["image_rendering"].erase("pca_rank_factor");
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
+}
+
+TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorIsNormalizedToSliderRange)
+{
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
+    json saved = API.settings.compute_settings_to_json();
+    saved["image_rendering"]["pca_rank_factor"] = -2.f;
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 0.f);
+    saved["image_rendering"]["pca_rank_factor"] = 20.f;
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 10.f);
+
+    UPDATE_SETTING(PcaRankFactor, std::numeric_limits<float>::quiet_NaN());
+    API.transform.normalize_local_pca_settings();
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
 }
 } // namespace
 } // namespace holovibes

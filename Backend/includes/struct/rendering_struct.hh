@@ -95,6 +95,7 @@ struct Rendering
     unsigned pca_width_y = 32;
     unsigned pca_stride_x = 16;
     unsigned pca_stride_y = 16;
+    float pca_rank_factor = 1.f;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
@@ -118,12 +119,14 @@ struct Rendering
             j["lsci_spatial_window"] = value.lsci_spatial_window;
         // Optional keys keep existing algorithm configurations backward compatible.
         if (value.time_transformation == TimeTransformation::LOCAL_PCA || value.pca_width_x != 32 ||
-            value.pca_width_y != 32 || value.pca_stride_x != 16 || value.pca_stride_y != 16)
+            value.pca_width_y != 32 || value.pca_stride_x != 16 || value.pca_stride_y != 16 ||
+            value.pca_rank_factor != 1.f)
         {
             j["pca_width_x"] = value.pca_width_x;
             j["pca_width_y"] = value.pca_width_y;
             j["pca_stride_x"] = value.pca_stride_x;
             j["pca_stride_y"] = value.pca_stride_y;
+            j["pca_rank_factor"] = value.pca_rank_factor;
         }
     }
 
@@ -143,6 +146,8 @@ struct Rendering
         value.pca_width_y = j.value("pca_width_y", 32u);
         value.pca_stride_x = j.value("pca_stride_x", 16u);
         value.pca_stride_y = j.value("pca_stride_y", 16u);
+        // Settings written before the rank slider preserve the original cutoff.
+        value.pca_rank_factor = j.value("pca_rank_factor", 1.f);
         j.at("lambda").get_to(value.lambda);
         j.at("propagation_distance").get_to(value.propagation_distance);
         j.at("convolution").get_to(value.convolution);

@@ -352,7 +352,8 @@ void FourierTransform::insert_local_pca()
         {
             auto& queue = time_transformation_env_.gpu_time_transformation_queue;
             processor->process(static_cast<const cuComplex*>(queue->get_data()),
-                               time_transformation_env_.gpu_p_acc_buffer.get());
+                               time_transformation_env_.gpu_p_acc_buffer.get(),
+                               setting<settings::PcaRankFactor>());
         });
 }
 

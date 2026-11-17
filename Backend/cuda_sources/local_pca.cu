@@ -73,11 +73,17 @@ __global__ void gather_tile(const cuComplex* input,
 }
 
 // cuSOLVER orders the eigenvalues increasingly. Compute the Shannon effective
-// rank of the Gram matrix, r = ceil(exp(-sum(p * log(p)))), p = lambda/sum(lambda),
-// then zero the LAST r eigenvectors to remove the strongest components. A zero
+// rank of the Gram matrix, e = exp(-sum(p * log(p))), p = lambda/sum(lambda),
+// and choose r = min(frames, ceil(rank_factor * e)). Scale BEFORE rounding so
+// small factor adjustments can move the cutoff even when e is not an integer.
+// Then zero the LAST r eigenvectors to remove the strongest components. A zero
 // spectrum has rank zero; negative roundoff eigenvalues carry no probability.
-__global__ void
-remove_effective_rank(cuComplex* vectors, const float* eigenvalues, unsigned frames, const int* solver_info, int* error)
+__global__ void remove_effective_rank(cuComplex* vectors,
+                                      const float* eigenvalues,
+                                      unsigned frames,
+                                      const int* solver_info,
+                                      int* error,
+                                      float rank_factor)
 {
     __shared__ unsigned removed;
     if (threadIdx.x == 0)
@@ -92,7 +98,7 @@ remove_effective_rank(cuComplex* vectors, const float* eigenvalues, unsigned fra
         }
         if (*solver_info != 0)
             atomicCAS(error, 0, *solver_info);
-        if (total > 0.)
+        if (total > 0. && rank_factor > 0.f)
         {
             double entropy = 0.;
             for (unsigned i = 0; i < frames; ++i)
@@ -102,7 +108,8 @@ remove_effective_rank(cuComplex* vectors, const float* eigenvalues, unsigned fra
                     entropy -= p * log(p);
             }
             // Avoid rounding a numerically perturbed integer rank up by one.
-            removed = static_cast<unsigned>(fmax(1., fmin(static_cast<double>(frames), ceil(exp(entropy) - 1e-6))));
+            const double scaled_rank = static_cast<double>(rank_factor) * exp(entropy);
+            removed = static_cast<unsigned>(fmax(1., fmin(static_cast<double>(frames), ceil(scaled_rank - 1e-6))));
         }
     }
     __syncthreads();
@@ -224,13 +231,23 @@ LocalPca::LocalPca(unsigned width,
 }
 LocalPca::~LocalPca() = default;
 
-void LocalPca::process(const cuComplex* input, cuComplex* output)
+void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_factor)
 {
     if (!input || !output || input == output)
         throw std::invalid_argument("Local PCA requires distinct, nonnull input and output buffers");
+    if (!std::isfinite(rank_factor) || rank_factor < 0.f)
+        throw std::invalid_argument("Local PCA rank factor must be finite and nonnegative");
     auto& a = *impl_;
     const cuComplex one = make_cuComplex(1.f, 0.f), zero = make_cuComplex(0.f, 0.f);
     const size_t tile_count = a.tile_pixels * a.frames, count = a.pixels * a.frames;
+    // At factor zero, every local projector is the identity and overlap averaging
+    // gives the original cube. Copy it directly to avoid needless eigensolves.
+    if (rank_factor == 0.f)
+    {
+        check(cudaMemcpyAsync(output, input, count * sizeof(cuComplex), cudaMemcpyDeviceToDevice, a.stream));
+        check(cudaStreamSynchronize(a.stream));
+        return;
+    }
     const int m = static_cast<int>(a.tile_pixels), n = static_cast<int>(a.frames);
     check(cudaMemsetAsync(output, 0, count * sizeof(cuComplex), a.stream));
     check(cudaMemsetAsync(a.coverage.ptr, 0, a.pixels * sizeof(unsigned), a.stream));
@@ -280,7 +297,8 @@ void LocalPca::process(const cuComplex* input, cuComplex* output)
                                                            a.eigenvalues.ptr,
                                                            a.frames,
                                                            a.solver_info.ptr,
-                                                           a.error.ptr);
+                                                           a.error.ptr,
+                                                           rank_factor);
             check(cudaGetLastError());
 
             // Reconstruct the residual in the original temporal basis, H V_keep V_keep^H.

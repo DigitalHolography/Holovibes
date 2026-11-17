@@ -28,7 +28,8 @@
 #define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
-    holovibes::settings::Q
+    holovibes::settings::Q,                        \
+    holovibes::settings::PcaRankFactor
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \

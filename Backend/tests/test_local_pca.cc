@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 #include <vector>
@@ -34,7 +35,8 @@ ReferenceResult reference_local_pca(const std::vector<cuComplex>& input,
                                     unsigned width_x,
                                     unsigned width_y,
                                     unsigned stride_x,
-                                    unsigned stride_y)
+                                    unsigned stride_y,
+                                    double rank_factor = 1.)
 {
     const size_t pixels = static_cast<size_t>(width) * height;
     const size_t tile_pixels = static_cast<size_t>(width_x) * width_y;
@@ -69,7 +71,7 @@ ReferenceResult reference_local_pca(const std::vector<cuComplex>& input,
             for (unsigned i = 0; i < frames; ++i)
                 total += std::max(0., eigenvalues.at<double>(2 * i));
             unsigned removed = 0;
-            if (total > 0.)
+            if (total > 0. && rank_factor > 0.)
             {
                 double entropy = 0.;
                 for (unsigned i = 0; i < frames; ++i)
@@ -79,7 +81,7 @@ ReferenceResult reference_local_pca(const std::vector<cuComplex>& input,
                         entropy -= probability * std::log(probability);
                 }
                 removed = static_cast<unsigned>(
-                    std::clamp(std::ceil(std::exp(entropy) - 1e-6), 1., static_cast<double>(frames)));
+                    std::clamp(std::ceil(rank_factor * std::exp(entropy) - 1e-6), 1., static_cast<double>(frames)));
             }
 
             for (size_t p = 0; p < tile_pixels; ++p)
@@ -145,7 +147,8 @@ class LocalPcaTest : public testing::Test
                                unsigned width_x,
                                unsigned width_y,
                                unsigned stride_x,
-                               unsigned stride_y)
+                               unsigned stride_y,
+                               float rank_factor = 1.f)
     {
         CudaUniquePtr<cuComplex> gpu_input(input.size()), gpu_output(input.size());
         cudaXMemcpyAsync(gpu_input.get(),
@@ -154,7 +157,7 @@ class LocalPcaTest : public testing::Test
                          cudaMemcpyHostToDevice,
                          stream_);
         LocalPca processor(width, height, frames, width_x, width_y, stride_x, stride_y, stream_);
-        processor.process(gpu_input.get(), gpu_output.get());
+        processor.process(gpu_input.get(), gpu_output.get(), rank_factor);
         std::vector<cuComplex> output(input.size());
         cudaXMemcpyAsync(output.data(),
                          gpu_output.get(),
@@ -223,25 +226,81 @@ TEST_F(LocalPcaTest, ZeroSpectrumAndSingleFrameProduceZeroResidual)
 TEST_F(LocalPcaTest, EffectiveRankRemovesStrongestModesAndPreservesWeakest)
 {
     // Orthogonal spatial/temporal Hadamard patterns give exact eigenvalues
-    // proportional to [10000, 9, .01, 0]. Entropy rank lies strictly in (1,2),
+    // proportional to [400, 9, .25, 0]. Entropy rank lies strictly in (1,2),
     // so ceil selects two clutter modes and must leave the weak third mode.
+    // Keep the nonzero spectrum resolvable in the float Gram matrix, so this
+    // checks selection rather than null-space accuracy in an ill-conditioned solve.
     const int basis[3][4] = {{1, 1, 1, 1}, {1, -1, 1, -1}, {1, 1, -1, -1}};
     std::vector<cuComplex> input(16);
     for (unsigned t = 0; t < 4; ++t)
         for (unsigned p = 0; p < 4; ++p)
         {
-            const float value = 100.f + 3.f * basis[1][p] * basis[1][t] + .1f * basis[2][p] * basis[2][t];
+            const float value = 20.f + 3.f * basis[1][p] * basis[1][t] + .5f * basis[2][p] * basis[2][t];
             // Distinct complex spatial phases also exercise conjugate projection.
             input[t * 4 + p] = p % 2 ? make_cuComplex(0.f, value) : make_cuComplex(value, 0.f);
         }
-    const auto output = run(input, 2, 2, 4, 2, 2, 2, 2);
-    for (unsigned t = 0; t < 4; ++t)
-        for (unsigned p = 0; p < 4; ++p)
+    // eRank is just above 1. Factor .5 removes one mode, 1 and 1.5 remove
+    // two, 2 removes three, and 10 saturates at all four. In particular 1.5
+    // distinguishes scaling eRank BEFORE rounding from scaling ceil(eRank).
+    for (const float factor : {0.f, .5f, 1.f, 1.5f, 2.f, 10.f})
+    {
+        SCOPED_TRACE(factor);
+        const auto output = run(input, 2, 2, 4, 2, 2, 2, 2, factor);
+        for (unsigned t = 0; t < 4; ++t)
+            for (unsigned p = 0; p < 4; ++p)
+            {
+                double expected = 0.;
+                if (factor == 0.f)
+                    expected += 20.;
+                if (factor < 1.f)
+                    expected += 3. * basis[1][p] * basis[1][t];
+                if (factor < 2.f)
+                    expected += .5 * basis[2][p] * basis[2][t];
+                EXPECT_NEAR(output[t * 4 + p].x, p % 2 ? 0. : expected, .003);
+                EXPECT_NEAR(output[t * 4 + p].y, p % 2 ? expected : 0., .003);
+            }
+    }
+}
+
+TEST_F(LocalPcaTest, FactorChangesReuseProcessorAndMatchWrappedOverlapReference)
+{
+    const auto input = complex_stack(7, 5, 6);
+    CudaUniquePtr<cuComplex> gpu_input(input.size()), gpu_output(input.size());
+    cudaXMemcpyAsync(gpu_input.get(), input.data(), input.size() * sizeof(cuComplex), cudaMemcpyHostToDevice, stream_);
+    LocalPca processor(7, 5, 6, 4, 3, 3, 2, stream_);
+    // Exercise zero, fractional scaling, saturation, and returning to a smaller
+    // factor on the same processor, ensuring masked vectors do not leak across calls.
+    for (const float factor : {0.f, .35f, 1.f, 1.5f, 10.f, .5f})
+    {
+        SCOPED_TRACE(factor);
+        processor.process(gpu_input.get(), gpu_output.get(), factor);
+        std::vector<cuComplex> output(input.size());
+        cudaXMemcpyAsync(output.data(),
+                         gpu_output.get(),
+                         output.size() * sizeof(cuComplex),
+                         cudaMemcpyDeviceToHost,
+                         stream_);
+        cudaXStreamSynchronize(stream_);
+        const auto expected = reference_local_pca(input, 7, 5, 6, 4, 3, 3, 2, factor);
+        for (size_t i = 0; i < output.size(); ++i)
         {
-            const double expected = .1 * basis[2][p] * basis[2][t];
-            EXPECT_NEAR(output[t * 4 + p].x, p % 2 ? 0. : expected, .003);
-            EXPECT_NEAR(output[t * 4 + p].y, p % 2 ? expected : 0., .003);
+            EXPECT_NEAR(output[i].x, expected.samples[i].real(), .003) << "sample " << i;
+            EXPECT_NEAR(output[i].y, expected.samples[i].imag(), .003) << "sample " << i;
+            if (factor == 0.f)
+            {
+                EXPECT_FLOAT_EQ(output[i].x, input[i].x);
+                EXPECT_FLOAT_EQ(output[i].y, input[i].y);
+            }
         }
+    }
+}
+
+TEST_F(LocalPcaTest, RejectsNegativeAndNonfiniteRankFactors)
+{
+    CudaUniquePtr<cuComplex> input(16), output(16);
+    LocalPca processor(2, 2, 4, 2, 2, 2, 2, stream_);
+    for (const float factor : {-1.f, std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()})
+        EXPECT_THROW(processor.process(input.get(), output.get(), factor), std::invalid_argument);
 }
 
 TEST_F(LocalPcaTest, WrapsBothBordersWithUnevenRectangularCoverage) { compare(7, 5, 6, 4, 3, 3, 2); }

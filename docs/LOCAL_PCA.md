@@ -1,7 +1,7 @@
 # Local PCA
 
 Select **Local PCA** in the existing Time Transform menu. It uses the usual spatial
-reconstruction and image display controls, plus four settings shown only for this
+reconstruction and image display controls, plus five settings shown only for this
 transform:
 
 | Setting | Meaning | Default |
@@ -10,6 +10,13 @@ transform:
 | `pca_width_y` | Spatial block height, in pixels | 32 |
 | `pca_stride_x` | Horizontal distance between block origins | 16 |
 | `pca_stride_y` | Vertical distance between block origins | 16 |
+| `pca_rank_factor` | Effective-rank multiplier, from 0 to 10 | 1 |
+
+The **Rank factor** slider and numeric field adjust how many strong components
+are removed. The multiplier is applied to the unrounded effective rank: below 1
+removes fewer components, above 1 removes more, and 0 disables component removal.
+One factor is used for every spatial tile in a processed temporal block. Adjusting
+it while viewing takes effect on subsequent blocks without reallocating tile buffers.
 
 Block sides and strides must be positive. Each stride must be no larger than its
 block side, so the blocks cover every pixel. Reducing a side in the UI also reduces
@@ -27,7 +34,8 @@ For each spatial origin `(i * pca_stride_x, j * pca_stride_y)` inside the frame:
 2. Form the uncentered Hermitian Gram matrix `C = Hᴴ H`, matching classic PCA's
    covariance convention. Diagonalize it independently for this spatial block.
 3. Compute `pᵢ = max(λᵢ, 0) / Σ max(λⱼ, 0)` and the entropy effective rank
-   `r = ceil(exp(−Σ pᵢ ln pᵢ))`. Zero probabilities contribute zero entropy; a zero
+   `e = exp(−Σ pᵢ ln pᵢ)` and choose `r = min(T, ceil(pca_rank_factor * e))`.
+   Factor 1 preserves the original cutoff. Zero probabilities contribute zero entropy; a zero
    spectrum has rank zero. A tolerance of `1e-6` before rounding avoids promoting
    an integer effective rank due to floating-point roundoff.
 4. Remove the strongest `r` components and reconstruct the residual
@@ -43,10 +51,10 @@ repeated samples contribute to the count.
 Averaging occurs on complex residuals before the existing magnitude, squared
 magnitude, or phase conversion. The existing P start/width controls therefore
 select residual **time samples**, rather than independently ordered local PCA
-components. Q bounds do not select components in this transform; effective rank
-does that automatically. A one-frame block or a spectrum whose selected rank is
-`T` produces a zero residual.
+components. Q bounds do not select components in this transform; scaled effective
+rank does that automatically. With a positive factor, a one-frame block produces
+a zero residual, as does any block whose selected removal count reaches `T`.
 
 The implementation reuses scratch buffers for one spatial block and checks CUDA
-and eigensolver failures. Configuration and recording metadata store the four
-settings; older configurations receive the defaults above.
+and eigensolver failures. Configuration and recording metadata store the five
+settings; older configurations receive the defaults above, including factor 1.

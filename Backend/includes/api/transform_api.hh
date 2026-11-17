@@ -176,6 +176,12 @@ class TransformApi : public IApi
     inline uint get_pca_stride_x() const { return GET_SETTING(PcaStrideX); }
     inline uint get_pca_stride_y() const { return GET_SETTING(PcaStrideY); }
 
+    /*! \brief Multiplier applied to each block's effective rank before rounding. */
+    inline float get_pca_rank_factor() const { return GET_SETTING(PcaRankFactor); }
+
+    /*! \brief Set a finite factor in [0, 10]; zero disables Local PCA component removal. */
+    ApiCode set_pca_rank_factor(float factor) const;
+
     /*! \brief Set all four tile parameters together. Strides must not leave uncovered pixels. */
     ApiCode set_local_pca_parameters(uint width_x, uint width_y, uint stride_x, uint stride_y) const;
 

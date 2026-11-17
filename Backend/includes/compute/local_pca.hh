@@ -33,8 +33,11 @@ class LocalPca
     LocalPca(const LocalPca&) = delete;
     LocalPca& operator=(const LocalPca&) = delete;
 
-    /*! \brief Filter a complete block. Input and output must be distinct device buffers. */
-    void process(const cuComplex* input, cuComplex* output);
+    /*! \brief Filter a complete block using ceil(rank_factor * effective_rank) removed components.
+     * Input and output must be distinct device buffers. A zero factor copies the
+     * input unchanged; the removal count is capped at the temporal dimension.
+     */
+    void process(const cuComplex* input, cuComplex* output, float rank_factor = 1.f);
 
   private:
     struct Impl;
