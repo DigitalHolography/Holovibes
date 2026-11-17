@@ -3,6 +3,7 @@
  */
 
 #include <filesystem>
+#include <limits>
 
 #include "image_rendering_panel.hh"
 #include "MainWindow.hh"
@@ -38,6 +39,9 @@ ImageRenderingPanel::~ImageRenderingPanel()
 void ImageRenderingPanel::init()
 {
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    // Allow every finite value of the float setting in the input box. The slider
+    // retains its existing 0..10 range for convenient adjustments.
+    ui_->PcaRankFactorSpinBox->setMaximum(std::numeric_limits<float>::max());
     connect(ui_->LsciSpatialWindowSpinBox,
             &QSpinBox::valueChanged,
             this,
@@ -140,7 +144,10 @@ void ImageRenderingPanel::on_notify()
     const QSignalBlocker pca_rank_slider_signals(ui_->PcaRankFactorSlider);
     const QSignalBlocker pca_rank_spin_signals(ui_->PcaRankFactorSpinBox);
     const float rank_factor = api_.transform.get_pca_rank_factor();
-    ui_->PcaRankFactorSlider->setValue(qRound(rank_factor * 100.));
+    // Clamp only the slider display, before converting to int to avoid overflow.
+    // Its blocked signal leaves larger numeric factors intact in the setting.
+    const float slider_factor = std::min(rank_factor, ui_->PcaRankFactorSlider->maximum() / 100.f);
+    ui_->PcaRankFactorSlider->setValue(qRound(slider_factor * 100.));
     ui_->PcaRankFactorSpinBox->setValue(rank_factor);
 
     // Z (focus)

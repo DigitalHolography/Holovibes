@@ -179,7 +179,7 @@ class TransformApi : public IApi
     /*! \brief Multiplier applied to each block's effective rank before rounding. */
     inline float get_pca_rank_factor() const { return GET_SETTING(PcaRankFactor); }
 
-    /*! \brief Set a finite factor in [0, 10]; zero disables Local PCA component removal. */
+    /*! \brief Set a finite, nonnegative factor; zero disables Local PCA component removal. */
     ApiCode set_pca_rank_factor(float factor) const;
 
     /*! \brief Set all four tile parameters together. Strides must not leave uncovered pixels. */

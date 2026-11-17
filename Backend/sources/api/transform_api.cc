@@ -288,7 +288,7 @@ ApiCode TransformApi::set_local_pca_parameters(uint width_x, uint width_y, uint 
 
 ApiCode TransformApi::set_pca_rank_factor(float factor) const
 {
-    if (!std::isfinite(factor) || factor < 0.f || factor > 10.f)
+    if (!std::isfinite(factor) || factor < 0.f)
         return ApiCode::INVALID_VALUE;
     if (factor == get_pca_rank_factor())
         return ApiCode::NO_CHANGE;
@@ -316,7 +316,7 @@ void TransformApi::normalize_local_pca_settings() const
     UPDATE_SETTING(PcaStrideX, std::clamp(get_pca_stride_x(), 1u, width_x));
     UPDATE_SETTING(PcaStrideY, std::clamp(get_pca_stride_y(), 1u, width_y));
     const float factor = get_pca_rank_factor();
-    UPDATE_SETTING(PcaRankFactor, std::isfinite(factor) ? std::clamp(factor, 0.f, 10.f) : 1.f);
+    UPDATE_SETTING(PcaRankFactor, std::isfinite(factor) ? std::max(factor, 0.f) : 1.f);
     const uint window = std::clamp(get_time_transformation_size(), 1u, 65535u);
     UPDATE_SETTING(TimeTransformationSize, window);
     UPDATE_SETTING(TimeStride, window);

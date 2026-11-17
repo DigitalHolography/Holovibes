@@ -270,7 +270,7 @@ TEST_F(LocalPcaTest, FactorChangesReuseProcessorAndMatchWrappedOverlapReference)
     LocalPca processor(7, 5, 6, 4, 3, 3, 2, stream_);
     // Exercise zero, fractional scaling, saturation, and returning to a smaller
     // factor on the same processor, ensuring masked vectors do not leak across calls.
-    for (const float factor : {0.f, .35f, 1.f, 1.5f, 10.f, .5f})
+    for (const float factor : {0.f, .35f, 1.f, 1.5f, 10.f, 75.25f, std::numeric_limits<float>::max(), .5f})
     {
         SCOPED_TRACE(factor);
         processor.process(gpu_input.get(), gpu_output.get(), factor);

@@ -157,29 +157,28 @@ TEST_F(LocalPcaSettingsTest, RankFactorValidatesAndSurvivesSettingsRoundTripAndP
 {
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
     EXPECT_EQ(API.transform.set_pca_rank_factor(1.f), ApiCode::NO_CHANGE);
-    for (const float invalid :
-         {-1.f, 10.01f, std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()})
+    for (const float invalid : {-1.f, std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()})
         EXPECT_EQ(API.transform.set_pca_rank_factor(invalid), ApiCode::INVALID_VALUE);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
 
     ASSERT_EQ(API.transform.set_pca_rank_factor(0.f), ApiCode::OK);
-    ASSERT_EQ(API.transform.set_pca_rank_factor(.75f), ApiCode::OK);
+    ASSERT_EQ(API.transform.set_pca_rank_factor(75.25f), ApiCode::OK);
     json saved = API.settings.compute_settings_to_json();
-    EXPECT_FLOAT_EQ(saved["image_rendering"]["pca_rank_factor"].get<float>(), .75f);
+    EXPECT_FLOAT_EQ(saved["image_rendering"]["pca_rank_factor"].get<float>(), 75.25f);
     ASSERT_EQ(API.transform.set_pca_rank_factor(2.f), ApiCode::OK);
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
-    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), .75f);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 75.25f);
 
     json patch = {{"version", "v1"}, {"view", {{"fft_shift", false}}}};
     ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
-    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), .75f);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 75.25f);
 
     saved["image_rendering"].erase("pca_rank_factor");
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
 }
 
-TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorIsNormalizedToSliderRange)
+TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorPreservesValuesAboveSliderRange)
 {
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
     json saved = API.settings.compute_settings_to_json();
@@ -188,7 +187,15 @@ TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorIsNormalizedToSliderRange)
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 0.f);
     saved["image_rendering"]["pca_rank_factor"] = 20.f;
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
-    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 10.f);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 20.f);
+
+    // Large numeric factors remain valid both through the API and settings loading.
+    const float maximum = std::numeric_limits<float>::max();
+    EXPECT_EQ(API.transform.set_pca_rank_factor(maximum), ApiCode::OK);
+    saved = API.settings.compute_settings_to_json();
+    ASSERT_EQ(API.transform.set_pca_rank_factor(1.f), ApiCode::OK);
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), maximum);
 
     UPDATE_SETTING(PcaRankFactor, std::numeric_limits<float>::quiet_NaN());
     API.transform.normalize_local_pca_settings();

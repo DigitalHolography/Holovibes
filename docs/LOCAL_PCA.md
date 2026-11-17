@@ -10,11 +10,14 @@ transform:
 | `pca_width_y` | Spatial block height, in pixels | 32 |
 | `pca_stride_x` | Horizontal distance between block origins | 16 |
 | `pca_stride_y` | Vertical distance between block origins | 16 |
-| `pca_rank_factor` | Effective-rank multiplier, from 0 to 10 | 1 |
+| `pca_rank_factor` | Nonnegative effective-rank multiplier | 1 |
 
 The **Rank factor** slider and numeric field adjust how many strong components
 are removed. The multiplier is applied to the unrounded effective rank: below 1
 removes fewer components, above 1 removes more, and 0 disables component removal.
+The slider covers 0 to 10. The numeric field also accepts larger finite float
+values; when the factor exceeds 10, the slider stays at its maximum while the
+numeric field preserves the entered value.
 One factor is used for every spatial tile in a processed temporal block. Adjusting
 it while viewing takes effect on subsequent blocks without reallocating tile buffers.
 
