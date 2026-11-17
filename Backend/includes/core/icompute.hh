@@ -96,6 +96,10 @@
     holovibes::settings::BatchSize,                              \
     holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::LsciSpatialWindow,                      \
+    holovibes::settings::PcaWidthX,                              \
+    holovibes::settings::PcaWidthY,                              \
+    holovibes::settings::PcaStrideX,                             \
+    holovibes::settings::PcaStrideY,                             \
     holovibes::settings::InputFilter
 
 #define ONRESTART_SETTINGS                                       \
@@ -202,6 +206,7 @@ class ICompute
         Refresh,
         UpdateTimeTransformationSize,
         UpdateLsciSpatialWindow,
+        UpdateLocalPca,
         ChartDisplay,
         DisableChartDisplay,
         DisableChartRecord,

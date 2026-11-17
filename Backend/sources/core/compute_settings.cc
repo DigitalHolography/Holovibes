@@ -6,6 +6,7 @@
 #include "compute_settings.hh"
 
 #include <iomanip>
+#include <tuple>
 
 #include "API.hh"
 #include "compute_settings_converter.hh"
@@ -81,6 +82,19 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     json old_one = compute_settings;
     // Expose the optional key to the strict merge, preserving it for unrelated partial updates.
     old_one["image_rendering"]["lsci_spatial_window"] = compute_settings.image_rendering.lsci_spatial_window;
+    // The strict merge must know Local PCA's optional keys even when the current
+    // algorithm omits them from its serialized settings. Partial patches preserve
+    // the current geometry; a full legacy algorithm selection resets missing keys.
+    const auto& rendering = compute_settings.image_rendering;
+    const bool algorithm_selection = j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&
+                                     j_cs["image_rendering"].contains("time_transformation");
+    for (const auto& [key, current, fallback] :
+         {std::tuple{"pca_width_x", rendering.pca_width_x, 32u},
+          std::tuple{"pca_width_y", rendering.pca_width_y, 32u},
+          std::tuple{"pca_stride_x", rendering.pca_stride_x, 16u},
+          std::tuple{"pca_stride_y", rendering.pca_stride_y, 16u}})
+        old_one["image_rendering"][key] =
+            algorithm_selection && !j_cs["image_rendering"].contains(key) ? fallback : current;
     // Legacy algorithm configurations predate this field and use the paper's 5x5 default.
     if (j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&
         j_cs["image_rendering"].contains("time_transformation") &&
@@ -108,7 +122,12 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
         return ApiCode::FAILURE;
     }
 
-    const bool restart = lsci_transition && !API.compute.get_is_computation_stopped();
+    const bool local_pca_transition = API.transform.get_time_transformation() == TimeTransformation::LOCAL_PCA ||
+                                      compute_settings.image_rendering.time_transformation == TimeTransformation::LOCAL_PCA;
+    if (local_pca_transition && API.record.is_recording())
+        return ApiCode::FAILURE;
+    // A full configuration can change both temporal size and tile geometry.
+    const bool restart = (lsci_transition || local_pca_transition) && !API.compute.get_is_computation_stopped();
     if (restart)
         API.compute.stop();
     compute_settings.Load();

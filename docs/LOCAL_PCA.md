@@ -1,0 +1,52 @@
+# Local PCA
+
+Select **Local PCA** in the existing Time Transform menu. It uses the usual spatial
+reconstruction and image display controls, plus four settings shown only for this
+transform:
+
+| Setting | Meaning | Default |
+| --- | --- | --- |
+| `pca_width_x` | Spatial block width, in pixels | 32 |
+| `pca_width_y` | Spatial block height, in pixels | 32 |
+| `pca_stride_x` | Horizontal distance between block origins | 16 |
+| `pca_stride_y` | Vertical distance between block origins | 16 |
+
+Block sides and strides must be positive. Each stride must be no larger than its
+block side, so the blocks cover every pixel. Reducing a side in the UI also reduces
+its stride when necessary.
+
+The shared **Time window** sets the number `T` of consecutive frames per block.
+There is no temporal overlap or frame decimation: time stride is fixed to `T`, and
+batch size is adjusted to a divisor of `T`. Incomplete temporal blocks produce no
+output. The shared spatial transform still runs before Local PCA.
+
+For each spatial origin `(i * pca_stride_x, j * pca_stride_y)` inside the frame:
+
+1. Gather a `pca_width_x * pca_width_y` by `T` matrix `H` of complex samples.
+   Samples crossing an image border wrap to the opposite border, including corners.
+2. Form the uncentered Hermitian Gram matrix `C = Hᴴ H`, matching classic PCA's
+   covariance convention. Diagonalize it independently for this spatial block.
+3. Compute `pᵢ = max(λᵢ, 0) / Σ max(λⱼ, 0)` and the entropy effective rank
+   `r = ceil(exp(−Σ pᵢ ln pᵢ))`. Zero probabilities contribute zero entropy; a zero
+   spectrum has rank zero. A tolerance of `1e-6` before rounding avoids promoting
+   an integer effective rank due to floating-point roundoff.
+4. Remove the strongest `r` components and reconstruct the residual
+   `H V_keep V_keepᴴ` in the original time coordinates.
+5. Add each residual sample to its original wrapped pixel/time coordinate, then
+   divide by the actual number of spatial contributions at that pixel.
+
+With 32×32 blocks and 16×16 strides, every pixel has four contributions when both
+frame dimensions are divisible by 16. Other geometries can have varying overlap
+counts, which are normalized individually. Blocks larger than the frame also wrap;
+repeated samples contribute to the count.
+
+Averaging occurs on complex residuals before the existing magnitude, squared
+magnitude, or phase conversion. The existing P start/width controls therefore
+select residual **time samples**, rather than independently ordered local PCA
+components. Q bounds do not select components in this transform; effective rank
+does that automatically. A one-frame block or a spectrum whose selected rank is
+`T` produces a zero residual.
+
+The implementation reuses scratch buffers for one spatial block and checks CUDA
+and eigensolver failures. Configuration and recording metadata store the four
+settings; older configurations receive the defaults above.

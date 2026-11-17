@@ -824,6 +824,11 @@ void MainWindow::init_tooltips()
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::PCA),
                                                  "Principal Component Analysis",
                                                  Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(
+        static_cast<int>(TimeTransformation::LOCAL_PCA),
+        "Local PCA: remove the strongest effective-rank components in each spatial block, "
+        "then average overlapping residuals. Spatial borders wrap; temporal blocks do not overlap",
+        Qt::ToolTipRole);
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::STFT),
                                                  "Short-Time Fourier Transformation",
                                                  Qt::ToolTipRole);

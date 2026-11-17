@@ -47,6 +47,10 @@
     holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::TimeTransformation,       \
+    holovibes::settings::PcaWidthX,                \
+    holovibes::settings::PcaWidthY,                \
+    holovibes::settings::PcaStrideX,               \
+    holovibes::settings::PcaStrideY,               \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
@@ -172,6 +176,9 @@ class FourierTransform
      * This should eventually replace stft
      */
     void insert_pca();
+
+    /*! \brief Filter spatial tiles and average their residuals in the original temporal basis. */
+    void insert_local_pca();
 
     void insert_ssa_stft();
 

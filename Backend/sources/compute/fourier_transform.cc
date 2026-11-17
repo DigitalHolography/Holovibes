@@ -21,6 +21,7 @@
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
 #include "matrix_operations.hh"
+#include "local_pca.hh"
 #include "logger.hh"
 
 using holovibes::FunctionVector;
@@ -207,6 +208,9 @@ void FourierTransform::insert_time_transform()
     case TimeTransformation::PCA:
         insert_pca();
         break;
+    case TimeTransformation::LOCAL_PCA:
+        insert_local_pca();
+        break;
     case TimeTransformation::SSA_STFT:
         insert_ssa_stft();
         break;
@@ -328,6 +332,27 @@ void FourierTransform::insert_pca()
                                     time_transformation_size,
                                     time_transformation_size,
                                     time_transformation_env_.gpu_p_acc_buffer);
+        });
+}
+
+void FourierTransform::insert_local_pca()
+{
+    // The callable owns this transform's scratch buffers. Refreshing the pipe
+    // releases them, so the other time transforms never allocate Local PCA tiles.
+    auto processor = std::make_shared<LocalPca>(fd_.width,
+                                               fd_.height,
+                                               setting<settings::TimeTransformationSize>(),
+                                               setting<settings::PcaWidthX>(),
+                                               setting<settings::PcaWidthY>(),
+                                               setting<settings::PcaStrideX>(),
+                                               setting<settings::PcaStrideY>(),
+                                               stream_);
+    fn_compute_vect_->push_back(
+        [this, processor]()
+        {
+            auto& queue = time_transformation_env_.gpu_time_transformation_queue;
+            processor->process(static_cast<const cuComplex*>(queue->get_data()),
+                               time_transformation_env_.gpu_p_acc_buffer.get());
         });
 }
 

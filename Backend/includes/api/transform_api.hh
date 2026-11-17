@@ -170,6 +170,18 @@ class TransformApi : public IApi
      */
     void normalize_lsci_settings() const;
 
+    /*! \brief Local PCA tile dimensions and spatial strides, in pixels. */
+    inline uint get_pca_width_x() const { return GET_SETTING(PcaWidthX); }
+    inline uint get_pca_width_y() const { return GET_SETTING(PcaWidthY); }
+    inline uint get_pca_stride_x() const { return GET_SETTING(PcaStrideX); }
+    inline uint get_pca_stride_y() const { return GET_SETTING(PcaStrideY); }
+
+    /*! \brief Set all four tile parameters together. Strides must not leave uncovered pixels. */
+    ApiCode set_local_pca_parameters(uint width_x, uint width_y, uint stride_x, uint stride_y) const;
+
+    /*! \brief Validate Local PCA geometry and enforce consecutive, disjoint temporal blocks. */
+    void normalize_local_pca_settings() const;
+
 #pragma endregion
 
 #pragma region Time Tr.Freq
