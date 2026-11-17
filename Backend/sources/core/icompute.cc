@@ -153,13 +153,6 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         update_pca(size);
         time_transformation_env_.stft_plan.reset(); // Clear memory used by the FFT plan
         break;
-    case TimeTransformation::LOCAL_PCA:
-        // Tile scratch belongs to LocalPca; no full-image covariance or FFT plan.
-        update_pca(0);
-        time_transformation_env_.stft_plan.reset();
-        if (time_transformation_env_.gpu_time_transformation_queue)
-            time_transformation_env_.gpu_time_transformation_queue->clear();
-        break;
     case TimeTransformation::NONE:
         update_pca(0);
         time_transformation_env_.stft_plan.reset();

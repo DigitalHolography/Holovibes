@@ -58,7 +58,6 @@ ApiCode ComputeApi::start() const
     stop();
 
     api_->transform.normalize_lsci_settings();
-    api_->transform.normalize_local_pca_settings();
 
     // Create the pipe
     Holovibes::instance().start_compute();

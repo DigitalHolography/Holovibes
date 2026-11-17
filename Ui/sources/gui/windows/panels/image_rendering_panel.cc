@@ -42,16 +42,12 @@ void ImageRenderingPanel::init()
             &QSpinBox::valueChanged,
             this,
             [this](int side) { ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(side)); });
-    for (auto* spin : {ui_->PcaWidthXSpinBox, ui_->PcaWidthYSpinBox,
-                       ui_->PcaStrideXSpinBox, ui_->PcaStrideYSpinBox})
-        connect(spin, &QSpinBox::editingFinished, this, &ImageRenderingPanel::set_local_pca_parameters);
 }
 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
     const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
-    const bool is_local_pca = api_.transform.get_time_transformation() == TimeTransformation::LOCAL_PCA;
     const bool is_recording = api_.record.is_recording();
     const bool is_data_not_moments = true;
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
@@ -69,10 +65,9 @@ void ImageRenderingPanel::on_notify()
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api_.compute.get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled(is_data_not_moments && !(is_lsci && is_recording));
 
-    ui_->TimeStrideSpinBox->setEnabled(!is_raw && !is_local_pca && !(is_lsci && is_recording));
-    ui_->TimeStrideLabel->setEnabled(!is_raw && !is_local_pca && !(is_lsci && is_recording));
-    ui_->TimeStrideSpinBox->setToolTip(is_local_pca ? "Local PCA uses consecutive temporal blocks; stride equals the time window"
-                                       : is_lsci ? "Frames between contrast maps; below the time window overlaps, above leaves gaps"
+    ui_->TimeStrideSpinBox->setEnabled(!is_raw && !(is_lsci && is_recording));
+    ui_->TimeStrideLabel->setEnabled(!is_raw && !(is_lsci && is_recording));
+    ui_->TimeStrideSpinBox->setToolTip(is_lsci ? "Frames between contrast maps; below the time window overlaps, above leaves gaps"
                                                : "Number of input frames between processed batches");
 
     ui_->TimeStrideSpinBox->setSingleStep(api_.transform.get_batch_size());
@@ -84,10 +79,10 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(
-        (is_lsci || is_local_pca) ? std::min(api_.input.get_input_buffer_size(), api_.transform.get_time_transformation_size())
+        is_lsci ? std::min(api_.input.get_input_buffer_size(), api_.transform.get_time_transformation_size())
                 : api_.input.get_input_buffer_size());
     ui_->BatchSizeSpinBox->setValue(api_.transform.get_batch_size());
-    ui_->BatchSizeSpinBox->setToolTip((is_lsci || is_local_pca) ? "Frames transferred together; must divide the time window"
+    ui_->BatchSizeSpinBox->setToolTip(is_lsci ? "Frames transferred together; must divide the time window"
                                               : "Number of frames processed in each batch");
 
     ui_->SpaceTransformationLabel->setEnabled(spatial_controls_enabled);
@@ -104,10 +99,10 @@ void ImageRenderingPanel::on_notify()
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
     ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api_.view.get_cuts_view_enabled() &&
-                                                   !((is_lsci || is_local_pca) && is_recording));
+                                                   !(is_lsci && is_recording));
     ui_->timeTransformationSizeSpinBox->setValue(api_.transform.get_time_transformation_size());
     ui_->timeTransformationSizeSpinBox->setToolTip(
-        is_local_pca ? "Consecutive frames per Local PCA block; blocks have no temporal overlap" : is_lsci
+        is_lsci
             ? "Consecutive input frames used to calculate each contrast map"
             : "The size of the time transformation");
     ui_->LsciSpatialWindowLabel->setVisible(is_lsci);
@@ -117,21 +112,6 @@ void ImageRenderingPanel::on_notify()
     const auto spatial_window = api_.transform.get_lsci_spatial_window();
     ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(spatial_window));
     ui_->LsciSpatialWindowSpinBox->setValue(spatial_window);
-
-    // These four controls belong only to Local PCA. Reducing a block side also
-    // reduces its stride, so changing the geometry cannot introduce coverage gaps.
-    ui_->LocalPcaGroupBox->setVisible(is_local_pca);
-    ui_->LocalPcaGroupBox->setEnabled(not_raw_not_moments && !is_recording);
-    const QSignalBlocker pca_width_x_signals(ui_->PcaWidthXSpinBox);
-    const QSignalBlocker pca_width_y_signals(ui_->PcaWidthYSpinBox);
-    const QSignalBlocker pca_stride_x_signals(ui_->PcaStrideXSpinBox);
-    const QSignalBlocker pca_stride_y_signals(ui_->PcaStrideYSpinBox);
-    ui_->PcaWidthXSpinBox->setValue(api_.transform.get_pca_width_x());
-    ui_->PcaWidthYSpinBox->setValue(api_.transform.get_pca_width_y());
-    ui_->PcaStrideXSpinBox->setMaximum(api_.transform.get_pca_width_x());
-    ui_->PcaStrideYSpinBox->setMaximum(api_.transform.get_pca_width_y());
-    ui_->PcaStrideXSpinBox->setValue(api_.transform.get_pca_stride_x());
-    ui_->PcaStrideYSpinBox->setValue(api_.transform.get_pca_stride_y());
 
     // Z (focus)
     z_up_shortcut_->setEnabled(reconstruction_controls_enabled);
@@ -306,16 +286,6 @@ void ImageRenderingPanel::set_time_transformation_size()
 void ImageRenderingPanel::set_lsci_spatial_window()
 {
     api_.transform.set_lsci_spatial_window(ui_->LsciSpatialWindowSpinBox->value());
-    parent_->notify();
-}
-
-void ImageRenderingPanel::set_local_pca_parameters()
-{
-    const uint width_x = ui_->PcaWidthXSpinBox->value();
-    const uint width_y = ui_->PcaWidthYSpinBox->value();
-    api_.transform.set_local_pca_parameters(width_x, width_y,
-                                            std::min<uint>(width_x, ui_->PcaStrideXSpinBox->value()),
-                                            std::min<uint>(width_y, ui_->PcaStrideYSpinBox->value()));
     parent_->notify();
 }
 

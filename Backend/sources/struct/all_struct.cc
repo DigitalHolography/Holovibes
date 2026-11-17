@@ -95,10 +95,6 @@ void Rendering::Update()
     this->time_transformation = GET_SETTING(TimeTransformation);
     this->time_transformation_size = GET_SETTING(TimeTransformationSize);
     this->lsci_spatial_window = GET_SETTING(LsciSpatialWindow);
-    this->pca_width_x = GET_SETTING(PcaWidthX);
-    this->pca_width_y = GET_SETTING(PcaWidthY);
-    this->pca_stride_x = GET_SETTING(PcaStrideX);
-    this->pca_stride_y = GET_SETTING(PcaStrideY);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
@@ -203,7 +199,6 @@ void ComputeSettings::Load()
     this->color_composite_image.Load();
     this->view.Load();
     API.transform.normalize_lsci_settings();
-    API.transform.normalize_local_pca_settings();
 }
 
 void Windows::Load()
@@ -273,10 +268,6 @@ void Rendering::Load()
     UPDATE_SETTING(TimeTransformation, this->time_transformation);
     UPDATE_SETTING(TimeTransformationSize, this->time_transformation_size);
     UPDATE_SETTING(LsciSpatialWindow, this->lsci_spatial_window);
-    UPDATE_SETTING(PcaWidthX, this->pca_width_x);
-    UPDATE_SETTING(PcaWidthY, this->pca_width_y);
-    UPDATE_SETTING(PcaStrideX, this->pca_stride_x);
-    UPDATE_SETTING(PcaStrideY, this->pca_stride_y);
     API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);

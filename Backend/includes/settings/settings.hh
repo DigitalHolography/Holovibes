@@ -171,11 +171,6 @@ DECLARE_SETTING(BatchSize, uint);
 DECLARE_SETTING(TimeStride, uint);
 DECLARE_SETTING(TimeTransformationSize, uint);
 DECLARE_SETTING(LsciSpatialWindow, uint);
-// Spatial tile geometry, used exclusively by the Local PCA time transform.
-DECLARE_SETTING(PcaWidthX, uint);
-DECLARE_SETTING(PcaWidthY, uint);
-DECLARE_SETTING(PcaStrideX, uint);
-DECLARE_SETTING(PcaStrideY, uint);
 DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);

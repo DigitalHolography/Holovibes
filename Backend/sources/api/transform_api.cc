@@ -29,14 +29,12 @@ uint lsci_batch_size(uint requested, uint window, uint capacity)
 
 ApiCode TransformApi::set_batch_size(uint batch_size) const
 {
-    const bool local_pca = get_time_transformation() == TimeTransformation::LOCAL_PCA;
-    if (get_time_transformation() == TimeTransformation::LSCI || local_pca)
+    if (get_time_transformation() == TimeTransformation::LSCI)
     {
         const uint requested = batch_size;
         batch_size = lsci_batch_size(requested, get_time_transformation_size(), api_->input.get_input_buffer_size());
         if (batch_size != requested)
-            LOG_WARN("{} batch size must divide the temporal window; using {}",
-                     local_pca ? "Local PCA" : "LSCI", batch_size);
+            LOG_WARN("LSCI batch size must divide the temporal window; using {}", batch_size);
         if (api_->record.is_recording() && batch_size != get_batch_size())
             return ApiCode::FAILURE;
     }
@@ -70,11 +68,6 @@ ApiCode TransformApi::set_time_stride(uint time_stride) const
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
         return ApiCode::WRONG_COMP_MODE;
-
-    // Local PCA has spatial overlap only. Temporal blocks always advance by the
-    // whole window; the pipe consumes all batches instead of decimating input.
-    if (get_time_transformation() == TimeTransformation::LOCAL_PCA)
-        time_stride = get_time_transformation_size();
 
     uint batch_size = GET_SETTING(BatchSize);
 
@@ -159,8 +152,7 @@ ApiCode TransformApi::set_z_distance(float value) const
 ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size) const
 {
     const bool lsci = get_time_transformation() == TimeTransformation::LSCI;
-    const bool local_pca = get_time_transformation() == TimeTransformation::LOCAL_PCA;
-    if (lsci || local_pca)
+    if (lsci)
     {
         time_transformation_size =
             std::clamp(time_transformation_size, 1u, static_cast<uint>(std::numeric_limits<unsigned short>::max()));
@@ -178,7 +170,7 @@ ApiCode TransformApi::set_time_transformation_size(uint time_transformation_size
 
     UPDATE_SETTING(TimeTransformationSize, time_transformation_size);
 
-    if (lsci || local_pca)
+    if (lsci)
     {
         set_batch_size(get_batch_size());
         set_time_stride(get_time_stride());
@@ -202,9 +194,7 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
 
     const bool lsci_transition =
         value == TimeTransformation::LSCI || get_time_transformation() == TimeTransformation::LSCI;
-    const bool local_pca_transition =
-        value == TimeTransformation::LOCAL_PCA || get_time_transformation() == TimeTransformation::LOCAL_PCA;
-    if ((lsci_transition || local_pca_transition) && api_->record.is_recording())
+    if (lsci_transition && api_->record.is_recording())
         return ApiCode::FAILURE;
     if (value == TimeTransformation::LSCI &&
         (get_time_transformation_size() == 0 || get_batch_size() == 0 ||
@@ -233,8 +223,6 @@ ApiCode TransformApi::set_time_transformation(const TimeTransformation value) co
     {
         normalize_lsci_settings();
     }
-    if (value == TimeTransformation::LOCAL_PCA)
-        normalize_local_pca_settings();
     api_->composite.set_z_fft_shift(value == TimeTransformation::STFT);
 
     if (restart)
@@ -261,50 +249,6 @@ ApiCode TransformApi::set_lsci_spatial_window(uint value) const
     if (!api_->compute.get_is_computation_stopped())
         api_->compute.get_compute_pipe()->request(ICS::UpdateLsciSpatialWindow);
     return ApiCode::OK;
-}
-
-ApiCode TransformApi::set_local_pca_parameters(uint width_x, uint width_y, uint stride_x, uint stride_y) const
-{
-    // Stride <= side guarantees coverage even for a nondivisible image extent.
-    if (!width_x || !width_y || width_x > 65535 || width_y > 65535 ||
-        static_cast<uint64_t>(width_x) * width_y > std::numeric_limits<int>::max() ||
-        !stride_x || !stride_y || stride_x > width_x || stride_y > width_y)
-        return ApiCode::INVALID_VALUE;
-    if (width_x == get_pca_width_x() && width_y == get_pca_width_y() &&
-        stride_x == get_pca_stride_x() && stride_y == get_pca_stride_y())
-        return ApiCode::NO_CHANGE;
-    if (get_time_transformation() == TimeTransformation::LOCAL_PCA && api_->record.is_recording())
-        return ApiCode::FAILURE;
-
-    UPDATE_SETTING(PcaWidthX, width_x);
-    UPDATE_SETTING(PcaWidthY, width_y);
-    UPDATE_SETTING(PcaStrideX, stride_x);
-    UPDATE_SETTING(PcaStrideY, stride_y);
-    if (!api_->compute.get_is_computation_stopped())
-        api_->compute.get_compute_pipe()->request(ICS::UpdateLocalPca);
-    return ApiCode::OK;
-}
-
-void TransformApi::normalize_local_pca_settings() const
-{
-    if (get_time_transformation() != TimeTransformation::LOCAL_PCA)
-        return;
-
-    // Configuration files bypass individual setters, so normalize before creating
-    // GPU resources too. Preserve all shared spatial/display settings.
-    const uint width_x = std::clamp(get_pca_width_x(), 1u, 65535u);
-    const uint width_y = std::clamp(get_pca_width_y(), 1u,
-                                   std::min(65535u, static_cast<uint>(std::numeric_limits<int>::max()) / width_x));
-    UPDATE_SETTING(PcaWidthX, width_x);
-    UPDATE_SETTING(PcaWidthY, width_y);
-    UPDATE_SETTING(PcaStrideX, std::clamp(get_pca_stride_x(), 1u, width_x));
-    UPDATE_SETTING(PcaStrideY, std::clamp(get_pca_stride_y(), 1u, width_y));
-    const uint window = std::clamp(get_time_transformation_size(), 1u, 65535u);
-    UPDATE_SETTING(TimeTransformationSize, window);
-    UPDATE_SETTING(TimeStride, window);
-    set_batch_size(get_batch_size());
-    check_p_limits();
-    check_q_limits();
 }
 
 void TransformApi::normalize_lsci_settings() const
