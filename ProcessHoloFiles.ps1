@@ -171,11 +171,47 @@ else {
     Write-Host " 4. OCT_FLOAT" -ForegroundColor Yellow
     Write-Host " 5. LSCI AVI (registration on, all contrast maps)" -ForegroundColor Yellow
     Write-Host " 6. Offline PCA-LSCI AVI (paper method, registration on)" -ForegroundColor Yellow
+    Write-Host " 7. Local_PCA" -ForegroundColor Yellow
     $modeChoice = Read-Host "Enter choice (default 1)"
-    if ($modeChoice -notmatch '^[1-6]$') { $modeChoice = 1 }
+    if ($modeChoice -notmatch '^[1-7]$') { $modeChoice = 1 }
 
     # Config files
-    if ($modeChoice -eq 6) {
+    if ($modeChoice -eq 7) {
+        function Read-LocalPcaNumber([string]$name, $defaultValue, [double]$minimum, [double]$maximum, [switch]$Fractional) {
+            while ($true) {
+                $enteredValue = Read-Host "$name (default $defaultValue)"
+                if ([string]::IsNullOrWhiteSpace($enteredValue)) { return $defaultValue }
+                $number = 0.0
+                if ([double]::TryParse($enteredValue, [Globalization.NumberStyles]::Float,
+                    [Globalization.CultureInfo]::InvariantCulture, [ref]$number) -and
+                    $number -ge $minimum -and $number -le $maximum -and
+                    ($Fractional -or $number -eq [Math]::Truncate($number))) {
+                    if ($Fractional) { return $number }
+                    return [int]$number
+                }
+                $kind = if ($Fractional) { 'a number' } else { 'an integer' }
+                Write-Host "Enter $kind between $minimum and $maximum." -ForegroundColor Yellow
+            }
+        }
+
+        $localPcaConfig = Get-Content -LiteralPath (Get-PresetPath 'settingsDoppler37kHz.json') -Raw | ConvertFrom-Json
+        $localPcaRendering = $localPcaConfig.image_rendering
+        $localPcaParameters = @{}
+        $localPcaParameters.pca_width_x = Read-LocalPcaNumber 'pca_width_x' 32 1 65535
+        $localPcaParameters.pca_width_y = Read-LocalPcaNumber 'pca_width_y' 32 1 ([Math]::Min(65535, [Math]::Floor([int]::MaxValue / $localPcaParameters.pca_width_x)))
+        $localPcaParameters.pca_stride_x = Read-LocalPcaNumber 'pca_stride_x' ([Math]::Min(16, $localPcaParameters.pca_width_x)) 1 $localPcaParameters.pca_width_x
+        $localPcaParameters.pca_stride_y = Read-LocalPcaNumber 'pca_stride_y' ([Math]::Min(16, $localPcaParameters.pca_width_y)) 1 $localPcaParameters.pca_width_y
+        $localPcaRendering.time_transformation_size = Read-LocalPcaNumber 'time_transform_size' 64 1 65535
+        $localPcaParameters.pca_rank_factor = Read-LocalPcaNumber 'PCA rank factor' 1 0 ([single]::MaxValue) -Fractional
+        $localPcaRendering | Add-Member -NotePropertyMembers $localPcaParameters
+        $localPcaRendering.time_transformation = 'LOCAL_PCA'
+        $localPcaRendering.time_transformation_stride = $localPcaRendering.time_transformation_size
+        $localPcaConfig.view.registration.registration_enabled = (Read-Host 'Enable registration? (Y/n)') -notmatch '^(n|no)$'
+        $localPcaContrastOnce = (Read-Host 'Enable contrast once? (Y/n)') -notmatch '^(n|no)$'
+        $configFileNormal = $null
+        $configFileMoments = $null
+    }
+    elseif ($modeChoice -eq 6) {
         $configFileNormal = $null
         $configFileMoments = $null
 
@@ -280,6 +316,10 @@ function Execute-Holovibes {
         4 { $commandArguments += " --oct_cube_float_record" }
         5 { $commandArguments += " --frame_skip 0 --noskip_acc --mp4_fps 24" }
         6 { $commandArguments += " --lsci_pca --lsci_pca_frames $PcaFrames --lsci_pca_stride $PcaStride --lsci_pca_window $PcaWindow --lsci_pca_image_acc $PcaImageAcc --mp4_fps $pcaPlaybackFps" }
+        7 {
+            $commandArguments += " --frame_skip $skip"
+            if ($localPcaContrastOnce) { $commandArguments += " --contrast_once" }
+        }
     }
 
     if ($config) { $commandArguments += " -c `"$config`"" }
@@ -306,6 +346,18 @@ foreach ($file in $holoFiles) {
         $relativeDir = $file.DirectoryName.Substring($holoFolderPath.TrimEnd('\', '/').Length).TrimStart('\', '/')
         $outDir = Join-Path $OutputFolder $relativeDir
         New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+    }
+
+    if ($modeChoice -eq 7) {
+        $out = Join-Path $outDir "${base}_local_pca${outputExtension}"
+        $localPcaConfigPath = [IO.Path]::GetTempFileName()
+        try {
+            [IO.File]::WriteAllText($localPcaConfigPath, ($localPcaConfig | ConvertTo-Json -Depth 20))
+            Execute-Holovibes $in $out $frameSkip $input_fps $localPcaConfigPath $modeChoice
+        } finally {
+            Remove-Item -LiteralPath $localPcaConfigPath -Force
+        }
+        continue
     }
 
     switch ($modeChoice) {
