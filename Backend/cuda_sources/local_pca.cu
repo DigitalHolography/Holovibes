@@ -5,6 +5,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include <cublas_v2.h>
 #include <cusolverDn.h>
 
@@ -20,10 +21,11 @@ void check(cublasStatus_t status)
     if (status != CUBLAS_STATUS_SUCCESS)
         throw std::runtime_error("Local PCA cuBLAS error: " + std::to_string(static_cast<int>(status)));
 }
-void check(cusolverStatus_t status)
+void check(cusolverStatus_t status, const char* operation = "operation")
 {
     if (status != CUSOLVER_STATUS_SUCCESS)
-        throw std::runtime_error("Local PCA cuSOLVER error: " + std::to_string(static_cast<int>(status)));
+        throw std::runtime_error(std::string("Local PCA cuSOLVER ") + operation +
+                                 " error: " + std::to_string(static_cast<int>(status)));
 }
 
 template <typename T>
@@ -31,7 +33,11 @@ struct DeviceBuffer
 {
     T* ptr = nullptr;
     ~DeviceBuffer() { cudaFree(ptr); }
-    void allocate(size_t count) { check(cudaMalloc(reinterpret_cast<void**>(&ptr), count * sizeof(T))); }
+    void allocate(size_t count)
+    {
+        if (count)
+            check(cudaMalloc(reinterpret_cast<void**>(&ptr), count * sizeof(T)));
+    }
 };
 
 struct BlasHandle
@@ -47,9 +53,16 @@ struct SolverHandle
     ~SolverHandle() { cusolverDnDestroy(value); }
 };
 
+struct SolverParams
+{
+    cusolverDnParams_t value = nullptr;
+    SolverParams() { check(cusolverDnCreateParams(&value)); }
+    ~SolverParams() { cusolverDnDestroyParams(value); }
+};
+
 unsigned grid_size(size_t count) { return static_cast<unsigned>(std::min<size_t>((count + 255) / 256, 65535)); }
 
-// Gather one width_x * width_y * frames tile. Modulo indexing implements periodic
+// Gather a contiguous batch of spatial tiles. Modulo indexing implements periodic
 // spatial borders, including corners and tiles larger than the image itself.
 __global__ void gather_tile(const cuComplex* input,
                             cuComplex* tile,
@@ -58,17 +71,24 @@ __global__ void gather_tile(const cuComplex* input,
                             unsigned height,
                             unsigned width_x,
                             size_t tile_pixels,
-                            unsigned origin_x,
-                            unsigned origin_y)
+                            size_t tile_count,
+                            size_t first_tile,
+                            size_t tiles_x,
+                            unsigned stride_x,
+                            unsigned stride_y)
 {
     const size_t pixels = static_cast<size_t>(width) * height;
     for (size_t i = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < count;
          i += static_cast<size_t>(blockDim.x) * gridDim.x)
     {
-        const size_t local = i % tile_pixels;
+        const size_t tile_id = first_tile + i / tile_count;
+        const size_t sample = i % tile_count;
+        const size_t local = sample % tile_pixels;
+        const size_t origin_x = (tile_id % tiles_x) * stride_x;
+        const size_t origin_y = (tile_id / tiles_x) * stride_y;
         const unsigned x = (origin_x + local % width_x) % width;
         const unsigned y = (origin_y + local / width_x) % height;
-        tile[i] = input[(i / tile_pixels) * pixels + static_cast<size_t>(y) * width + x];
+        tile[i] = input[(sample / tile_pixels) * pixels + static_cast<size_t>(y) * width + x];
     }
 }
 
@@ -85,6 +105,10 @@ __global__ void remove_effective_rank(cuComplex* vectors,
                                       int* error,
                                       float rank_factor)
 {
+    // One CUDA block per independent eigensystem.
+    vectors += static_cast<size_t>(blockIdx.x) * frames * frames;
+    eigenvalues += static_cast<size_t>(blockIdx.x) * frames;
+    solver_info += blockIdx.x;
     __shared__ unsigned removed;
     if (threadIdx.x == 0)
     {
@@ -120,33 +144,75 @@ __global__ void remove_effective_rank(cuComplex* vectors,
         vectors[i] = make_cuComplex(0.f, 0.f);
 }
 
-// Scatter residuals to their original pixel/time coordinates. Count every spatial
-// contribution once (at t=0). The count can vary at wrapped borders when an image
-// dimension is not divisible by the stride, so a fixed overlap factor is incorrect.
+// The number of spatial contributions depends only on geometry. Count whole
+// wraps, then count lattice origins in the remaining periodic interval.
+__device__ unsigned axis_coverage(size_t position, size_t length, size_t side, size_t stride)
+{
+    const size_t origins = (length + stride - 1) / stride;
+    size_t contributions = (side / length) * origins;
+    const size_t remainder = side % length;
+    if (remainder)
+    {
+        const size_t right = position / stride + 1;
+        if (position + 1 >= remainder)
+            contributions += right - (position + 1 - remainder + stride - 1) / stride;
+        else
+            contributions += right + origins - (length + position + 1 - remainder + stride - 1) / stride;
+    }
+    return static_cast<unsigned>(contributions);
+}
+
+__global__ void initialize_coverage(unsigned* coverage,
+                                    size_t pixels,
+                                    unsigned width,
+                                    unsigned height,
+                                    unsigned width_x,
+                                    unsigned width_y,
+                                    unsigned stride_x,
+                                    unsigned stride_y)
+{
+    for (size_t i = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < pixels;
+         i += static_cast<size_t>(blockDim.x) * gridDim.x)
+        coverage[i] =
+            axis_coverage(i % width, width, width_x, stride_x) * axis_coverage(i / width, height, width_y, stride_y);
+}
+
+// Exact partitions have one writer per output sample. Overlapping/wrapped tiles
+// can race both within and across tiles and require atomic accumulation.
+template <bool direct>
 __global__ void accumulate_tile(const cuComplex* tile,
                                 cuComplex* output,
-                                unsigned* coverage,
                                 size_t count,
                                 unsigned width,
                                 unsigned height,
                                 unsigned width_x,
                                 size_t tile_pixels,
-                                unsigned origin_x,
-                                unsigned origin_y)
+                                size_t tile_count,
+                                size_t first_tile,
+                                size_t tiles_x,
+                                unsigned stride_x,
+                                unsigned stride_y)
 {
     const size_t pixels = static_cast<size_t>(width) * height;
     for (size_t i = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < count;
          i += static_cast<size_t>(blockDim.x) * gridDim.x)
     {
-        const size_t local = i % tile_pixels;
+        const size_t tile_id = first_tile + i / tile_count;
+        const size_t sample = i % tile_count;
+        const size_t local = sample % tile_pixels;
+        const size_t origin_x = (tile_id % tiles_x) * stride_x;
+        const size_t origin_y = (tile_id / tiles_x) * stride_y;
         const unsigned x = (origin_x + local % width_x) % width;
         const unsigned y = (origin_y + local / width_x) % height;
         const size_t pixel = static_cast<size_t>(y) * width + x;
-        const size_t target = (i / tile_pixels) * pixels + pixel;
-        atomicAdd(&output[target].x, tile[i].x);
-        atomicAdd(&output[target].y, tile[i].y);
-        if (i < tile_pixels)
-            atomicAdd(coverage + pixel, 1u);
+        const size_t target = (sample / tile_pixels) * pixels + pixel;
+        if constexpr (direct)
+            output[target] = tile[i];
+        else
+        {
+            atomicAdd(&output[target].x, tile[i].x);
+            atomicAdd(&output[target].y, tile[i].y);
+        }
     }
 }
 
@@ -166,15 +232,21 @@ namespace holovibes::compute
 struct LocalPca::Impl
 {
     unsigned width, height, frames, width_x, width_y, stride_x, stride_y;
-    size_t pixels, tile_pixels;
+    size_t pixels, tile_pixels, tiles_x, tiles;
+    unsigned batch_capacity;
+    bool direct_output;
     cudaStream_t stream;
     BlasHandle blas;
     SolverHandle solver;
-    DeviceBuffer<cuComplex> tile, scores, covariance, workspace;
+    SolverParams solver_params;
+    DeviceBuffer<cuComplex> tile, scores, covariance;
+    DeviceBuffer<unsigned char> workspace;
+    std::vector<unsigned char> host_workspace;
     DeviceBuffer<float> eigenvalues;
     DeviceBuffer<unsigned> coverage;
     DeviceBuffer<int> solver_info, error;
-    int workspace_size = 0;
+    int legacy_workspace_size = 0;
+    size_t workspace_bytes = 0, host_workspace_bytes = 0;
 
     Impl(unsigned w, unsigned h, unsigned n, unsigned wx, unsigned wy, unsigned sx, unsigned sy, cudaStream_t s)
         : width(w)
@@ -197,24 +269,85 @@ struct LocalPca::Impl
         check(cublasSetMathMode(blas.value, CUBLAS_PEDANTIC_MATH));
         check(cusolverDnSetStream(solver.value, stream));
 
-        // Reuse one tile's scratch storage for the whole image. Spatial overlap
-        // never requires duplicating the complete input cube for every tile.
-        tile.allocate(tile_pixels * frames);
-        scores.allocate(tile_pixels * frames);
-        covariance.allocate(static_cast<size_t>(frames) * frames);
-        eigenvalues.allocate(frames);
-        coverage.allocate(pixels);
-        solver_info.allocate(1);
+        tiles_x = (static_cast<size_t>(width) + stride_x - 1) / stride_x;
+        tiles = tiles_x * ((static_cast<size_t>(height) + stride_y - 1) / stride_y);
+        direct_output = stride_x == width_x && stride_y == width_y && width % width_x == 0 && height % width_y == 0;
+        const size_t matrix_size = static_cast<size_t>(frames) * frames;
+        // Bound tile storage independently of image size and spatial overlap.
+        // One unusually large tile still uses the original single-tile solver.
+        constexpr size_t scratch_budget = 64 * 1024 * 1024;
+        const size_t bytes_per_tile =
+            (2 * tile_pixels * frames + matrix_size) * sizeof(cuComplex) + frames * sizeof(float) + sizeof(int);
+        const size_t memory_limit = std::max<size_t>(1, scratch_budget / bytes_per_tile);
+        // XsyevBatched requires n * lda * batchSize <= INT32_MAX.
+        const size_t solver_limit = std::max<size_t>(1, std::numeric_limits<int>::max() / matrix_size);
+        batch_capacity = static_cast<unsigned>(std::min({tiles, size_t{64}, memory_limit, solver_limit}));
+        tile.allocate(tile_pixels * frames * batch_capacity);
+        scores.allocate(tile_pixels * frames * batch_capacity);
+        covariance.allocate(matrix_size * batch_capacity);
+        eigenvalues.allocate(static_cast<size_t>(frames) * batch_capacity);
+        solver_info.allocate(batch_capacity);
         error.allocate(1);
-        check(cusolverDnCheevd_bufferSize(solver.value,
-                                          CUSOLVER_EIG_MODE_VECTOR,
-                                          CUBLAS_FILL_MODE_LOWER,
-                                          frames,
-                                          covariance.ptr,
-                                          frames,
-                                          eigenvalues.ptr,
-                                          &workspace_size));
-        workspace.allocate(workspace_size);
+        if (batch_capacity == 1)
+        {
+            check(cusolverDnCheevd_bufferSize(solver.value,
+                                              CUSOLVER_EIG_MODE_VECTOR,
+                                              CUBLAS_FILL_MODE_LOWER,
+                                              frames,
+                                              covariance.ptr,
+                                              frames,
+                                              eigenvalues.ptr,
+                                              &legacy_workspace_size));
+            workspace_bytes = static_cast<size_t>(legacy_workspace_size) * sizeof(cuComplex);
+        }
+        else
+        {
+            // CUDA 13.0 rejects algorithm selection for this routine (NVIDIA
+            // issue 5539844, fixed in 13.1). Its default remains usable.
+            const auto options_status =
+                cusolverDnSetAdvOptions(solver_params.value, CUSOLVERDN_SYEVBATCHED, CUSOLVER_ALG_1);
+            if (options_status != CUSOLVER_STATUS_INVALID_VALUE && options_status != CUSOLVER_STATUS_NOT_SUPPORTED)
+                check(options_status, "batched options");
+            const auto query_workspace = [&](size_t batch)
+            {
+                size_t device_bytes = 0, host_bytes = 0;
+                check(cusolverDnXsyevBatched_bufferSize(solver.value,
+                                                        solver_params.value,
+                                                        CUSOLVER_EIG_MODE_VECTOR,
+                                                        CUBLAS_FILL_MODE_LOWER,
+                                                        frames,
+                                                        CUDA_C_32F,
+                                                        covariance.ptr,
+                                                        frames,
+                                                        CUDA_R_32F,
+                                                        eigenvalues.ptr,
+                                                        CUDA_C_32F,
+                                                        &device_bytes,
+                                                        &host_bytes,
+                                                        batch),
+                      "batched workspace query");
+                workspace_bytes = std::max(workspace_bytes, device_bytes);
+                host_workspace_bytes = std::max(host_workspace_bytes, host_bytes);
+            };
+            query_workspace(batch_capacity);
+            if (tiles % batch_capacity)
+                query_workspace(tiles % batch_capacity);
+        }
+        workspace.allocate(workspace_bytes);
+        host_workspace.resize(host_workspace_bytes);
+        if (!direct_output)
+        {
+            coverage.allocate(pixels);
+            initialize_coverage<<<grid_size(pixels), 256, 0, stream>>>(coverage.ptr,
+                                                                       pixels,
+                                                                       width,
+                                                                       height,
+                                                                       width_x,
+                                                                       width_y,
+                                                                       stride_x,
+                                                                       stride_y);
+            check(cudaGetLastError());
+        }
     }
 };
 
@@ -249,26 +382,39 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
         return;
     }
     const int m = static_cast<int>(a.tile_pixels), n = static_cast<int>(a.frames);
-    check(cudaMemsetAsync(output, 0, count * sizeof(cuComplex), a.stream));
-    check(cudaMemsetAsync(a.coverage.ptr, 0, a.pixels * sizeof(unsigned), a.stream));
+    if (!a.direct_output)
+        check(cudaMemsetAsync(output, 0, count * sizeof(cuComplex), a.stream));
     check(cudaMemsetAsync(a.error.ptr, 0, sizeof(int), a.stream));
 
-    for (unsigned y = 0; y < a.height; y += a.stride_y)
-        for (unsigned x = 0; x < a.width; x += a.stride_x)
-        {
-            gather_tile<<<grid_size(tile_count), 256, 0, a.stream>>>(input,
-                                                                     a.tile.ptr,
-                                                                     tile_count,
-                                                                     a.width,
-                                                                     a.height,
-                                                                     a.width_x,
-                                                                     a.tile_pixels,
-                                                                     x,
-                                                                     y);
-            check(cudaGetLastError());
+    const long long tile_stride = static_cast<long long>(tile_count);
+    const long long covariance_stride = static_cast<long long>(n) * n;
+    for (size_t first_tile = 0; first_tile < a.tiles; first_tile += a.batch_capacity)
+    {
+        const int batch = static_cast<int>(std::min<size_t>(a.batch_capacity, a.tiles - first_tile));
+        const size_t batch_count = tile_count * batch;
+        gather_tile<<<grid_size(batch_count), 256, 0, a.stream>>>(input,
+                                                                  a.tile.ptr,
+                                                                  batch_count,
+                                                                  a.width,
+                                                                  a.height,
+                                                                  a.width_x,
+                                                                  a.tile_pixels,
+                                                                  tile_count,
+                                                                  first_tile,
+                                                                  a.tiles_x,
+                                                                  a.stride_x,
+                                                                  a.stride_y);
+        check(cudaGetLastError());
 
-            // Match classic PCA's uncentered complex covariance: C = H^H H.
-            // Scaling C by the tile area would not change normalized eigenvalues.
+        // Match classic PCA's uncentered complex covariance: C = H^H H.
+        // Scaling C by the tile area would not change normalized eigenvalues.
+        // Keep the original GEMM's accumulation order: batched covariance GEMM
+        // changes rounding enough to perturb weak, nearly degenerate modes when
+        // removing many components. The expensive eigensolves are still batched.
+        for (int tile_index = 0; tile_index < batch; ++tile_index)
+        {
+            const auto* samples = a.tile.ptr + static_cast<size_t>(tile_index) * tile_count;
+            auto* covariance = a.covariance.ptr + static_cast<size_t>(tile_index) * covariance_stride;
             check(cublasCgemm(a.blas.value,
                               CUBLAS_OP_C,
                               CUBLAS_OP_N,
@@ -276,13 +422,15 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
                               n,
                               m,
                               &one,
-                              a.tile.ptr,
+                              samples,
                               m,
-                              a.tile.ptr,
+                              samples,
                               m,
                               &zero,
-                              a.covariance.ptr,
+                              covariance,
                               n));
+        }
+        if (a.batch_capacity == 1)
             check(cusolverDnCheevd(a.solver.value,
                                    CUSOLVER_EIG_MODE_VECTOR,
                                    CUBLAS_FILL_MODE_LOWER,
@@ -290,63 +438,109 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
                                    a.covariance.ptr,
                                    n,
                                    a.eigenvalues.ptr,
-                                   a.workspace.ptr,
-                                   a.workspace_size,
+                                   reinterpret_cast<cuComplex*>(a.workspace.ptr),
+                                   a.legacy_workspace_size,
                                    a.solver_info.ptr));
-            remove_effective_rank<<<1, 256, 0, a.stream>>>(a.covariance.ptr,
+        else
+            check(cusolverDnXsyevBatched(a.solver.value,
+                                         a.solver_params.value,
+                                         CUSOLVER_EIG_MODE_VECTOR,
+                                         CUBLAS_FILL_MODE_LOWER,
+                                         n,
+                                         CUDA_C_32F,
+                                         a.covariance.ptr,
+                                         n,
+                                         CUDA_R_32F,
+                                         a.eigenvalues.ptr,
+                                         CUDA_C_32F,
+                                         a.workspace.ptr,
+                                         a.workspace_bytes,
+                                         a.host_workspace.empty() ? nullptr : a.host_workspace.data(),
+                                         a.host_workspace_bytes,
+                                         a.solver_info.ptr,
+                                         batch),
+                  "batched eigensolve");
+        remove_effective_rank<<<batch, 256, 0, a.stream>>>(a.covariance.ptr,
                                                            a.eigenvalues.ptr,
                                                            a.frames,
                                                            a.solver_info.ptr,
                                                            a.error.ptr,
                                                            rank_factor);
-            check(cudaGetLastError());
+        check(cudaGetLastError());
 
-            // Reconstruct the residual in the original temporal basis, H V_keep V_keep^H.
-            // Local eigenvectors differ between tiles; averaging PCA score columns
-            // directly would mix unrelated bases and arbitrary eigenvector phases.
-            check(cublasCgemm(a.blas.value,
-                              CUBLAS_OP_N,
-                              CUBLAS_OP_N,
-                              m,
-                              n,
-                              n,
-                              &one,
-                              a.tile.ptr,
-                              m,
-                              a.covariance.ptr,
-                              n,
-                              &zero,
-                              a.scores.ptr,
-                              m));
-            check(cublasCgemm(a.blas.value,
-                              CUBLAS_OP_N,
-                              CUBLAS_OP_C,
-                              m,
-                              n,
-                              n,
-                              &one,
-                              a.scores.ptr,
-                              m,
-                              a.covariance.ptr,
-                              n,
-                              &zero,
-                              a.tile.ptr,
-                              m));
-            accumulate_tile<<<grid_size(tile_count), 256, 0, a.stream>>>(a.tile.ptr,
-                                                                         output,
-                                                                         a.coverage.ptr,
-                                                                         tile_count,
-                                                                         a.width,
-                                                                         a.height,
-                                                                         a.width_x,
-                                                                         a.tile_pixels,
-                                                                         x,
-                                                                         y);
-            check(cudaGetLastError());
-        }
+        // Reconstruct the residual in the original temporal basis, H V_keep V_keep^H.
+        // Local eigenvectors differ between tiles; averaging PCA score columns
+        // directly would mix unrelated bases and arbitrary eigenvector phases.
+        check(cublasCgemmStridedBatched(a.blas.value,
+                                        CUBLAS_OP_N,
+                                        CUBLAS_OP_N,
+                                        m,
+                                        n,
+                                        n,
+                                        &one,
+                                        a.tile.ptr,
+                                        m,
+                                        tile_stride,
+                                        a.covariance.ptr,
+                                        n,
+                                        covariance_stride,
+                                        &zero,
+                                        a.scores.ptr,
+                                        m,
+                                        tile_stride,
+                                        batch));
+        check(cublasCgemmStridedBatched(a.blas.value,
+                                        CUBLAS_OP_N,
+                                        CUBLAS_OP_C,
+                                        m,
+                                        n,
+                                        n,
+                                        &one,
+                                        a.scores.ptr,
+                                        m,
+                                        tile_stride,
+                                        a.covariance.ptr,
+                                        n,
+                                        covariance_stride,
+                                        &zero,
+                                        a.tile.ptr,
+                                        m,
+                                        tile_stride,
+                                        batch));
+        if (a.direct_output)
+            accumulate_tile<true><<<grid_size(batch_count), 256, 0, a.stream>>>(a.tile.ptr,
+                                                                                output,
+                                                                                batch_count,
+                                                                                a.width,
+                                                                                a.height,
+                                                                                a.width_x,
+                                                                                a.tile_pixels,
+                                                                                tile_count,
+                                                                                first_tile,
+                                                                                a.tiles_x,
+                                                                                a.stride_x,
+                                                                                a.stride_y);
+        else
+            accumulate_tile<false><<<grid_size(batch_count), 256, 0, a.stream>>>(a.tile.ptr,
+                                                                                 output,
+                                                                                 batch_count,
+                                                                                 a.width,
+                                                                                 a.height,
+                                                                                 a.width_x,
+                                                                                 a.tile_pixels,
+                                                                                 tile_count,
+                                                                                 first_tile,
+                                                                                 a.tiles_x,
+                                                                                 a.stride_x,
+                                                                                 a.stride_y);
+        check(cudaGetLastError());
+    }
 
-    average_overlaps<<<grid_size(count), 256, 0, a.stream>>>(output, a.coverage.ptr, a.pixels, count);
-    check(cudaGetLastError());
+    if (!a.direct_output)
+    {
+        average_overlaps<<<grid_size(count), 256, 0, a.stream>>>(output, a.coverage.ptr, a.pixels, count);
+        check(cudaGetLastError());
+    }
     // Check all eigensolves once per temporal block, avoiding a host round trip
     // for every spatial tile. Failed decompositions must not produce a displayed map.
     int error = 0;

@@ -309,5 +309,173 @@ TEST_F(LocalPcaTest, AveragesFourOverlappingTilesFor32By32With16By16Strides) { c
 
 TEST_F(LocalPcaTest, NonoverlappingTilesHaveUnitCoverage) { compare(8, 6, 6, 4, 3, 4, 3, 1); }
 
+TEST_F(LocalPcaTest, OverlappingTilesAcrossBatchesAndTailMatchReference)
+{
+    // 9 * 8 = 72 tiles cross the bounded batch and leave a partial final batch.
+    compare(25, 15, 6, 4, 3, 3, 2);
+}
+
+TEST_F(LocalPcaTest, NonoverlappingTilesAcrossBatchesAndTailMatchReference)
+{
+    compare(36, 24, 6, 4, 3, 4, 3, 1);
+}
+
+TEST_F(LocalPcaTest, EqualStridesStillAverageWrappedBorderTiles)
+{
+    // Equal tile sizes and strides are not a partition when the image dimensions
+    // are indivisible. The final row and column wrap and overlap earlier tiles.
+    compare(35, 23, 6, 4, 3, 4, 3);
+}
+
+TEST_F(LocalPcaTest, ReusedProcessorReplacesOutputForDifferentInputBlocks)
+{
+    struct Geometry
+    {
+        unsigned width, height, stride_x, stride_y;
+    };
+    // Exercise both overlapping accumulation and the direct nonoverlapping path,
+    // including a tail batch, without reconstructing the processor between blocks.
+    for (const auto geometry : {Geometry{25, 15, 3, 2}, Geometry{36, 24, 4, 3}})
+    {
+        SCOPED_TRACE(geometry.stride_x);
+        const size_t count = static_cast<size_t>(geometry.width) * geometry.height * 6;
+        CudaUniquePtr<cuComplex> gpu_input(count), gpu_output(count);
+        LocalPca processor(geometry.width, geometry.height, 6, 4, 3, geometry.stride_x, geometry.stride_y, stream_);
+        for (unsigned block = 0; block < 3; ++block)
+        {
+            SCOPED_TRACE(block);
+            auto input = complex_stack(geometry.width, geometry.height, 6);
+            if (block == 1)
+                for (auto& value : input)
+                    value = make_cuComplex(-.5f * value.y, .5f * value.x);
+            else if (block == 2)
+                std::fill(input.begin(), input.end(), make_cuComplex(0.f, 0.f));
+            cudaXMemcpyAsync(gpu_input.get(), input.data(), count * sizeof(cuComplex), cudaMemcpyHostToDevice, stream_);
+            processor.process(gpu_input.get(), gpu_output.get());
+            std::vector<cuComplex> output(count);
+            cudaXMemcpyAsync(output.data(),
+                             gpu_output.get(),
+                             count * sizeof(cuComplex),
+                             cudaMemcpyDeviceToHost,
+                             stream_);
+            cudaXStreamSynchronize(stream_);
+            const auto expected = reference_local_pca(input,
+                                                      geometry.width,
+                                                      geometry.height,
+                                                      6,
+                                                      4,
+                                                      3,
+                                                      geometry.stride_x,
+                                                      geometry.stride_y);
+            for (size_t i = 0; i < count; ++i)
+            {
+                EXPECT_NEAR(output[i].x, expected.samples[i].real(), .003) << "sample " << i;
+                EXPECT_NEAR(output[i].y, expected.samples[i].imag(), .003) << "sample " << i;
+            }
+        }
+    }
+}
+
+TEST_F(LocalPcaTest, LongerTimeWindowsPreserveKnownWeakModeAcrossTiles)
+{
+    // Repeating orthogonal temporal patterns keeps the exact removal count at
+    // two for larger eigensystems, with a known nonzero residual in every tile.
+    const int basis[3][4] = {{1, 1, 1, 1}, {1, -1, 1, -1}, {1, 1, -1, -1}};
+    constexpr unsigned width = 8, height = 4, pixels = width * height;
+    for (const unsigned frames : {32u, 64u})
+    {
+        SCOPED_TRACE(frames);
+        std::vector<cuComplex> input(static_cast<size_t>(pixels) * frames);
+        for (unsigned t = 0; t < frames; ++t)
+            for (unsigned p = 0; p < pixels; ++p)
+            {
+                const unsigned local = (p / width % 2) * 2 + p % 2;
+                const float value =
+                    20.f + 3.f * basis[1][local] * basis[1][t % 4] + .5f * basis[2][local] * basis[2][t % 4];
+                input[t * pixels + p] = local % 2 ? make_cuComplex(0.f, value) : make_cuComplex(value, 0.f);
+            }
+        const auto output = run(input, width, height, frames, 2, 2, 2, 2);
+        for (unsigned t = 0; t < frames; ++t)
+            for (unsigned p = 0; p < pixels; ++p)
+            {
+                const unsigned local = (p / width % 2) * 2 + p % 2;
+                const double expected = .5 * basis[2][local] * basis[2][t % 4];
+                EXPECT_NEAR(output[t * pixels + p].x, local % 2 ? 0. : expected, .003);
+                EXPECT_NEAR(output[t * pixels + p].y, local % 2 ? expected : 0., .003);
+            }
+    }
+}
+
+TEST_F(LocalPcaTest, AggressiveFactorRetainsKnownSubsetOfDenseWeakSpectrum)
+{
+    // Walsh spatial/temporal modes have exact eigenvalues proportional to a^2.
+    // Distinct dyadic weak amplitudes avoid an ambiguous cutoff inside a repeated
+    // eigenvalue while factor 10 still removes only part of the dense spectrum.
+    constexpr unsigned frames = 32, width = 16, height = 8, pixels = width * height;
+    constexpr unsigned width_x = 8, width_y = 4;
+    std::vector<double> amplitudes(frames);
+    amplitudes[0] = 16.;
+    amplitudes[1] = 2.;
+    for (unsigned mode = 2; mode < frames; ++mode)
+        amplitudes[mode] = static_cast<double>(mode + 1) / 32.;
+    double total = 0., entropy = 0.;
+    for (const double amplitude : amplitudes)
+        total += amplitude * amplitude;
+    for (const double amplitude : amplitudes)
+    {
+        const double probability = amplitude * amplitude / total;
+        entropy -= probability * std::log(probability);
+    }
+    const unsigned removed = static_cast<unsigned>(std::ceil(10. * std::exp(entropy) - 1e-6));
+    ASSERT_EQ(removed, 15u);
+    const auto basis = [](unsigned mode, unsigned sample)
+    {
+        double sign = 1.;
+        for (unsigned bits = mode & sample; bits; bits &= bits - 1)
+            sign = -sign;
+        return sign;
+    };
+    const auto apply_phase = [](double value, unsigned phase)
+    {
+        const float sample = static_cast<float>(value);
+        switch (phase % 4)
+        {
+        case 0:
+            return make_cuComplex(sample, 0.f);
+        case 1:
+            return make_cuComplex(0.f, sample);
+        case 2:
+            return make_cuComplex(-sample, 0.f);
+        default:
+            return make_cuComplex(0.f, -sample);
+        }
+    };
+    std::vector<cuComplex> input(static_cast<size_t>(pixels) * frames);
+    std::vector<cuComplex> expected(input.size());
+    for (unsigned t = 0; t < frames; ++t)
+        for (unsigned p = 0; p < pixels; ++p)
+        {
+            const unsigned local = (p / width % width_y) * width_x + p % width_x;
+            const unsigned phase = local + (p % width) / width_x + 2 * (p / width / width_y);
+            double value = 0., residual = 0.;
+            for (unsigned mode = 0; mode < frames; ++mode)
+            {
+                const double contribution = amplitudes[mode] * basis(mode, local) * basis(mode, t);
+                value += contribution;
+                // Modes 0 and 1 are strongest; weak amplitudes increase with mode.
+                if (mode >= 2 && mode < 2 + frames - removed)
+                    residual += contribution;
+            }
+            input[t * pixels + p] = apply_phase(value, phase);
+            expected[t * pixels + p] = apply_phase(residual, phase);
+        }
+    const auto output = run(input, width, height, frames, width_x, width_y, width_x, width_y, 10.f);
+    for (size_t i = 0; i < output.size(); ++i)
+    {
+        EXPECT_NEAR(output[i].x, expected[i].x, .003) << "sample " << i;
+        EXPECT_NEAR(output[i].y, expected[i].y, .003) << "sample " << i;
+    }
+}
+
 TEST_F(LocalPcaTest, OversizedTilesWrapAndCountRepeatedSamples) { compare(3, 2, 6, 5, 4, 2, 3); }
 } // namespace
