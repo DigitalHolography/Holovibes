@@ -6,6 +6,10 @@
 
 #pragma once
 
+#include <cmath>
+#include <limits>
+#include <stdexcept>
+
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
@@ -81,6 +85,30 @@ struct Rendering
         SETTING_RELATED_FUNCTIONS();
     };
 
+    struct PcaEffectiveRank
+    {
+        bool enabled = false;
+        float factor = 1.f;
+
+        bool operator==(const PcaEffectiveRank& other) const
+        {
+            return enabled == other.enabled && factor == other.factor;
+        }
+
+        friend void to_json(json& j, const PcaEffectiveRank& value)
+        {
+            j = {{"enabled", value.enabled}, {"factor", value.factor}};
+        }
+
+        friend void from_json(const json& j, PcaEffectiveRank& value)
+        {
+            const double factor = j.value("factor", 1.0);
+            if (!std::isfinite(factor) || factor < 0.0 || factor > (std::numeric_limits<float>::max)())
+                throw std::invalid_argument("PCA effective rank factor must be a finite, nonnegative float");
+            value = {j.value("enabled", false), static_cast<float>(factor)};
+        }
+    };
+
     Computation image_mode = Computation::Raw;
     unsigned batch_size = 1;
     unsigned time_transformation_stride = 1;
@@ -96,6 +124,7 @@ struct Rendering
     unsigned pca_stride_x = 16;
     unsigned pca_stride_y = 16;
     float pca_rank_factor = 1.f;
+    PcaEffectiveRank pca_effective_rank;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
@@ -128,6 +157,8 @@ struct Rendering
             j["pca_stride_y"] = value.pca_stride_y;
             j["pca_rank_factor"] = value.pca_rank_factor;
         }
+        if (value.pca_effective_rank != PcaEffectiveRank{})
+            j["pca_effective_rank"] = value.pca_effective_rank;
     }
 
     friend void from_json(const json& j, Rendering& value)
@@ -148,6 +179,7 @@ struct Rendering
         value.pca_stride_y = j.value("pca_stride_y", 16u);
         // Settings written before the rank slider preserve the original cutoff.
         value.pca_rank_factor = j.value("pca_rank_factor", 1.f);
+        value.pca_effective_rank = j.value("pca_effective_rank", PcaEffectiveRank{});
         j.at("lambda").get_to(value.lambda);
         j.at("propagation_distance").get_to(value.propagation_distance);
         j.at("convolution").get_to(value.convolution);

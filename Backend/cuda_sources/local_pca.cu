@@ -1,4 +1,5 @@
 #include "local_pca.hh"
+#include "pca_effective_rank.cuh"
 
 #include <algorithm>
 #include <cmath>
@@ -90,58 +91,6 @@ __global__ void gather_tile(const cuComplex* input,
         const unsigned y = (origin_y + local / width_x) % height;
         tile[i] = input[(sample / tile_pixels) * pixels + static_cast<size_t>(y) * width + x];
     }
-}
-
-// cuSOLVER orders the eigenvalues increasingly. Compute the Shannon effective
-// rank of the Gram matrix, e = exp(-sum(p * log(p))), p = lambda/sum(lambda),
-// and choose r = min(frames, ceil(rank_factor * e)). Scale BEFORE rounding so
-// small factor adjustments can move the cutoff even when e is not an integer.
-// Then zero the LAST r eigenvectors to remove the strongest components. A zero
-// spectrum has rank zero; negative roundoff eigenvalues carry no probability.
-__global__ void remove_effective_rank(cuComplex* vectors,
-                                      const float* eigenvalues,
-                                      unsigned frames,
-                                      const int* solver_info,
-                                      int* error,
-                                      float rank_factor)
-{
-    // One CUDA block per independent eigensystem.
-    vectors += static_cast<size_t>(blockIdx.x) * frames * frames;
-    eigenvalues += static_cast<size_t>(blockIdx.x) * frames;
-    solver_info += blockIdx.x;
-    __shared__ unsigned removed;
-    if (threadIdx.x == 0)
-    {
-        removed = 0;
-        double total = 0.;
-        for (unsigned i = 0; i < frames; ++i)
-        {
-            if (!isfinite(eigenvalues[i]))
-                atomicCAS(error, 0, -1);
-            total += fmax(0., static_cast<double>(eigenvalues[i]));
-        }
-        if (*solver_info != 0)
-            atomicCAS(error, 0, *solver_info);
-        if (total > 0. && rank_factor > 0.f)
-        {
-            double entropy = 0.;
-            for (unsigned i = 0; i < frames; ++i)
-            {
-                const double p = fmax(0., static_cast<double>(eigenvalues[i])) / total;
-                if (p > 0.)
-                    entropy -= p * log(p);
-            }
-            // Avoid rounding a numerically perturbed integer rank up by one.
-            const double scaled_rank = static_cast<double>(rank_factor) * exp(entropy);
-            removed = static_cast<unsigned>(fmax(1., fmin(static_cast<double>(frames), ceil(scaled_rank - 1e-6))));
-        }
-    }
-    __syncthreads();
-
-    const size_t first_removed = static_cast<size_t>(frames - removed) * frames;
-    const size_t size = static_cast<size_t>(frames) * frames;
-    for (size_t i = first_removed + threadIdx.x; i < size; i += blockDim.x)
-        vectors[i] = make_cuComplex(0.f, 0.f);
 }
 
 // The number of spatial contributions depends only on geometry. Count whole
@@ -460,13 +409,14 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
                                          a.solver_info.ptr,
                                          batch),
                   "batched eigensolve");
-        remove_effective_rank<<<batch, 256, 0, a.stream>>>(a.covariance.ptr,
-                                                           a.eigenvalues.ptr,
-                                                           a.frames,
-                                                           a.solver_info.ptr,
-                                                           a.error.ptr,
-                                                           rank_factor);
-        check(cudaGetLastError());
+        check(remove_effective_rank_components(a.covariance.ptr,
+                                               a.eigenvalues.ptr,
+                                               a.frames,
+                                               a.solver_info.ptr,
+                                               rank_factor,
+                                               a.stream,
+                                               batch,
+                                               a.error.ptr));
 
         // Reconstruct the residual in the original temporal basis, H V_keep V_keep^H.
         // Local eigenvectors differ between tiles; averaging PCA score columns

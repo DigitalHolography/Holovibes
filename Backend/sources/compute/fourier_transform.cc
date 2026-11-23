@@ -22,6 +22,7 @@
 #include "apply_mask.cuh"
 #include "matrix_operations.hh"
 #include "local_pca.hh"
+#include "pca_effective_rank.cuh"
 #include "logger.hh"
 
 using holovibes::FunctionVector;
@@ -324,6 +325,17 @@ void FourierTransform::insert_pca()
                                  cusolver_work_buffer_,
                                  cusolver_work_buffer_size_,
                                  time_transformation_env_.pca_dev_info);
+
+            const auto effective_rank = setting<settings::PcaEffectiveRank>();
+            if (effective_rank.enabled && effective_rank.factor > 0.f)
+            {
+                cudaSafeCall(remove_effective_rank_components(V,
+                                                             time_transformation_env_.pca_eigen_values,
+                                                             time_transformation_size,
+                                                             time_transformation_env_.pca_dev_info,
+                                                             effective_rank.factor,
+                                                             stream_));
+            }
 
             // gpu_p_acc_buffer = H * V
             matrix_multiply_complex(H,

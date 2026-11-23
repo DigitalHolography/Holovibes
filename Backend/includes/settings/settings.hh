@@ -13,6 +13,7 @@
 #include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
 #include "struct/composite_struct.hh"
+#include "struct/rendering_struct.hh"
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_camera_kind.hh"
 #include "enum_recorded_eye_type.hh"
@@ -177,6 +178,7 @@ DECLARE_SETTING(PcaWidthY, uint);
 DECLARE_SETTING(PcaStrideX, uint);
 DECLARE_SETTING(PcaStrideY, uint);
 DECLARE_SETTING(PcaRankFactor, float);
+DECLARE_SETTING(PcaEffectiveRank, holovibes::Rendering::PcaEffectiveRank);
 DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);

@@ -28,6 +28,28 @@
 - is_computation_stopped
 - time_transformation_cuts_output_buffer_size
 
+#### Classic PCA effective rank
+
+Classic PCA uses its original component scores by default. To enable automatic
+component removal, import a compute-settings JSON file with the **Import compute
+settings** menu or pass it to the CLI with `--compute_settings`.
+
+```json
+{
+  "version": "v1",
+  "image_rendering": {
+    "time_transformation": "PCA",
+    "pca_effective_rank": { "enabled": true, "factor": 1.0 }
+  }
+}
+```
+
+Classic PCA multiplies the full-frame effective rank by the factor and rounds
+up to select how many of the strongest components to zero, up to the time
+window size. The P controls select the same component indices. The factor
+defaults to 1 and accepts finite, nonnegative values. A factor of 0 skips
+component removal.
+
 ### Composite settings
 - composite_kind
 - composite_auto_weights

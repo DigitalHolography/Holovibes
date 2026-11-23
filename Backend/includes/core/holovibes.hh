@@ -108,6 +108,7 @@
     holovibes::settings::PcaStrideX,                             \
     holovibes::settings::PcaStrideY,                             \
     holovibes::settings::PcaRankFactor,                          \
+    holovibes::settings::PcaEffectiveRank,                      \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
@@ -447,6 +448,7 @@ class Holovibes
                                              settings::PcaStrideX{16},
                                              settings::PcaStrideY{16},
                                              settings::PcaRankFactor{1.f},
+                                             settings::PcaEffectiveRank{},
                                              settings::SpaceTransformation{SpaceTransformation::NONE},
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
