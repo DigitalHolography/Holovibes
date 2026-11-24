@@ -301,6 +301,30 @@ ApiCode TransformApi::set_pca_rank_factor(float factor) const
     return ApiCode::OK;
 }
 
+ApiCode TransformApi::set_pca_effective_rank_enabled(bool enabled) const
+{
+    if (enabled == get_pca_effective_rank_enabled())
+        return ApiCode::NO_CHANGE;
+    if (get_time_transformation() == TimeTransformation::PCA && api_->record.is_recording())
+        return ApiCode::FAILURE;
+
+    UPDATE_SETTING(PcaEffectiveRankEnabled, enabled);
+    return ApiCode::OK;
+}
+
+ApiCode TransformApi::set_pca_effective_rank_factor(float factor) const
+{
+    if (!std::isfinite(factor) || factor < 0.f)
+        return ApiCode::INVALID_VALUE;
+    if (factor == get_pca_effective_rank_factor())
+        return ApiCode::NO_CHANGE;
+    if (get_time_transformation() == TimeTransformation::PCA && api_->record.is_recording())
+        return ApiCode::FAILURE;
+
+    UPDATE_SETTING(PcaEffectiveRankFactor, factor);
+    return ApiCode::OK;
+}
+
 void TransformApi::normalize_local_pca_settings() const
 {
     if (get_time_transformation() != TimeTransformation::LOCAL_PCA)

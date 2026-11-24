@@ -97,6 +97,8 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
             algorithm_selection && !j_cs["image_rendering"].contains(key) ? fallback : current;
     old_one["image_rendering"]["pca_rank_factor"] =
         algorithm_selection && !j_cs["image_rendering"].contains("pca_rank_factor") ? 1.f : rendering.pca_rank_factor;
+    old_one["image_rendering"]["pca_effective_rank_enabled"] = !algorithm_selection && rendering.pca_effective_rank_enabled;
+    old_one["image_rendering"]["pca_effective_rank_factor"] = algorithm_selection ? 1.f : rendering.pca_effective_rank_factor;
 
     // Legacy algorithm configurations predate this field and use the paper's 5x5 default.
     if (j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&

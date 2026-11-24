@@ -8,6 +8,7 @@
  */
 
 #include <climits> // for UINT_MAX
+#include <cmath>
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
@@ -100,6 +101,8 @@ void Rendering::Update()
     this->pca_stride_x = GET_SETTING(PcaStrideX);
     this->pca_stride_y = GET_SETTING(PcaStrideY);
     this->pca_rank_factor = GET_SETTING(PcaRankFactor);
+    this->pca_effective_rank_enabled = GET_SETTING(PcaEffectiveRankEnabled);
+    this->pca_effective_rank_factor = GET_SETTING(PcaEffectiveRankFactor);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
@@ -279,6 +282,9 @@ void Rendering::Load()
     UPDATE_SETTING(PcaStrideX, this->pca_stride_x);
     UPDATE_SETTING(PcaStrideY, this->pca_stride_y);
     UPDATE_SETTING(PcaRankFactor, this->pca_rank_factor);
+    UPDATE_SETTING(PcaEffectiveRankEnabled, this->pca_effective_rank_enabled);
+    const float factor = this->pca_effective_rank_factor;
+    UPDATE_SETTING(PcaEffectiveRankFactor, std::isfinite(factor) ? std::max(factor, 0.f) : 1.f);
     API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);

@@ -96,6 +96,8 @@ struct Rendering
     unsigned pca_stride_x = 16;
     unsigned pca_stride_y = 16;
     float pca_rank_factor = 1.f;
+    bool pca_effective_rank_enabled = false;
+    float pca_effective_rank_factor = 1.f;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
@@ -128,6 +130,11 @@ struct Rendering
             j["pca_stride_y"] = value.pca_stride_y;
             j["pca_rank_factor"] = value.pca_rank_factor;
         }
+        if (value.pca_effective_rank_enabled || value.pca_effective_rank_factor != 1.f)
+        {
+            j["pca_effective_rank_enabled"] = value.pca_effective_rank_enabled;
+            j["pca_effective_rank_factor"] = value.pca_effective_rank_factor;
+        }
     }
 
     friend void from_json(const json& j, Rendering& value)
@@ -148,6 +155,8 @@ struct Rendering
         value.pca_stride_y = j.value("pca_stride_y", 16u);
         // Settings written before the rank slider preserve the original cutoff.
         value.pca_rank_factor = j.value("pca_rank_factor", 1.f);
+        value.pca_effective_rank_enabled = j.value("pca_effective_rank_enabled", false);
+        value.pca_effective_rank_factor = j.value("pca_effective_rank_factor", 1.f);
         j.at("lambda").get_to(value.lambda);
         j.at("propagation_distance").get_to(value.propagation_distance);
         j.at("convolution").get_to(value.convolution);

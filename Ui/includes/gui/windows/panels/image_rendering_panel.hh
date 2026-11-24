@@ -92,7 +92,7 @@ class ImageRenderingPanel : public Panel
     void set_lsci_spatial_window();
     /*! \brief Apply Local PCA tile dimensions and spatial strides together. */
     void set_local_pca_parameters();
-    /*! \brief Adjust the multiplier used for Local PCA component removal. */
+    /*! \brief Adjust the effective-rank multiplier for the selected PCA transform. */
     void set_pca_rank_factor(double factor);
     /*! \brief Modifies wave length (lambda)
      *

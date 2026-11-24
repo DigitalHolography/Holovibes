@@ -1,4 +1,5 @@
 #include <sstream>
+#include <stdexcept>
 
 #include "fourier_transform.hh"
 
@@ -300,38 +301,55 @@ void FourierTransform::insert_pca()
 {
     LOG_FUNC();
 
-    uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
-    cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
+    const auto frames = setting<settings::TimeTransformationSize>();
+    const auto pixels = static_cast<int>(fd_.get_frame_res());
+    const bool effective_rank = setting<settings::PcaEffectiveRankEnabled>();
+    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(frames);
+    // Reuse the solver workspace for the temporal projector after diagonalization.
+    const size_t projector_size = effective_rank ? static_cast<size_t>(frames) * frames : 0;
+    if (!cusolver_work_buffer_.resize(std::max<size_t>(cusolver_work_buffer_size_, projector_size)))
+        throw std::runtime_error("Insufficient GPU memory for PCA workspace");
 
     fn_compute_vect_->push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
+            cuComplex* output = time_transformation_env_.gpu_p_acc_buffer.get();
+            const float factor = setting<settings::PcaEffectiveRankFactor>();
+            if (effective_rank && factor == 0.f)
+            {
+                cudaXMemcpyAsync(output, H, static_cast<size_t>(pixels) * frames * sizeof(cuComplex),
+                                 cudaMemcpyDeviceToDevice, stream_);
+                return;
+            }
+
             cuComplex* cov = time_transformation_env_.pca_cov.get();
             cuComplex* V = nullptr;
 
-            // cov = H' * H
-            cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
+            if (effective_rank)
+                pca_gram_matrix(cuda_tools::CublasHandle::instance(), H, pixels, frames, cov);
+            else
+                cov_matrix(H, pixels, frames, cov);
 
-            // Find eigen values and eigen vectors of cov
-            // pca_eigen_values will contain sorted eigen values
-            // cov and V will contain eigen vectors
             eigen_values_vectors(cov,
-                                 time_transformation_size,
+                                 frames,
                                  time_transformation_env_.pca_eigen_values,
                                  &V,
                                  cusolver_work_buffer_,
                                  cusolver_work_buffer_size_,
                                  time_transformation_env_.pca_dev_info);
 
-            // gpu_p_acc_buffer = H * V
-            matrix_multiply_complex(H,
-                                    V,
-                                    static_cast<int>(fd_.get_frame_res()),
-                                    time_transformation_size,
-                                    time_transformation_size,
-                                    time_transformation_env_.gpu_p_acc_buffer);
+            const cuComplex* transform = V;
+            if (effective_rank)
+            {
+                remove_pca_effective_rank(V, time_transformation_env_.pca_eigen_values, frames,
+                                          time_transformation_env_.pca_dev_info, factor, stream_);
+                // H V_keep V_keep^H restores the original temporal coordinates.
+                cuComplex* projector = cusolver_work_buffer_.get();
+                matrix_multiply_complex(V, V, frames, frames, frames, projector, CUBLAS_OP_N, CUBLAS_OP_C);
+                transform = projector;
+            }
+            matrix_multiply_complex(H, transform, pixels, frames, frames, output);
         });
 }
 

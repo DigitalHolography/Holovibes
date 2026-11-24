@@ -67,6 +67,8 @@ class LocalPcaSettingsTest : public testing::Test
         baseline.image_rendering.pca_stride_x = 16;
         baseline.image_rendering.pca_stride_y = 16;
         baseline.image_rendering.pca_rank_factor = 1.f;
+        baseline.image_rendering.pca_effective_rank_enabled = false;
+        baseline.image_rendering.pca_effective_rank_factor = 1.f;
         baseline.advanced.buffer_size.input = 64;
         baseline.view.image_type = ImgType::Modulus;
         baseline.view.z = ViewPQ{};
@@ -200,6 +202,33 @@ TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorPreservesValuesAboveSliderRange
     UPDATE_SETTING(PcaRankFactor, std::numeric_limits<float>::quiet_NaN());
     API.transform.normalize_local_pca_settings();
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
+}
+
+TEST_F(LocalPcaSettingsTest, GlobalEffectiveRankSettingsAreIndependentAndDefaultOffForLegacyPresets)
+{
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::PCA), ApiCode::OK);
+    auto legacy = API.settings.compute_settings_to_json();
+    EXPECT_FALSE(legacy["image_rendering"].contains("pca_effective_rank_enabled"));
+
+    json patch = {{"version", "v1"},
+                  {"image_rendering", {{"pca_effective_rank_enabled", true}, {"pca_effective_rank_factor", 75.25f}}}};
+    ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
+    EXPECT_TRUE(API.transform.get_pca_effective_rank_enabled());
+    EXPECT_FLOAT_EQ(API.transform.get_pca_effective_rank_factor(), 75.25f);
+
+    ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
+    ASSERT_EQ(API.transform.set_pca_rank_factor(0.f), ApiCode::OK);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_effective_rank_factor(), 75.25f);
+
+    auto saved = API.settings.compute_settings_to_json();
+    ASSERT_EQ(API.settings.load_compute_settings(legacy), ApiCode::OK);
+    EXPECT_FALSE(API.transform.get_pca_effective_rank_enabled());
+    EXPECT_FLOAT_EQ(API.transform.get_pca_effective_rank_factor(), 1.f);
+    ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
+    EXPECT_TRUE(API.transform.get_pca_effective_rank_enabled());
+    EXPECT_FLOAT_EQ(API.transform.get_pca_effective_rank_factor(), 75.25f);
+    EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 0.f);
 }
 } // namespace
 } // namespace holovibes

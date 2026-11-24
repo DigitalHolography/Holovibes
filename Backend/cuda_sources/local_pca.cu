@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <cublas_v2.h>
 #include <cusolverDn.h>
 
 namespace
@@ -14,12 +13,12 @@ namespace
 void check(cudaError_t status)
 {
     if (status != cudaSuccess)
-        throw std::runtime_error(std::string("Local PCA CUDA error: ") + cudaGetErrorString(status));
+        throw std::runtime_error(std::string("PCA CUDA error: ") + cudaGetErrorString(status));
 }
 void check(cublasStatus_t status)
 {
     if (status != CUBLAS_STATUS_SUCCESS)
-        throw std::runtime_error("Local PCA cuBLAS error: " + std::to_string(static_cast<int>(status)));
+        throw std::runtime_error("PCA cuBLAS error: " + std::to_string(static_cast<int>(status)));
 }
 void check(cusolverStatus_t status, const char* operation = "operation")
 {
@@ -225,10 +224,51 @@ __global__ void average_overlaps(cuComplex* output, const unsigned* coverage, si
         output[i] = weight ? make_cuComplex(output[i].x / weight, output[i].y / weight) : make_cuComplex(0.f, 0.f);
     }
 }
+
+void check_pca_eigendecomposition(const int* device_error, cudaStream_t stream)
+{
+    int error = 0;
+    check(cudaMemcpyAsync(&error, device_error, sizeof(int), cudaMemcpyDeviceToHost, stream));
+    check(cudaStreamSynchronize(stream));
+    if (error)
+        throw std::runtime_error("PCA eigendecomposition failed: " + std::to_string(error));
+}
 } // namespace
 
 namespace holovibes::compute
 {
+void pca_gram_matrix(cublasHandle_t blas, const cuComplex* samples, int pixels, int frames, cuComplex* covariance)
+{
+    const cuComplex one{1.f, 0.f}, zero{0.f, 0.f};
+    check(cublasCgemm(blas,
+                      CUBLAS_OP_C,
+                      CUBLAS_OP_N,
+                      frames,
+                      frames,
+                      pixels,
+                      &one,
+                      samples,
+                      pixels,
+                      samples,
+                      pixels,
+                      &zero,
+                      covariance,
+                      frames));
+}
+
+void remove_pca_effective_rank(cuComplex* vectors,
+                               const float* eigenvalues,
+                               unsigned frames,
+                               int* solver_info,
+                               float rank_factor,
+                               cudaStream_t stream)
+{
+    // With one eigensystem its solver status can also hold the spectrum check result.
+    remove_effective_rank<<<1, 256, 0, stream>>>(vectors, eigenvalues, frames, solver_info, solver_info, rank_factor);
+    check(cudaGetLastError());
+    check_pca_eigendecomposition(solver_info, stream);
+}
+
 struct LocalPca::Impl
 {
     unsigned width, height, frames, width_x, width_y, stride_x, stride_y;
@@ -415,20 +455,7 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
         {
             const auto* samples = a.tile.ptr + static_cast<size_t>(tile_index) * tile_count;
             auto* covariance = a.covariance.ptr + static_cast<size_t>(tile_index) * covariance_stride;
-            check(cublasCgemm(a.blas.value,
-                              CUBLAS_OP_C,
-                              CUBLAS_OP_N,
-                              n,
-                              n,
-                              m,
-                              &one,
-                              samples,
-                              m,
-                              samples,
-                              m,
-                              &zero,
-                              covariance,
-                              n));
+            pca_gram_matrix(a.blas.value, samples, m, n, covariance);
         }
         if (a.batch_capacity == 1)
             check(cusolverDnCheevd(a.solver.value,
@@ -543,10 +570,6 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
     }
     // Check all eigensolves once per temporal block, avoiding a host round trip
     // for every spatial tile. Failed decompositions must not produce a displayed map.
-    int error = 0;
-    check(cudaMemcpyAsync(&error, a.error.ptr, sizeof(int), cudaMemcpyDeviceToHost, a.stream));
-    check(cudaStreamSynchronize(a.stream));
-    if (error)
-        throw std::runtime_error("Local PCA eigendecomposition failed: " + std::to_string(error));
+    check_pca_eigendecomposition(a.error.ptr, a.stream);
 }
 } // namespace holovibes::compute

@@ -589,14 +589,11 @@
             </widget>
            </item>
            <item row="9" column="0" colspan="2">
-            <widget class="QGroupBox" name="LocalPcaGroupBox">
+            <widget class="QGroupBox" name="PcaGroupBox">
              <property name="title">
               <string>Local PCA</string>
              </property>
-             <property name="toolTip">
-              <string>Remove the strongest components selected by effective rank in each spatial block. Average overlapping residuals; wrap blocks across image borders.</string>
-             </property>
-             <layout class="QGridLayout" name="localPcaLayout">
+             <layout class="QGridLayout" name="pcaLayout">
               <item row="0" column="0">
                <widget class="QLabel" name="PcaWidthXLabel">
                 <property name="text"><string>Block width X</string></property>
@@ -649,13 +646,19 @@
                 <property name="value"><number>16</number></property>
                </widget>
               </item>
-              <item row="4" column="0">
+              <item row="4" column="0" colspan="2">
+               <widget class="QCheckBox" name="PcaEffectiveRankCheckBox">
+                <property name="text"><string>Use effective rank</string></property>
+                <property name="toolTip"><string>Remove the strongest components across the full frame. P start and width select time samples from the reconstructed residual.</string></property>
+               </widget>
+              </item>
+              <item row="5" column="0">
                <widget class="QLabel" name="PcaRankFactorLabel">
                 <property name="text"><string>Rank factor</string></property>
                 <property name="toolTip"><string>Multiplier for the number of strongest components removed. 0 removes none; 1 uses the original effective rank; larger values remove more.</string></property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="5" column="1">
                <widget class="QDoubleSpinBox" name="PcaRankFactorSpinBox">
                 <property name="toolTip"><string>Removed components = ceil(factor x effective rank), limited to the time window. The multiplier is applied before rounding.</string></property>
                 <property name="keyboardTracking"><bool>false</bool></property>
@@ -666,9 +669,9 @@
                 <property name="value"><double>1.000000000000000</double></property>
                </widget>
               </item>
-              <item row="5" column="0" colspan="2">
+              <item row="6" column="0" colspan="2">
                <widget class="QSlider" name="PcaRankFactorSlider">
-                <property name="toolTip"><string>Adjust Local PCA component removal from 0 to 10 times the effective rank. Default: 1.</string></property>
+                <property name="toolTip"><string>Adjust component removal from 0 to 10 times the effective rank. The default is 1.</string></property>
                 <property name="maximum"><number>1000</number></property>
                 <property name="pageStep"><number>10</number></property>
                 <property name="value"><number>100</number></property>

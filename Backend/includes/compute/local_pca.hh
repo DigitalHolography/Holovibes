@@ -4,11 +4,23 @@
 #pragma once
 
 #include <memory>
+#include <cublas_v2.h>
 #include <cuComplex.h>
 #include <cuda_runtime_api.h>
 
 namespace holovibes::compute
 {
+/*! \brief Compute the uncentered Gram matrix for effective-rank PCA. */
+void pca_gram_matrix(cublasHandle_t blas, const cuComplex* samples, int pixels, int frames, cuComplex* covariance);
+
+/*! \brief Zero the strongest eigenvector columns of one eigensystem using scaled effective rank. */
+void remove_pca_effective_rank(cuComplex* vectors,
+                               const float* eigenvalues,
+                               unsigned frames,
+                               int* solver_info,
+                               float rank_factor,
+                               cudaStream_t stream);
+
 /*! \brief Remove the strongest effective-rank components independently in each spatial tile.
  *
  * Input and output are column-major (width * height) x frames complex matrices,

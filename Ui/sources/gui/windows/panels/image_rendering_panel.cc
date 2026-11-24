@@ -54,13 +54,23 @@ void ImageRenderingPanel::init()
             this,
             [this](int value) { ui_->PcaRankFactorSpinBox->setValue(value / 100.); });
     connect(ui_->PcaRankFactorSpinBox, &QDoubleSpinBox::valueChanged, this, &ImageRenderingPanel::set_pca_rank_factor);
+    connect(ui_->PcaEffectiveRankCheckBox,
+            &QCheckBox::toggled,
+            this,
+            [this](bool enabled)
+            {
+                api_.transform.set_pca_effective_rank_enabled(enabled);
+                parent_->notify();
+            });
 }
 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api_.compute.get_compute_mode() == Computation::Raw;
-    const bool is_lsci = api_.transform.get_time_transformation() == TimeTransformation::LSCI;
-    const bool is_local_pca = api_.transform.get_time_transformation() == TimeTransformation::LOCAL_PCA;
+    const auto time_transformation = api_.transform.get_time_transformation();
+    const bool is_lsci = time_transformation == TimeTransformation::LSCI;
+    const bool is_local_pca = time_transformation == TimeTransformation::LOCAL_PCA;
+    const bool is_pca = time_transformation == TimeTransformation::PCA;
     const bool is_recording = api_.record.is_recording();
     const bool is_data_not_moments = true;
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
@@ -127,10 +137,28 @@ void ImageRenderingPanel::on_notify()
     ui_->LsciSpatialWindowSpinBox->setSuffix(QString(" x %1 px").arg(spatial_window));
     ui_->LsciSpatialWindowSpinBox->setValue(spatial_window);
 
-    // These controls belong only to Local PCA. Reducing a block side also
-    // reduces its stride, so changing the geometry cannot introduce coverage gaps.
-    ui_->LocalPcaGroupBox->setVisible(is_local_pca);
-    ui_->LocalPcaGroupBox->setEnabled(not_raw_not_moments && !is_recording);
+    ui_->PcaGroupBox->setVisible(is_pca || is_local_pca);
+    ui_->PcaGroupBox->setEnabled(not_raw_not_moments && !is_recording);
+    ui_->PcaGroupBox->setTitle(is_local_pca ? tr("Local PCA") : tr("PCA"));
+    ui_->PcaGroupBox->setToolTip(
+        is_local_pca ? tr("Remove the strongest components in each spatial block, then average overlapping residuals. "
+                          "Blocks wrap across image borders.")
+                     : QString{});
+    QWidget* const local_pca_controls[] = {ui_->PcaWidthXLabel, ui_->PcaWidthXSpinBox,
+                                          ui_->PcaWidthYLabel, ui_->PcaWidthYSpinBox,
+                                          ui_->PcaStrideXLabel, ui_->PcaStrideXSpinBox,
+                                          ui_->PcaStrideYLabel, ui_->PcaStrideYSpinBox};
+    for (auto* control : local_pca_controls)
+        control->setVisible(is_local_pca);
+
+    const QSignalBlocker pca_effective_rank_signals(ui_->PcaEffectiveRankCheckBox);
+    const bool effective_rank = api_.transform.get_pca_effective_rank_enabled();
+    ui_->PcaEffectiveRankCheckBox->setVisible(is_pca);
+    ui_->PcaEffectiveRankCheckBox->setChecked(effective_rank);
+    const bool adjust_rank = is_local_pca || effective_rank;
+    ui_->PcaRankFactorLabel->setEnabled(adjust_rank);
+    ui_->PcaRankFactorSpinBox->setEnabled(adjust_rank);
+    ui_->PcaRankFactorSlider->setEnabled(adjust_rank);
     const QSignalBlocker pca_width_x_signals(ui_->PcaWidthXSpinBox);
     const QSignalBlocker pca_width_y_signals(ui_->PcaWidthYSpinBox);
     const QSignalBlocker pca_stride_x_signals(ui_->PcaStrideXSpinBox);
@@ -143,7 +171,8 @@ void ImageRenderingPanel::on_notify()
     ui_->PcaStrideYSpinBox->setValue(api_.transform.get_pca_stride_y());
     const QSignalBlocker pca_rank_slider_signals(ui_->PcaRankFactorSlider);
     const QSignalBlocker pca_rank_spin_signals(ui_->PcaRankFactorSpinBox);
-    const float rank_factor = api_.transform.get_pca_rank_factor();
+    const float rank_factor = is_local_pca ? api_.transform.get_pca_rank_factor()
+                                           : api_.transform.get_pca_effective_rank_factor();
     // Clamp only the slider display, before converting to int to avoid overflow.
     // Its blocked signal leaves larger numeric factors intact in the setting.
     const float slider_factor = std::min(rank_factor, ui_->PcaRankFactorSlider->maximum() / 100.f);
@@ -338,7 +367,10 @@ void ImageRenderingPanel::set_local_pca_parameters()
 
 void ImageRenderingPanel::set_pca_rank_factor(double factor)
 {
-    api_.transform.set_pca_rank_factor(static_cast<float>(factor));
+    if (api_.transform.get_time_transformation() == TimeTransformation::PCA)
+        api_.transform.set_pca_effective_rank_factor(static_cast<float>(factor));
+    else
+        api_.transform.set_pca_rank_factor(static_cast<float>(factor));
     parent_->notify();
 }
 

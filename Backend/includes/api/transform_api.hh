@@ -188,6 +188,14 @@ class TransformApi : public IApi
     /*! \brief Validate Local PCA geometry and enforce consecutive, disjoint temporal blocks. */
     void normalize_local_pca_settings() const;
 
+    /*! \brief Enable effective-rank residual reconstruction in the global PCA time transform. */
+    inline bool get_pca_effective_rank_enabled() const { return GET_SETTING(PcaEffectiveRankEnabled); }
+    ApiCode set_pca_effective_rank_enabled(bool enabled) const;
+
+    /*! \brief Global PCA's finite, nonnegative effective-rank multiplier. */
+    inline float get_pca_effective_rank_factor() const { return GET_SETTING(PcaEffectiveRankFactor); }
+    ApiCode set_pca_effective_rank_factor(float factor) const;
+
 #pragma endregion
 
 #pragma region Time Tr.Freq

@@ -34,6 +34,7 @@
     holovibes::settings::Filter2dViewEnabled,      \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::TimeTransformation,       \
+    holovibes::settings::PcaEffectiveRankEnabled,  \
     holovibes::settings::TimeTransformationSize
 
 #define ALL_SETTINGS PIPE_CYCLE_SETTINGS, PIPE_REFRESH_SETTINGS

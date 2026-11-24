@@ -29,7 +29,8 @@
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
     holovibes::settings::Q,                        \
-    holovibes::settings::PcaRankFactor
+    holovibes::settings::PcaRankFactor,             \
+    holovibes::settings::PcaEffectiveRankFactor
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \
@@ -52,6 +53,7 @@
     holovibes::settings::PcaWidthY,                \
     holovibes::settings::PcaStrideX,               \
     holovibes::settings::PcaStrideY,               \
+    holovibes::settings::PcaEffectiveRankEnabled,  \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \

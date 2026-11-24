@@ -38,6 +38,7 @@
     holovibes::settings::Y,                                      \
     holovibes::settings::Q,                                      \
     holovibes::settings::PcaRankFactor,                          \
+    holovibes::settings::PcaEffectiveRankFactor,                 \
     holovibes::settings::RecordFrameOffset,                      \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::FrameSkip,                              \
@@ -101,6 +102,7 @@
     holovibes::settings::PcaWidthY,                              \
     holovibes::settings::PcaStrideX,                             \
     holovibes::settings::PcaStrideY,                             \
+    holovibes::settings::PcaEffectiveRankEnabled,                \
     holovibes::settings::InputFilter
 
 #define ONRESTART_SETTINGS                                       \
