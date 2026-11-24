@@ -225,6 +225,22 @@ __global__ void average_overlaps(cuComplex* output, const unsigned* coverage, si
     }
 }
 
+__global__ void sum_covariance_parts(cuComplex* covariance, const cuComplex* parts, size_t count, int part_count)
+{
+    for (size_t i = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < count;
+         i += static_cast<size_t>(blockDim.x) * gridDim.x)
+    {
+        double real = 0., imag = 0.;
+        for (int part = 0; part < part_count; ++part)
+        {
+            const cuComplex value = parts[part * count + i];
+            real += value.x;
+            imag += value.y;
+        }
+        covariance[i] = make_cuComplex(static_cast<float>(real), static_cast<float>(imag));
+    }
+}
+
 void check_pca_eigendecomposition(const int* device_error, cudaStream_t stream)
 {
     int error = 0;
@@ -274,12 +290,13 @@ struct LocalPca::Impl
     unsigned width, height, frames, width_x, width_y, stride_x, stride_y;
     size_t pixels, tile_pixels, tiles_x, tiles;
     unsigned batch_capacity;
+    int covariance_rows, covariance_part_count;
     bool direct_output;
     cudaStream_t stream;
     BlasHandle blas;
     SolverHandle solver;
     SolverParams solver_params;
-    DeviceBuffer<cuComplex> tile, scores, covariance;
+    DeviceBuffer<cuComplex> tile, scores, covariance, covariance_parts;
     DeviceBuffer<unsigned char> workspace;
     std::vector<unsigned char> host_workspace;
     DeviceBuffer<float> eigenvalues;
@@ -313,11 +330,19 @@ struct LocalPca::Impl
         tiles = tiles_x * ((static_cast<size_t>(height) + stride_y - 1) / stride_y);
         direct_output = stride_x == width_x && stride_y == width_y && width % width_x == 0 && height % width_y == 0;
         const size_t matrix_size = static_cast<size_t>(frames) * frames;
+        // Shorter dot products keep float accumulation errors small in a weak spectrum.
+        // Bound the number of partial matrices and their size relative to the tile data.
+        constexpr size_t max_covariance_parts = 8;
+        covariance_rows = static_cast<int>(std::max({size_t{64}, size_t{frames},
+                                                     (tile_pixels + max_covariance_parts - 1) / max_covariance_parts}));
+        covariance_part_count = static_cast<int>((tile_pixels + covariance_rows - 1) / covariance_rows);
+        const size_t partial_matrix_size = covariance_part_count > 1 ? matrix_size * covariance_part_count : 0;
         // Bound tile storage independently of image size and spatial overlap.
         // One unusually large tile still uses the original single-tile solver.
         constexpr size_t scratch_budget = 64 * 1024 * 1024;
         const size_t bytes_per_tile =
-            (2 * tile_pixels * frames + matrix_size) * sizeof(cuComplex) + frames * sizeof(float) + sizeof(int);
+            (2 * tile_pixels * frames + matrix_size + partial_matrix_size) * sizeof(cuComplex) + frames * sizeof(float) +
+            sizeof(int);
         const size_t memory_limit = std::max<size_t>(1, scratch_budget / bytes_per_tile);
         // XsyevBatched requires n * lda * batchSize <= INT32_MAX.
         const size_t solver_limit = std::max<size_t>(1, std::numeric_limits<int>::max() / matrix_size);
@@ -325,6 +350,8 @@ struct LocalPca::Impl
         tile.allocate(tile_pixels * frames * batch_capacity);
         scores.allocate(tile_pixels * frames * batch_capacity);
         covariance.allocate(matrix_size * batch_capacity);
+        if (batch_capacity > 1)
+            covariance_parts.allocate(partial_matrix_size * batch_capacity);
         eigenvalues.allocate(static_cast<size_t>(frames) * batch_capacity);
         solver_info.allocate(batch_capacity);
         error.allocate(1);
@@ -389,6 +416,53 @@ struct LocalPca::Impl
             check(cudaGetLastError());
         }
     }
+
+    void compute_covariance(int batch)
+    {
+        const int m = static_cast<int>(tile_pixels), n = static_cast<int>(frames);
+        if (batch_capacity == 1)
+        {
+            pca_gram_matrix(blas.value, tile.ptr, m, n, covariance.ptr);
+            return;
+        }
+
+        const cuComplex one{1.f, 0.f}, zero{0.f, 0.f};
+        const long long tile_stride = static_cast<long long>(m) * n;
+        const long long covariance_stride = static_cast<long long>(n) * n;
+        const size_t count = static_cast<size_t>(covariance_stride) * batch;
+        for (int part = 0; part < covariance_part_count; ++part)
+        {
+            const int first_row = part * covariance_rows;
+            const auto* samples = tile.ptr + first_row;
+            auto* result = covariance_parts.ptr ? covariance_parts.ptr + part * count : covariance.ptr;
+            check(cublasCgemmStridedBatched(blas.value,
+                                            CUBLAS_OP_C,
+                                            CUBLAS_OP_N,
+                                            n,
+                                            n,
+                                            std::min(covariance_rows, m - first_row),
+                                            &one,
+                                            samples,
+                                            m,
+                                            tile_stride,
+                                            samples,
+                                            m,
+                                            tile_stride,
+                                            &zero,
+                                            result,
+                                            n,
+                                            covariance_stride,
+                                            batch));
+        }
+        if (covariance_parts.ptr)
+        {
+            sum_covariance_parts<<<grid_size(count), 256, 0, stream>>>(covariance.ptr,
+                                                                      covariance_parts.ptr,
+                                                                      count,
+                                                                      covariance_part_count);
+            check(cudaGetLastError());
+        }
+    }
 };
 
 LocalPca::LocalPca(unsigned width,
@@ -447,16 +521,7 @@ void LocalPca::process(const cuComplex* input, cuComplex* output, float rank_fac
         check(cudaGetLastError());
 
         // Match classic PCA's uncentered complex covariance: C = H^H H.
-        // Scaling C by the tile area would not change normalized eigenvalues.
-        // Keep the original GEMM's accumulation order: batched covariance GEMM
-        // changes rounding enough to perturb weak, nearly degenerate modes when
-        // removing many components. The expensive eigensolves are still batched.
-        for (int tile_index = 0; tile_index < batch; ++tile_index)
-        {
-            const auto* samples = a.tile.ptr + static_cast<size_t>(tile_index) * tile_count;
-            auto* covariance = a.covariance.ptr + static_cast<size_t>(tile_index) * covariance_stride;
-            pca_gram_matrix(a.blas.value, samples, m, n, covariance);
-        }
+        a.compute_covariance(batch);
         if (a.batch_capacity == 1)
             check(cusolverDnCheevd(a.solver.value,
                                    CUSOLVER_EIG_MODE_VECTOR,

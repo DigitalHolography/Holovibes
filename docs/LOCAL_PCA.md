@@ -58,13 +58,13 @@ components. Q bounds do not select components in this transform; scaled effectiv
 rank does that automatically. With a positive factor, a one-frame block produces
 a zero residual, as does any block whose selected removal count reaches `T`.
 
-The implementation processes spatial blocks in batches, using batched
-eigendecomposition and residual reconstruction. Covariance matrices retain the
-original per-block matrix multiplication to preserve rounding behavior for weak
-components. It reuses buffers for at most 64 blocks,
-with a 64 MiB budget for tile scratch storage (excluding eigensolver workspace
-and the coverage map); a single larger block can exceed that budget. Large blocks
-that cannot be batched use the original single-block eigensolver.
+The implementation batches covariance calculation, eigendecomposition, and
+residual reconstruction across spatial blocks. For longer covariance dot products,
+it multiplies smaller groups of sample rows and sums the partial matrices in
+double precision to limit rounding error in weak components. It reuses buffers
+for at most 64 blocks with a 64 MiB budget for tile scratch storage, excluding
+eigensolver workspace and the coverage map. A single larger block can exceed
+that budget and uses the single-block covariance calculation and eigensolver.
 
 Coverage is computed once for each geometry. When block sizes equal their strides
 and divide the image dimensions exactly, residuals are written directly without

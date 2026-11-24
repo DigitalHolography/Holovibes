@@ -320,6 +320,11 @@ TEST_F(LocalPcaTest, NonoverlappingTilesAcrossBatchesAndTailMatchReference)
     compare(36, 24, 6, 4, 3, 4, 3, 1);
 }
 
+TEST_F(LocalPcaTest, SplitCovarianceHandlesPartialRowGroupsAndTileBatches)
+{
+    compare(25, 15, 6, 11, 7, 3, 2);
+}
+
 TEST_F(LocalPcaTest, EqualStridesStillAverageWrappedBorderTiles)
 {
     // Equal tile sizes and strides are not a partition when the image dimensions
@@ -411,7 +416,7 @@ TEST_F(LocalPcaTest, AggressiveFactorRetainsKnownSubsetOfDenseWeakSpectrum)
     // Walsh spatial/temporal modes have exact eigenvalues proportional to a^2.
     // Distinct dyadic weak amplitudes avoid an ambiguous cutoff inside a repeated
     // eigenvalue while factor 10 still removes only part of the dense spectrum.
-    constexpr unsigned frames = 32, width = 16, height = 8, pixels = width * height;
+    constexpr unsigned frames = 32, width = 48, height = 48, pixels = width * height;
     constexpr unsigned width_x = 8, width_y = 4;
     std::vector<double> amplitudes(frames);
     amplitudes[0] = 16.;
@@ -469,12 +474,16 @@ TEST_F(LocalPcaTest, AggressiveFactorRetainsKnownSubsetOfDenseWeakSpectrum)
             input[t * pixels + p] = apply_phase(value, phase);
             expected[t * pixels + p] = apply_phase(residual, phase);
         }
-    const auto output = run(input, width, height, frames, width_x, width_y, width_x, width_y, 10.f);
-    for (size_t i = 0; i < output.size(); ++i)
+    const auto verify = [&](const std::vector<cuComplex>& output)
     {
-        EXPECT_NEAR(output[i].x, expected[i].x, .003) << "sample " << i;
-        EXPECT_NEAR(output[i].y, expected[i].y, .003) << "sample " << i;
-    }
+        for (size_t i = 0; i < output.size(); ++i)
+        {
+            EXPECT_NEAR(output[i].x, expected[i].x, .003) << "sample " << i;
+            EXPECT_NEAR(output[i].y, expected[i].y, .003) << "sample " << i;
+        }
+    };
+    verify(run(input, width, height, frames, width_x, width_y, width_x, width_y, 10.f));
+    verify(run(input, width, height, frames, 32, 32, 16, 16, 10.f));
 }
 
 TEST_F(LocalPcaTest, OversizedTilesWrapAndCountRepeatedSamples) { compare(3, 2, 6, 5, 4, 2, 3); }
