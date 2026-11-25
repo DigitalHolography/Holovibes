@@ -1,5 +1,13 @@
 ## Changelog
 
+### 14.16.3
+
+- Add Local PCA to the Time Transform menu and `ProcessHoloFiles.ps1`, with configurable spatial tile sizes, strides, and an effective-rank factor.
+- Batch Local PCA covariance and eigendecomposition on the GPU and average residuals where tiles overlap.
+- Add the **Use effective rank** option to global PCA to remove dominant components across the full image. Each PCA mode has its own numeric rank factor.
+- Save Local PCA settings with the `local_pca_` prefix and accept the previous keys when loading existing configurations.
+- Preserve chronological frame order in global PCA with effective rank so `P` selects the intended time sample in sliding windows.
+
 ### 14.16.2
 
 - Use the manufacturer's fixed sensor pixel pitch when loading Phantom cameras: 20 micrometers for S710 and S711, 5 micrometers for S980, and 6.75 micrometers for S991.
