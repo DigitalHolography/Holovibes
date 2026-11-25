@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <exception>
 #include <thread>
 #include <tuple>
@@ -243,6 +245,64 @@ TEST_P(LocalPcaPipeTest, RankFactorChangesReachLiveComputeWithoutRebuildingPipe)
     ASSERT_EQ(output->dequeue(removed.data(), stream, cudaMemcpyDeviceToHost), 1);
     for (unsigned short value : removed)
         EXPECT_EQ(value, 0u) << "Factor 10 must remove all eight temporal components";
+}
+
+TEST(GlobalPcaPipeTest, EffectiveRankKeepsPInChronologicalOrder)
+{
+    int devices = 0;
+    if (cudaGetDeviceCount(&devices) != cudaSuccess || !devices)
+        GTEST_SKIP() << "Global PCA pipeline tests require CUDA";
+
+    constexpr camera::FrameDescriptor fd = {8, 4, camera::PixelDepth::Bits16, camera::Endianness::LittleEndian};
+    constexpr unsigned window = 4;
+    constexpr std::array<int, window> weak_mode = {200, -400, 800, -600};
+    constexpr unsigned input_count = 2 * window;
+    constexpr unsigned output_count = input_count - window + 1;
+    constexpr unsigned p_start = 1;
+    constexpr int background = 12000;
+    const size_t pixels = fd.get_frame_res();
+
+    // Each window contains orthogonal static and alternating spatial modes.
+    std::vector<unsigned short> frames(input_count * pixels);
+    for (unsigned t = 0; t < input_count; ++t)
+    {
+        const int weak = weak_mode[t % window];
+        for (size_t pixel = 0; pixel < pixels; ++pixel)
+            frames[t * pixels + pixel] = static_cast<unsigned short>(background + (pixel % 2 == 0 ? weak : -weak));
+    }
+
+    for (const float factor : {0.f, 0.5f})
+    {
+        SCOPED_TRACE(factor);
+        auto initial = local_pca_settings(1);
+        std::get<settings::TimeTransformation>(initial).value = TimeTransformation::PCA;
+        std::get<settings::TimeTransformationSize>(initial).value = window;
+        std::get<settings::TimeStride>(initial).value = 1;
+        std::get<settings::PcaEffectiveRankEnabled>(initial).value = true;
+        std::get<settings::PcaEffectiveRankFactor>(initial).value = factor;
+        std::get<settings::P>(initial).value.start = p_start;
+        BatchInputQueue input(64, 1, fd);
+        std::atomic<RecordingContext*> recording{nullptr};
+        const cudaStream_t stream = 0;
+        Pipe pipe(input, recording, stream, initial);
+        const auto output = pipe.get_output_queue();
+        LocalPcaRunner runner(pipe);
+        for (unsigned t = 0; t < input_count; ++t)
+            input.enqueue(frames.data() + t * pixels, cudaMemcpyHostToDevice);
+        input.sync_pending_copies();
+        ASSERT_TRUE(runner.wait([&]() { return output->get_size() == output_count; }));
+        runner.stop();
+        ASSERT_NO_THROW(runner.rethrow_failure());
+
+        std::vector<unsigned short> result(pixels);
+        for (unsigned t = 0; t < output_count; ++t)
+        {
+            SCOPED_TRACE(t);
+            ASSERT_EQ(output->dequeue(result.data(), stream, cudaMemcpyDeviceToHost), 1);
+            const int weak = weak_mode[(t + p_start) % window];
+            EXPECT_NEAR(result.front(), factor == 0.f ? background + weak : std::abs(weak), 1);
+        }
+    }
 }
 
 INSTANTIATE_TEST_SUITE_P(ConsecutiveFrames, LocalPcaPipeTest, testing::Values(1u, 2u, 8u));

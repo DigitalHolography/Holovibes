@@ -313,13 +313,27 @@ void FourierTransform::insert_pca()
     fn_compute_vect_->push_back(
         [=]()
         {
-            cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
+            const auto& queue = *time_transformation_env_.gpu_time_transformation_queue;
+            cuComplex* H = static_cast<cuComplex*>(queue.get_data());
             cuComplex* output = time_transformation_env_.gpu_p_acc_buffer.get();
+            const auto first_frame = effective_rank ? queue.get_start_index() : 0u;
+            const auto copy_in_time_order = [frames, first_frame, stream = stream_](const cuComplex* source,
+                                                                                  cuComplex* destination,
+                                                                                  size_t elements_per_column)
+            {
+                const size_t prefix = first_frame * elements_per_column;
+                const size_t suffix = (frames - first_frame) * elements_per_column;
+                cudaXMemcpyAsync(destination, source + prefix, suffix * sizeof(cuComplex),
+                                 cudaMemcpyDeviceToDevice, stream);
+                if (prefix != 0)
+                    cudaXMemcpyAsync(destination + suffix, source, prefix * sizeof(cuComplex),
+                                     cudaMemcpyDeviceToDevice, stream);
+            };
+
             const float factor = setting<settings::PcaEffectiveRankFactor>();
             if (effective_rank && factor == 0.f)
             {
-                cudaXMemcpyAsync(output, H, static_cast<size_t>(pixels) * frames * sizeof(cuComplex),
-                                 cudaMemcpyDeviceToDevice, stream_);
+                copy_in_time_order(H, output, pixels);
                 return;
             }
 
@@ -348,6 +362,12 @@ void FourierTransform::insert_pca()
                 cuComplex* projector = cusolver_work_buffer_.get();
                 matrix_multiply_complex(V, V, frames, frames, frames, projector, CUBLAS_OP_N, CUBLAS_OP_C);
                 transform = projector;
+                if (first_frame != 0)
+                {
+                    // Reuse the covariance buffer to put the projector's columns in chronological order.
+                    copy_in_time_order(projector, cov, frames);
+                    transform = cov;
+                }
             }
             matrix_multiply_complex(H, transform, pixels, frames, frames, output);
         });
