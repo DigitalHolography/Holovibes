@@ -6,7 +6,6 @@
 #include "compute_settings.hh"
 
 #include <iomanip>
-#include <tuple>
 
 #include "API.hh"
 #include "compute_settings_converter.hh"
@@ -77,6 +76,25 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     if (res != ApiCode::OK)
         return res;
 
+    json update = j_cs;
+    const auto rendering_update = update.find("image_rendering");
+    const bool has_rendering = rendering_update != update.end() && rendering_update->is_object();
+    const bool algorithm_selection = has_rendering && rendering_update->contains("time_transformation");
+    if (has_rendering)
+    {
+        // Translate the legacy keys before the strict merge, preferring the prefixed keys.
+        for (const auto* legacy_key : {"pca_width_x", "pca_width_y", "pca_stride_x", "pca_stride_y", "pca_rank_factor"})
+        {
+            const auto legacy = rendering_update->find(legacy_key);
+            if (legacy == rendering_update->end())
+                continue;
+            const auto key = std::string("local_") + legacy_key;
+            if (!rendering_update->contains(key))
+                (*rendering_update)[key] = *legacy;
+            rendering_update->erase(legacy);
+        }
+    }
+
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
     json old_one = compute_settings;
@@ -86,17 +104,12 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     // algorithm omits them from its serialized settings. Partial patches preserve
     // the current geometry; a full legacy algorithm selection resets missing keys.
     const auto& rendering = compute_settings.image_rendering;
-    const bool algorithm_selection = j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&
-                                     j_cs["image_rendering"].contains("time_transformation");
-    for (const auto& [key, current, fallback] :
-         {std::tuple{"pca_width_x", rendering.pca_width_x, 32u},
-          std::tuple{"pca_width_y", rendering.pca_width_y, 32u},
-          std::tuple{"pca_stride_x", rendering.pca_stride_x, 16u},
-          std::tuple{"pca_stride_y", rendering.pca_stride_y, 16u}})
-        old_one["image_rendering"][key] =
-            algorithm_selection && !j_cs["image_rendering"].contains(key) ? fallback : current;
-    old_one["image_rendering"]["pca_rank_factor"] =
-        algorithm_selection && !j_cs["image_rendering"].contains("pca_rank_factor") ? 1.f : rendering.pca_rank_factor;
+    auto& old_rendering = old_one["image_rendering"];
+    old_rendering["local_pca_width_x"] = algorithm_selection ? 32u : rendering.pca_width_x;
+    old_rendering["local_pca_width_y"] = algorithm_selection ? 32u : rendering.pca_width_y;
+    old_rendering["local_pca_stride_x"] = algorithm_selection ? 16u : rendering.pca_stride_x;
+    old_rendering["local_pca_stride_y"] = algorithm_selection ? 16u : rendering.pca_stride_y;
+    old_rendering["local_pca_rank_factor"] = algorithm_selection ? 1.f : rendering.pca_rank_factor;
     old_one["image_rendering"]["pca_effective_rank_enabled"] = !algorithm_selection && rendering.pca_effective_rank_enabled;
     old_one["image_rendering"]["pca_effective_rank_factor"] = algorithm_selection ? 1.f : rendering.pca_effective_rank_factor;
 
@@ -109,7 +122,7 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     try
     {
         // this allows a compute_settings to not have all the fields and to still work
-        merge_json(old_one, j_cs);
+        merge_json(old_one, update);
         compute_settings = old_one;
     }
     catch (const std::exception& e)

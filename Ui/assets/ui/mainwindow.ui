@@ -601,7 +601,7 @@
               </item>
               <item row="0" column="1">
                <widget class="QSpinBox" name="PcaWidthXSpinBox">
-                <property name="toolTip"><string>pca_width_x: horizontal block size in pixels. Border samples wrap to the opposite edge.</string></property>
+                <property name="toolTip"><string>local_pca_width_x: horizontal block size in pixels. Border samples wrap to the opposite edge.</string></property>
                 <property name="minimum"><number>1</number></property>
                 <property name="maximum"><number>65535</number></property>
                 <property name="value"><number>32</number></property>
@@ -614,7 +614,7 @@
               </item>
               <item row="1" column="1">
                <widget class="QSpinBox" name="PcaWidthYSpinBox">
-                <property name="toolTip"><string>pca_width_y: vertical block size in pixels. The shared time window sets the number of frames.</string></property>
+                <property name="toolTip"><string>local_pca_width_y: vertical block size in pixels. The shared time window sets the number of frames.</string></property>
                 <property name="minimum"><number>1</number></property>
                 <property name="maximum"><number>65535</number></property>
                 <property name="value"><number>32</number></property>
@@ -627,7 +627,7 @@
               </item>
               <item row="2" column="1">
                <widget class="QSpinBox" name="PcaStrideXSpinBox">
-                <property name="toolTip"><string>pca_stride_x: pixels between block origins in X. Values below the block width overlap.</string></property>
+                <property name="toolTip"><string>local_pca_stride_x: pixels between block origins in X. Values below the block width overlap.</string></property>
                 <property name="minimum"><number>1</number></property>
                 <property name="maximum"><number>32</number></property>
                 <property name="value"><number>16</number></property>
@@ -640,7 +640,7 @@
               </item>
               <item row="3" column="1">
                <widget class="QSpinBox" name="PcaStrideYSpinBox">
-                <property name="toolTip"><string>pca_stride_y: pixels between block origins in Y. Strides cannot exceed block dimensions, so every pixel is covered.</string></property>
+                <property name="toolTip"><string>local_pca_stride_y: pixels between block origins in Y. Strides cannot exceed block dimensions, so every pixel is covered.</string></property>
                 <property name="minimum"><number>1</number></property>
                 <property name="maximum"><number>32</number></property>
                 <property name="value"><number>16</number></property>
@@ -667,17 +667,6 @@
                 <property name="minimum"><double>0.000000000000000</double></property>
                 <property name="singleStep"><double>0.010000000000000</double></property>
                 <property name="value"><double>1.000000000000000</double></property>
-               </widget>
-              </item>
-              <item row="6" column="0" colspan="2">
-               <widget class="QSlider" name="PcaRankFactorSlider">
-                <property name="toolTip"><string>Adjust component removal from 0 to 10 times the effective rank. The default is 1.</string></property>
-                <property name="maximum"><number>1000</number></property>
-                <property name="pageStep"><number>10</number></property>
-                <property name="value"><number>100</number></property>
-                <property name="orientation"><enum>Qt::Horizontal</enum></property>
-                <property name="tickPosition"><enum>QSlider::TicksBelow</enum></property>
-                <property name="tickInterval"><number>100</number></property>
                </widget>
               </item>
              </layout>

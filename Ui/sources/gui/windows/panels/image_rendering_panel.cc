@@ -39,8 +39,6 @@ ImageRenderingPanel::~ImageRenderingPanel()
 void ImageRenderingPanel::init()
 {
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    // Allow every finite value of the float setting in the input box. The slider
-    // retains its existing 0..10 range for convenient adjustments.
     ui_->PcaRankFactorSpinBox->setMaximum(std::numeric_limits<float>::max());
     connect(ui_->LsciSpatialWindowSpinBox,
             &QSpinBox::valueChanged,
@@ -49,10 +47,6 @@ void ImageRenderingPanel::init()
     for (auto* spin : {ui_->PcaWidthXSpinBox, ui_->PcaWidthYSpinBox,
                        ui_->PcaStrideXSpinBox, ui_->PcaStrideYSpinBox})
         connect(spin, &QSpinBox::editingFinished, this, &ImageRenderingPanel::set_local_pca_parameters);
-    connect(ui_->PcaRankFactorSlider,
-            &QSlider::valueChanged,
-            this,
-            [this](int value) { ui_->PcaRankFactorSpinBox->setValue(value / 100.); });
     connect(ui_->PcaRankFactorSpinBox, &QDoubleSpinBox::valueChanged, this, &ImageRenderingPanel::set_pca_rank_factor);
     connect(ui_->PcaEffectiveRankCheckBox,
             &QCheckBox::toggled,
@@ -158,7 +152,6 @@ void ImageRenderingPanel::on_notify()
     const bool adjust_rank = is_local_pca || effective_rank;
     ui_->PcaRankFactorLabel->setEnabled(adjust_rank);
     ui_->PcaRankFactorSpinBox->setEnabled(adjust_rank);
-    ui_->PcaRankFactorSlider->setEnabled(adjust_rank);
     const QSignalBlocker pca_width_x_signals(ui_->PcaWidthXSpinBox);
     const QSignalBlocker pca_width_y_signals(ui_->PcaWidthYSpinBox);
     const QSignalBlocker pca_stride_x_signals(ui_->PcaStrideXSpinBox);
@@ -169,14 +162,9 @@ void ImageRenderingPanel::on_notify()
     ui_->PcaStrideYSpinBox->setMaximum(api_.transform.get_pca_width_y());
     ui_->PcaStrideXSpinBox->setValue(api_.transform.get_pca_stride_x());
     ui_->PcaStrideYSpinBox->setValue(api_.transform.get_pca_stride_y());
-    const QSignalBlocker pca_rank_slider_signals(ui_->PcaRankFactorSlider);
     const QSignalBlocker pca_rank_spin_signals(ui_->PcaRankFactorSpinBox);
     const float rank_factor = is_local_pca ? api_.transform.get_pca_rank_factor()
                                            : api_.transform.get_pca_effective_rank_factor();
-    // Clamp only the slider display, before converting to int to avoid overflow.
-    // Its blocked signal leaves larger numeric factors intact in the setting.
-    const float slider_factor = std::min(rank_factor, ui_->PcaRankFactorSlider->maximum() / 100.f);
-    ui_->PcaRankFactorSlider->setValue(qRound(slider_factor * 100.));
     ui_->PcaRankFactorSpinBox->setValue(rank_factor);
 
     // Z (focus)

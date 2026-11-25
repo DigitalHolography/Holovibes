@@ -14,8 +14,8 @@ TEST(LocalPcaSerialization, OptionalGeometryDefaultsAndRoundTrips)
 {
     Rendering rendering;
     json legacy = rendering;
-    EXPECT_FALSE(legacy.contains("pca_width_x"));
-    EXPECT_FALSE(legacy.contains("pca_rank_factor"));
+    EXPECT_FALSE(legacy.contains("local_pca_width_x"));
+    EXPECT_FALSE(legacy.contains("local_pca_rank_factor"));
     rendering.pca_width_x = 7;
     rendering.pca_rank_factor = 2.f;
     from_json(legacy, rendering);
@@ -33,12 +33,17 @@ TEST(LocalPcaSerialization, OptionalGeometryDefaultsAndRoundTrips)
     rendering.pca_rank_factor = .75f;
     json encoded = rendering;
     EXPECT_EQ(encoded["time_transformation"], "LOCAL_PCA");
+    EXPECT_EQ(encoded["local_pca_width_x"], 24u);
+    EXPECT_FALSE(encoded.contains("pca_rank_factor"));
     const auto decoded = encoded.get<Rendering>();
     EXPECT_EQ(decoded.pca_width_x, 24u);
     EXPECT_EQ(decoded.pca_width_y, 12u);
     EXPECT_EQ(decoded.pca_stride_x, 8u);
     EXPECT_EQ(decoded.pca_stride_y, 3u);
     EXPECT_FLOAT_EQ(decoded.pca_rank_factor, .75f);
+    encoded.erase("local_pca_rank_factor");
+    encoded["pca_rank_factor"] = 2.f;
+    EXPECT_FLOAT_EQ(encoded.get<Rendering>().pca_rank_factor, 2.f);
     EXPECT_EQ(json("Local PCA").get<TimeTransformation>(), TimeTransformation::LOCAL_PCA);
 }
 
@@ -133,10 +138,16 @@ TEST_F(LocalPcaSettingsTest, JsonRoundTripAndPartialPatchesPreserveGeometry)
     EXPECT_EQ(API.transform.get_pca_width_x(), 24u);
     EXPECT_EQ(API.transform.get_pca_stride_y(), 3u);
 
-    saved["image_rendering"].erase("pca_width_x");
-    saved["image_rendering"].erase("pca_width_y");
-    saved["image_rendering"].erase("pca_stride_x");
-    saved["image_rendering"].erase("pca_stride_y");
+    patch["image_rendering"] = {{"pca_width_x", 20u}, {"pca_stride_y", 4u}, {"local_pca_stride_y", 5u}};
+    ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
+    EXPECT_EQ(API.transform.get_pca_width_x(), 20u);
+    EXPECT_EQ(API.transform.get_pca_stride_x(), 8u);
+    EXPECT_EQ(API.transform.get_pca_stride_y(), 5u);
+
+    saved["image_rendering"].erase("local_pca_width_x");
+    saved["image_rendering"].erase("local_pca_width_y");
+    saved["image_rendering"].erase("local_pca_stride_x");
+    saved["image_rendering"].erase("local_pca_stride_y");
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_EQ(API.transform.get_pca_width_x(), 32u);
     EXPECT_EQ(API.transform.get_pca_width_y(), 32u);
@@ -166,7 +177,7 @@ TEST_F(LocalPcaSettingsTest, RankFactorValidatesAndSurvivesSettingsRoundTripAndP
     ASSERT_EQ(API.transform.set_pca_rank_factor(0.f), ApiCode::OK);
     ASSERT_EQ(API.transform.set_pca_rank_factor(75.25f), ApiCode::OK);
     json saved = API.settings.compute_settings_to_json();
-    EXPECT_FLOAT_EQ(saved["image_rendering"]["pca_rank_factor"].get<float>(), 75.25f);
+    EXPECT_FLOAT_EQ(saved["image_rendering"]["local_pca_rank_factor"].get<float>(), 75.25f);
     ASSERT_EQ(API.transform.set_pca_rank_factor(2.f), ApiCode::OK);
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 75.25f);
@@ -175,19 +186,19 @@ TEST_F(LocalPcaSettingsTest, RankFactorValidatesAndSurvivesSettingsRoundTripAndP
     ASSERT_EQ(API.settings.load_compute_settings(patch), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 75.25f);
 
-    saved["image_rendering"].erase("pca_rank_factor");
+    saved["image_rendering"].erase("local_pca_rank_factor");
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 1.f);
 }
 
-TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorPreservesValuesAboveSliderRange)
+TEST_F(LocalPcaSettingsTest, ConfiguredRankFactorAcceptsLargeValues)
 {
     ASSERT_EQ(API.transform.set_time_transformation(TimeTransformation::LOCAL_PCA), ApiCode::OK);
     json saved = API.settings.compute_settings_to_json();
-    saved["image_rendering"]["pca_rank_factor"] = -2.f;
+    saved["image_rendering"]["local_pca_rank_factor"] = -2.f;
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 0.f);
-    saved["image_rendering"]["pca_rank_factor"] = 20.f;
+    saved["image_rendering"]["local_pca_rank_factor"] = 20.f;
     ASSERT_EQ(API.settings.load_compute_settings(saved), ApiCode::OK);
     EXPECT_FLOAT_EQ(API.transform.get_pca_rank_factor(), 20.f);
 

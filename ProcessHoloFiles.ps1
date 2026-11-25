@@ -197,12 +197,12 @@ else {
         $localPcaConfig = Get-Content -LiteralPath (Get-PresetPath 'settingsDoppler37kHz.json') -Raw | ConvertFrom-Json
         $localPcaRendering = $localPcaConfig.image_rendering
         $localPcaParameters = @{}
-        $localPcaParameters.pca_width_x = Read-LocalPcaNumber 'pca_width_x' 32 1 65535
-        $localPcaParameters.pca_width_y = Read-LocalPcaNumber 'pca_width_y' 32 1 ([Math]::Min(65535, [Math]::Floor([int]::MaxValue / $localPcaParameters.pca_width_x)))
-        $localPcaParameters.pca_stride_x = Read-LocalPcaNumber 'pca_stride_x' ([Math]::Min(16, $localPcaParameters.pca_width_x)) 1 $localPcaParameters.pca_width_x
-        $localPcaParameters.pca_stride_y = Read-LocalPcaNumber 'pca_stride_y' ([Math]::Min(16, $localPcaParameters.pca_width_y)) 1 $localPcaParameters.pca_width_y
+        $localPcaParameters.local_pca_width_x = Read-LocalPcaNumber 'local_pca_width_x' 32 1 65535
+        $localPcaParameters.local_pca_width_y = Read-LocalPcaNumber 'local_pca_width_y' 32 1 ([Math]::Min(65535, [Math]::Floor([int]::MaxValue / $localPcaParameters.local_pca_width_x)))
+        $localPcaParameters.local_pca_stride_x = Read-LocalPcaNumber 'local_pca_stride_x' ([Math]::Min(16, $localPcaParameters.local_pca_width_x)) 1 $localPcaParameters.local_pca_width_x
+        $localPcaParameters.local_pca_stride_y = Read-LocalPcaNumber 'local_pca_stride_y' ([Math]::Min(16, $localPcaParameters.local_pca_width_y)) 1 $localPcaParameters.local_pca_width_y
         $localPcaRendering.time_transformation_size = Read-LocalPcaNumber 'time_transform_size' 64 1 65535
-        $localPcaParameters.pca_rank_factor = Read-LocalPcaNumber 'PCA rank factor' 1 0 ([single]::MaxValue) -Fractional
+        $localPcaParameters.local_pca_rank_factor = Read-LocalPcaNumber 'Local PCA rank factor' 1 0 ([single]::MaxValue) -Fractional
         $localPcaRendering | Add-Member -NotePropertyMembers $localPcaParameters
         $localPcaRendering.time_transformation = 'LOCAL_PCA'
         $localPcaRendering.time_transformation_stride = $localPcaRendering.time_transformation_size

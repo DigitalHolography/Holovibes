@@ -124,11 +124,11 @@ struct Rendering
             value.pca_width_y != 32 || value.pca_stride_x != 16 || value.pca_stride_y != 16 ||
             value.pca_rank_factor != 1.f)
         {
-            j["pca_width_x"] = value.pca_width_x;
-            j["pca_width_y"] = value.pca_width_y;
-            j["pca_stride_x"] = value.pca_stride_x;
-            j["pca_stride_y"] = value.pca_stride_y;
-            j["pca_rank_factor"] = value.pca_rank_factor;
+            j["local_pca_width_x"] = value.pca_width_x;
+            j["local_pca_width_y"] = value.pca_width_y;
+            j["local_pca_stride_x"] = value.pca_stride_x;
+            j["local_pca_stride_y"] = value.pca_stride_y;
+            j["local_pca_rank_factor"] = value.pca_rank_factor;
         }
         if (value.pca_effective_rank_enabled || value.pca_effective_rank_factor != 1.f)
         {
@@ -149,12 +149,16 @@ struct Rendering
         j.at("time_transformation_size").get_to(value.time_transformation_size);
         // Recordings and configuration files written before LSCI use the paper's 5x5 neighborhood.
         value.lsci_spatial_window = j.value("lsci_spatial_window", 5u);
-        value.pca_width_x = j.value("pca_width_x", 32u);
-        value.pca_width_y = j.value("pca_width_y", 32u);
-        value.pca_stride_x = j.value("pca_stride_x", 16u);
-        value.pca_stride_y = j.value("pca_stride_y", 16u);
-        // Settings written before the rank slider preserve the original cutoff.
-        value.pca_rank_factor = j.value("pca_rank_factor", 1.f);
+        const auto local_pca_value = [&j](const char* legacy_key, auto default_value)
+        {
+            const auto key = std::string("local_") + legacy_key;
+            return j.value(j.contains(key) ? key.c_str() : legacy_key, default_value);
+        };
+        value.pca_width_x = local_pca_value("pca_width_x", 32u);
+        value.pca_width_y = local_pca_value("pca_width_y", 32u);
+        value.pca_stride_x = local_pca_value("pca_stride_x", 16u);
+        value.pca_stride_y = local_pca_value("pca_stride_y", 16u);
+        value.pca_rank_factor = local_pca_value("pca_rank_factor", 1.f);
         value.pca_effective_rank_enabled = j.value("pca_effective_rank_enabled", false);
         value.pca_effective_rank_factor = j.value("pca_effective_rank_factor", 1.f);
         j.at("lambda").get_to(value.lambda);
