@@ -76,13 +76,22 @@ bool Pipe::can_insert_to_record_queue(int nb_elm_to_add)
         return false;
     }
 
-    size_t total =
-        total_nb_frames_to_acquire * (setting<settings::FrameSkip>() + 1) + setting<settings::RecordFrameOffset>();
-
-    if (!unlimited_record && nb_frames_acquired >= total)
+    if (!unlimited_record)
     {
-        Holovibes::instance().finish_frame_acquisition(recording);
-        return false;
+        const size_t count = total_nb_frames_to_acquire.load();
+        const size_t step = static_cast<size_t>(setting<settings::FrameSkip>()) + 1;
+        const size_t offset = setting<settings::RecordFrameOffset>();
+        size_t total = count * step + offset;
+        if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
+        {
+            // Counts are in planes. Capture through the last selected triplet.
+            total = count == 0 ? 0 : 3 * (offset + (count / 3 - 1) * step + 1);
+        }
+        if (nb_frames_acquired >= total)
+        {
+            Holovibes::instance().finish_frame_acquisition(recording);
+            return false;
+        }
     }
 
     while (static_cast<size_t>(record_queue.get_size()) + static_cast<size_t>(nb_elm_to_add) >

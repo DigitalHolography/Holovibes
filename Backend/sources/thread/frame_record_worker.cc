@@ -109,17 +109,19 @@ io_files::OutputFrameFile* FrameRecordWorker::open_output_file(const uint frame_
         io_files::OutputFrameFileFactory::create(record_file_path,
                                                  recording_->queue->get_fd(),
                                                  frame_count,
-                                                 data_type);
+                                                 data_type,
+                                                 recording_->moments_avi_fft_shift);
 
     LOG_DEBUG("output_frame_file = {}", output_frame_file->get_file_path());
 
     return output_frame_file;
 }
 
-bool FrameRecordWorker::all_frames_saved(uint frames_saved) const
+bool FrameRecordWorker::all_frames_saved(uint frames_saved, int planes_per_frame) const
 {
     return !recording_->acquiring.load(std::memory_order_acquire) &&
-           (frames_saved >= std::get<2>(*recording_->progress).load() || recording_->queue->get_size() == 0);
+           (frames_saved >= std::get<2>(*recording_->progress).load() ||
+            std::cmp_less(recording_->queue->get_size(), planes_per_frame));
 }
 
 void FrameRecordWorker::notify_acquisition_finished()
@@ -155,14 +157,9 @@ void FrameRecordWorker::run()
     auto processed_fps = saving_fps.counter;
 
     size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
-    uint total_to_record = nb_frames_to_record.load();
-
-    // for MOMENTS, 3 plans = 1 frame
-    uint img_count = total_to_record;
-    if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
-    {
-        img_count = total_to_record / 3;
-    }
+    const bool record_moments = setting<settings::RecordMode>() == RecordMode::MOMENTS;
+    const int planes_per_frame = record_moments ? 3 : 1;
+    const uint img_count = nb_frames_to_record.load() / planes_per_frame;
 
     if (capture_frame_timestamps && img_count > 0)
         frame_timestamps_us.reserve(img_count);
@@ -170,30 +167,28 @@ void FrameRecordWorker::run()
     const size_t output_frame_size = recording_->queue->get_fd().get_frame_size();
 
     // buffers initialisation
-    io_files::OutputFrameFile* output_frame_file = nullptr;
-    char* frame_buffer = new char[output_frame_size];
-    char* moments_buffer = nullptr;
-    int moment_idx = 0;
+    std::unique_ptr<io_files::OutputFrameFile> output_frame_file;
+    auto frame_buffer = std::make_unique_for_overwrite<char[]>(output_frame_size);
+    const size_t moment_pixels = output_frame_size / sizeof(float);
+    std::vector<float> moments_buffer(record_moments ? moment_pixels * planes_per_frame : 0);
 
     // Buffer cube for OCT_CUBE / OCT_CUBE_FLOAT
-    char* cube_buffer = nullptr;
+    std::unique_ptr<char[]> cube_buffer;
     size_t cube_size = 0;
     size_t current_cube_slice = 0;
-    if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
-    {
-        moments_buffer = new char[output_frame_size * 3];
-    }
-    else if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
-             setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
+    if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
+        setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
     {
         size_t depth = setting<settings::TimeTransformationSize>();
         cube_size = depth * output_frame_size;
-        cube_buffer = new char[cube_size];
+        cube_buffer = std::make_unique_for_overwrite<char[]>(cube_size);
     }
 
+    const cudaMemcpyKind copy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToHost
+                                                                                           : cudaMemcpyHostToHost;
     try
     {
-        output_frame_file = open_output_file(img_count);
+        output_frame_file.reset(open_output_file(img_count));
         output_frame_file->write_header();
 
         std::optional<int> contiguous_frames = std::nullopt;
@@ -202,14 +197,12 @@ void FrameRecordWorker::run()
         {
             notify_acquisition_finished();
 
-            if (all_frames_saved(nb_frames_recorded.load()))
+            if (all_frames_saved(nb_frames_recorded.load(), planes_per_frame))
                 break;
 
-            while (recording_->queue->get_size() == 0 && !all_frames_saved(nb_frames_recorded.load()))
-            {
+            while (std::cmp_less(recording_->queue->get_size(), planes_per_frame) &&
+                   !all_frames_saved(nb_frames_recorded.load(), planes_per_frame))
                 notify_acquisition_finished();
-                continue;
-            }
 
             if (recording_->queue->has_overwritten() || recording_->input_overwritten.load(std::memory_order_acquire))
             {
@@ -231,7 +224,7 @@ void FrameRecordWorker::run()
             }
 
             // Stop the record when all frames has been aquired and written
-            if (all_frames_saved(nb_frames_recorded.load()))
+            if (all_frames_saved(nb_frames_recorded.load(), planes_per_frame))
                 break;
 
             // Stop the record if a queue has overwritten and when all contiguous frames are written
@@ -240,17 +233,10 @@ void FrameRecordWorker::run()
                  nb_frames_recorded >= nb_frames_to_record))
                 break;
 
-            while (recording_->queue->get_size() == 0 && !all_frames_saved(nb_frames_recorded.load()))
-            {
-                notify_acquisition_finished();
-                continue;
-            }
-
-            // Skip initial frames
-
+            // Apply offsets and frame skipping to a complete frame, including all moment planes.
             if (nb_frames_to_skip > 0)
             {
-                recording_->queue->dequeue();
+                recording_->queue->dequeue(planes_per_frame);
                 if (setting<settings::RecordMode>() == RecordMode::RAW)
                 {
                     (void)recording_->stamps.pop_one_blocking(); // consume the corresponding stamp
@@ -260,11 +246,24 @@ void FrameRecordWorker::run()
             }
             nb_frames_to_skip = setting<settings::FrameSkip>();
 
-            recording_->queue->dequeue(frame_buffer,
-                                       stream_,
-                                       setting<settings::RecordQueueLocation>() == holovibes::Device::GPU
-                                           ? cudaMemcpyDeviceToHost
-                                           : cudaMemcpyHostToHost);
+            if (record_moments)
+            {
+                for (int moment = 0; moment < planes_per_frame; ++moment)
+                {
+                    recording_->queue->dequeue(frame_buffer.get(), stream_, copy_kind);
+                    const auto* values = reinterpret_cast<const float*>(frame_buffer.get());
+                    for (size_t pixel = 0; pixel < moment_pixels; ++pixel)
+                        moments_buffer[pixel * planes_per_frame + moment] = values[pixel];
+                }
+                output_frame_file->write_frame(reinterpret_cast<const char*>(moments_buffer.data()),
+                                               moments_buffer.size() * sizeof(float));
+                (*processed_fps)++;
+                nb_frames_recorded += planes_per_frame;
+                integrate_fps_average();
+                continue;
+            }
+
+            recording_->queue->dequeue(frame_buffer.get(), stream_, copy_kind);
 
             uint64_t this_id = 0;
             if (setting<settings::RecordMode>() == RecordMode::RAW)
@@ -290,32 +289,13 @@ void FrameRecordWorker::run()
                 // LOG_ERROR(this_id);
             }
 
-            // MOMENTS
-            if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
-            {
-                auto in_f = reinterpret_cast<float*>(frame_buffer);
-                auto out_f = reinterpret_cast<float*>(moments_buffer);
-                size_t npix = output_frame_size / sizeof(float); // # pixels = H×W
-                for (size_t i = 0; i < npix; ++i)
-                {
-                    out_f[i * 3 + moment_idx] = in_f[i];
-                }
-                moment_idx++;
-
-                if (moment_idx == 3)
-                {
-                    // [H×W×3]
-                    output_frame_file->write_frame(moments_buffer, output_frame_size * 3);
-                    (*processed_fps)++;
-                    nb_frames_recorded += 3;
-                    moment_idx = 0;
-                }
-            }
             // OCT_CUBE / OCT_CUBE_FLOAT
-            else if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
-                     setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
+            if (setting<settings::RecordMode>() == RecordMode::OCT_CUBE ||
+                setting<settings::RecordMode>() == RecordMode::OCT_CUBE_FLOAT)
             {
-                std::memcpy(cube_buffer + current_cube_slice * output_frame_size, frame_buffer, output_frame_size);
+                std::memcpy(cube_buffer.get() + current_cube_slice * output_frame_size,
+                            frame_buffer.get(),
+                            output_frame_size);
                 current_cube_slice++;
                 (*processed_fps)++;
                 nb_frames_recorded++;
@@ -323,14 +303,14 @@ void FrameRecordWorker::run()
                 size_t depth = setting<settings::TimeTransformationSize>();
                 if (current_cube_slice == depth)
                 {
-                    output_frame_file->write_frame(cube_buffer, cube_size);
+                    output_frame_file->write_frame(cube_buffer.get(), cube_size);
                     current_cube_slice = 0;
                 }
             }
             // RAW, PROCESSED
             else
             {
-                output_frame_file->write_frame(frame_buffer, output_frame_size);
+                output_frame_file->write_frame(frame_buffer.get(), output_frame_size);
                 if (capture_frame_timestamps)
                     frame_timestamps_us.push_back({last_ts_us, last_camera_ts_us, last_offset_us});
                 (*processed_fps)++;
@@ -339,8 +319,9 @@ void FrameRecordWorker::run()
             integrate_fps_average();
         }
 
-        LOG_INFO("Recording stopped, written frames: {}", nb_frames_recorded.load());
-        output_frame_file->correct_number_of_frames(nb_frames_recorded.load());
+        const uint frames_written = nb_frames_recorded.load() / planes_per_frame;
+        LOG_INFO("Recording stopped, written frames: {}", frames_written);
+        output_frame_file->correct_number_of_frames(frames_written);
 
         if (setting<settings::RecordMode>() == RecordMode::RAW && first_id.has_value())
         {
@@ -352,7 +333,7 @@ void FrameRecordWorker::run()
                      duration_us,
                      duration_us / 1000,
                      static_cast<double>(duration_us) / 1'000'000.0);
-            if (auto* holo = dynamic_cast<io_files::OutputHoloFile*>(output_frame_file))
+            if (auto* holo = dynamic_cast<io_files::OutputHoloFile*>(output_frame_file.get()))
             {
                 holo->set_session_timestamps_us(first_ts_us,
                                                 last_ts_us,
@@ -373,28 +354,23 @@ void FrameRecordWorker::run()
         else
             LOG_INFO("Record is contiguous!");
 
-        size_t contiguous = contiguous_frames.value_or(nb_frames_recorded.load());
+        size_t contiguous = contiguous_frames.value_or(nb_frames_recorded.load()) / planes_per_frame;
         output_frame_file->export_compute_settings(
             static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)),
             contiguous);
 
         output_frame_file->write_footer();
     }
-    catch (const io_files::FileException& e)
+    catch (const std::exception& e)
     {
+        recording_->save_failed.store(true, std::memory_order_release);
         LOG_ERROR("{}", e.what());
     }
 
-    delete output_frame_file;
-    delete[] frame_buffer;
-    if (moments_buffer)
-        delete[] moments_buffer;
-    if (cube_buffer)
-        delete[] cube_buffer;
-
+    output_frame_file.reset();
+    Holovibes::instance().finish_frame_acquisition(recording_.get());
     recording_->queue->reset();
     recording_->stamps.clear();
-    Holovibes::instance().finish_frame_acquisition(recording_.get());
     notify_acquisition_finished();
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");

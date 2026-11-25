@@ -306,13 +306,17 @@ class Holovibes
      * \param record_mode
      * \param nb_frames_skip
      * \param callback
+     * \param moments_avi_fft_shift
      */
-    bool start_frame_record(const std::function<void()>& callback = []() {});
+    bool start_frame_record(const std::function<void()>& callback = []() {}, bool moments_avi_fft_shift = false);
 
     void stop_frame_record();
 
     /*! \brief Return whether a record queue is available for a new capture. */
     bool can_start_frame_record() const;
+
+    /*! \brief Return whether the active frame recording failed to save its output. */
+    bool frame_record_save_failed() const;
 
     /*! \brief Mark a recording's capture complete without affecting a newer active recording. */
     void finish_frame_acquisition(RecordingContext* recording);

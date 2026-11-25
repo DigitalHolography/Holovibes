@@ -123,7 +123,12 @@ OptionsParser::OptionsParser()
     (
         "moments_record",
         po::bool_switch()->default_value(false),
-        "Record moments (default = false)"
+        "Record M0, M1 and M2. Use -o with .avi for three videos or .h5 for one float dataset."
+    )
+    (
+        "fft_shift",
+        po::bool_switch()->default_value(false),
+        "Apply a spatial FFT shift to each video exported with --moments_record and .avi output."
     )
     (
         "oct_cube_record",
@@ -242,6 +247,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             }
         }
         options_.moments_record = vm_["moments_record"].as<bool>();
+        options_.fft_shift = vm_["fft_shift"].as<bool>();
         options_.oct_cube_record = vm_["oct_cube_record"].as<bool>();
         options_.oct_cube_float_record = vm_["oct_cube_float_record"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();

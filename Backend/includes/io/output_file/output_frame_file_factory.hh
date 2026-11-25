@@ -41,11 +41,13 @@ class OutputFrameFileFactory
      * Thus, it must be called before the other methods
      *
      * \param file_path The path of the file to create, the extension must be supported
+     * \param moments_avi_fft_shift Apply a spatial FFT shift when encoding the moment videos.
      * \throw FileException if the OutputFrameFile is not created or if the file extension is not supported
      */
     static OutputFrameFile* create(const std::string& file_path,
                                    const camera::FrameDescriptor& fd,
                                    uint64_t img_nb,
-                                   RecordedDataType data_type);
+                                   RecordedDataType data_type,
+                                   bool moments_avi_fft_shift = false);
 };
 } // namespace holovibes::io_files

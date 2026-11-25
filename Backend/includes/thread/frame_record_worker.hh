@@ -125,7 +125,7 @@ class FrameRecordWorker final : public Worker
      *
      * \return True if all frames are saved (acquired + saved), false otherwise.
      */
-    bool all_frames_saved(uint frames_saved) const;
+    bool all_frames_saved(uint frames_saved, int planes_per_frame) const;
 
     /*! \brief Compute fps_buffer_ average on the correct number of value. */
     size_t compute_fps_average() const;

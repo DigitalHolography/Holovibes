@@ -99,6 +99,18 @@ Camera plugins may require vendor SDKs and drivers; see [camera setup](docs/DEVE
 
 For direct CMake commands, build options, and binary cache configuration, see the [developer setup guide](docs/DEVELOPMENT.md).
 
+### Export moments from the CLI
+
+```powershell
+.\Holovibes.exe -i input.holo -c settings.json --moments_record -o moments.avi
+```
+
+This writes three synchronized 8-bit grayscale videos named `R_moments_m0.avi`, `R_moments_m1.avi`, and `R_moments_m2.avi`. Frame skipping applies to all three planes together. Each video uses a fixed display range based on its first nonzero frame. M1 uses mid-gray for zero and represents both signs. Use `-o moments.h5` to export the three planes as floats in one HDF5 dataset.
+
+Add `--fft_shift` to apply a spatial FFT shift to all three AVI videos.
+
+The `P` start and width settings select the range used for the moments. The recorder uses the sampling rate from the input metadata, or `--fps` for older files that lack it. With neither, frequency weights use cycles per input frame. LSCI exports contrast maps and has no moment recording mode.
+
 ## Documentation
 
 - [Build from source and developer setup](docs/DEVELOPMENT.md)

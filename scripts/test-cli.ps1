@@ -23,6 +23,19 @@ $partialSettings = Join-Path $outputDir 'partial-settings.json'
 [IO.File]::WriteAllText($partialSettings, '{"version":"v1","image_rendering":{"time_transformation_stride":1}}')
 $accumulationSettings = Join-Path $outputDir 'accumulation-settings.json'
 [IO.File]::WriteAllText($accumulationSettings, '{"version":"v1","view":{"window":{"xy":{"output_image_accumulation":3}}}}')
+
+function Assert-AviTiming([string]$Path, [int]$ExpectedFrames, [double]$ExpectedFps) {
+    $aviBytes = [IO.File]::ReadAllBytes($Path)
+    $streamHeader = [Text.Encoding]::ASCII.GetString($aviBytes, 0, [Math]::Min(4096, $aviBytes.Length)).IndexOf('strh')
+    if ($streamHeader -lt 0) { throw "Missing AVI stream header: $Path" }
+    $scale = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 28)
+    $rate = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 32)
+    $frames = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 40)
+    if ($frames -ne $ExpectedFrames -or $scale -eq 0 -or [Math]::Abs($rate / $scale - $ExpectedFps) -gt 0.001) {
+        throw "AVI lost frames or has the wrong playback rate: $Path"
+    }
+}
+
 $previousAppData = $env:APPDATA
 $previousPath = $env:PATH
 try {
@@ -50,8 +63,42 @@ try {
         @{ Name = 'lsci-pca-stride-zero'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '0'); NoSettings = $true; Fails = $true },
         @{ Name = 'lsci-pca-stride-negative'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '-1'); NoSettings = $true; Fails = $true },
         @{ Name = 'lsci-pca-stride-count'; Extension = 'avi'; Options = @('--lsci_pca', '--lsci_pca_frames', '4', '--lsci_pca_stride', '2', '-n', '4'); NoSettings = $true; Fails = $true },
-        @{ Name = 'moments'; Extension = 'h5'; Options = @('--moments_record') }
+        @{ Name = 'moments'; Extension = 'h5'; Options = @('--moments_record') },
+        @{ Name = 'moments-invalid-extension'; Extension = 'mp4'; Options = @('--moments_record'); Fails = $true }
     )
+    foreach ($mode in @(
+        @{ Name = 'direct'; Time = 'NONE'; Space = 'NONE' },
+        @{ Name = 'stft'; Time = 'STFT'; Space = 'FRESNELTR'; Skip = 1 },
+        @{ Name = 'pca'; Time = 'PCA'; Space = 'ANGULARSP' },
+        @{ Name = 'pca-rank'; Time = 'PCA'; Space = 'NONE'; EffectiveRank = $true },
+        @{ Name = 'ssa-stft'; Time = 'SSA_STFT'; Space = 'NONE' },
+        @{ Name = 'local-pca'; Time = 'LOCAL_PCA'; Space = 'NONE' },
+        @{ Name = 'lsci'; Time = 'LSCI'; Space = 'NONE'; Fails = $true }
+    )) {
+        $name = "moments-avi-$($mode.Name)"
+        $configPath = Join-Path $outputDir "$name.json"
+        $rendering = @{
+            image_mode = 'RAW'
+            time_transformation = $mode.Time
+            time_transformation_size = 4
+            time_transformation_stride = 4
+            batch_size = 4
+            space_transformation = $mode.Space
+            propagation_distance = 0.026
+        }
+        if ($mode.EffectiveRank) {
+            $rendering.pca_effective_rank_enabled = $true
+            $rendering.pca_effective_rank_factor = 0.5
+        }
+        $config = @{ version = 'v1'; image_rendering = $rendering; view = @{ z = @{ start = 0; width = 3 } } }
+        [IO.File]::WriteAllText($configPath, ($config | ConvertTo-Json -Depth 8 -Compress))
+        $skip = [int]$mode.Skip
+        $cases += @{
+            Name = $name; Extension = 'avi'; Settings = $configPath; MomentAvi = $true; Fails = $mode.Fails
+            Options = @('--moments_record', '--fps', '240', '--frame_skip', "$skip")
+            AviFrames = 2 - $skip; AviFps = 60 / ($skip + 1)
+        }
+    }
     foreach ($case in $cases) {
         $outputFile = Join-Path $outputDir "$($case.Name).$($case.Extension)"
         $caseInput = if ($case.Input) { $case.Input } else { $inputFile }
@@ -76,7 +123,18 @@ try {
             continue
         }
         if ($child.ExitCode -ne 0) { throw "CLI case $($case.Name) failed ($($child.ExitCode)). Logs: $outputDir" }
-        $outputs = @(Get-ChildItem -LiteralPath $outputDir -File -Filter "*$($case.Name).$($case.Extension)")
+        if ($case.MomentAvi) {
+            $outputs = @(foreach ($moment in 0..2) {
+                $files = @(Get-ChildItem -LiteralPath $outputDir -File -Filter "*$($case.Name)_m$moment.avi")
+                if ($files.Count -ne 1) { throw "Expected one M$moment video for $($case.Name). Logs: $outputDir" }
+                $files[0]
+            })
+            if (Get-ChildItem -LiteralPath $outputDir -File -Filter "*$($case.Name).avi") {
+                throw "Moment export created an extra AVI for $($case.Name). Logs: $outputDir"
+            }
+        } else {
+            $outputs = @(Get-ChildItem -LiteralPath $outputDir -File -Filter "*$($case.Name).$($case.Extension)")
+        }
         if ($outputs.Count -eq 0 -or ($outputs | Where-Object Length -EQ 0)) {
             throw "CLI case $($case.Name) produced no output. Logs: $outputDir"
         }
@@ -95,14 +153,8 @@ try {
             if (Select-String -LiteralPath "$outputDir/$($case.Name).stderr.log" -Pattern 'non monotonically increasing dts' -Quiet) {
                 throw "AVI export produced duplicate timestamps in $($case.Name). Logs: $outputDir"
             }
-            $aviBytes = [IO.File]::ReadAllBytes($outputs[0].FullName)
-            $streamHeader = [Text.Encoding]::ASCII.GetString($aviBytes, 0, [Math]::Min(4096, $aviBytes.Length)).IndexOf('strh')
-            if ($streamHeader -lt 0) { throw "Missing AVI stream header: $($case.Name)" }
-            $scale = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 28)
-            $rate = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 32)
-            $frames = [BitConverter]::ToUInt32($aviBytes, $streamHeader + 40)
-            if ($frames -ne $case.AviFrames -or $scale -eq 0 -or [Math]::Abs($rate / $scale - $case.AviFps) -gt 0.001) {
-                throw "AVI lost frames or has the wrong playback rate in $($case.Name). Logs: $outputDir"
+            foreach ($file in $outputs) {
+                Assert-AviTiming $file.FullName $case.AviFrames $case.AviFps
             }
         }
         if ($case.Name -like 'raw-*') {

@@ -275,9 +275,10 @@ class RecordApi : public IApi
      *
      * \param[in] callback A lambda function to execute at the end of the recording process.
      *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
+     * \param[in] moments_avi_fft_shift Apply a spatial FFT shift when encoding the moment videos.
      * \return ApiCode the status of the operation. FAILURE if the recording could not be started, OK otherwise.
      */
-    ApiCode start_record(std::function<void()> callback) const;
+    ApiCode start_record(std::function<void()> callback, bool moments_avi_fft_shift = false) const;
 
     /*! \brief Stops recording.
      *

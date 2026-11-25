@@ -139,6 +139,13 @@ bool Holovibes::can_start_frame_record() const
     return false;
 }
 
+bool Holovibes::frame_record_save_failed() const
+{
+    std::lock_guard lock(record_mutex_);
+    const auto* recording = active_recording_.load(std::memory_order_acquire);
+    return recording && recording->save_failed.load(std::memory_order_acquire);
+}
+
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
     LOG_INFO("Allocating input buffers...");
@@ -340,7 +347,7 @@ void Holovibes::stop_frame_read()
     input_queue_.store(nullptr);
 }
 
-bool Holovibes::start_frame_record(const std::function<void()>& callback)
+bool Holovibes::start_frame_record(const std::function<void()>& callback, bool moments_avi_fft_shift)
 {
     std::lock_guard lock(record_mutex_);
     if (record_queues_initializing_)
@@ -366,7 +373,7 @@ bool Holovibes::start_frame_record(const std::function<void()>& callback)
     }
 
     auto progress = FastUpdatesMap::map<RecordType>.get_entry(RecordType::FRAME);
-    auto context = std::make_shared<RecordingContext>(record_queues_[index], progress);
+    auto context = std::make_shared<RecordingContext>(record_queues_[index], progress, moments_avi_fft_shift);
     context->queue->reset();
     if (input_queue_.load())
         input_queue_.load()->request_reset();

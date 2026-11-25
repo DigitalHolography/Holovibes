@@ -6,6 +6,9 @@ namespace holovibes::io_files
 FrameFile::FrameFile(const std::string& file_path, FrameFile::OpeningMode mode)
     : file_path_(file_path)
 {
+    if (mode == OpeningMode::DEFERRED)
+        return;
+
     if (mode == FrameFile::OpeningMode::READ)
         file_ = fopen(file_path_.c_str(), "rb");
 
@@ -17,5 +20,9 @@ FrameFile::FrameFile(const std::string& file_path, FrameFile::OpeningMode mode)
         throw FileException("Unable to open file " + file_path_);
 }
 
-FrameFile::~FrameFile() { std::fclose(file_); }
+FrameFile::~FrameFile()
+{
+    if (file_)
+        std::fclose(file_);
+}
 } // namespace holovibes::io_files

@@ -21,10 +21,13 @@ namespace holovibes
  */
 struct RecordingContext
 {
-    RecordingContext(std::shared_ptr<Queue> record_queue, FastUpdatesHolder<RecordType>::Value record_progress)
+    RecordingContext(std::shared_ptr<Queue> record_queue,
+                     FastUpdatesHolder<RecordType>::Value record_progress,
+                     bool fft_shift)
         : queue(std::move(record_queue))
         , stamps(stamp_capacity(queue->get_max_size()))
         , progress(std::move(record_progress))
+        , moments_avi_fft_shift(fft_shift)
     {
     }
 
@@ -39,7 +42,9 @@ struct RecordingContext
     std::shared_ptr<Queue> queue;
     StampQueue stamps;
     FastUpdatesHolder<RecordType>::Value progress;
+    const bool moments_avi_fft_shift;
     std::atomic<bool> acquiring{true};
     std::atomic<bool> input_overwritten{false};
+    std::atomic<bool> save_failed{false};
 };
 } // namespace holovibes

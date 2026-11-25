@@ -1,7 +1,9 @@
 #include "cli.hh"
 #include "lsci_pca_cli.hh"
 
+#include <cmath>
 #include <iostream>
+#include <memory>
 #include "chrono.hh"
 
 #include "tools.hh"
@@ -101,6 +103,11 @@ int get_first_and_last_frame(holovibes::api::Api& api, const holovibes::OptionsD
 
 static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts)
 {
+    if (opts.moments_record && !opts.output_path->ends_with(".avi") && !opts.output_path->ends_with(".h5"))
+    {
+        LOG_ERROR("Moment recording requires an .avi or .h5 output path");
+        return 36;
+    }
     std::string input_path = opts.input_path.value();
 
     std::optional<holovibes::io_files::InputFrameFile*> input_frame_file_opt = api.input.import_file(input_path, "");
@@ -110,7 +117,7 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
         return 33;
     }
 
-    holovibes::io_files::InputFrameFile* input_frame_file = input_frame_file_opt.value();
+    std::unique_ptr<holovibes::io_files::InputFrameFile> input_frame_file(input_frame_file_opt.value());
 
     // CLI processing starts from the recording settings, then applies any config overrides.
     if (!opts.compute_settings_path && !input_frame_file->get_has_footer())
@@ -166,7 +173,32 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
         api.record.set_record_mode(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
+    {
+        const auto depth = api.input.get_input_fd().depth;
+        if (api.input.get_data_type() == holovibes::RecordedDataType::MOMENTS ||
+            (depth != camera::PixelDepth::Bits8 && depth != camera::PixelDepth::Bits16 &&
+             depth != camera::PixelDepth::Bits32))
+        {
+            LOG_ERROR("Moment recording requires single-channel 8-bit, 16-bit, or float32 input frames");
+            return 36;
+        }
+        const float distance = api.transform.get_z_distance();
+        if (api.transform.get_space_transformation() == holovibes::SpaceTransformation::FRESNELTR &&
+            (!std::isfinite(distance) || distance == 0.f))
+        {
+            LOG_ERROR("Fresnel moment recording requires a finite, nonzero propagation distance");
+            return 36;
+        }
+        if (api.input.get_camera_fps() == 0)
+        {
+            const auto sampling_fps = opts.fps.value_or(0);
+            api.input.set_camera_fps(sampling_fps > 0 ? sampling_fps : 1);
+            if (sampling_fps == 0)
+                LOG_INFO("Moment frequencies are in cycles per frame. Set --fps to the sampling rate to use hertz.");
+        }
+        api.compute.set_compute_mode(holovibes::Computation::Hologram);
         api.record.set_record_mode(holovibes::RecordMode::MOMENTS);
+    }
     else if (opts.oct_cube_record)
         api.record.set_record_mode(holovibes::RecordMode::OCT_CUBE);
     else if (opts.oct_cube_float_record)
@@ -181,8 +213,6 @@ static int set_parameters(holovibes::api::Api& api, const holovibes::OptionsDesc
 
     if (int ret = get_first_and_last_frame(api, opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
         return ret; // error 31, 32
-
-    delete input_frame_file;
 
     return 0;
 }
@@ -234,7 +264,8 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview) > 1 && !opts.record_raw &&
+    if (!opts.noskip_acc && !opts.moments_record &&
+        api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview) > 1 && !opts.record_raw &&
         api.transform.get_time_transformation() != holovibes::TimeTransformation::LSCI)
         nb_frames_skip = api.window_pp.get_accumulation_level(holovibes::WindowKind::XYview);
 
@@ -268,7 +299,7 @@ static int start_cli_workers(holovibes::api::Api& api, const holovibes::OptionsD
         api.record.set_nb_frame_skip(static_cast<uint>(output_fps * (frame_skip + 1)) / api.record.get_mp4_fps());
     }
 
-    if (api.record.start_record([]() {}) != holovibes::ApiCode::OK)
+    if (api.record.start_record([]() {}, opts.fft_shift) != holovibes::ApiCode::OK)
     {
         LOG_ERROR("Failed to start recording");
         return 38;
@@ -336,10 +367,11 @@ int start_cli(holovibes::api::Api& api, const holovibes::OptionsDescriptor& opts
     LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
+    const bool save_failed = holovibes::Holovibes::instance().frame_record_save_failed();
     api.compute.stop();
     if (contrast_once)
         api.contrast.set_contrast_update_callback({});
 
-    return 0;
+    return save_failed ? 40 : 0;
 }
 } // namespace cli

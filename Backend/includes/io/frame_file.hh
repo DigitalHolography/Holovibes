@@ -38,7 +38,8 @@ class FrameFile
     enum class OpeningMode
     {
         READ,
-        WRITE
+        WRITE,
+        DEFERRED
     };
 
     /*! \brief Open the file with the desired mode

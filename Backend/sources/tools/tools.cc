@@ -28,8 +28,7 @@ std::string get_record_filename(std::string file_path, std::string append, std::
     std::filesystem::path filePath(file_path);
     std::string filename = filePath.filename().stem().string();
     std::string extension = filePath.extension().string();
-    std::string path = filePath.parent_path().string();
-    std::filesystem::path oldFilePath = path + "/" + prepend + "_" + filename + append;
+    std::filesystem::path oldFilePath = filePath.parent_path() / (prepend + "_" + filename + append);
     std::filesystem::path newFilePath = oldFilePath.string() + extension;
 
     for (int i = 1; std::filesystem::exists(newFilePath); ++i)

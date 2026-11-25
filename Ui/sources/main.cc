@@ -164,6 +164,10 @@ int main(int argc, char* argv[])
 #endif
         if (opts.lsci_pca && (!opts.input_path || !opts.output_path))
             throw std::invalid_argument("--lsci_pca is CLI-only and requires both -i and -o");
+        if (opts.moments_record && (!opts.input_path || !opts.output_path))
+            throw std::invalid_argument("--moments_record requires both -i and -o");
+        if (opts.fft_shift && (!opts.moments_record || !opts.output_path || !opts.output_path->ends_with(".avi")))
+            throw std::invalid_argument("--fft_shift requires --moments_record and an .avi output path");
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(api, false);

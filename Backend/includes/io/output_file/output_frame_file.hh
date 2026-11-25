@@ -65,8 +65,8 @@ class OutputFrameFile : public FrameFile
      * \param file_path The path of the file to open
      * \throw FileException if an error occurred while opening the file
      */
-    OutputFrameFile(const std::string& file_path)
-        : FrameFile(file_path, FrameFile::OpeningMode::WRITE)
+    OutputFrameFile(const std::string& file_path, OpeningMode mode = OpeningMode::WRITE)
+        : FrameFile(file_path, mode)
     {
     }
 

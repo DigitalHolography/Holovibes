@@ -99,6 +99,12 @@ bool RecordApi::start_record_preconditions() const
         return false;
     }
 
+    if (get_record_mode() == RecordMode::MOMENTS && get_record_buffer_size() < 3)
+    {
+        LOG_ERROR("Moment recording needs room for all three planes in the record queue");
+        return false;
+    }
+
     if (get_record_mode() != RecordMode::CHART && !Holovibes::instance().can_start_frame_record())
     {
         LOG_ERROR("No record queue is available; wait for a pending file save to finish");
@@ -108,7 +114,7 @@ bool RecordApi::start_record_preconditions() const
     return true;
 }
 
-ApiCode RecordApi::start_record(std::function<void()> callback) const
+ApiCode RecordApi::start_record(std::function<void()> callback, bool moments_avi_fft_shift) const
 {
     if (!start_record_preconditions()) // Check if the record can be started
         return ApiCode::FAILURE;
@@ -121,23 +127,35 @@ ApiCode RecordApi::start_record(std::function<void()> callback) const
 
     std::get<0>(*fast_update_progress_entry) = 0; // Frames acquired
     std::get<1>(*fast_update_progress_entry) = 0; // Frames recorded
-    nb_frames_to_record = static_cast<uint>(get_record_frame_count().value_or(0));
-
-    if (nb_frames_to_record.load() > get_nb_frame_skip())
-        nb_frames_to_record -= get_nb_frame_skip();
-
-    // Calculate the right number of frames to record
-    float pas = get_nb_frame_skip() + 1.0f;
-    nb_frames_to_record = static_cast<uint>(std::floorf(static_cast<float>(nb_frames_to_record) / pas));
+    const auto frame_count = get_record_frame_count().value_or(0);
     if (record_mode == RecordMode::MOMENTS)
-        nb_frames_to_record = nb_frames_to_record * 3;
+    {
+        constexpr size_t max_moment_frames = std::numeric_limits<uint>::max() / 3;
+        const size_t offset = get_record_frame_offset();
+        if (offset > max_moment_frames || frame_count > max_moment_frames - offset)
+        {
+            LOG_ERROR("Requested moment recording exceeds the frame count limit");
+            return ApiCode::INVALID_VALUE;
+        }
+        const size_t step = static_cast<size_t>(get_nb_frame_skip()) + 1;
+        // The first frame after the initial offset is kept, followed by every step-th frame.
+        nb_frames_to_record = frame_count == 0 ? 0u : static_cast<uint>(3 * (1 + (frame_count - 1) / step));
+    }
+    else
+    {
+        nb_frames_to_record = static_cast<uint>(frame_count);
+        if (nb_frames_to_record.load() > get_nb_frame_skip())
+            nb_frames_to_record -= get_nb_frame_skip();
+        const float step = get_nb_frame_skip() + 1.0f;
+        nb_frames_to_record = static_cast<uint>(std::floorf(static_cast<float>(nb_frames_to_record) / step));
+    }
 
     // Start record worker
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().start_chart_record(callback);
     else
     {
-        if (!Holovibes::instance().start_frame_record(callback))
+        if (!Holovibes::instance().start_frame_record(callback, moments_avi_fft_shift))
             return ApiCode::FAILURE;
 
         set_frame_acquisition_enabled(true);
