@@ -28,7 +28,9 @@
 #define PIPE_CYCLE_SETTINGS                        \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
-    holovibes::settings::Q
+    holovibes::settings::Q,                        \
+    holovibes::settings::PcaRankFactor,             \
+    holovibes::settings::PcaEffectiveRankFactor
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::CutsViewEnabled,          \
@@ -47,6 +49,11 @@
     holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::TimeTransformation,       \
+    holovibes::settings::PcaWidthX,                \
+    holovibes::settings::PcaWidthY,                \
+    holovibes::settings::PcaStrideX,               \
+    holovibes::settings::PcaStrideY,               \
+    holovibes::settings::PcaEffectiveRankEnabled,  \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize,                \
@@ -172,6 +179,9 @@ class FourierTransform
      * This should eventually replace stft
      */
     void insert_pca();
+
+    /*! \brief Filter spatial tiles and average their residuals in the original temporal basis. */
+    void insert_local_pca();
 
     void insert_ssa_stft();
 

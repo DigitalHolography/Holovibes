@@ -76,11 +76,43 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     if (res != ApiCode::OK)
         return res;
 
+    json update = j_cs;
+    const auto rendering_update = update.find("image_rendering");
+    const bool has_rendering = rendering_update != update.end() && rendering_update->is_object();
+    const bool algorithm_selection = has_rendering && rendering_update->contains("time_transformation");
+    if (has_rendering)
+    {
+        // Translate the legacy keys before the strict merge, preferring the prefixed keys.
+        for (const auto* legacy_key : {"pca_width_x", "pca_width_y", "pca_stride_x", "pca_stride_y", "pca_rank_factor"})
+        {
+            const auto legacy = rendering_update->find(legacy_key);
+            if (legacy == rendering_update->end())
+                continue;
+            const auto key = std::string("local_") + legacy_key;
+            if (!rendering_update->contains(key))
+                (*rendering_update)[key] = *legacy;
+            rendering_update->erase(legacy);
+        }
+    }
+
     auto compute_settings = ComputeSettings();
     compute_settings.Update();
     json old_one = compute_settings;
     // Expose the optional key to the strict merge, preserving it for unrelated partial updates.
     old_one["image_rendering"]["lsci_spatial_window"] = compute_settings.image_rendering.lsci_spatial_window;
+    // The strict merge must know Local PCA's optional keys even when the current
+    // algorithm omits them from its serialized settings. Partial patches preserve
+    // the current geometry; a full legacy algorithm selection resets missing keys.
+    const auto& rendering = compute_settings.image_rendering;
+    auto& old_rendering = old_one["image_rendering"];
+    old_rendering["local_pca_width_x"] = algorithm_selection ? 32u : rendering.pca_width_x;
+    old_rendering["local_pca_width_y"] = algorithm_selection ? 32u : rendering.pca_width_y;
+    old_rendering["local_pca_stride_x"] = algorithm_selection ? 16u : rendering.pca_stride_x;
+    old_rendering["local_pca_stride_y"] = algorithm_selection ? 16u : rendering.pca_stride_y;
+    old_rendering["local_pca_rank_factor"] = algorithm_selection ? 1.f : rendering.pca_rank_factor;
+    old_one["image_rendering"]["pca_effective_rank_enabled"] = !algorithm_selection && rendering.pca_effective_rank_enabled;
+    old_one["image_rendering"]["pca_effective_rank_factor"] = algorithm_selection ? 1.f : rendering.pca_effective_rank_factor;
+
     // Legacy algorithm configurations predate this field and use the paper's 5x5 default.
     if (j_cs.contains("image_rendering") && j_cs["image_rendering"].is_object() &&
         j_cs["image_rendering"].contains("time_transformation") &&
@@ -90,7 +122,7 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
     try
     {
         // this allows a compute_settings to not have all the fields and to still work
-        merge_json(old_one, j_cs);
+        merge_json(old_one, update);
         compute_settings = old_one;
     }
     catch (const std::exception& e)
@@ -108,7 +140,12 @@ ApiCode ComputeSettingsApi::load_compute_settings(json& j_cs) const
         return ApiCode::FAILURE;
     }
 
-    const bool restart = lsci_transition && !API.compute.get_is_computation_stopped();
+    const bool local_pca_transition = API.transform.get_time_transformation() == TimeTransformation::LOCAL_PCA ||
+                                      compute_settings.image_rendering.time_transformation == TimeTransformation::LOCAL_PCA;
+    if (local_pca_transition && API.record.is_recording())
+        return ApiCode::FAILURE;
+    // A full configuration can change both temporal size and tile geometry.
+    const bool restart = (lsci_transition || local_pca_transition) && !API.compute.get_is_computation_stopped();
     if (restart)
         API.compute.stop();
     compute_settings.Load();

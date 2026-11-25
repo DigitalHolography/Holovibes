@@ -47,7 +47,8 @@ void Converts::insert_to_float(float* buffers_gpu_postprocess_frame)
         break;
     }
 
-    if (setting<settings::TimeTransformation>() == TimeTransformation::PCA && img_type != ImgType::Composite)
+    if (setting<settings::TimeTransformation>() == TimeTransformation::PCA &&
+        !setting<settings::PcaEffectiveRankEnabled>() && img_type != ImgType::Composite)
     {
         fn_compute_vect_->push_back(
             [=]()

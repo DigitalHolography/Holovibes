@@ -90,6 +90,10 @@ class ImageRenderingPanel : public Panel
     void set_time_transformation_size();
     /*! \brief Changes the odd side length of the square LSCI spatial neighborhood. */
     void set_lsci_spatial_window();
+    /*! \brief Apply Local PCA tile dimensions and spatial strides together. */
+    void set_local_pca_parameters();
+    /*! \brief Adjust the effective-rank multiplier for the selected PCA transform. */
+    void set_pca_rank_factor(double factor);
     /*! \brief Modifies wave length (lambda)
      *
      * \param value The new value of lambda

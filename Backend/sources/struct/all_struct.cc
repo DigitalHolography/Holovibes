@@ -8,6 +8,7 @@
  */
 
 #include <climits> // for UINT_MAX
+#include <cmath>
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
@@ -95,6 +96,13 @@ void Rendering::Update()
     this->time_transformation = GET_SETTING(TimeTransformation);
     this->time_transformation_size = GET_SETTING(TimeTransformationSize);
     this->lsci_spatial_window = GET_SETTING(LsciSpatialWindow);
+    this->pca_width_x = GET_SETTING(PcaWidthX);
+    this->pca_width_y = GET_SETTING(PcaWidthY);
+    this->pca_stride_x = GET_SETTING(PcaStrideX);
+    this->pca_stride_y = GET_SETTING(PcaStrideY);
+    this->pca_rank_factor = GET_SETTING(PcaRankFactor);
+    this->pca_effective_rank_enabled = GET_SETTING(PcaEffectiveRankEnabled);
+    this->pca_effective_rank_factor = GET_SETTING(PcaEffectiveRankFactor);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
@@ -199,6 +207,7 @@ void ComputeSettings::Load()
     this->color_composite_image.Load();
     this->view.Load();
     API.transform.normalize_lsci_settings();
+    API.transform.normalize_local_pca_settings();
 }
 
 void Windows::Load()
@@ -268,6 +277,14 @@ void Rendering::Load()
     UPDATE_SETTING(TimeTransformation, this->time_transformation);
     UPDATE_SETTING(TimeTransformationSize, this->time_transformation_size);
     UPDATE_SETTING(LsciSpatialWindow, this->lsci_spatial_window);
+    UPDATE_SETTING(PcaWidthX, this->pca_width_x);
+    UPDATE_SETTING(PcaWidthY, this->pca_width_y);
+    UPDATE_SETTING(PcaStrideX, this->pca_stride_x);
+    UPDATE_SETTING(PcaStrideY, this->pca_stride_y);
+    UPDATE_SETTING(PcaRankFactor, this->pca_rank_factor);
+    UPDATE_SETTING(PcaEffectiveRankEnabled, this->pca_effective_rank_enabled);
+    const float factor = this->pca_effective_rank_factor;
+    UPDATE_SETTING(PcaEffectiveRankFactor, std::isfinite(factor) ? std::max(factor, 0.f) : 1.f);
     API.transform.set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);

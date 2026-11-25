@@ -381,6 +381,11 @@
                <string>LSCI</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Local PCA</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="3" column="0">
@@ -581,6 +586,90 @@
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
+            </widget>
+           </item>
+           <item row="9" column="0" colspan="2">
+            <widget class="QGroupBox" name="PcaGroupBox">
+             <property name="title">
+              <string>Local PCA</string>
+             </property>
+             <layout class="QGridLayout" name="pcaLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="PcaWidthXLabel">
+                <property name="text"><string>Block width X</string></property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="PcaWidthXSpinBox">
+                <property name="toolTip"><string>local_pca_width_x: horizontal block size in pixels. Border samples wrap to the opposite edge.</string></property>
+                <property name="minimum"><number>1</number></property>
+                <property name="maximum"><number>65535</number></property>
+                <property name="value"><number>32</number></property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="PcaWidthYLabel">
+                <property name="text"><string>Block height Y</string></property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="PcaWidthYSpinBox">
+                <property name="toolTip"><string>local_pca_width_y: vertical block size in pixels. The shared time window sets the number of frames.</string></property>
+                <property name="minimum"><number>1</number></property>
+                <property name="maximum"><number>65535</number></property>
+                <property name="value"><number>32</number></property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="PcaStrideXLabel">
+                <property name="text"><string>Stride X</string></property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="PcaStrideXSpinBox">
+                <property name="toolTip"><string>local_pca_stride_x: pixels between block origins in X. Values below the block width overlap.</string></property>
+                <property name="minimum"><number>1</number></property>
+                <property name="maximum"><number>32</number></property>
+                <property name="value"><number>16</number></property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="PcaStrideYLabel">
+                <property name="text"><string>Stride Y</string></property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QSpinBox" name="PcaStrideYSpinBox">
+                <property name="toolTip"><string>local_pca_stride_y: pixels between block origins in Y. Strides cannot exceed block dimensions, so every pixel is covered.</string></property>
+                <property name="minimum"><number>1</number></property>
+                <property name="maximum"><number>32</number></property>
+                <property name="value"><number>16</number></property>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="2">
+               <widget class="QCheckBox" name="PcaEffectiveRankCheckBox">
+                <property name="text"><string>Use effective rank</string></property>
+                <property name="toolTip"><string>Remove the strongest components across the full frame. P start and width select time samples from the reconstructed residual.</string></property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="PcaRankFactorLabel">
+                <property name="text"><string>Rank factor</string></property>
+                <property name="toolTip"><string>Multiplier for the number of strongest components removed. 0 removes none; 1 uses the original effective rank; larger values remove more.</string></property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QDoubleSpinBox" name="PcaRankFactorSpinBox">
+                <property name="toolTip"><string>Removed components = ceil(factor x effective rank), limited to the time window. The multiplier is applied before rounding.</string></property>
+                <property name="keyboardTracking"><bool>false</bool></property>
+                <property name="suffix"><string> x</string></property>
+                <property name="decimals"><number>2</number></property>
+                <property name="minimum"><double>0.000000000000000</double></property>
+                <property name="singleStep"><double>0.010000000000000</double></property>
+                <property name="value"><double>1.000000000000000</double></property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

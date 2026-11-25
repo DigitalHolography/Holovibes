@@ -170,6 +170,32 @@ class TransformApi : public IApi
      */
     void normalize_lsci_settings() const;
 
+    /*! \brief Local PCA tile dimensions and spatial strides, in pixels. */
+    inline uint get_pca_width_x() const { return GET_SETTING(PcaWidthX); }
+    inline uint get_pca_width_y() const { return GET_SETTING(PcaWidthY); }
+    inline uint get_pca_stride_x() const { return GET_SETTING(PcaStrideX); }
+    inline uint get_pca_stride_y() const { return GET_SETTING(PcaStrideY); }
+
+    /*! \brief Multiplier applied to each block's effective rank before rounding. */
+    inline float get_pca_rank_factor() const { return GET_SETTING(PcaRankFactor); }
+
+    /*! \brief Set a finite, nonnegative factor; zero disables Local PCA component removal. */
+    ApiCode set_pca_rank_factor(float factor) const;
+
+    /*! \brief Set all four tile parameters together. Strides must not leave uncovered pixels. */
+    ApiCode set_local_pca_parameters(uint width_x, uint width_y, uint stride_x, uint stride_y) const;
+
+    /*! \brief Validate Local PCA geometry and enforce consecutive, disjoint temporal blocks. */
+    void normalize_local_pca_settings() const;
+
+    /*! \brief Enable effective-rank residual reconstruction in the global PCA time transform. */
+    inline bool get_pca_effective_rank_enabled() const { return GET_SETTING(PcaEffectiveRankEnabled); }
+    ApiCode set_pca_effective_rank_enabled(bool enabled) const;
+
+    /*! \brief Global PCA's finite, nonnegative effective-rank multiplier. */
+    inline float get_pca_effective_rank_factor() const { return GET_SETTING(PcaEffectiveRankFactor); }
+    ApiCode set_pca_effective_rank_factor(float factor) const;
+
 #pragma endregion
 
 #pragma region Time Tr.Freq

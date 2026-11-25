@@ -89,6 +89,15 @@ struct Rendering
     TimeTransformation time_transformation = TimeTransformation::NONE;
     unsigned time_transformation_size = 1;
     unsigned lsci_spatial_window = 5;
+    // Local PCA defaults: 32x32 tiles, 16x16 spatial strides (four contributions
+    // per pixel when frame dimensions are divisible by 16).
+    unsigned pca_width_x = 32;
+    unsigned pca_width_y = 32;
+    unsigned pca_stride_x = 16;
+    unsigned pca_stride_y = 16;
+    float pca_rank_factor = 1.f;
+    bool pca_effective_rank_enabled = false;
+    float pca_effective_rank_factor = 1.f;
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
@@ -110,6 +119,22 @@ struct Rendering
                  {"convolution", value.convolution}};
         if (value.time_transformation == TimeTransformation::LSCI || value.lsci_spatial_window != 5)
             j["lsci_spatial_window"] = value.lsci_spatial_window;
+        // Optional keys keep existing algorithm configurations backward compatible.
+        if (value.time_transformation == TimeTransformation::LOCAL_PCA || value.pca_width_x != 32 ||
+            value.pca_width_y != 32 || value.pca_stride_x != 16 || value.pca_stride_y != 16 ||
+            value.pca_rank_factor != 1.f)
+        {
+            j["local_pca_width_x"] = value.pca_width_x;
+            j["local_pca_width_y"] = value.pca_width_y;
+            j["local_pca_stride_x"] = value.pca_stride_x;
+            j["local_pca_stride_y"] = value.pca_stride_y;
+            j["local_pca_rank_factor"] = value.pca_rank_factor;
+        }
+        if (value.pca_effective_rank_enabled || value.pca_effective_rank_factor != 1.f)
+        {
+            j["pca_effective_rank_enabled"] = value.pca_effective_rank_enabled;
+            j["pca_effective_rank_factor"] = value.pca_effective_rank_factor;
+        }
     }
 
     friend void from_json(const json& j, Rendering& value)
@@ -124,6 +149,18 @@ struct Rendering
         j.at("time_transformation_size").get_to(value.time_transformation_size);
         // Recordings and configuration files written before LSCI use the paper's 5x5 neighborhood.
         value.lsci_spatial_window = j.value("lsci_spatial_window", 5u);
+        const auto local_pca_value = [&j](const char* legacy_key, auto default_value)
+        {
+            const auto key = std::string("local_") + legacy_key;
+            return j.value(j.contains(key) ? key.c_str() : legacy_key, default_value);
+        };
+        value.pca_width_x = local_pca_value("pca_width_x", 32u);
+        value.pca_width_y = local_pca_value("pca_width_y", 32u);
+        value.pca_stride_x = local_pca_value("pca_stride_x", 16u);
+        value.pca_stride_y = local_pca_value("pca_stride_y", 16u);
+        value.pca_rank_factor = local_pca_value("pca_rank_factor", 1.f);
+        value.pca_effective_rank_enabled = j.value("pca_effective_rank_enabled", false);
+        value.pca_effective_rank_factor = j.value("pca_effective_rank_factor", 1.f);
         j.at("lambda").get_to(value.lambda);
         j.at("propagation_distance").get_to(value.propagation_distance);
         j.at("convolution").get_to(value.convolution);

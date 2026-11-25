@@ -217,6 +217,14 @@ bool Pipe::make_requests()
         clear_request(ICS::UpdateLsciSpatialWindow);
     }
 
+    if (is_requested(ICS::UpdateLocalPca))
+    {
+        // Discard a partial temporal block when the tile geometry changes.
+        if (setting<settings::TimeTransformation>() == TimeTransformation::LOCAL_PCA)
+            time_transformation_env_.gpu_time_transformation_queue->clear();
+        clear_request(ICS::UpdateLocalPca);
+    }
+
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
     {
@@ -242,6 +250,8 @@ bool Pipe::make_requests()
 
         update_spatial_transformation_parameters();
         input_queue_.resize(setting<settings::BatchSize>());
+        if (setting<settings::TimeTransformation>() == TimeTransformation::LOCAL_PCA)
+            time_transformation_env_.gpu_time_transformation_queue->clear();
         clear_request(ICS::UpdateBatchSize);
     }
 
@@ -408,7 +418,10 @@ void Pipe::refresh()
     }
     else
     {
-        insert_wait_time_stride();
+        // Local PCA consumes every input batch. The ordinary time-stride gate
+        // decimates batches and would turn a temporal block into nonconsecutive samples.
+        if (setting<settings::TimeTransformation>() != TimeTransformation::LOCAL_PCA)
+            insert_wait_time_stride();
         insert_raw_view();
         converts_->insert_complex_conversion(input_queue_);
 
@@ -465,6 +478,18 @@ void Pipe::refresh()
 
     insert_hologram_record();
 
+    if (setting<settings::TimeTransformation>() == TimeTransformation::LOCAL_PCA)
+    {
+        fn_compute_vect_->push_back(
+            [this]()
+            {
+                // Consume the entire temporal block, preserving chronological
+                // order by resetting the ring origin. Keep it full until here:
+                // autocontrast and other display consumers use the fullness flag.
+                time_transformation_env_.gpu_time_transformation_queue->clear();
+            });
+    }
+
     /* The device run asynchronously on its stream (compute stream) with respect
      * to the host The host call device functions, then continues its execution
      * path.
@@ -486,6 +511,8 @@ void Pipe::insert_wait_batch()
             if (input_queue_.has_pending_reset())
             {
                 time_transformation_env_.reset_lsci();
+                if (setting<settings::TimeTransformation>() == TimeTransformation::LOCAL_PCA)
+                    time_transformation_env_.gpu_time_transformation_queue->clear();
                 image_accumulation_->clear();
             }
             input_queue_.apply_pending_reset();
@@ -501,6 +528,8 @@ void Pipe::insert_wait_batch()
                 if (input_queue_.has_pending_reset())
                 {
                     time_transformation_env_.reset_lsci();
+                    if (setting<settings::TimeTransformation>() == TimeTransformation::LOCAL_PCA)
+                        time_transformation_env_.gpu_time_transformation_queue->clear();
                     image_accumulation_->clear();
                 }
                 input_queue_.apply_pending_reset();

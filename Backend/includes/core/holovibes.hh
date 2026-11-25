@@ -103,6 +103,13 @@
     holovibes::settings::TimeStride,                             \
     holovibes::settings::TimeTransformationSize,                 \
     holovibes::settings::LsciSpatialWindow,                      \
+    holovibes::settings::PcaWidthX,                              \
+    holovibes::settings::PcaWidthY,                              \
+    holovibes::settings::PcaStrideX,                             \
+    holovibes::settings::PcaStrideY,                             \
+    holovibes::settings::PcaRankFactor,                          \
+    holovibes::settings::PcaEffectiveRankEnabled,                \
+    holovibes::settings::PcaEffectiveRankFactor,                 \
     holovibes::settings::SpaceTransformation,                    \
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
@@ -437,6 +444,13 @@ class Holovibes
                                              settings::TimeStride{1},
                                              settings::TimeTransformationSize{1},
                                              settings::LsciSpatialWindow{5},
+                                             settings::PcaWidthX{32},
+                                             settings::PcaWidthY{32},
+                                             settings::PcaStrideX{16},
+                                             settings::PcaStrideY{16},
+                                             settings::PcaRankFactor{1.f},
+                                             settings::PcaEffectiveRankEnabled{false},
+                                             settings::PcaEffectiveRankFactor{1.f},
                                              settings::SpaceTransformation{SpaceTransformation::NONE},
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
